@@ -76,6 +76,7 @@ export async function POST(request: Request) {
         url.searchParams.set("query", query);
         url.searchParams.set("num_pages", "2");
         url.searchParams.set("date_posted", "month");
+        url.searchParams.set("country", "in");
         url.searchParams.set(
           "employment_types",
           "FULLTIME,PARTTIME,CONTRACTOR",
