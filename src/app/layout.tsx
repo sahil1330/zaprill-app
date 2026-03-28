@@ -1,25 +1,32 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
 const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-inter',
-  display: 'swap',
-})
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: 'AI Job God — Resume Analyzer & Career GPS',
+  title: "AI Job God — Resume Analyzer & Career GPS",
   description:
-    'Upload your resume and let AI find the best job matches, reveal skill gaps, and build a personalized learning roadmap to land your dream role.',
-  keywords: ['resume analyzer', 'job matching', 'skill gap analysis', 'career guidance', 'AI job search'],
+    "Upload your resume and let AI find the best job matches, reveal skill gaps, and build a personalized learning roadmap to land your dream role.",
+  keywords: [
+    "resume analyzer",
+    "job matching",
+    "skill gap analysis",
+    "career guidance",
+    "AI job search",
+  ],
   openGraph: {
-    title: 'AI Job God — Your AI Career GPS',
-    description: 'Stop guessing. Let AI analyze your resume, match real jobs, and tell you exactly what to learn next.',
-    type: 'website',
+    title: "AI Job God — Your AI Career GPS",
+    description:
+      "Stop guessing. Let AI analyze your resume, match real jobs, and tell you exactly what to learn next.",
+    type: "website",
   },
-}
+};
 
 export default function RootLayout({
   children,
@@ -28,5 +35,5 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body>{children}</body>
     </html>
-  )
+  );
 }
