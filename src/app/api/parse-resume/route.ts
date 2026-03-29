@@ -1,8 +1,8 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { normalizeSkillList } from "@/lib/skill-extractor";
+import { hackclub } from "@/lib/hackClubClient";
 
 export const maxDuration = 60;
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     const mediaType = (file.type || "application/pdf") as "application/pdf";
 
     const { output: parsed } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: hackclub('qwen/qwen3-32b'),
       output: Output.object({ schema: ResumeSchema }),
       messages: [
         {

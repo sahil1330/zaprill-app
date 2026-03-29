@@ -101,6 +101,16 @@ export default function AnalyzePage() {
             "JSearch API Subscription Required: Please go to https://rapidapi.com/letscrape-6bRBa3QG1q/api/jsearch and subscribe to the Free Basic tier.",
           );
         }
+        if (err.error === "ADZUNA_NOT_CONFIGURED") {
+          throw new Error(
+            "Job search not configured: Get free Adzuna API credentials at https://developer.adzuna.com/ and add them to .env.local",
+          );
+        }
+        if (err.error === "RATE_LIMIT") {
+          throw new Error(
+            "JSearch API rate limit reached. Please wait a moment and try again.",
+          );
+        }
         throw new Error(err.error ?? "Failed to search jobs");
       }
       const { jobs: rawJobs } = await jobRes.json();

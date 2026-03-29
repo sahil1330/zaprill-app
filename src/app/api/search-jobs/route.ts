@@ -4,38 +4,24 @@ import type { JobListing } from "@/types";
 
 export const maxDuration = 30;
 
-interface JSearchResult {
-  job_id: string;
-  job_title: string;
-  employer_name: string;
-  job_city?: string;
-  job_state?: string;
-  job_country?: string;
-  job_description: string;
-  job_apply_link: string;
-  job_salary_currency?: string;
-  job_min_salary?: number;
-  job_max_salary?: number;
-  job_employment_type?: string;
-  job_is_remote?: boolean;
-  job_posted_at_datetime_utc?: string;
-  job_publisher?: string;
+interface AdzunaResult {
+  id: string;
+  title: string;
+  company: { display_name: string };
+  location: { display_name: string };
+  description: string;
+  redirect_url: string;
+  salary_min?: number;
+  salary_max?: number;
+  contract_time?: string; // "full_time" | "part_time"
+  created: string; // ISO date
 }
 
-function buildSalaryString(result: JSearchResult): string | undefined {
-  if (result.job_min_salary && result.job_max_salary) {
-    const currency = result.job_salary_currency ?? "USD";
-    return `${currency} ${result.job_min_salary.toLocaleString()} – ${result.job_max_salary.toLocaleString()}`;
+function buildSalaryString(result: AdzunaResult): string | undefined {
+  if (result.salary_min && result.salary_max) {
+    return `INR ${result.salary_min.toLocaleString()} – ${result.salary_max.toLocaleString()}`;
   }
   return undefined;
-}
-
-function buildLocation(result: JSearchResult): string {
-  if (result.job_is_remote) return "Remote";
-  const parts = [result.job_city, result.job_state, result.job_country].filter(
-    Boolean,
-  );
-  return parts.join(", ") || "Location not specified";
 }
 
 export async function POST(request: Request) {
@@ -54,97 +40,91 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.RAPIDAPI_KEY;
-    if (!apiKey) {
+    const appId = process.env.ADZUNA_APP_ID;
+    const appKey = process.env.ADZUNA_APP_KEY;
+    if (!appId || !appKey || appId === "your_app_id_here") {
       return NextResponse.json(
-        { error: "JSearch API key not configured" },
+        {
+          error: "ADZUNA_NOT_CONFIGURED",
+          details:
+            "Get free credentials at https://developer.adzuna.com/ and add ADZUNA_APP_ID + ADZUNA_APP_KEY to .env.local",
+        },
         { status: 500 },
       );
     }
 
-    // Pick the top skills to embed in each query so the API returns skill-relevant results,
-    // not just title-matched ones. We cap at 3 skills to keep the query concise.
-    const topSkills = skills.slice(0, 3).join(" ");
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-    // Build search queries: combine role title + top skills so JSearch does
-    // the heavy lifting before we apply any local filtering.
-    const queries = jobTitles
-      .slice(0, 3)
-      .map(
-        (title) =>
-          `${title} ${topSkills}${location ? ` in ${location}` : ""}`.trim(),
-      );
+    // 3 queries — each fetches 2 pages of 20 results = up to 120 jobs total
+    const queries = jobTitles.slice(0, 3);
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
 
-    for (const query of queries) {
-      try {
-        const url = new URL("https://jsearch.p.rapidapi.com/search");
-        url.searchParams.set("query", query);
-        url.searchParams.set("num_pages", "2");
-        url.searchParams.set("date_posted", "month");
-        url.searchParams.set("country", "in");
-        url.searchParams.set(
-          "employment_types",
-          "FULLTIME,PARTTIME,CONTRACTOR",
-        );
+    for (let i = 0; i < queries.length; i++) {
+      if (i > 0) await sleep(300); // Adzuna is generous but be polite
 
-        const res = await fetch(url.toString(), {
-          headers: {
-            "X-RapidAPI-Key": apiKey,
-            "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
-          },
-        });
+      const title = queries[i];
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          if (data.message === "You are not subscribed to this API.") {
-            return NextResponse.json(
-              {
-                error: "API_SUBSCRIPTION_REQUIRED",
-                details:
-                  "You need to subscribe to the JSearch API on RapidAPI (it has a free tier).",
-              },
-              { status: 403 },
-            );
-          }
-          console.error(`JSearch API error: ${res.status}`, data);
-          continue;
-        }
-        const results: JSearchResult[] = data?.data ?? [];
-
-        for (const result of results) {
-          if (seenIds.has(result.job_id)) continue;
-          seenIds.add(result.job_id);
-
-          // Extract skills from job description using our taxonomy
-          const requiredSkills = extractSkillsFromText(
-            result.job_description ?? "",
+      for (let page = 1; page <= 2; page++) {
+        try {
+          const url = new URL(
+            `https://api.adzuna.com/v1/api/jobs/in/search/${page}`,
           );
+          url.searchParams.set("app_id", appId);
+          url.searchParams.set("app_key", appKey);
+          url.searchParams.set("what", title);
+          url.searchParams.set("results_per_page", "20");
+          url.searchParams.set("content-type", "application/json");
+          if (location) url.searchParams.set("where", location);
 
-          allJobs.push({
-            id: result.job_id,
-            title: result.job_title,
-            company: result.employer_name,
-            location: buildLocation(result),
-            description: result.job_description ?? "",
-            requiredSkills,
-            url: result.job_apply_link,
-            salary: buildSalaryString(result),
-            postedAt: result.job_posted_at_datetime_utc,
-            employmentType: result.job_employment_type,
-            isRemote: result.job_is_remote,
-            publisher: result.job_publisher,
-          });
+          console.log(`[search-jobs] ${title} (page ${page}) → ${url.toString().replace(appKey, "***")}`);
+
+          const res = await fetch(url.toString());
+          console.log(`[search-jobs] "${title}" p${page} → HTTP ${res.status}`);
+
+          if (!res.ok) {
+            const text = await res.text();
+            console.error(`[search-jobs] Error: ${res.status}`, text.slice(0, 200));
+            if (res.status === 429) break; // stop paging this title
+            continue;
+          }
+
+          const data = await res.json();
+          const results: AdzunaResult[] = data?.results ?? [];
+          console.log(`[search-jobs] "${title}" p${page} → ${results.length} results`);
+
+          for (const result of results) {
+            if (seenIds.has(result.id)) continue;
+            seenIds.add(result.id);
+
+            const requiredSkills = extractSkillsFromText(result.description ?? "");
+
+            allJobs.push({
+              id: result.id,
+              title: result.title,
+              company: result.company?.display_name ?? "Unknown",
+              location: result.location?.display_name ?? "India",
+              description: result.description ?? "",
+              requiredSkills,
+              url: result.redirect_url,
+              salary: buildSalaryString(result),
+              postedAt: result.created,
+              employmentType: result.contract_time === "full_time" ? "FULLTIME" : result.contract_time === "part_time" ? "PARTTIME" : undefined,
+              isRemote: result.title.toLowerCase().includes("remote") || result.description.toLowerCase().includes("remote"),
+              publisher: "Adzuna",
+            });
+          }
+
+          // If fewer than 20 results, no point fetching page 2
+          if (results.length < 20) break;
+        } catch (err) {
+          console.error(`[search-jobs] Exception for "${title}" p${page}:`, err);
         }
-      } catch (err) {
-        console.error(`Error fetching jobs for query "${query}":`, err);
       }
     }
 
-    // Deduplicate by title+company as secondary filter
+    // Deduplicate by title + company
     const deduplicated = allJobs.filter(
       (job, idx, arr) =>
         arr.findIndex(
@@ -152,6 +132,7 @@ export async function POST(request: Request) {
         ) === idx,
     );
 
+    console.log(`[search-jobs] Returning ${deduplicated.length} jobs`);
     return NextResponse.json({ jobs: deduplicated.slice(0, 40) });
   } catch (error) {
     console.error("Job search error:", error);

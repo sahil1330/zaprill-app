@@ -1,9 +1,9 @@
-import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { matchJobsToResume, aggregateSkillGaps } from "@/lib/match-engine";
 import type { JobListing } from "@/types";
+import { hackclub } from "@/lib/hackClubClient";
 
 export const maxDuration = 60;
 
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     }
 
     const { output } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: hackclub('qwen/qwen3-32b'),
       output: Output.object({ schema: RoadmapSchema }),
       prompt: `You are a senior tech career coach with deep knowledge of the software industry.
 
