@@ -62,10 +62,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build search queries: just search the role titles (skill matching is handled locally)
+    // Pick the top skills to embed in each query so the API returns skill-relevant results,
+    // not just title-matched ones. We cap at 3 skills to keep the query concise.
+    const topSkills = skills.slice(0, 3).join(" ");
+
+    // Build search queries: combine role title + top skills so JSearch does
+    // the heavy lifting before we apply any local filtering.
     const queries = jobTitles
       .slice(0, 3)
-      .map((title) => `${title}${location ? ` in ${location}` : ""}`);
+      .map(
+        (title) =>
+          `${title} ${topSkills}${location ? ` in ${location}` : ""}`.trim(),
+      );
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
