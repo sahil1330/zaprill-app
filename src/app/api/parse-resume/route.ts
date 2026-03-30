@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     const mediaType = (file.type || 'application/pdf') as 'application/pdf'
 
     const { output: parsed } = await generateText({
-      model: hackclub('qwen/qwen3-32b'),
+      model: hackclub('gemini-3-flash'),
       output: Output.object({ schema: ResumeSchema }),
       messages: [
         {

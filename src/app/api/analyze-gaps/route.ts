@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     }
 
     const { text } = await generateText({
-      model: hackclub("qwen/qwen3-32b"),
+      model: hackclub("gemini-3-flash"),
       prompt: `You are a senior tech career coach. Respond ONLY with valid JSON — no markdown, no explanation, no code fences.
 
 A candidate has these skills: ${resumeSkills.join(", ")}
