@@ -1,4 +1,4 @@
-import { generateText, Output } from "ai";
+import { generateText } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { matchJobsToResume, aggregateSkillGaps } from "@/lib/match-engine";
@@ -7,44 +7,40 @@ import { hackclub } from "@/lib/hackClubClient";
 
 export const maxDuration = 60;
 
-const RoadmapSchema = z.object({
-  roadmap: z.array(
+const RoadmapItemSchema = z.object({
+  skill: z.string(),
+  priority: z.enum(["high", "medium", "low"]),
+  estimatedTime: z.string(),
+  why: z.string(),
+  resources: z.array(
     z.object({
-      skill: z.string(),
-      priority: z.enum(["high", "medium", "low"]),
-      estimatedTime: z.string().describe('e.g. "2-4 weeks", "1-2 months"'),
-      why: z
-        .string()
-        .describe("Why this skill matters for the user's target roles"),
-      resources: z
-        .array(
-          z.object({
-            type: z.enum([
-              "course",
-              "book",
-              "tutorial",
-              "documentation",
-              "practice",
-            ]),
-            name: z.string(),
-            url: z.string().optional(),
-            free: z.boolean(),
-            estimatedTime: z.string().optional(),
-          }),
-        )
-        .max(4),
-      category: z.enum([
-        "language",
-        "framework",
-        "database",
-        "cloud",
-        "tool",
-        "soft",
-        "other",
-      ]),
+      type: z.enum(["course", "book", "tutorial", "documentation", "practice"]),
+      name: z.string(),
+      url: z.string().optional(),
+      free: z.boolean(),
+      estimatedTime: z.string().optional(),
     }),
-  ),
+  ).max(4),
+  category: z.enum(["language", "framework", "database", "cloud", "tool", "soft", "other"]),
 });
+
+const RoadmapSchema = z.object({ roadmap: z.array(RoadmapItemSchema) });
+
+/** Extract the first JSON object/array block from a model response */
+function extractJSON(text: string): string | null {
+  // Find the outermost { ... } block
+  const start = text.indexOf("{");
+  if (start === -1) return null;
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === "{") depth++;
+    else if (text[i] === "}") {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+}
 
 export async function POST(request: Request) {
   try {
@@ -80,10 +76,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ matchedJobs, skillGaps: [], roadmap: [] });
     }
 
-    const { output } = await generateText({
-      model: hackclub('qwen/qwen3-32b'),
-      output: Output.object({ schema: RoadmapSchema }),
-      prompt: `You are a senior tech career coach with deep knowledge of the software industry.
+    const { text } = await generateText({
+      model: hackclub("qwen/qwen3-32b"),
+      prompt: `You are a senior tech career coach. Respond ONLY with valid JSON — no markdown, no explanation, no code fences.
 
 A candidate has these skills: ${resumeSkills.join(", ")}
 They are targeting roles like: ${(inferredJobTitles ?? []).join(", ")}
@@ -91,18 +86,44 @@ They are targeting roles like: ${(inferredJobTitles ?? []).join(", ")}
 They are MISSING these skills that appear frequently in job listings:
 ${topGaps.map((g) => `- ${g.skill} (needed in ${g.frequency} out of ${jobs.length} job listings, priority: ${g.priority})`).join("\n")}
 
-For each missing skill, provide:
-1. A realistic time estimate to become job-ready (not expert)
-2. Why it matters specifically for their target roles
-3. 2-4 specific, high-quality learning resources with real URLs
+Return a JSON object with this exact shape:
+{
+  "roadmap": [
+    {
+      "skill": "skill name",
+      "priority": "high" | "medium" | "low",
+      "estimatedTime": "e.g. 2-4 weeks",
+      "why": "why this skill matters for their target roles",
+      "resources": [
+        { "type": "course" | "book" | "tutorial" | "documentation" | "practice", "name": "resource name", "url": "https://...", "free": true, "estimatedTime": "optional" }
+      ],
+      "category": "language" | "framework" | "database" | "cloud" | "tool" | "soft" | "other"
+    }
+  ]
+}
 
-Focus on practical, actionable guidance. Prefer free/affordable resources. Be specific and encouraging.`,
+Include an entry for each missing skill. Prefer free resources. Use real, working URLs.`,
     });
+
+    // Parse JSON out of the model response (handles thinking tokens / extra text)
+    let roadmap: z.infer<typeof RoadmapSchema>["roadmap"] = [];
+    try {
+      const jsonStr = extractJSON(text) ?? text;
+      const parsed = RoadmapSchema.safeParse(JSON.parse(jsonStr));
+      if (parsed.success) {
+        roadmap = parsed.data.roadmap;
+      } else {
+        console.warn("Roadmap schema validation failed:", parsed.error.issues);
+      }
+    } catch (parseErr) {
+      console.warn("Could not parse roadmap JSON:", parseErr, "\nRaw:", text.slice(0, 300));
+      // Non-fatal — return empty roadmap rather than crashing
+    }
 
     return NextResponse.json({
       matchedJobs: matchedJobs.slice(0, 30),
       skillGaps,
-      roadmap: output?.roadmap ?? [],
+      roadmap,
     });
   } catch (error) {
     console.error("Gap analysis error:", error);
@@ -112,3 +133,4 @@ Focus on practical, actionable guidance. Prefer free/affordable resources. Be sp
     );
   }
 }
+
