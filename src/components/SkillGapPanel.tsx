@@ -5,11 +5,13 @@ import type { SkillGap, ParsedResume } from "@/types";
 import SkillBadge from "./SkillBadge";
 import {
   TrendingUp,
-  AlertTriangle,
+  AlertCircle,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface SkillGapPanelProps {
   resume: ParsedResume;
@@ -18,22 +20,14 @@ interface SkillGapPanelProps {
 }
 
 function PriorityDot({ priority }: { priority: SkillGap["priority"] }) {
-  const colors = {
-    high: "#ef4444",
-    medium: "#f59e0b",
-    low: "#6b7280",
+  const colorMap = {
+    high: "bg-foreground",
+    medium: "bg-muted-foreground",
+    low: "bg-border",
   };
   return (
     <span
-      style={{
-        width: 6,
-        height: 6,
-        borderRadius: "50%",
-        background: colors[priority],
-        flexShrink: 0,
-        boxShadow: `0 0 6px ${colors[priority]}`,
-        display: "inline-block",
-      }}
+      className={`w-2 h-2 rounded shrink-0 inline-block ${colorMap[priority]}`}
     />
   );
 }
@@ -57,254 +51,142 @@ export default function SkillGapPanel({
     : resume.skills.slice(0, LIMIT);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* LEFT: Skills You Have */}
-      <div className="glass-card-static" style={{ padding: "20px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 16,
-          }}
-        >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "rgba(16, 185, 129, 0.15)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid rgba(16,185,129,0.25)",
-            }}
-          >
-            <CheckCircle2 size={16} color="#10b981" />
+      <Card className="rounded-xl overflow-hidden shadow-sm border-border">
+        <CardContent className="p-6 flex flex-col h-full bg-card">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+            <div className="w-8 h-8 rounded shrink-0 bg-muted/50 flex items-center justify-center border border-border">
+              <CheckCircle2 className="h-4 w-4 text-foreground" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">
+                Skills You Have
+              </h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                {resume.skills.length} skills detected
+              </p>
+            </div>
           </div>
-          <div>
-            <h3
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                marginBottom: 0,
-              }}
+
+          <div className="flex flex-wrap gap-2 mb-4 flex-1 content-start">
+            {displayedHave.map((skill) => (
+              <SkillBadge key={skill} skill={skill} variant="matched" size="sm" />
+            ))}
+          </div>
+
+          {resume.skills.length > LIMIT && (
+            <Button
+              variant="outline"
+              size="sm"
+              id="toggle-have-skills-btn"
+              onClick={() => setShowAllHave(!showAllHave)}
+              className="text-xs h-8 w-full mt-auto font-medium"
             >
-              Skills You Have
-            </h3>
-            <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-              {resume.skills.length} skills detected
-            </p>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 6,
-            marginBottom: 12,
-          }}
-        >
-          {displayedHave.map((skill) => (
-            <SkillBadge key={skill} skill={skill} variant="matched" size="sm" />
-          ))}
-        </div>
-
-        {resume.skills.length > LIMIT && (
-          <button
-            className="btn-ghost"
-            id="toggle-have-skills-btn"
-            onClick={() => setShowAllHave(!showAllHave)}
-            style={{
-              fontSize: "12px",
-              padding: "5px 10px",
-              width: "100%",
-              justifyContent: "center",
-            }}
-          >
-            {showAllHave ? (
-              <>
-                <ChevronUp size={12} /> Show less
-              </>
-            ) : (
-              <>
-                <ChevronDown size={12} /> +{resume.skills.length - LIMIT} more
-              </>
-            )}
-          </button>
-        )}
-      </div>
+              {showAllHave ? (
+                <>
+                  <ChevronUp className="mr-1.5 h-3.5 w-3.5" /> Show less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="mr-1.5 h-3.5 w-3.5" /> +{resume.skills.length - LIMIT} more
+                </>
+              )}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
       {/* RIGHT: Skills You're Missing */}
-      <div className="glass-card-static" style={{ padding: "20px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 16,
-          }}
-        >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "rgba(239, 68, 68, 0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid rgba(239,68,68,0.25)",
-            }}
-          >
-            <AlertTriangle size={16} color="#ef4444" />
-          </div>
-          <div>
-            <h3
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                marginBottom: 0,
-              }}
-            >
-              Skills to Learn
-            </h3>
-            <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-              {skillGaps.length} gaps across {totalJobs} jobs
-            </p>
-          </div>
-        </div>
-
-        {/* Priority breakdown */}
-        {highPriority.length > 0 && (
-          <div style={{ marginBottom: 10 }}>
-            <p
-              style={{
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                marginBottom: 6,
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <PriorityDot priority="high" /> High priority
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {displayedGaps
-                .filter((g) => g.priority === "high")
-                .map((g) => (
-                  <span
-                    key={g.skill}
-                    className="badge badge-danger"
-                    style={{
-                      padding: "3px 8px",
-                      fontSize: "11px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <PriorityDot priority="high" />
-                    {g.skill}
-                    <span style={{ opacity: 0.6 }}>{g.frequency}</span>
-                  </span>
-                ))}
+      <Card className="rounded-xl overflow-hidden shadow-sm border-border">
+        <CardContent className="p-6 flex flex-col h-full bg-card">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+            <div className="w-8 h-8 rounded shrink-0 bg-muted/50 flex items-center justify-center border border-border">
+              <AlertCircle className="h-4 w-4 text-foreground" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">
+                Skills to Learn
+              </h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                {skillGaps.length} gaps across {totalJobs} jobs
+              </p>
             </div>
           </div>
-        )}
 
-        {mediumPriority.length > 0 && (
-          <div style={{ marginBottom: 10 }}>
-            <p
-              style={{
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                marginBottom: 6,
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <PriorityDot priority="medium" /> Medium priority
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {displayedGaps
-                .filter((g) => g.priority === "medium")
-                .map((g) => (
-                  <span
-                    key={g.skill}
-                    className="badge badge-warning"
-                    style={{
-                      padding: "3px 8px",
-                      fontSize: "11px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <PriorityDot priority="medium" />
-                    {g.skill}
-                    <span style={{ opacity: 0.6 }}>{g.frequency}</span>
-                  </span>
-                ))}
+          {/* Priority breakdown */}
+          <div className="flex-1 space-y-5">
+            {highPriority.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <PriorityDot priority="high" /> High priority
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {displayedGaps
+                    .filter((g) => g.priority === "high")
+                    .map((g) => (
+                      <span
+                        key={g.skill}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-foreground bg-foreground text-background"
+                      >
+                        {g.skill}
+                        <span className="opacity-70 text-[10px] pl-1 font-medium border-l border-background/20">{g.frequency}</span>
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {mediumPriority.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <PriorityDot priority="medium" /> Medium priority
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {displayedGaps
+                    .filter((g) => g.priority === "medium")
+                    .map((g) => (
+                      <span
+                        key={g.skill}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-border bg-muted text-foreground"
+                      >
+                        {g.skill}
+                        <span className="opacity-60 text-[10px] pl-1 font-medium border-l border-border">{g.frequency}</span>
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {lowPriority.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <PriorityDot priority="low" /> Nice to have
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {displayedGaps
+                    .filter((g) => g.priority === "low")
+                    .map((g) => (
+                      <span
+                        key={g.skill}
+                        className="inline-flex px-2.5 py-1 rounded-md text-[11px] font-semibold border border-transparent bg-muted/50 text-muted-foreground"
+                      >
+                        {g.skill}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {highPriority.length > 0 && (
+            <div className="flex items-start gap-2.5 mt-6 p-3 bg-muted rounded border border-border text-xs text-foreground font-medium">
+              <TrendingUp className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
+              <span className="leading-relaxed">Focus on high-priority skills first — these appear most frequently across all sampled job listings for your target roles.</span>
             </div>
-          </div>
-        )}
-
-        {lowPriority.length > 0 && (
-          <div style={{ marginBottom: 12 }}>
-            <p
-              style={{
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                marginBottom: 6,
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              <PriorityDot priority="low" /> Nice to have
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-              {displayedGaps
-                .filter((g) => g.priority === "low")
-                .map((g) => (
-                  <span
-                    key={g.skill}
-                    className="badge badge-neutral"
-                    style={{ padding: "3px 8px", fontSize: "11px" }}
-                  >
-                    {g.skill}
-                  </span>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* "Trending" indicator */}
-        {highPriority.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "8px 12px",
-              background: "rgba(99,102,241,0.08)",
-              borderRadius: 8,
-              border: "1px solid rgba(99,102,241,0.15)",
-              fontSize: "12px",
-              color: "#a5b4fc",
-            }}
-          >
-            <TrendingUp size={12} />
-            Focus on high-priority skills — they appear in 50%+ of job listings
-          </div>
-        )}
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

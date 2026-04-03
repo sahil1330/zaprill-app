@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ matchedJobs, skillGaps: [], roadmap: [] });
     }
 
-    const { text } = await generateText({
+    const { text, usage } = await generateText({
       model: hackclub("google/gemini-2.5-flash"),
       prompt: `You are a senior tech career coach. Respond ONLY with valid JSON — no markdown, no explanation, no code fences.
 
@@ -104,7 +104,7 @@ Return a JSON object with this exact shape:
 
 Include an entry for each missing skill. Prefer free resources. Use real, working URLs.`,
     });
-
+    console.log("analyze gaps usage", usage);
     // Parse JSON out of the model response (handles thinking tokens / extra text)
     let roadmap: z.infer<typeof RoadmapSchema>["roadmap"] = [];
     try {

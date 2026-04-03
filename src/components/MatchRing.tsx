@@ -1,113 +1,58 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
 interface MatchRingProps {
   percentage: number;
   size?: number;
   strokeWidth?: number;
-  showLabel?: boolean;
-}
-
-function getColor(pct: number): string {
-  if (pct >= 75) return "#10b981"; // green
-  if (pct >= 50) return "#f59e0b"; // amber
-  return "#ef4444"; // red
-}
-
-function getGlowColor(pct: number): string {
-  if (pct >= 75) return "rgba(16, 185, 129, 0.4)";
-  if (pct >= 50) return "rgba(245, 158, 11, 0.4)";
-  return "rgba(239, 68, 68, 0.4)";
 }
 
 export default function MatchRing({
   percentage,
-  size = 80,
-  strokeWidth = 7,
-  showLabel = true,
+  size = 64,
+  strokeWidth = 4,
 }: MatchRingProps) {
-  const circleRef = useRef<SVGCircleElement>(null);
   const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const color = getColor(percentage);
-  const glowColor = getGlowColor(percentage);
-  const dashOffset = circumference - (percentage / 100) * circumference;
-
-  useEffect(() => {
-    const circle = circleRef.current;
-    if (!circle) return;
-    circle.style.strokeDashoffset = `${circumference}`;
-    const raf = requestAnimationFrame(() => {
-      circle.style.transition =
-        "stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)";
-      circle.style.strokeDashoffset = `${dashOffset}`;
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [circumference, dashOffset]);
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div
-      style={{ position: "relative", width: size, height: size, flexShrink: 0 }}
-    >
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        {/* Track */}
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg className="w-full h-full -rotate-90 transform" viewBox={`0 0 ${size} ${size}`}>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke="var(--muted)"
           strokeWidth={strokeWidth}
+          className="transition-colors duration-500"
         />
-        {/* Progress */}
         <circle
-          ref={circleRef}
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={color}
+          stroke="var(--foreground)"
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
           strokeDasharray={circumference}
-          strokeDashoffset={circumference}
-          style={{ filter: `drop-shadow(0 0 6px ${glowColor})` }}
+          strokeDashoffset={offset}
+          strokeLinecap="square"
+          className="transition-all duration-1000 ease-out"
+          style={{ 
+            animation: "progress-fill 1s ease-out forwards" 
+          }}
         />
       </svg>
-      {showLabel && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <span
-            style={{
-              fontSize: size < 72 ? "13px" : "16px",
-              fontWeight: 700,
-              color,
-            }}
-          >
-            {percentage}%
+      <div className="absolute flex flex-col items-center justify-center">
+        <span className="font-bold text-foreground leading-none" style={{ fontSize: size * 0.3 }}>
+          {percentage}%
+        </span>
+        {size >= 64 && (
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">
+            Match
           </span>
-          {size >= 72 && (
-            <span
-              style={{
-                fontSize: "10px",
-                color: "var(--text-muted)",
-                marginTop: 1,
-              }}
-            >
-              match
-            </span>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

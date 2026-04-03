@@ -13,6 +13,7 @@ import {
   FileText,
   Dumbbell,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface LearningRoadmapProps {
   roadmap: RoadmapItem[];
@@ -20,22 +21,22 @@ interface LearningRoadmapProps {
 
 const PRIORITY_STYLES = {
   high: {
-    bg: "rgba(239,68,68,0.1)",
-    border: "rgba(239,68,68,0.25)",
-    color: "#f87171",
+    bg: "bg-foreground",
+    border: "border-foreground",
+    color: "text-background",
     label: "High Priority",
   },
   medium: {
-    bg: "rgba(245,158,11,0.1)",
-    border: "rgba(245,158,11,0.25)",
-    color: "#fbbf24",
+    bg: "bg-muted",
+    border: "border-border",
+    color: "text-foreground",
     label: "Medium",
   },
   low: {
-    bg: "rgba(107,114,128,0.1)",
-    border: "rgba(107,114,128,0.25)",
-    color: "#9ca3af",
-    label: "Nice to have",
+    bg: "bg-background",
+    border: "border-border",
+    color: "text-muted-foreground",
+    label: "Nice To Have",
   },
 };
 
@@ -52,97 +53,36 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
   const style = PRIORITY_STYLES[item.priority];
 
   return (
-    <div
-      className="glass-card-static"
-      style={{
-        padding: 0,
-        overflow: "hidden",
-        border: `1px solid ${expanded ? style.border : "var(--border-subtle)"}`,
-        transition: "border-color 0.3s",
-      }}
+    <Card 
+      className={`overflow-hidden transition-all rounded-xl shadow-sm border ${expanded ? "border-foreground/20 bg-card" : "border-border bg-card/50"}`} 
       id={`roadmap-item-${index}`}
     >
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        style={{
-          width: "100%",
-          padding: "16px 18px",
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          textAlign: "left",
-        }}
+        className="w-full p-5 flex items-center gap-4 bg-transparent border-none cursor-pointer text-left hover:bg-muted/30 transition-colors focus-visible:outline-none"
         id={`roadmap-toggle-${index}`}
         aria-expanded={expanded}
       >
         {/* Step number */}
         <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            flexShrink: 0,
-            background: style.bg,
-            border: `1px solid ${style.border}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "13px",
-            fontWeight: 700,
-            color: style.color,
-          }}
+          className={`w-9 h-9 rounded-sm shrink-0 flex items-center justify-center text-sm font-bold border ${style.bg} ${style.border} ${style.color}`}
         >
           {index + 1}
         </div>
 
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 3,
-            }}
-          >
-            <span
-              style={{
-                fontSize: "15px",
-                fontWeight: 600,
-                color: "var(--text-primary)",
-                textTransform: "capitalize",
-              }}
-            >
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-1.5 pl-1">
+            <span className="text-base font-bold text-foreground capitalize tracking-tight">
               {item.skill}
             </span>
-            <span
-              style={{
-                fontSize: "11px",
-                padding: "2px 7px",
-                borderRadius: 999,
-                background: style.bg,
-                border: `1px solid ${style.border}`,
-                color: style.color,
-                fontWeight: 500,
-              }}
-            >
+            <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border ${style.bg} ${style.border} ${style.color}`}>
               {style.label}
             </span>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              fontSize: "12px",
-              color: "var(--text-muted)",
-            }}
-          >
-            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <Clock size={11} /> {item.estimatedTime}
+          <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground pl-1">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" /> {item.estimatedTime}
             </span>
             <span>·</span>
             <span>{item.resources.length} resources</span>
@@ -150,88 +90,41 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
         </div>
 
         {expanded ? (
-          <ChevronUp size={16} color="var(--text-muted)" />
+          <ChevronUp className="w-5 h-5 text-muted-foreground" />
         ) : (
-          <ChevronDown size={16} color="var(--text-muted)" />
+          <ChevronDown className="w-5 h-5 text-muted-foreground" />
         )}
       </button>
 
       {/* Expanded content */}
       {expanded && (
-        <div
-          style={{
-            padding: "0 18px 18px",
-            borderTop: "1px solid var(--border-subtle)",
-          }}
-        >
+        <CardContent className="px-6 pb-6 pt-0 border-t border-border mt-1">
           {/* Why */}
-          <p
-            style={{
-              fontSize: "13px",
-              color: "var(--text-secondary)",
-              lineHeight: 1.6,
-              padding: "12px 0",
-            }}
-          >
-            💡 {item.why}
+          <p className="text-sm font-medium text-muted-foreground leading-relaxed py-4">
+            <span className="font-bold text-foreground">Why: </span>{item.why}
           </p>
 
           {/* Resources */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="flex flex-col gap-2.5">
             {item.resources.map((res, i) => {
               const Icon = RESOURCE_ICONS[res.type] ?? FileText;
               return (
                 <div
                   key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
+                  className="flex items-center gap-3 p-3 rounded-md bg-background border border-border group hover:border-foreground/30 transition-colors"
                 >
-                  <div
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 6,
-                      flexShrink: 0,
-                      background: "rgba(99,102,241,0.1)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Icon size={13} color="#a5b4fc" />
+                  <div className="w-8 h-8 rounded shrink-0 bg-muted flex items-center justify-center text-foreground border border-border">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        color: "var(--text-primary)",
-                        marginBottom: 1,
-                      }}
-                    >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate pl-1">
                       {res.name}
                     </p>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        fontSize: "11px",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      <span style={{ textTransform: "capitalize" }}>
-                        {res.type}
-                      </span>
+                    <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground mt-0.5 pl-1">
+                      <span className="uppercase tracking-wider">{res.type}</span>
                       {res.estimatedTime && <span>· {res.estimatedTime}</span>}
-                      <span style={{ color: res.free ? "#34d399" : "#a5b4fc" }}>
-                        · {res.free ? "🆓 Free" : "💳 Paid"}
+                      <span className={`px-1.5 py-0.5 rounded-sm border ${res.free ? 'bg-muted text-foreground border-border' : 'bg-background border-border text-muted-foreground'}`}>
+                        {res.free ? "Free" : "Paid"}
                       </span>
                     </div>
                   </div>
@@ -241,28 +134,18 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       id={`resource-link-${index}-${i}`}
-                      style={{
-                        color: "var(--text-muted)",
-                        transition: "color 0.2s",
-                        flexShrink: 0,
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = "var(--accent-primary)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = "var(--text-muted)")
-                      }
+                      className="text-muted-foreground transition-colors shrink-0 p-2 hover:text-foreground hover:bg-muted rounded"
                     >
-                      <ExternalLink size={14} />
+                      <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
                 </div>
               );
             })}
           </div>
-        </div>
+        </CardContent>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -275,7 +158,7 @@ export default function LearningRoadmap({ roadmap }: LearningRoadmapProps) {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div className="flex flex-col gap-3">
       {sorted.map((item, idx) => (
         <RoadmapCard key={item.skill} item={item} index={idx} />
       ))}

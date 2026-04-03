@@ -11,6 +11,9 @@ import {
 import type { JobMatch } from "@/types";
 import MatchRing from "./MatchRing";
 import SkillBadge from "./SkillBadge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 
 interface JobCardProps {
   job: JobMatch;
@@ -30,251 +33,130 @@ function timeAgo(dateStr?: string): string {
 
 export default function JobCard({ job, rank }: JobCardProps) {
   const postedText = timeAgo(job.postedAt);
-  const showMatched = job.matchedSkills.slice(0, 4);
-  const showMissing = job.missingSkills.slice(0, 3);
+  const showMatched = job.matchedSkills.slice(0, 5);
+  const showMissing = job.missingSkills.slice(0, 4);
+
+  const getRankStyles = (idx: number) => {
+    if (idx === 0) return "bg-foreground text-background font-bold";
+    if (idx <= 2) return "bg-muted text-foreground font-bold border-border border";
+    return "bg-background text-muted-foreground font-semibold border-border border";
+  };
 
   return (
-    <div
-      className="glass-card animate-slide-up"
+    <Card
+      className="animate-slide-up flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all hover:border-foreground/40 bg-card rounded-2xl overflow-hidden"
       style={{
-        padding: "20px",
         animationDelay: `${rank * 60}ms`,
         animationFillMode: "both",
       }}
       id={`job-card-${job.id}`}
     >
-      {/* Header row */}
-      <div
-        style={{
-          display: "flex",
-          gap: 16,
-          alignItems: "flex-start",
-          marginBottom: 14,
-        }}
-      >
-        {/* Rank badge */}
-        <div
-          style={{
-            flexShrink: 0,
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background:
-              rank === 0
-                ? "linear-gradient(135deg, #f59e0b, #ef4444)"
-                : rank <= 2
-                  ? "rgba(99, 102, 241, 0.2)"
-                  : "rgba(255,255,255,0.05)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "12px",
-            fontWeight: 700,
-            color:
-              rank === 0 ? "#fff" : rank <= 2 ? "#a5b4fc" : "var(--text-muted)",
-            border: rank === 0 ? "none" : "1px solid var(--border-subtle)",
-          }}
-        >
-          #{rank + 1}
+      <CardContent className="p-7 flex flex-col flex-1">
+        {/* Header row */}
+        <div className="flex gap-5 items-start mb-6">
+          {/* Rank badge */}
+          <div
+            className={`shrink-0 w-10 h-10 rounded-md flex items-center justify-center text-sm ${getRankStyles(rank)}`}
+          >
+            #{rank + 1}
+          </div>
+
+          {/* Title + company */}
+          <div className="flex-1 min-w-0 pt-0.5">
+            <h3 className="text-xl font-black text-foreground mb-2 leading-tight truncate">
+              {job.title}
+            </h3>
+            <div className="flex items-center gap-3 text-muted-foreground text-sm flex-wrap">
+              <Building2 className="h-4 w-4 shrink-0" />
+              <span className="font-semibold text-foreground">{job.company}</span>
+              <span className="opacity-50">·</span>
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span className="font-medium truncate max-w-[200px]">{job.location}</span>
+              {job.isRemote && (
+                <>
+                  <span className="opacity-50">·</span>
+                  <Badge variant="outline" className="px-2 py-0.5 text-xs h-6 leading-none bg-muted text-foreground gap-1.5 rounded-sm uppercase tracking-wider font-bold">
+                    <Wifi className="h-3 w-3" /> Remote
+                  </Badge>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Match ring */}
+          <MatchRing percentage={job.matchPercentage} size={60} strokeWidth={5} />
         </div>
 
-        {/* Title + company */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h3
-            style={{
-              fontSize: "15px",
-              fontWeight: 600,
-              color: "var(--text-primary)",
-              marginBottom: 4,
-              lineHeight: 1.3,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {job.title}
-          </h3>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              color: "var(--text-secondary)",
-              fontSize: "13px",
-              flexWrap: "wrap",
-            }}
-          >
-            <Building2 size={12} />
-            <span style={{ fontWeight: 500 }}>{job.company}</span>
-            <span style={{ color: "var(--text-muted)" }}>·</span>
-            <MapPin size={12} />
-            <span>{job.location}</span>
-            {job.isRemote && (
-              <>
-                <span style={{ color: "var(--text-muted)" }}>·</span>
-                <span
-                  className="badge badge-success"
-                  style={{
-                    padding: "2px 6px",
-                    fontSize: "11px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 3,
-                  }}
-                >
-                  <Wifi size={9} /> Remote
+        {/* Meta row */}
+        <div className="flex gap-4 mb-8 flex-wrap text-sm font-semibold">
+          {job.salary && (
+            <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
+              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">Salary</span>
+              <span className="flex items-center"><DollarSign className="h-3.5 w-3.5" />{job.salary}</span>
+            </span>
+          )}
+          {job.employmentType && (
+            <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
+              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">Type</span>
+              <span className="capitalize">{job.employmentType.replace("_", " ").toLowerCase()}</span>
+            </span>
+          )}
+          {postedText && (
+            <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
+              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">Posted</span>
+              <span className="flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5" />{postedText}</span>
+            </span>
+          )}
+        </div>
+
+        {/* Skills */}
+        <div className="mb-8 flex-1 space-y-4">
+          {showMatched.length > 0 && (
+            <div className="flex gap-2 flex-wrap items-center">
+              <span className="text-xs font-bold text-foreground uppercase tracking-widest w-20">
+                Matched
+              </span>
+              {showMatched.map((s) => (
+                <SkillBadge key={s} skill={s} variant="matched" size="md" />
+              ))}
+              {job.matchedSkills.length > 5 && (
+                <span className="text-xs text-muted-foreground font-bold pl-1 border-l border-border ml-1">
+                  +{job.matchedSkills.length - 5}
                 </span>
-              </>
-            )}
-          </div>
+              )}
+            </div>
+          )}
+          {showMissing.length > 0 && (
+            <div className="flex gap-2 flex-wrap items-center">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest w-20">
+                Missing
+              </span>
+              {showMissing.map((s) => (
+                <SkillBadge key={s} skill={s} variant="missing" size="md" />
+              ))}
+              {job.missingSkills.length > 4 && (
+                <span className="text-xs text-muted-foreground font-bold pl-1 border-l border-border ml-1">
+                  +{job.missingSkills.length - 4}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Match ring */}
-        <MatchRing percentage={job.matchPercentage} size={72} />
-      </div>
-
-      {/* Meta row */}
-      <div
-        style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap" }}
-      >
-        {job.salary && (
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: "12px",
-              color: "#34d399",
-            }}
+        {/* Apply button */}
+        <div className="mt-auto pt-5 border-t border-border">
+          <a
+            href={job.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants({ variant: "default", size: "lg" }) + " w-full font-bold text-base gap-2"}
+            id={`apply-btn-${job.id}`}
           >
-            <DollarSign size={11} /> {job.salary}
-          </span>
-        )}
-        {job.employmentType && (
-          <span
-            style={{
-              fontSize: "12px",
-              color: "var(--text-muted)",
-              textTransform: "capitalize",
-            }}
-          >
-            {job.employmentType.replace("_", " ").toLowerCase()}
-          </span>
-        )}
-        {postedText && (
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: "12px",
-              color: "var(--text-muted)",
-              marginLeft: "auto",
-            }}
-          >
-            <Clock size={11} /> {postedText}
-          </span>
-        )}
-      </div>
-
-      {/* Skills */}
-      <div style={{ marginBottom: 14 }}>
-        {showMatched.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              gap: 6,
-              flexWrap: "wrap",
-              marginBottom: 6,
-            }}
-          >
-            <span
-              style={{
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                alignSelf: "center",
-                flexShrink: 0,
-              }}
-            >
-              ✅
-            </span>
-            {showMatched.map((s) => (
-              <SkillBadge key={s} skill={s} variant="matched" size="sm" />
-            ))}
-            {job.matchedSkills.length > 4 && (
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-muted)",
-                  alignSelf: "center",
-                }}
-              >
-                +{job.matchedSkills.length - 4} more
-              </span>
-            )}
-          </div>
-        )}
-        {showMissing.length > 0 && (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            <span
-              style={{
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                alignSelf: "center",
-                flexShrink: 0,
-              }}
-            >
-              ❌
-            </span>
-            {showMissing.map((s) => (
-              <SkillBadge key={s} skill={s} variant="missing" size="sm" />
-            ))}
-            {job.missingSkills.length > 3 && (
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-muted)",
-                  alignSelf: "center",
-                }}
-              >
-                +{job.missingSkills.length - 3} gaps
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Apply button */}
-      <a
-        href={job.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        id={`apply-btn-${job.id}`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          fontSize: "13px",
-          fontWeight: 500,
-          color: "var(--accent-primary)",
-          padding: "7px 14px",
-          border: "1px solid var(--border-accent)",
-          borderRadius: 8,
-          transition: "all 0.2s",
-          background: "rgba(99, 102, 241, 0.05)",
-        }}
-        onMouseEnter={(e) => {
-          const t = e.currentTarget;
-          t.style.background = "rgba(99, 102, 241, 0.15)";
-        }}
-        onMouseLeave={(e) => {
-          const t = e.currentTarget;
-          t.style.background = "rgba(99, 102, 241, 0.05)";
-        }}
-      >
-        <ExternalLink size={13} />
-        Apply Now
-      </a>
-    </div>
+            Apply for this position
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

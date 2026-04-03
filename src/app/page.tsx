@@ -4,48 +4,40 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import ResumeUploader from "@/components/ResumeUploader";
 import {
-  Sparkles,
   Target,
   TrendingUp,
   Map,
   ArrowRight,
-  Zap,
   Shield,
   Globe,
+  Loader2,
+  BriefcaseIcon,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { GridPattern } from "@/components/ui/file-upload";
+import { WordFadeIn } from "@/components/ui/word-fade-in";
 
 const FEATURES = [
   {
     icon: Target,
     title: "AI Resume Parsing",
-    description:
-      "Gemini AI extracts every skill, project, and experience from your resume with surgical precision.",
-    color: "#6366f1",
-    bg: "rgba(99,102,241,0.1)",
+    description: "Our intelligence engine extracts every skill, project, and experience from your resume with surgical precision.",
   },
   {
     icon: Globe,
     title: "Real Job Search",
-    description:
-      "Live job listings from LinkedIn, Indeed, Google Jobs — matched to your exact skill profile.",
-    color: "#06b6d4",
-    bg: "rgba(6,182,212,0.1)",
+    description: "Live job listings from LinkedIn, Indeed, Google Jobs — matched to your exact skill profile.",
   },
   {
     icon: TrendingUp,
     title: "Skill Match Score",
-    description:
-      "See your compatibility percentage for each role. Know exactly where you stand before applying.",
-    color: "#10b981",
-    bg: "rgba(16,185,129,0.1)",
+    description: "See your compatibility percentage for each role. Know exactly where you stand before applying.",
   },
   {
     icon: Map,
     title: "Learning Roadmap",
-    description:
-      "Personalized action plan: skills to learn, resources to use, and timeline to get job-ready.",
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.1)",
+    description: "Personalized action plan: skills to learn, resources to use, and timeline to get job-ready.",
   },
 ];
 
@@ -72,7 +64,6 @@ export default function HomePage() {
     setError(null);
 
     try {
-      // Parse resume
       const formData = new FormData();
       formData.append("resume", selectedFile);
 
@@ -86,7 +77,6 @@ export default function HomePage() {
       }
       const resume = await parseRes.json();
 
-      // Store in sessionStorage so analyze page can read it without re-parsing
       sessionStorage.setItem("ai_job_god_resume", JSON.stringify(resume));
       router.push("/analyze");
     } catch (err) {
@@ -96,350 +86,124 @@ export default function HomePage() {
   };
 
   return (
-    <main
-      style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}
-    >
+    <main className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+      {/* Background Grid Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none [mask-image:linear-gradient(to_bottom,white,transparent)] opacity-50 dark:opacity-20">
+        <GridPattern />
+      </div>
+
       {/* Nav */}
-      <nav
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: "rgba(5,8,17,0.8)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid var(--border-subtle)",
-          padding: "0 24px",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            height: 60,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                background: "var(--gradient-primary)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Zap size={16} color="#fff" />
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50 px-6">
+        <div className="max-w-6xl mx-auto h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-foreground flex items-center justify-center">
+              <BriefcaseIcon className="h-4 w-4 text-background" />
             </div>
-            <span
-              style={{
-                fontWeight: 700,
-                fontSize: "16px",
-                letterSpacing: "-0.02em",
-                color: "var(--text-primary)",
-              }}
-            >
+            <span className="font-bold text-lg tracking-tight text-foreground">
               AI Job God
             </span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div className="glow-dot" />
-            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-              Powered by Gemini AI
-            </span>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section
-        style={{
-          flex: 1,
-          paddingTop: 120,
-          paddingBottom: 80,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          padding: "120px 24px 80px",
-        }}
-      >
-        <div className="animate-fade-in" style={{ marginBottom: 24 }}>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "6px 16px",
-              borderRadius: 999,
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.25)",
-              fontSize: "13px",
-              fontWeight: 500,
-              color: "#a5b4fc",
-              marginBottom: 24,
-            }}
-          >
-            <Sparkles size={13} />
-            Not just an ATS checker — your AI career GPS
+      <section className="flex-1 pt-32 pb-20 flex flex-col items-center text-center px-6 relative z-10 w-full max-w-6xl mx-auto">
+        <div className="mb-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Not just an ATS checker
           </span>
         </div>
 
-        <h1
-          className="animate-slide-up"
-          style={{
-            fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 900,
-            letterSpacing: "-0.04em",
-            lineHeight: 1.1,
-            maxWidth: 800,
-            marginBottom: 24,
-            animationDelay: "100ms",
-            animationFillMode: "both",
-          }}
-        >
-          Your Resume, <span className="gradient-text">Decoded by AI</span>
-        </h1>
+        <WordFadeIn 
+          words="Your Resume, Decoded by AI." 
+          className="text-5xl md:text-7xl font-black tracking-tighter leading-tight max-w-4xl mb-6 text-foreground"
+        />
 
-        <p
-          className="animate-slide-up"
-          style={{
-            fontSize: "18px",
-            color: "var(--text-secondary)",
-            maxWidth: 560,
-            lineHeight: 1.7,
-            marginBottom: 48,
-            animationDelay: "200ms",
-            animationFillMode: "both",
-          }}
-        >
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-12">
           Upload your resume. We'll find real jobs matching your skills, show
           you exactly where you fall short, and build a personalized roadmap to
           get you hired.
         </p>
 
+        {/* Form area / Upload */}
+        <div className="w-full max-w-3xl flex flex-col items-center border border-border/50 bg-background/50 backdrop-blur-xl rounded-2xl shadow-sm p-2 md:p-4 mb-20">
+          <ResumeUploader onUpload={handleUpload} disabled={isAnalyzing} />
+          
+          <div className="w-full mt-4 flex flex-col md:flex-row items-center justify-between gap-4 px-4 bg-muted/30 py-3 rounded-lg border border-border/50">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="h-4 w-4" />
+              <span className="text-xs font-medium">
+                100% private — processed on request, never saved.
+              </span>
+            </div>
+
+            <Button
+              id="analyze-resume-btn"
+              onClick={handleAnalyze}
+              disabled={!selectedFile || isAnalyzing}
+              className="w-full md:w-auto transition-all"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  Analyze Resume
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+          {error && (
+            <div className="w-full mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm font-medium">
+              ⚠️ {error}
+            </div>
+          )}
+        </div>
+
         {/* Stats */}
-        <div
-          className="animate-slide-up"
-          style={{
-            display: "flex",
-            gap: 40,
-            marginBottom: 64,
-            animationDelay: "300ms",
-            animationFillMode: "both",
-          }}
-        >
+        <div className="grid grid-cols-3 gap-8 md:gap-16 pt-10 border-t border-border/50 w-full max-w-3xl">
           {STATS.map((stat) => (
-            <div key={stat.label} style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  fontSize: "24px",
-                  fontWeight: 800,
-                  color: "var(--text-primary)",
-                  letterSpacing: "-0.03em",
-                }}
-              >
+            <div key={stat.label} className="text-center">
+              <div className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                 {stat.value}
               </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "var(--text-muted)",
-                  marginTop: 2,
-                }}
-              >
+              <div className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wide">
                 {stat.label}
               </div>
             </div>
           ))}
         </div>
-
-        {/* Upload Card */}
-        <div
-          className="glass-card-static animate-slide-up"
-          style={{
-            width: "100%",
-            maxWidth: 560,
-            padding: "32px",
-            animationDelay: "400ms",
-            animationFillMode: "both",
-            boxShadow: "var(--shadow-glow)",
-          }}
-          id="upload-section"
-        >
-          <div style={{ marginBottom: 8 }}>
-            <h2
-              style={{
-                fontSize: "20px",
-                fontWeight: 700,
-                marginBottom: 6,
-                color: "var(--text-primary)",
-              }}
-            >
-              Upload Your Resume
-            </h2>
-            <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-              PDF, DOC, or DOCX · Analyzed privately, never stored
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              marginBottom: 20,
-            }}
-          >
-            <Shield size={12} color="#10b981" />
-            <span style={{ fontSize: "12px", color: "#34d399" }}>
-              100% private — processed on your request, never saved
-            </span>
-          </div>
-
-          <ResumeUploader onUpload={handleUpload} disabled={isAnalyzing} />
-
-          {error && (
-            <div
-              className="animate-fade-in"
-              style={{
-                marginTop: 12,
-                padding: "10px 14px",
-                background: "rgba(239,68,68,0.1)",
-                border: "1px solid rgba(239,68,68,0.25)",
-                borderRadius: 8,
-                color: "#f87171",
-                fontSize: "13px",
-              }}
-            >
-              ⚠️ {error}
-            </div>
-          )}
-
-          <button
-            className="btn-primary"
-            id="analyze-resume-btn"
-            onClick={handleAnalyze}
-            disabled={!selectedFile || isAnalyzing}
-            style={{
-              width: "100%",
-              marginTop: 16,
-              justifyContent: "center",
-              fontSize: "15px",
-              padding: "14px",
-            }}
-          >
-            {isAnalyzing ? (
-              <>
-                <span
-                  className="animate-spin-slow"
-                  style={{
-                    display: "inline-block",
-                    width: 16,
-                    height: 16,
-                    border: "2px solid rgba(255,255,255,0.3)",
-                    borderTopColor: "#fff",
-                    borderRadius: "50%",
-                  }}
-                />
-                Parsing Resume...
-              </>
-            ) : (
-              <>
-                <Sparkles size={16} />
-                Analyze My Resume
-                <ArrowRight size={16} />
-              </>
-            )}
-          </button>
-        </div>
       </section>
 
       {/* Features Section */}
-      <section
-        style={{ padding: "80px 24px", background: "rgba(255,255,255,0.01)" }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
-            <h2
-              style={{
-                fontSize: "clamp(28px, 4vw, 40px)",
-                fontWeight: 800,
-                letterSpacing: "-0.03em",
-                marginBottom: 12,
-              }}
-            >
-              Not Your Boring <span className="gradient-text">ATS Checker</span>
+      <section className="py-24 px-6 bg-muted/20 border-t border-border/50 relative z-10 w-full">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16">
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-foreground">
+              Intelligent Career Trajectory
             </h2>
-            <p
-              style={{
-                color: "var(--text-secondary)",
-                fontSize: "16px",
-                maxWidth: 480,
-                margin: "0 auto",
-              }}
-            >
-              We don't just scan keywords. We understand your career trajectory
-              and build you a path forward.
+            <p className="text-muted-foreground text-lg max-w-xl">
+              We don't just scan keywords. We understand your experience deeply
+              and build a quantifiable path forward.
             </p>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: 20,
-            }}
-          >
-            {FEATURES.map((feat, i) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {FEATURES.map((feat) => {
               const Icon = feat.icon;
               return (
-                <div
-                  key={feat.title}
-                  className="glass-card"
-                  style={{
-                    padding: "24px",
-                    animationDelay: `${i * 100}ms`,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 10,
-                      background: feat.bg,
-                      border: `1px solid ${feat.color}30`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 14,
-                    }}
-                  >
-                    <Icon size={20} color={feat.color} />
+                <div key={feat.title} className="flex flex-col p-6 rounded-xl border border-border bg-background shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 rounded border border-border bg-muted/50 flex items-center justify-center mb-6">
+                    <Icon className="h-5 w-5 text-foreground" />
                   </div>
-                  <h3
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: 600,
-                      marginBottom: 8,
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    {feat.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      color: "var(--text-secondary)",
-                      lineHeight: 1.6,
-                    }}
-                  >
+                  <h3 className="text-lg font-bold text-foreground mb-2">{feat.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {feat.description}
                   </p>
                 </div>
@@ -450,16 +214,8 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer
-        style={{
-          padding: "24px",
-          borderTop: "1px solid var(--border-subtle)",
-          textAlign: "center",
-          color: "var(--text-muted)",
-          fontSize: "13px",
-        }}
-      >
-        Built with Vercel AI SDK · Google Gemini · JSearch API · Next.js 16
+      <footer className="py-8 border-t border-border bg-background text-sm font-medium text-muted-foreground text-center relative z-10">
+        Built with Next.js 16 · Vercel AI SDK · Gemini · Shadcn UI
       </footer>
     </main>
   );

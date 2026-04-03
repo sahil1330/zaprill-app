@@ -1,53 +1,40 @@
 "use client";
 
-import type { SkillCategory } from "@/types";
+import { Badge } from "@/components/ui/badge";
 
 interface SkillBadgeProps {
   skill: string;
-  category?: SkillCategory;
-  variant?: "matched" | "missing" | "neutral" | "auto";
+  variant?: "default" | "matched" | "missing" | "neutral";
   size?: "sm" | "md";
 }
 
-const CATEGORY_COLORS: Record<SkillCategory, string> = {
-  language: "badge-primary",
-  framework: "badge-cyan",
-  database: "badge-warning",
-  cloud: "badge-danger",
-  tool: "badge-neutral",
-  soft: "badge-neutral",
-  other: "badge-neutral",
-};
-
-const VARIANT_COLORS = {
-  matched: "badge-success",
-  missing: "badge-danger",
-  neutral: "badge-neutral",
-};
-
 export default function SkillBadge({
   skill,
-  category,
-  variant = "auto",
+  variant = "default",
   size = "md",
 }: SkillBadgeProps) {
-  const cls =
-    variant === "auto" && category
-      ? CATEGORY_COLORS[category]
-      : variant !== "auto"
-        ? VARIANT_COLORS[variant]
-        : "badge-neutral";
+  let vClass = "bg-muted text-foreground border-border";
+  switch (variant) {
+    case "matched":
+      vClass = "bg-primary text-primary-foreground border-transparent";
+      break;
+    case "missing":
+      vClass = "bg-muted text-muted-foreground border-border border-dashed";
+      break;
+    case "neutral":
+    default:
+      vClass = "bg-muted text-foreground border-border";
+      break;
+  }
 
-  const padding = size === "sm" ? "3px 8px" : "4px 10px";
-  const fontSize = size === "sm" ? "11px" : "12px";
+  const sClass = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
 
   return (
-    <span
-      className={`badge ${cls}`}
-      style={{ padding, fontSize, textTransform: "capitalize" }}
-      title={category ? `Category: ${category}` : undefined}
+    <Badge
+      variant="outline"
+      className={`rounded text-center font-medium shadow-none ${vClass} ${sClass}`}
     >
       {skill}
-    </span>
+    </Badge>
   );
 }

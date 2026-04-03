@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer()
     const mediaType = (file.type || 'application/pdf') as 'application/pdf'
 
-    const { output: parsed } = await generateText({
+    const { output: parsed, usage } = await generateText({
       model: hackclub('google/gemini-2.5-flash'),
       output: Output.object({ schema: ResumeSchema }),
       messages: [
@@ -111,7 +111,7 @@ Be precise and thorough. Do not make up information that isn't in the resume.`,
     if (!parsed) {
       return NextResponse.json({ error: 'Failed to extract resume data' }, { status: 500 })
     }
-
+    console.log("parse resume usage", usage)
     // Normalize and deduplicate skills across all sections
     const allSkills = normalizeSkillList([
       ...parsed.skills,

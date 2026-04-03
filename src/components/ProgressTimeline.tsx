@@ -55,81 +55,52 @@ export default function ProgressTimeline({
   const currentIdx = stepIndex(currentStep);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+    <div className="flex flex-col">
       {STEPS.map((step, idx) => {
         const stepIdx = stepIndex(step.key);
         const isCompleted = currentIdx > stepIdx;
         const isActive = currentIdx === stepIdx;
-        const isPending = currentIdx < stepIdx;
 
         return (
-          <div
-            key={step.key}
-            style={{ display: "flex", flexDirection: "column" }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div key={step.key} className="flex flex-col">
+            <div className="flex items-center gap-3.5">
               {/* Icon */}
               <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  flexShrink: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: isCompleted
-                    ? "rgba(16, 185, 129, 0.15)"
-                    : isActive
-                      ? "rgba(99, 102, 241, 0.15)"
-                      : "rgba(255,255,255,0.03)",
-                  border: `1.5px solid ${
+                className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center border transition-all duration-400 ease-in-out
+                  ${
                     isCompleted
-                      ? "rgba(16,185,129,0.4)"
+                      ? "bg-foreground border-foreground text-background"
                       : isActive
-                        ? "rgba(99,102,241,0.5)"
-                        : "var(--border-subtle)"
-                  }`,
-                  transition: "all 0.4s ease",
-                }}
+                        ? "bg-muted border-foreground/30 text-foreground"
+                        : "bg-background border-border text-muted-foreground"
+                  }
+                `}
               >
                 {isCompleted ? (
-                  <CheckCircle size={16} color="#10b981" />
+                  <CheckCircle className="h-4 w-4" />
                 ) : isActive ? (
-                  <Loader
-                    size={16}
-                    color="#a5b4fc"
-                    className="animate-spin-slow"
-                  />
+                  <Loader className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Circle size={16} color="var(--text-muted)" />
+                  <Circle className="h-4 w-4" />
                 )}
               </div>
 
               {/* Label */}
               <div>
                 <p
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: isActive ? 600 : 500,
-                    color: isCompleted
-                      ? "#10b981"
-                      : isActive
-                        ? "var(--text-primary)"
-                        : "var(--text-muted)",
-                    marginBottom: 2,
-                    transition: "color 0.3s",
-                  }}
+                  className={`text-sm mb-0.5 transition-colors duration-300
+                    ${
+                      isCompleted
+                        ? "text-foreground font-semibold"
+                        : isActive
+                          ? "text-foreground font-bold"
+                          : "text-muted-foreground font-medium"
+                    }
+                  `}
                 >
                   {step.label}
                 </p>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--text-muted)",
-                    lineHeight: 1.4,
-                  }}
-                >
+                <p className="text-xs text-muted-foreground leading-snug">
                   {step.description}
                 </p>
               </div>
@@ -138,15 +109,13 @@ export default function ProgressTimeline({
             {/* Connector line */}
             {idx < STEPS.length - 1 && (
               <div
-                style={{
-                  width: 2,
-                  height: 28,
-                  marginLeft: 17,
-                  background: isCompleted
-                    ? "linear-gradient(to bottom, rgba(16,185,129,0.5), rgba(16,185,129,0.2))"
-                    : "var(--border-subtle)",
-                  transition: "background 0.5s ease",
-                }}
+                className={`w-[1px] h-7 ml-[15px] my-1 transition-colors duration-500 ease-in-out
+                  ${
+                    isCompleted
+                      ? "bg-foreground"
+                      : "bg-border"
+                  }
+                `}
               />
             )}
           </div>
