@@ -2,6 +2,7 @@ export interface ParsedResume {
   name: string;
   email: string;
   phone?: string;
+  location?: string;
   skills: string[];
   experience: WorkExperience[];
   projects: Project[];

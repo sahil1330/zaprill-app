@@ -16,6 +16,7 @@ import LearningRoadmap from "@/components/LearningRoadmap";
 import SkillBadge from "@/components/SkillBadge";
 import { categorizeSkill } from "@/lib/skill-extractor";
 import { getAnalysisSummary } from "@/lib/match-engine";
+import { LocationCombobox, locationMatchesCity, INDIA_CITIES, extractCityFromLocation } from "@/components/LocationCombobox";
 import {
   Zap,
   ArrowLeft,
@@ -103,15 +104,20 @@ export default function AnalyzePage() {
   const [minMatch, setMinMatch] = useState([0]);
   const [requireSalary, setRequireSalary] = useState(false);
 
-  const runAnalysis = useCallback(async (parsedResume: ParsedResume) => {
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+
+  const runAnalysis = useCallback(async (parsedResume: ParsedResume, locationOverride?: string) => {
     try {
       setStep("searching");
+      if (locationOverride) setIsSearchingLocation(true);
+
       const jobRes = await fetch("/api/search-jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           skills: parsedResume.skills,
           jobTitles: parsedResume.inferredJobTitles,
+          location: locationOverride || parsedResume.location,
         }),
       });
       if (!jobRes.ok) {
@@ -158,6 +164,8 @@ export default function AnalyzePage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed");
       setStep("error");
+    } finally {
+      setIsSearchingLocation(false);
     }
   }, []);
 
@@ -169,6 +177,17 @@ export default function AnalyzePage() {
     }
     const parsed: ParsedResume = JSON.parse(stored);
     setResume(parsed);
+    if (parsed.location) {
+      // Extract just the city name (e.g. "Mumbai" from "Mumbai, India")
+      const cityName = extractCityFromLocation(parsed.location);
+      // Check if this city is in our known city list (handles aliases)
+      const matched = INDIA_CITIES.find(
+        (c) =>
+          c.city.toLowerCase() === cityName.toLowerCase() ||
+          c.aliases.some((a) => a === cityName.toLowerCase())
+      );
+      setSearchLoc(matched ? matched.city : cityName);
+    }
     runAnalysis(parsed);
   }, [router, runAnalysis]);
 
@@ -176,7 +195,8 @@ export default function AnalyzePage() {
     return jobs.filter((j) => {
       // 1. Text searches
       if (searchTitle && !j.title.toLowerCase().includes(searchTitle.toLowerCase())) return false;
-      if (searchLoc && !j.location.toLowerCase().includes(searchLoc.toLowerCase())) return false;
+      // Use smart city matching instead of full-string substring match
+      if (searchLoc && !locationMatchesCity(j.location, searchLoc)) return false;
 
       // 2. Work type (Remote/Onsite/Hybrid)
       if (workType !== "any") {
@@ -334,7 +354,7 @@ export default function AnalyzePage() {
                       {resume.name}
                     </h1>
                     <p className="text-base font-semibold text-muted-foreground mb-5 pb-5 border-b border-border/50">
-                      {resume.email} <span className="opacity-50 mx-2">·</span> Target:{" "}
+                      {resume.email} {resume.location && <><span className="opacity-50 mx-2">·</span> {resume.location}</>} <span className="opacity-50 mx-2">·</span> Target:{" "}
                       {resume.inferredJobTitles.slice(0, 3).join(", ")}
                     </p>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
@@ -422,13 +442,32 @@ export default function AnalyzePage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Location</label>
-                          <Input 
-                            placeholder="e.g. San Francisco or TX" 
-                            value={searchLoc} 
-                            onChange={(e) => setSearchLoc(e.target.value)} 
-                            className="bg-background border-border font-medium"
+                          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">City (India)</label>
+                          <LocationCombobox
+                            value={searchLoc}
+                            onChange={(city) => {
+                              setSearchLoc(city);
+                              // If the chosen city isn't in the existing results, trigger a new search
+                              if (city && resume) {
+                                const hasJobsInCity = jobs.some((j) => locationMatchesCity(j.location, city));
+                                if (!hasJobsInCity) {
+                                  runAnalysis(resume, city);
+                                }
+                              }
+                            }}
+                            disabled={isSearchingLocation}
                           />
+                          {searchLoc && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="w-full font-bold h-9"
+                              disabled={isSearchingLocation}
+                              onClick={() => resume && runAnalysis(resume, searchLoc)}
+                            >
+                              {isSearchingLocation ? <RefreshCw className="h-4 w-4 animate-spin" /> : `Search jobs in ${searchLoc}`}
+                            </Button>
+                          )}
                         </div>
                       </div>
 

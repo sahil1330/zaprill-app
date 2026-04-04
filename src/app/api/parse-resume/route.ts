@@ -11,6 +11,7 @@ const ResumeSchema = z.object({
   name: z.string().describe('Full name of the candidate'),
   email: z.string().describe('Email address'),
   phone: z.string().optional().describe('Phone number if present'),
+  location: z.string().optional().describe('City and State/Country of residence (e.g. "San Francisco, CA")'),
   summary: z.string().optional().describe('Professional summary or objective'),
   skills: z
     .array(z.string())
@@ -98,6 +99,8 @@ export async function POST(request: Request) {
               text: `You are an expert HR analyst and resume parser. Extract ALL information from this resume with high accuracy.
 
 For skills, be comprehensive — include every programming language, framework, library, tool, database, cloud platform, and methodology mentioned anywhere in the resume.
+
+For location, look for the candidate's current residence (City and State/Country).
 
 For inferredJobTitles, think about what roles this person would realistically apply for based on their entire background — include 3-6 specific, searchable job titles (e.g., "Senior React Developer", "Full Stack Engineer", "Node.js Backend Developer").
 

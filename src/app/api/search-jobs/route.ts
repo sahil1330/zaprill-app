@@ -55,14 +55,14 @@ export async function POST(request: Request) {
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-    // 3 queries — each fetches 2 pages of 20 results = up to 120 jobs total
+    // 3 queries — each fetches 2 pages of 50 results = up to 300 jobs total
     const queries = jobTitles.slice(0, 3);
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
 
     for (let i = 0; i < queries.length; i++) {
-      if (i > 0) await sleep(300); // Adzuna is generous but be polite
+      if (i > 0) await sleep(500); // Adzuna is generous but be polite
 
       const title = queries[i];
 
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
           url.searchParams.set("app_id", appId);
           url.searchParams.set("app_key", appKey);
           url.searchParams.set("what", title);
-          url.searchParams.set("results_per_page", "20");
+          url.searchParams.set("results_per_page", "50");
           url.searchParams.set("content-type", "application/json");
           if (location) url.searchParams.set("where", location);
 
@@ -116,8 +116,8 @@ export async function POST(request: Request) {
             });
           }
 
-          // If fewer than 20 results, no point fetching page 2
-          if (results.length < 20) break;
+          // If fewer than 50 results, no point fetching page 2
+          if (results.length < 50) break;
         } catch (err) {
           console.error(`[search-jobs] Exception for "${title}" p${page}:`, err);
         }
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
     );
 
     console.log(`[search-jobs] Returning ${deduplicated.length} jobs`);
-    return NextResponse.json({ jobs: deduplicated.slice(0, 40) });
+    return NextResponse.json({ jobs: deduplicated });
   } catch (error) {
     console.error("Job search error:", error);
     return NextResponse.json(
