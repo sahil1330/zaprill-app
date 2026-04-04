@@ -147,31 +147,33 @@ export function LocationCombobox({ value, onChange, disabled }: LocationCombobox
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className="w-full justify-between bg-background border-border font-medium h-10 px-3"
-        >
-          <span className="flex items-center gap-2 truncate">
-            <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            {value ? (
-              <span className="truncate">
-                {value}
-                {selectedEntry && (
-                  <span className="text-muted-foreground font-normal ml-1">
-                    · {selectedEntry.state}
-                  </span>
-                )}
-              </span>
-            ) : (
-              <span className="text-muted-foreground">Select a city...</span>
-            )}
-          </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className="w-full justify-between bg-background border-border font-medium h-10 px-3"
+          />
+        }
+      >
+        <span className="flex items-center gap-2 truncate">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          {value ? (
+            <span className="truncate">
+              {value}
+              {selectedEntry && (
+                <span className="text-muted-foreground font-normal ml-1">
+                  · {selectedEntry.state}
+                </span>
+              )}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">Select a city...</span>
+          )}
+        </span>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-0" align="start">
         <Command>
