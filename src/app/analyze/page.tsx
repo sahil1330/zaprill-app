@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type {
   ParsedResume,
   JobMatch,
@@ -29,6 +29,7 @@ import {
   Filter,
   X,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -84,8 +85,10 @@ function StatCard({
   );
 }
 
-export default function AnalyzePage() {
+function AnalyzePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const idFromUrl = searchParams.get("id");
   const { data: session } = useSession();
   const [step, setStep] = useState<AnalysisStep>("parsing");
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +115,10 @@ export default function AnalyzePage() {
   const runAnalysis = useCallback(async (parsedResume: ParsedResume, locationOverride?: string) => {
     try {
       setStep("searching");
+      if (idFromUrl) {
+         // if run analysis manually occurs while we had an id, strip id
+         router.replace("/analyze");
+      }
       setAnalysisId(null);
       if (locationOverride) setIsSearchingLocation(true);
 
@@ -171,32 +178,76 @@ export default function AnalyzePage() {
     } finally {
       setIsSearchingLocation(false);
     }
-  }, []);
+  }, [idFromUrl, router]);
+
+  // Handle loading via URL ID
+  const [isFetchingHistory, setIsFetchingHistory] = useState(false);
+  useEffect(() => {
+    if (idFromUrl && session?.user && !isFetchingHistory && !resume) {
+      setIsFetchingHistory(true);
+      fetch(`/api/analysis-history/${idFromUrl}`)
+        .then(res => res.json())
+        .then(data => {
+           if (data.analysis) {
+             const analysis = data.analysis;
+             setResume(analysis.resumeRaw);
+             setJobs(analysis.jobs || []);
+             setSkillGaps(analysis.skillGaps || []);
+             setRoadmap(analysis.roadmap || []);
+             setAnalysisId(analysis.id);
+             
+             // Extract search location correctly back for filters
+             if (analysis.searchLocation) {
+                 setSearchLoc(analysis.searchLocation);
+             } else if (analysis.resumeLocation) {
+                 const cityName = extractCityFromLocation(analysis.resumeLocation);
+                 const matched = INDIA_CITIES.find(
+                   (c) =>
+                     c.city.toLowerCase() === cityName.toLowerCase() ||
+                     c.aliases.some((a) => a === cityName.toLowerCase())
+                 );
+                 setSearchLoc(matched ? matched.city : cityName);
+             }
+
+             setStep("done");
+           }
+        })
+        .finally(() => setIsFetchingHistory(false));
+    }
+  }, [idFromUrl, session?.user, isFetchingHistory, resume]);
 
   useEffect(() => {
+    if (idFromUrl || isFetchingHistory) return;
+
     const stored = sessionStorage.getItem("ai_job_god_resume");
     if (!stored) {
       router.replace("/");
       return;
     }
     const parsed: ParsedResume = JSON.parse(stored);
-    setResume(parsed);
-    if (parsed.location) {
-      // Extract just the city name (e.g. "Mumbai" from "Mumbai, India")
-      const cityName = extractCityFromLocation(parsed.location);
-      // Check if this city is in our known city list (handles aliases)
-      const matched = INDIA_CITIES.find(
-        (c) =>
-          c.city.toLowerCase() === cityName.toLowerCase() ||
-          c.aliases.some((a) => a === cityName.toLowerCase())
-      );
-      setSearchLoc(matched ? matched.city : cityName);
+    
+    // If resume is not yet set up, initialize it
+    if (!resume) {
+      setResume(parsed);
+      if (parsed.location) {
+        // Extract just the city name (e.g. "Mumbai" from "Mumbai, India")
+        const cityName = extractCityFromLocation(parsed.location);
+        // Check if this city is in our known city list (handles aliases)
+        const matched = INDIA_CITIES.find(
+          (c) =>
+            c.city.toLowerCase() === cityName.toLowerCase() ||
+            c.aliases.some((a) => a === cityName.toLowerCase())
+        );
+        setSearchLoc(matched ? matched.city : cityName);
+      }
+      runAnalysis(parsed);
     }
-    runAnalysis(parsed);
-  }, [router, runAnalysis]);
+  }, [router, runAnalysis, idFromUrl, isFetchingHistory, resume]);
 
   useEffect(() => {
-    if (step === "done" && session?.user && !analysisId && resume) {
+    // Only save automatically if we aren't already looking at a history loaded run 
+    // AND if idFromUrl matches analysisId (meaning we already set it) we shouldn't save again
+    if (step === "done" && session?.user && !analysisId && resume && !idFromUrl) {
       const saveAnalysis = async () => {
         try {
           const res = await fetch("/api/save-analysis", {
@@ -212,6 +263,8 @@ export default function AnalyzePage() {
           if (res.ok) {
             const data = await res.json();
             setAnalysisId(data.analysisId);
+            // Replace url so a refresh doesn't duplicate
+            router.replace(`/analyze?id=${data.analysisId}`);
           }
         } catch (e) {
           console.error("Failed to save analysis", e);
@@ -219,7 +272,7 @@ export default function AnalyzePage() {
       };
       saveAnalysis();
     }
-  }, [step, session, analysisId, resume, jobs, skillGaps, roadmap]);
+  }, [step, session, analysisId, resume, jobs, skillGaps, roadmap, router, idFromUrl]);
 
   const displayedJobs = useMemo(() => {
     return jobs.filter((j) => {
@@ -300,14 +353,24 @@ export default function AnalyzePage() {
           
           <div className="flex items-center gap-4">
             {session && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
-                className="font-bold text-xs"
-              >
-                Log out
-              </Button>
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => router.push("/history")}
+                  className="font-bold text-xs hidden sm:inline-flex"
+                >
+                  History
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
+                  className="font-bold text-xs"
+                >
+                  Log out
+                </Button>
+              </>
             )}
             <ThemeToggle />
           </div>
@@ -666,4 +729,19 @@ export default function AnalyzePage() {
       </div>
     </div>
   );
+}
+
+export default function AnalyzePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mr-2 mb-4" />
+          <span className="text-muted-foreground font-medium">Preparing space...</span>
+        </div>
+      </div>
+    }>
+      <AnalyzePageContent />
+    </Suspense>
+  )
 }

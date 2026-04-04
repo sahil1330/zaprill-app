@@ -4,6 +4,10 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { normalizeSkillList } from '@/lib/skill-extractor'
 import { hackclub } from '@/lib/hackClubClient'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
+import db from '@/db'
+import { userProfile } from '@/db/schema'
 
 export const maxDuration = 60
 
@@ -122,7 +126,36 @@ Be precise and thorough. Do not make up information that isn't in the resume.`,
       ...parsed.projects.flatMap((p) => p.technologies),
     ])
 
-    return NextResponse.json({ ...parsed, skills: allSkills })
+    const finalResumeData = { ...parsed, skills: allSkills }
+
+    // Save to user profile if authenticated
+    try {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (session?.user) {
+        await db
+          .insert(userProfile)
+          .values({
+            id: crypto.randomUUID(),
+            userId: session.user.id,
+            resumeRaw: finalResumeData,
+          })
+          .onConflictDoUpdate({
+            target: userProfile.userId,
+            set: {
+              resumeRaw: finalResumeData,
+              updatedAt: new Date(),
+            },
+          });
+      }
+    } catch (saveErr) {
+      console.error("Failed to save user profile:", saveErr);
+      // We don't want to fail the whole parse if db save fails
+    }
+
+    return NextResponse.json(finalResumeData)
   } catch (error) {
     console.error('Resume parsing error:', error)
     return NextResponse.json(
