@@ -113,6 +113,16 @@ export const jwks = pgTable("jwks", {
 // Application tables
 // ─────────────────────────────────────────────────
 
+export const userProfile = pgTable("user_profile", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  resumeRaw: jsonb("resume_raw").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 /**
  * Stores each resume analysis run for a user.
  * The heavy JSON blobs (jobs, skillGaps, roadmap) are stored as jsonb
