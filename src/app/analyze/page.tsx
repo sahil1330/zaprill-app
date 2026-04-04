@@ -93,6 +93,7 @@ export default function AnalyzePage() {
   const [jobs, setJobs] = useState<JobMatch[]>([]);
   const [skillGaps, setSkillGaps] = useState<SkillGap[]>([]);
   const [roadmap, setRoadmap] = useState<RoadmapItem[]>([]);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
   
   const [activeTab, setActiveTab] = useState<TabId>("jobs");
   const [showFilters, setShowFilters] = useState(false);
@@ -111,6 +112,7 @@ export default function AnalyzePage() {
   const runAnalysis = useCallback(async (parsedResume: ParsedResume, locationOverride?: string) => {
     try {
       setStep("searching");
+      setAnalysisId(null);
       if (locationOverride) setIsSearchingLocation(true);
 
       const jobRes = await fetch("/api/search-jobs", {
@@ -193,6 +195,32 @@ export default function AnalyzePage() {
     runAnalysis(parsed);
   }, [router, runAnalysis]);
 
+  useEffect(() => {
+    if (step === "done" && session?.user && !analysisId && resume) {
+      const saveAnalysis = async () => {
+        try {
+          const res = await fetch("/api/save-analysis", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              resume,
+              jobs,
+              skillGaps,
+              roadmap,
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setAnalysisId(data.analysisId);
+          }
+        } catch (e) {
+          console.error("Failed to save analysis", e);
+        }
+      };
+      saveAnalysis();
+    }
+  }, [step, session, analysisId, resume, jobs, skillGaps, roadmap]);
+
   const displayedJobs = useMemo(() => {
     return jobs.filter((j) => {
       // 1. Text searches
@@ -251,9 +279,17 @@ export default function AnalyzePage() {
             <div className="w-10 h-10 rounded-lg shrink-0 bg-foreground flex items-center justify-center">
               <Zap className="h-5 w-5 text-background" />
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-foreground">
-              {resume?.name ? `${resume.name}'s Setup` : "Career Setup"}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="font-extrabold text-lg tracking-tight text-foreground">
+                {resume?.name ? `${resume.name}'s Setup` : "Career Setup"}
+              </span>
+              {analysisId && (
+                <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-muted/50 border border-border/50 animate-in fade-in zoom-in duration-300">
+                  <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  Saved
+                </span>
+              )}
+            </div>
           </div>
           {isDone && (
             <span className="text-[11px] uppercase font-bold text-foreground hidden sm:flex items-center gap-2 tracking-widest border border-border px-3 py-1.5 rounded-md bg-muted/50">
