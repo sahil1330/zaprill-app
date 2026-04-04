@@ -398,7 +398,7 @@ export default function AnalyzePage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as TabId)} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted p-2 rounded-xl border border-border shadow-sm h-14">
+              <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted p-2 rounded-xl border border-border shadow-sm h-auto">
                 {TABS.map((tab) => (
                   <TabsTrigger key={tab.id} value={tab.id} className="rounded-lg py-2.5 text-sm font-bold tracking-wide data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md">
                     <tab.icon className="h-5 w-5 mr-2.5 hidden sm:inline" />
