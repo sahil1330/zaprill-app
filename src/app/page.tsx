@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GridPattern } from "@/components/ui/file-upload";
 import { WordFadeIn } from "@/components/ui/word-fade-in";
+import { useSession, signOut } from "@/lib/auth-client";
+import Link from "next/link";
 
 const FEATURES = [
   {
@@ -49,6 +51,8 @@ const STATS = [
 
 export default function HomePage() {
   const router = useRouter();
+  const { data: session, isPending: sessionLoading } = useSession();
+  
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +108,29 @@ export default function HomePage() {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            {sessionLoading ? (
+              <div className="h-9 w-24 bg-muted rounded animate-pulse" />
+            ) : session ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-semibold hidden md:inline-block">
+                  Hi, {session.user.name || session.user.email}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
+                  className="font-bold text-xs"
+                >
+                  Log out
+                </Button>
+              </div>
+            ) : (
+              <Link href="/sign-in">
+                <Button variant="default" size="sm" className="font-bold h-9">
+                  Sign In
+                </Button>
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>

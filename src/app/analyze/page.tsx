@@ -36,6 +36,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useSession, signOut } from "@/lib/auth-client";
 
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -85,6 +86,7 @@ function StatCard({
 
 export default function AnalyzePage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [step, setStep] = useState<AnalysisStep>("parsing");
   const [error, setError] = useState<string | null>(null);
   const [resume, setResume] = useState<ParsedResume | null>(null);
@@ -259,7 +261,20 @@ export default function AnalyzePage() {
               Complete
             </span>
           )}
-          <ThemeToggle />
+          
+          <div className="flex items-center gap-4">
+            {session && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
+                className="font-bold text-xs"
+              >
+                Log out
+              </Button>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 
