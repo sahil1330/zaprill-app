@@ -121,7 +121,7 @@ Include an entry for each missing skill. Prefer free resources. Use real, workin
     }
 
     return NextResponse.json({
-      matchedJobs: matchedJobs.slice(0, 30),
+      matchedJobs: matchedJobs.slice(0, 100),
       skillGaps,
       roadmap,
     });
