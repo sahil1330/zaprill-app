@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp, signIn } from "@/lib/auth-client";
+import { checkUserExists } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,6 +37,14 @@ function SignUpForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Pre-check if user exists to prevent "silent success" for existing users
+    const exists = await checkUserExists(email);
+    if (exists) {
+      setError("An account with this email already exists.");
+      setLoading(false);
+      return;
+    }
 
     const { data, error } = await signUp.email({
       name,
