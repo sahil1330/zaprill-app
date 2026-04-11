@@ -106,6 +106,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  button, 
+  [role="button"], 
+  a, 
+  input[type="button"], 
+  input[type="submit"], 
+  input[type="reset"] {
+    @apply cursor-pointer;
+  }
 }
 
 /* Base custom classes to support UI without clutter */
