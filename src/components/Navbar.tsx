@@ -36,7 +36,6 @@ export interface NavUser {
 }
 
 function UserAvatar({ user }: { user: NavUser }) {
-  console.log("In User Avatar: ", user);
   return (
     <Avatar size="default" className="cursor-pointer">
       {user.image && (
@@ -78,7 +77,6 @@ export default function Navbar({
   user,
 }: NavbarProps) {
   const router = useRouter();
-  console.log("In navbar user: ", user);
   const positionClass = sticky ? "sticky top-0" : "fixed top-0 left-0 right-0";
 
   return (
