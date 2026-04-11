@@ -25,7 +25,8 @@ const IS_DEBUG = process.env.NODE_ENV === "development";
 type GtagCommand = "config" | "event" | "set" | "js" | "consent";
 
 /** Type-safe wrapper around the global gtag() injected by @next/third-parties */
-function gtag(command: GtagCommand, target: string, params?: Record<string, unknown>): void {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function gtag(command: GtagCommand, target: string, params?: Record<string, any>): void {
   const payload = IS_DEBUG ? { ...params, debug_mode: true } : params;
 
   if (IS_DEBUG) {
@@ -42,9 +43,10 @@ function gtag(command: GtagCommand, target: string, params?: Record<string, unkn
 // Generic dispatcher (escape hatch for one-off events)
 // ─────────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function track(
   eventName: string,
-  params?: Record<string, unknown>
+  params?: Record<string, any>
 ): void {
   gtag("event", eventName, params);
 }
@@ -333,12 +335,12 @@ export function trackFilterPanelOpen(): void {
 
 export function trackFilterApplied(params: {
   filter_type:
-    | "title"
-    | "location"
-    | "work_type"
-    | "employment_type"
-    | "min_match"
-    | "require_salary";
+  | "title"
+  | "location"
+  | "work_type"
+  | "employment_type"
+  | "min_match"
+  | "require_salary";
   filter_value: string | number | boolean;
 }): void {
   gtag("event", "filter_applied", params);
@@ -428,6 +430,5 @@ declare global {
   interface Window {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     gtag: (...args: any[]) => void;
-    dataLayer: unknown[];
   }
 }

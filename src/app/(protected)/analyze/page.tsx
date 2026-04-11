@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, Suspense, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  Suspense,
+  useRef,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type {
   ParsedResume,
@@ -108,7 +115,7 @@ function AnalyzePageContent() {
   const [roadmap, setRoadmap] = useState<RoadmapItem[]>([]);
   const [advice, setAdvice] = useState<string>("");
   const [analysisId, setAnalysisId] = useState<string | null>(null);
-  
+
   const initRef = useRef(false);
   const savingRef = useRef(false);
 
@@ -222,8 +229,10 @@ function AnalyzePageContent() {
           : 0;
         const avgMatch = matchedJobs.length
           ? Math.round(
-              matchedJobs.reduce((s: number, j: JobMatch) => s + j.matchPercentage, 0) /
-                matchedJobs.length,
+              matchedJobs.reduce(
+                (s: number, j: JobMatch) => s + j.matchPercentage,
+                0,
+              ) / matchedJobs.length,
             )
           : 0;
         trackAnalysisComplete({
@@ -232,7 +241,9 @@ function AnalyzePageContent() {
           avg_match_score: avgMatch,
           skill_gaps_count: gaps.length,
           roadmap_items_count: rm.length,
-          analysis_duration_ms: Math.round(performance.now() - analysisStartTime),
+          analysis_duration_ms: Math.round(
+            performance.now() - analysisStartTime,
+          ),
           search_location: locationOverride || parsedResume.location,
         });
       } catch (err) {
@@ -316,7 +327,14 @@ function AnalyzePageContent() {
   useEffect(() => {
     // Only save automatically if we aren't already looking at a history loaded run
     // AND if idFromUrl matches analysisId (meaning we already set it) we shouldn't save again
-    if (step === "done" && user && !analysisId && resume && !idFromUrl && !savingRef.current) {
+    if (
+      step === "done" &&
+      user &&
+      !analysisId &&
+      resume &&
+      !idFromUrl &&
+      !savingRef.current
+    ) {
       const saveAnalysis = async () => {
         savingRef.current = true;
         try {
@@ -840,16 +858,17 @@ function AnalyzePageContent() {
                               {minMatch[0]}%
                             </span>
                           </div>
-                           <Slider
+                          <Slider
                             defaultValue={[0]}
                             max={100}
                             step={5}
                             value={minMatch}
                             onValueChange={(v) => {
-                              setMinMatch(v as number[]);
+                              const valArr = v as number[];
+                              setMinMatch(valArr);
                               trackFilterApplied({
                                 filter_type: "min_match",
-                                filter_value: v[0],
+                                filter_value: valArr[0],
                               });
                             }}
                             className="my-4"
@@ -1060,17 +1079,21 @@ function AnalyzePageContent() {
                     Aggregated across {jobs.length} verified listings
                   </p>
                 </div>
-                
+
                 {advice && (
                   <div className="mb-8 p-6 bg-accent/10 rounded-xl border border-accent/20 text-accent-foreground shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                       <Zap className="h-5 w-5 text-accent-foreground/80" />
-                      <h3 className="text-lg font-black tracking-tight">AI Career Advice</h3>
+                      <h3 className="text-lg font-black tracking-tight">
+                        AI Career Advice
+                      </h3>
                     </div>
-                    <p className="text-sm font-medium leading-relaxed opacity-90">{advice}</p>
+                    <p className="text-sm font-medium leading-relaxed opacity-90">
+                      {advice}
+                    </p>
                   </div>
                 )}
-                
+
                 <SkillGapPanel
                   resume={resume}
                   skillGaps={skillGaps}
