@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     // 3 queries — each fetches 2 pages of 50 results = up to 300 jobs total
-    const queries = jobTitles.slice(0, 3);
+    const queries = jobTitles;
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
