@@ -24,7 +24,6 @@ import {
 } from "@/components/LocationCombobox";
 import {
   Zap,
-  ArrowLeft,
   User,
   Briefcase,
   TrendingUp,
@@ -41,9 +40,6 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { signOut } from "@/lib/auth-client";
-
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -61,6 +57,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useAuth from "@/hooks/useAuth";
+import Navbar from "@/components/Navbar";
 
 type TabId = "jobs" | "gaps" | "roadmap";
 
@@ -360,81 +357,38 @@ function AnalyzePageContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-foreground selection:text-background font-sans">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border px-6">
-        <div className="max-w-6xl mx-auto h-20 flex items-center gap-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/")}
-            className="text-sm font-bold"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-          </Button>
-          <div className="flex items-center gap-3 flex-1 border-l border-border pl-6">
-            <div className="w-10 h-10 rounded-lg shrink-0 bg-foreground flex items-center justify-center">
-              <Zap className="h-5 w-5 text-background" />
+      <Navbar
+        showBack
+        backHref="/"
+        backLabel="Back"
+        user={user ? { name: user.name, email: user.email, image: user.image } : null}
+        pageTitle={
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-lg shrink-0 bg-foreground flex items-center justify-center">
+              <Zap className="h-4 w-4 text-background" />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="font-extrabold text-lg tracking-tight text-foreground">
-                {resume?.name ? `${resume.name}'s Setup` : "Career Setup"}
+            <span className="font-extrabold text-lg tracking-tight text-foreground truncate">
+              {resume?.name ? `${resume.name}'s Setup` : "Career Setup"}
+            </span>
+            {analysisId && (
+              <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-muted/50 border border-border/50 animate-in fade-in zoom-in duration-300">
+                <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                </svg>
+                Saved
               </span>
-              {analysisId && (
-                <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-muted/50 border border-border/50 animate-in fade-in zoom-in duration-300">
-                  <svg
-                    className="w-3 h-3 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="3"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  Saved
-                </span>
-              )}
-            </div>
+            )}
           </div>
-          {isDone && (
-            <span className="text-[11px] uppercase font-bold text-foreground hidden sm:flex items-center gap-2 tracking-widest border border-border px-3 py-1.5 rounded-md bg-muted/50">
+        }
+        centreBadge={
+          isDone ? (
+            <span className="text-[11px] uppercase font-bold text-foreground flex items-center gap-2 tracking-widest border border-border px-3 py-1.5 rounded-md bg-muted/50">
               <div className="w-2 h-2 rounded-full bg-foreground" />
               Complete
             </span>
-          )}
-
-          <div className="flex items-center gap-4">
-            {user && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/history")}
-                  className="font-bold text-xs hidden sm:inline-flex"
-                >
-                  History
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    signOut({
-                      fetchOptions: { onSuccess: () => router.push("/") },
-                    })
-                  }
-                  className="font-bold text-xs"
-                >
-                  Log out
-                </Button>
-              </>
-            )}
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
+          ) : undefined
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-10 w-full flex-1">
         {/* Loading / Progress state */}

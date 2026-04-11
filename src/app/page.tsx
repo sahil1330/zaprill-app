@@ -11,15 +11,13 @@ import {
   Shield,
   Globe,
   Loader2,
-  BriefcaseIcon,
   Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { GridPattern } from "@/components/ui/file-upload";
 import { WordFadeIn } from "@/components/ui/word-fade-in";
-import { useSession, signOut } from "@/lib/auth-client";
-import Link from "next/link";
+import { useSession } from "@/lib/auth-client";
+import Navbar from "@/components/Navbar";
 
 const FEATURES = [
   {
@@ -124,54 +122,16 @@ export default function HomePage() {
         <GridPattern />
       </div>
 
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50 px-6">
-        <div className="max-w-6xl mx-auto h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-foreground flex items-center justify-center">
-              <BriefcaseIcon className="h-4 w-4 text-background" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-foreground">
-              AI Job God
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            {sessionLoading ? (
-              <div className="h-9 w-24 bg-muted rounded animate-pulse" />
-            ) : session ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold hidden md:inline-block">
-                  Hi, {session.user.name || session.user.email}
-                </span>
-                <Link href="/history">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="font-bold text-xs px-2"
-                  >
-                    History
-                  </Button>
-                </Link>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
-                  className="font-bold text-xs"
-                >
-                  Log out
-                </Button>
-              </div>
-            ) : (
-              <Link href="/sign-in">
-                <Button variant="default" size="sm" className="font-bold h-9">
-                  Sign In
-                </Button>
-              </Link>
-            )}
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
+      <Navbar
+        sticky={false}
+        user={
+          sessionLoading
+            ? undefined
+            : session
+            ? { name: session.user.name, email: session.user.email, image: session.user.image }
+            : null
+        }
+      />
 
       {/* Hero Section */}
       <section className="flex-1 pt-32 pb-20 flex flex-col items-center text-center px-6 relative z-10 w-full max-w-6xl mx-auto">

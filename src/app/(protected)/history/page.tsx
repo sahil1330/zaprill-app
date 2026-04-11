@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, MapPin, Zap, Target, Loader2 } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { MapPin, Zap, Target, Loader2 } from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 type HistoryItem = {
   id: string;
@@ -49,30 +49,32 @@ export default function HistoryPage() {
       </div>
     );
   }
-
+  console.log("user: ", session?.user);
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-sans">
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border px-6">
-        <div className="max-w-6xl mx-auto h-20 flex items-center gap-6">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="text-sm font-bold">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Home
-          </Button>
-          <div className="flex items-center gap-3 flex-1 border-l border-border pl-6">
-            <div className="w-10 h-10 rounded-lg bg-foreground flex items-center justify-center">
-              <Clock className="h-5 w-5 text-background" />
-            </div>
-            <span className="font-extrabold text-lg tracking-tight text-foreground">
-              Analysis History
-            </span>
-          </div>
-          <ThemeToggle />
-        </div>
-      </nav>
+      <Navbar
+        showBack
+        backHref="/"
+        backLabel="Home"
+        user={
+          session?.user
+            ? {
+                name: session.user.name,
+                email: session.user.email,
+                image: session.user.image,
+              }
+            : null
+        }
+      />
 
       <div className="flex-1 w-full max-w-5xl mx-auto px-6 py-12">
         <div className="mb-10">
-          <h1 className="text-3xl font-black tracking-tight mb-3">Your Journey</h1>
-          <p className="text-muted-foreground font-medium text-lg">Review your past career analysis runs and track improvements.</p>
+          <h1 className="text-3xl font-black tracking-tight mb-3">
+            Your Journey
+          </h1>
+          <p className="text-muted-foreground font-medium text-lg">
+            Review your past career analysis runs and track improvements.
+          </p>
         </div>
 
         {history.length === 0 ? (
@@ -81,7 +83,9 @@ export default function HistoryPage() {
               <Target className="h-8 w-8 text-foreground" />
             </div>
             <h2 className="text-2xl font-black mb-2">No past history found</h2>
-            <p className="text-muted-foreground mb-6 font-medium">Head to the home page to start your first analysis!</p>
+            <p className="text-muted-foreground mb-6 font-medium">
+              Head to the home page to start your first analysis!
+            </p>
             <Button onClick={() => router.push("/")} className="font-bold">
               Start Analysis
             </Button>
@@ -89,8 +93,8 @@ export default function HistoryPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {history.map((item) => (
-              <Card 
-                key={item.id} 
+              <Card
+                key={item.id}
                 className="overflow-hidden hover:border-foreground/50 transition-colors shadow-sm cursor-pointer"
                 onClick={() => router.push(`/analyze?id=${item.id}`)}
               >
@@ -113,14 +117,21 @@ export default function HistoryPage() {
                 <CardContent className="pt-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col">
-                      <span className="text-xs uppercase font-black tracking-wider text-muted-foreground mb-1">Top Match</span>
+                      <span className="text-xs uppercase font-black tracking-wider text-muted-foreground mb-1">
+                        Top Match
+                      </span>
                       <div className="flex items-center text-xl font-black text-foreground">
-                        {item.topMatchScore}% <Zap className="ml-1.5 h-4 w-4 text-yellow-500 fill-current" />
+                        {item.topMatchScore}%{" "}
+                        <Zap className="ml-1.5 h-4 w-4 text-yellow-500 fill-current" />
                       </div>
                     </div>
                     <div className="flex flex-col border-l border-border pl-4">
-                      <span className="text-xs uppercase font-black tracking-wider text-muted-foreground mb-1">Jobs Found</span>
-                      <span className="text-xl font-black text-foreground">{item.totalJobsFound || 0}</span>
+                      <span className="text-xs uppercase font-black tracking-wider text-muted-foreground mb-1">
+                        Jobs Found
+                      </span>
+                      <span className="text-xl font-black text-foreground">
+                        {item.totalJobsFound || 0}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
