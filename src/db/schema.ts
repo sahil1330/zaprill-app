@@ -147,6 +147,7 @@ export const resumeAnalysis = pgTable("resume_analysis", {
   jobs: jsonb("jobs").default([]),           // JobMatch[]
   skillGaps: jsonb("skill_gaps").default([]), // SkillGap[]
   roadmap: jsonb("roadmap").default([]),     // RoadmapItem[]
+  advice: text("advice"),                    // AI Advice
 
   // Meta
   searchLocation: text("search_location"),  // location used for job search

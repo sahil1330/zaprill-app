@@ -24,8 +24,11 @@ const RoadmapItemSchema = z.object({
   category: z.enum(["language", "framework", "database", "cloud", "tool", "soft", "other"]),
 });
 
-const RoadmapSchema = z.object({ roadmap: z.array(RoadmapItemSchema) });
-
+const AnalysisResponseSchema = z.object({
+  advice: z.string(),
+  relevantSkillGaps: z.array(z.string()),
+  roadmap: z.array(RoadmapItemSchema),
+});
 /** Extract the first JSON object/array block from a model response */
 function extractJSON(text: string): string | null {
   // Find the outermost { ... } block
@@ -69,11 +72,11 @@ export async function POST(request: Request) {
     // Aggregate skill gaps across all jobs
     const skillGaps = aggregateSkillGaps(resumeSkills, matchedJobs);
 
-    // Only generate roadmap for top 8 missing skills to save tokens
-    const topGaps = skillGaps.slice(0, 8);
+    // Pass top 20 missing skills to the LLM so it can filter intelligently
+    const topGaps = skillGaps.slice(0, 20);
 
     if (topGaps.length === 0) {
-      return NextResponse.json({ matchedJobs, skillGaps: [], roadmap: [] });
+      return NextResponse.json({ matchedJobs, skillGaps: [], roadmap: [], advice: "" });
     }
 
     const { text, usage } = await generateText({
@@ -83,17 +86,30 @@ export async function POST(request: Request) {
 A candidate has these skills: ${resumeSkills.join(", ")}
 They are targeting roles like: ${(inferredJobTitles ?? []).join(", ")}
 
-They are MISSING these skills that appear frequently in job listings:
-${topGaps.map((g) => `- ${g.skill} (needed in ${g.frequency} out of ${jobs.length} job listings, priority: ${g.priority})`).join("\n")}
+They appear to be missing these skills based on naive job matching:
+${topGaps.map((g) => `- ${g.skill} (frequency: ${g.frequency} out of ${jobs.length} jobs, priority: ${g.priority})`).join("\n")}
 
-Return a JSON object with this exact shape:
+YOUR TASK:
+1. Identify which of these missing skills are ACTUALLY relevant for the candidate to learn.
+   - STRICTLY EXCLUDE foundational or basic web skills if the user has advanced frontend frameworks. For example, if they have React, Angular, Vue, Node.js or Next.js, you MUST NOT include "HTML", "CSS", "HTML5", "CSS3", or "Javascript".
+   - STRICTLY EXCLUDE generic soft skills and methodologies (e.g., exclude "Communication", "Agile", "Scrum", "Teamwork") as these clutter the roadmap.
+   - EXCLUDE alternative tech stacks that clearly don't fit their primary profile (e.g., exclude "Java", "PHP", "C#" if they are a strong "Node.js" dev, unless they are explicitly standard for the roles).
+   - KEEP skills that are genuine, distinct, and valuable additions to their current stack (e.g., Docker, AWS, Redis).
+2. Generate an overall "advice" string providing strategic guidance on their career, what to focus on, and why certain skills were skipped.
+3. Choose the most relevant missing skills from the list for the roadmap.
+4. Add these chosen true gaps to the "relevantSkillGaps" array.
+5. Generate a learning roadmap for the chosen relevant skills.
+
+Return ONLY a JSON object with this exact shape:
 {
+  "advice": "strategic guidance for their career based on their profile",
+  "relevantSkillGaps": ["skill1", "skill2", ...],
   "roadmap": [
     {
       "skill": "skill name",
       "priority": "high" | "medium" | "low",
       "estimatedTime": "e.g. 2-4 weeks",
-      "why": "why this skill matters for their target roles",
+      "why": "why this skill matters specifically for them",
       "resources": [
         { "type": "course" | "book" | "tutorial" | "documentation" | "practice", "name": "resource name", "url": "https://...", "free": true, "estimatedTime": "optional" }
       ],
@@ -102,18 +118,26 @@ Return a JSON object with this exact shape:
   ]
 }
 
-Include an entry for each missing skill. Prefer free resources. Use real, working URLs.`,
+Prefer free resources. Use real, working URLs.`,
     });
     console.log("analyze gaps usage", usage);
     // Parse JSON out of the model response (handles thinking tokens / extra text)
-    let roadmap: z.infer<typeof RoadmapSchema>["roadmap"] = [];
+    let roadmap: z.infer<typeof AnalysisResponseSchema>["roadmap"] = [];
+    let advice = "";
+    let filteredGaps = skillGaps;
+
     try {
       const jsonStr = extractJSON(text) ?? text;
-      const parsed = RoadmapSchema.safeParse(JSON.parse(jsonStr));
+      const parsed = AnalysisResponseSchema.safeParse(JSON.parse(jsonStr));
       if (parsed.success) {
         roadmap = parsed.data.roadmap;
+        advice = parsed.data.advice;
+        
+        // Filter the original skillGaps based on the LLM's selected relevant skills
+        const relevantSkillMap = new Set(parsed.data.relevantSkillGaps.map((s) => s.toLowerCase().trim()));
+        filteredGaps = skillGaps.filter((g) => relevantSkillMap.has(g.skill.toLowerCase().trim()));
       } else {
-        console.warn("Roadmap schema validation failed:", parsed.error.issues);
+        console.warn("Analysis response schema validation failed:", parsed.error.issues);
       }
     } catch (parseErr) {
       console.warn("Could not parse roadmap JSON:", parseErr, "\nRaw:", text.slice(0, 300));
@@ -122,8 +146,9 @@ Include an entry for each missing skill. Prefer free resources. Use real, workin
 
     return NextResponse.json({
       matchedJobs: matchedJobs.slice(0, 100),
-      skillGaps,
+      skillGaps: filteredGaps,
       roadmap,
+      advice,
     });
   } catch (error) {
     console.error("Gap analysis error:", error);

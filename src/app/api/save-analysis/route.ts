@@ -16,11 +16,12 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { resume, jobs, skillGaps, roadmap } = body as {
+    const { resume, jobs, skillGaps, roadmap, advice } = body as {
       resume: ParsedResume;
       jobs: JobMatch[];
       skillGaps: SkillGap[];
       roadmap: RoadmapItem[];
+      advice: string;
     };
 
     if (!resume) {
@@ -59,6 +60,7 @@ export async function POST(req: Request) {
       jobs: jobs || [],
       skillGaps: skillGaps || [],
       roadmap: roadmap || [],
+      advice: advice || "",
       searchLocation: resume.location, 
       totalJobsFound,
       topMatchScore,

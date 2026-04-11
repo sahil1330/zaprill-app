@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
+import { useEffect, useState, useCallback, useMemo, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type {
   ParsedResume,
@@ -92,7 +92,11 @@ function AnalyzePageContent() {
   const [jobs, setJobs] = useState<JobMatch[]>([]);
   const [skillGaps, setSkillGaps] = useState<SkillGap[]>([]);
   const [roadmap, setRoadmap] = useState<RoadmapItem[]>([]);
+  const [advice, setAdvice] = useState<string>("");
   const [analysisId, setAnalysisId] = useState<string | null>(null);
+  
+  const initRef = useRef(false);
+  const savingRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState<TabId>("jobs");
   const [showFilters, setShowFilters] = useState(false);
@@ -169,11 +173,13 @@ function AnalyzePageContent() {
           matchedJobs,
           skillGaps: gaps,
           roadmap: rm,
+          advice: aiAdvice,
         } = await gapRes.json();
 
         setJobs(matchedJobs);
         setSkillGaps(gaps);
         setRoadmap(rm);
+        setAdvice(aiAdvice || "");
         setStep("done");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Analysis failed");
@@ -199,6 +205,7 @@ function AnalyzePageContent() {
             setJobs(analysis.jobs || []);
             setSkillGaps(analysis.skillGaps || []);
             setRoadmap(analysis.roadmap || []);
+            setAdvice(analysis.advice || "");
             setAnalysisId(analysis.id);
 
             // Extract search location correctly back for filters
@@ -222,7 +229,7 @@ function AnalyzePageContent() {
   }, [idFromUrl, user, isFetchingHistory, resume]);
 
   useEffect(() => {
-    if (idFromUrl || isFetchingHistory) return;
+    if (idFromUrl || isFetchingHistory || initRef.current) return;
 
     const stored = sessionStorage.getItem("ai_job_god_resume");
     if (!stored) {
@@ -233,6 +240,7 @@ function AnalyzePageContent() {
 
     // If resume is not yet set up, initialize it
     if (!resume) {
+      initRef.current = true;
       setResume(parsed);
       if (parsed.location) {
         // Extract just the city name (e.g. "Mumbai" from "Mumbai, India")
@@ -252,8 +260,9 @@ function AnalyzePageContent() {
   useEffect(() => {
     // Only save automatically if we aren't already looking at a history loaded run
     // AND if idFromUrl matches analysisId (meaning we already set it) we shouldn't save again
-    if (step === "done" && user && !analysisId && resume && !idFromUrl) {
+    if (step === "done" && user && !analysisId && resume && !idFromUrl && !savingRef.current) {
       const saveAnalysis = async () => {
+        savingRef.current = true;
         try {
           const res = await fetch("/api/save-analysis", {
             method: "POST",
@@ -263,6 +272,7 @@ function AnalyzePageContent() {
               jobs,
               skillGaps,
               roadmap,
+              advice,
             }),
           });
           if (res.ok) {
@@ -273,6 +283,7 @@ function AnalyzePageContent() {
           }
         } catch (e) {
           console.error("Failed to save analysis", e);
+          savingRef.current = false;
         }
       };
       saveAnalysis();
@@ -285,6 +296,7 @@ function AnalyzePageContent() {
     jobs,
     skillGaps,
     roadmap,
+    advice,
     router,
     idFromUrl,
   ]);
@@ -919,6 +931,17 @@ function AnalyzePageContent() {
                     Aggregated across {jobs.length} verified listings
                   </p>
                 </div>
+                
+                {advice && (
+                  <div className="mb-8 p-6 bg-accent/10 rounded-xl border border-accent/20 text-accent-foreground shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Zap className="h-5 w-5 text-accent-foreground/80" />
+                      <h3 className="text-lg font-black tracking-tight">AI Career Advice</h3>
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed opacity-90">{advice}</p>
+                  </div>
+                )}
+                
                 <SkillGapPanel
                   resume={resume}
                   skillGaps={skillGaps}
