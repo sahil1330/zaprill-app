@@ -224,6 +224,9 @@ export default function HomePage() {
                   />
                 </div>
               </div>
+              <div className="mt-4 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-bold">
+                Supports PDF, DOCX, DOC, TXT (Max 10MB)
+              </div>
             </div>
           ) : (
             <ResumeUploader onUpload={handleUpload} disabled={isAnalyzing} />

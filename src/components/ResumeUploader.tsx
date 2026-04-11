@@ -51,6 +51,9 @@ export default function ResumeUploader({
           }
         }}
       />
+      <div className="mt-2 text-center text-[10px] uppercase tracking-widest text-neutral-500/60 dark:text-neutral-400/60 font-medium">
+        Supports PDF, DOCX, DOC, TXT (Max 10MB)
+      </div>
       {error && (
         <div className="flex items-center gap-2 mt-3 p-3 bg-destructive/10 border border-destructive/25 rounded-md text-destructive text-sm font-medium">
           <AlertCircle className="h-4 w-4 shrink-0" />

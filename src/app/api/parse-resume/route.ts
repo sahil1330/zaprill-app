@@ -8,10 +8,13 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import db from '@/db'
 import { userProfile } from '@/db/schema'
+import mammoth from 'mammoth'
+import WordExtractor from 'word-extractor'
 
 export const maxDuration = 60
 
 const ResumeSchema = z.object({
+  isResume: z.boolean().describe('Whether the provided content is actually a resume/CV'),
   name: z.string().describe('Full name of the candidate'),
   email: z.string().describe('Email address'),
   phone: z.string().optional().describe('Phone number if present'),
@@ -69,6 +72,12 @@ export async function POST(request: Request) {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain',
     ]
+    
+    const isDoc = file.name.endsWith('.doc')
+    const isDocx = file.name.endsWith('.docx')
+    const isPdf = file.name.endsWith('.pdf') || file.type === 'application/pdf'
+    const isTxt = file.name.endsWith('.txt') || file.type === 'text/plain'
+
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|txt)$/i)) {
       return NextResponse.json(
         { error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT' },
@@ -84,23 +93,47 @@ export async function POST(request: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer()
-    const mediaType = (file.type || 'application/pdf') as 'application/pdf'
+    const buffer = Buffer.from(arrayBuffer)
+    
+    let content: any[] = []
+    
+    if (isPdf) {
+      content.push({
+        type: 'file',
+        data: new Uint8Array(arrayBuffer),
+        mediaType: 'application/pdf',
+      })
+    } else {
+      let extractedText = ''
+      
+      if (isDocx) {
+        const result = await mammoth.extractRawText({ buffer })
+        extractedText = result.value
+      } else if (isDoc) {
+        const extractor = new WordExtractor()
+        const doc = await extractor.extract(buffer)
+        extractedText = doc.getBody()
+      } else if (isTxt) {
+        extractedText = buffer.toString('utf-8')
+      }
+      
+      if (!extractedText) {
+        throw new Error('Could not extract text from file')
+      }
 
-    const { output: parsed, usage } = await generateText({
-      model: hackclub('google/gemini-2.5-flash'),
-      output: Output.object({ schema: ResumeSchema }),
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'file',
-              data: new Uint8Array(arrayBuffer),
-              mediaType,
-            },
-            {
-              type: 'text',
-              text: `You are an expert HR analyst and resume parser. Extract ALL information from this resume with high accuracy.
+      content.push({
+        type: 'text',
+        text: `RESUME CONTENT:\n${extractedText}`,
+      })
+    }
+
+    content.push({
+      type: 'text',
+      text: `You are an expert HR analyst and resume parser. 
+
+FIRST: Determine if the provided content is actually a resume or CV. If it is just random text, garbage data, a different type of document (like a cookbook, a general book, or a news article), or totally unreadable, set "isResume" to false.
+
+IF IT IS A RESUME, extract ALL information with high accuracy. 
 
 For skills, be comprehensive — include every programming language, framework, library, tool, database, cloud platform, and methodology mentioned anywhere in the resume.
 
@@ -109,8 +142,15 @@ For location, look for the candidate's current residence (City and State/Country
 For inferredJobTitles, think about what roles this person would realistically apply for based on their entire background — include 3-6 specific, searchable job titles (e.g., "Senior React Developer", "Full Stack Engineer", "Node.js Backend Developer").
 
 Be precise and thorough. Do not make up information that isn't in the resume.`,
-            },
-          ],
+    })
+
+    const { output: parsed, usage } = await generateText({
+      model: hackclub('google/gemini-2.5-flash'),
+      output: Output.object({ schema: ResumeSchema }),
+      messages: [
+        {
+          role: 'user',
+          content,
         },
       ],
     })
@@ -118,6 +158,14 @@ Be precise and thorough. Do not make up information that isn't in the resume.`,
     if (!parsed) {
       return NextResponse.json({ error: 'Failed to extract resume data' }, { status: 500 })
     }
+
+    if (!parsed.isResume) {
+      return NextResponse.json(
+        { error: 'The uploaded file does not appear to be a valid resume. Please upload a PDF or Word document containing your professional history.' },
+        { status: 400 }
+      )
+    }
+
     console.log("parse resume usage", usage)
     // Normalize and deduplicate skills across all sections
     const allSkills = normalizeSkillList([
