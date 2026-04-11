@@ -14,6 +14,7 @@ import {
   Dumbbell,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { trackRoadmapItemExpanded, trackResourceLinkClicked } from "@/lib/analytics";
 
 interface LearningRoadmapProps {
   roadmap: RoadmapItem[];
@@ -59,7 +60,17 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
     >
       {/* Header */}
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => {
+          const nextExpanded = !expanded;
+          setExpanded(nextExpanded);
+          if (nextExpanded) {
+            trackRoadmapItemExpanded({
+              skill_name: item.skill,
+              priority: item.priority,
+              item_index: index,
+            });
+          }
+        }}
         className="w-full p-5 flex items-center gap-4 bg-transparent border-none cursor-pointer text-left hover:bg-muted/30 transition-colors focus-visible:outline-none"
         id={`roadmap-toggle-${index}`}
         aria-expanded={expanded}
@@ -135,6 +146,13 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                       rel="noopener noreferrer"
                       id={`resource-link-${index}-${i}`}
                       className="text-muted-foreground transition-colors shrink-0 p-2 hover:text-foreground hover:bg-muted rounded"
+                      onClick={() => trackResourceLinkClicked({
+                        skill_name: item.skill,
+                        resource_name: res.name,
+                        resource_type: res.type,
+                        resource_url: res.url!,
+                        is_free: res.free,
+                      })}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>

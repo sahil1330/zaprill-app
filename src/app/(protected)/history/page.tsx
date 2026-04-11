@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Zap, Target, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { trackHistoryPageViewed, trackHistoryItemClicked } from "@/lib/analytics";
 
 type HistoryItem = {
   id: string;
@@ -35,6 +36,7 @@ export default function HistoryPage() {
         .then((data) => {
           if (data.history) {
             setHistory(data.history);
+            trackHistoryPageViewed({ history_item_count: data.history.length });
           }
         })
         .finally(() => setIsLoading(false));
@@ -95,7 +97,14 @@ export default function HistoryPage() {
               <Card
                 key={item.id}
                 className="overflow-hidden hover:border-foreground/50 transition-colors shadow-sm cursor-pointer"
-                onClick={() => router.push(`/analyze?id=${item.id}`)}
+                onClick={() => {
+                  trackHistoryItemClicked({
+                    analysis_id: item.id,
+                    top_match_score: item.topMatchScore,
+                    total_jobs_found: item.totalJobsFound,
+                  });
+                  router.push(`/analyze?id=${item.id}`);
+                }}
               >
                 <CardHeader className="bg-muted/30 pb-4">
                   <div className="flex justify-between items-start mb-2">

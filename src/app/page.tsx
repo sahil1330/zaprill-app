@@ -18,6 +18,14 @@ import { GridPattern } from "@/components/ui/file-upload";
 import { WordFadeIn } from "@/components/ui/word-fade-in";
 import { useSession } from "@/lib/auth-client";
 import Navbar from "@/components/Navbar";
+import {
+  trackResumeFileSelected,
+  trackResumeUploadStart,
+  trackResumeParseSuccess,
+  trackResumeParseFailure,
+  trackSavedProfileUsed,
+  trackResumeReplaced,
+} from "@/lib/analytics";
 
 const FEATURES = [
   {
@@ -78,6 +86,7 @@ export default function HomePage() {
 
   const handleUseSavedProfile = () => {
     if (profile?.resumeRaw) {
+      trackSavedProfileUsed();
       sessionStorage.setItem("ai_job_god_resume", JSON.stringify(profile.resumeRaw));
       router.push("/analyze");
     }
@@ -86,12 +95,22 @@ export default function HomePage() {
   const handleUpload = useCallback((file: File) => {
     setSelectedFile(file);
     setError(null);
+    trackResumeFileSelected({
+      file_type: file.name.split(".").pop()?.toLowerCase() ?? "unknown",
+      file_size_kb: Math.round(file.size / 1024),
+    });
   }, []);
 
   const handleAnalyze = async () => {
     if (!selectedFile) return;
     setIsAnalyzing(true);
     setError(null);
+
+    const fileType = selectedFile.name.split(".").pop()?.toLowerCase() ?? "unknown";
+    const fileSizeKb = Math.round(selectedFile.size / 1024);
+    const startTime = performance.now();
+
+    trackResumeUploadStart({ file_type: fileType, file_size_kb: fileSizeKb });
 
     try {
       const formData = new FormData();
@@ -107,10 +126,21 @@ export default function HomePage() {
       }
       const resume = await parseRes.json();
 
+      trackResumeParseSuccess({
+        file_type: fileType,
+        file_size_kb: fileSizeKb,
+        skill_count: resume.skills?.length ?? 0,
+        has_location: Boolean(resume.location),
+        experience_count: resume.experience?.length ?? 0,
+        duration_ms: Math.round(performance.now() - startTime),
+      });
+
       sessionStorage.setItem("ai_job_god_resume", JSON.stringify(resume));
       router.push("/analyze");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      trackResumeParseFailure({ error_message: message, file_type: fileType });
+      setError(message);
       setIsAnalyzing(false);
     }
   };
@@ -187,6 +217,7 @@ export default function HomePage() {
                     accept=".pdf,.doc,.docx,.txt"
                     onChange={(e) => {
                       if (e.target.files && e.target.files[0]) {
+                        trackResumeReplaced();
                         handleUpload(e.target.files[0]);
                       }
                     }}

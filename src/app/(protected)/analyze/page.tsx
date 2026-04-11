@@ -58,6 +58,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useAuth from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
+import {
+  trackAnalysisStart,
+  trackJobSearchComplete,
+  trackGapAnalysisComplete,
+  trackAnalysisComplete,
+  trackAnalysisError,
+  trackLocationSearch,
+  trackFilterPanelOpen,
+  trackFilterApplied,
+  trackSortChanged,
+  trackTabViewed,
+  trackAnalysisSaved,
+  trackJobListViewed,
+} from "@/lib/analytics";
 
 type TabId = "jobs" | "gaps" | "roadmap";
 
@@ -116,6 +130,7 @@ function AnalyzePageContent() {
 
   const runAnalysis = useCallback(
     async (parsedResume: ParsedResume, locationOverride?: string) => {
+      const analysisStartTime = performance.now();
       try {
         setStep("searching");
         if (idFromUrl) {
@@ -125,6 +140,13 @@ function AnalyzePageContent() {
         setAnalysisId(null);
         if (locationOverride) setIsSearchingLocation(true);
 
+        trackAnalysisStart({
+          skill_count: parsedResume.skills.length,
+          search_location: locationOverride || parsedResume.location,
+          is_location_override: Boolean(locationOverride),
+        });
+
+        const jobSearchStart = performance.now();
         const jobRes = await fetch("/api/search-jobs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -155,7 +177,14 @@ function AnalyzePageContent() {
         }
         const { jobs: rawJobs } = await jobRes.json();
 
+        trackJobSearchComplete({
+          job_count: rawJobs.length,
+          search_location: locationOverride || parsedResume.location,
+          duration_ms: Math.round(performance.now() - jobSearchStart),
+        });
+
         setStep("analyzing");
+        const gapAnalysisStart = performance.now();
         const gapRes = await fetch("/api/analyze-gaps", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -176,19 +205,46 @@ function AnalyzePageContent() {
           advice: aiAdvice,
         } = await gapRes.json();
 
+        trackGapAnalysisComplete({
+          skill_gaps_count: gaps.length,
+          roadmap_items_count: rm.length,
+          duration_ms: Math.round(performance.now() - gapAnalysisStart),
+        });
+
         setJobs(matchedJobs);
         setSkillGaps(gaps);
         setRoadmap(rm);
         setAdvice(aiAdvice || "");
         setStep("done");
+
+        const topMatch = matchedJobs.length
+          ? Math.max(...matchedJobs.map((j: JobMatch) => j.matchPercentage))
+          : 0;
+        const avgMatch = matchedJobs.length
+          ? Math.round(
+              matchedJobs.reduce((s: number, j: JobMatch) => s + j.matchPercentage, 0) /
+                matchedJobs.length,
+            )
+          : 0;
+        trackAnalysisComplete({
+          job_count: matchedJobs.length,
+          top_match_score: topMatch,
+          avg_match_score: avgMatch,
+          skill_gaps_count: gaps.length,
+          roadmap_items_count: rm.length,
+          analysis_duration_ms: Math.round(performance.now() - analysisStartTime),
+          search_location: locationOverride || parsedResume.location,
+        });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Analysis failed");
+        const message = err instanceof Error ? err.message : "Analysis failed";
+        trackAnalysisError({ error_message: message, step });
+        setError(message);
         setStep("error");
       } finally {
         setIsSearchingLocation(false);
       }
     },
-    [idFromUrl, router],
+    [idFromUrl, router, step],
   );
 
   // Handle loading via URL ID
@@ -278,6 +334,13 @@ function AnalyzePageContent() {
           if (res.ok) {
             const data = await res.json();
             setAnalysisId(data.analysisId);
+            trackAnalysisSaved({
+              analysis_id: data.analysisId,
+              job_count: jobs.length,
+              top_match_score: jobs.length
+                ? Math.max(...jobs.map((j) => j.matchPercentage))
+                : 0,
+            });
             // Replace url so a refresh doesn't duplicate
             router.replace(`/analyze?id=${data.analysisId}`);
           }
@@ -569,7 +632,18 @@ function AnalyzePageContent() {
 
             <Tabs
               value={activeTab}
-              onValueChange={(val) => setActiveTab(val as TabId)}
+              onValueChange={(val) => {
+                setActiveTab(val as TabId);
+                trackTabViewed({ tab_id: val as TabId });
+                // Track job list view when jobs tab first becomes active
+                if (val === "jobs") {
+                  trackJobListViewed({
+                    job_count: jobs.length,
+                    filtered_count: displayedJobs.length,
+                    search_location: searchLoc || undefined,
+                  });
+                }
+              }}
               className="w-full"
             >
               <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted p-2 rounded-xl border border-border shadow-sm h-auto">
@@ -605,7 +679,10 @@ function AnalyzePageContent() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowFilters(!showFilters)}
+                      onClick={() => {
+                        if (!showFilters) trackFilterPanelOpen();
+                        setShowFilters(!showFilters);
+                      }}
                       className="font-bold text-sm"
                     >
                       <Filter className="mr-2 h-4 w-4" />
@@ -624,7 +701,15 @@ function AnalyzePageContent() {
                           <Input
                             placeholder="e.g. Frontend Engineer"
                             value={searchTitle}
-                            onChange={(e) => setSearchTitle(e.target.value)}
+                            onChange={(e) => {
+                              setSearchTitle(e.target.value);
+                              if (e.target.value) {
+                                trackFilterApplied({
+                                  filter_type: "title",
+                                  filter_value: e.target.value,
+                                });
+                              }
+                            }}
                             className="bg-background border-border font-medium"
                           />
                         </div>
@@ -642,9 +727,17 @@ function AnalyzePageContent() {
                                   locationMatchesCity(j.location, city),
                                 );
                                 if (!hasJobsInCity) {
+                                  trackLocationSearch({
+                                    city,
+                                    triggered_by: "combobox_change",
+                                  });
                                   runAnalysis(resume, city);
                                 }
                               }
+                              trackFilterApplied({
+                                filter_type: "location",
+                                filter_value: city,
+                              });
                             }}
                             disabled={isSearchingLocation}
                           />
@@ -654,9 +747,15 @@ function AnalyzePageContent() {
                               size="sm"
                               className="w-full font-bold h-9"
                               disabled={isSearchingLocation}
-                              onClick={() =>
-                                resume && runAnalysis(resume, searchLoc)
-                              }
+                              onClick={() => {
+                                if (resume) {
+                                  trackLocationSearch({
+                                    city: searchLoc,
+                                    triggered_by: "search_button",
+                                  });
+                                  runAnalysis(resume, searchLoc);
+                                }
+                              }}
                             >
                               {isSearchingLocation ? (
                                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -676,7 +775,13 @@ function AnalyzePageContent() {
                           </label>
                           <Select
                             value={workType}
-                            onValueChange={(v) => setWorkType(v || "any")}
+                            onValueChange={(v) => {
+                              setWorkType(v || "any");
+                              trackFilterApplied({
+                                filter_type: "work_type",
+                                filter_value: v || "any",
+                              });
+                            }}
                           >
                             <SelectTrigger className="bg-background border-border font-bold">
                               <SelectValue placeholder="Any Workspace" />
@@ -699,7 +804,13 @@ function AnalyzePageContent() {
                           </label>
                           <Select
                             value={empType}
-                            onValueChange={(v) => setEmpType(v || "any")}
+                            onValueChange={(v) => {
+                              setEmpType(v || "any");
+                              trackFilterApplied({
+                                filter_type: "employment_type",
+                                filter_value: v || "any",
+                              });
+                            }}
                           >
                             <SelectTrigger className="bg-background border-border font-bold">
                               <SelectValue placeholder="Any Type" />
@@ -729,12 +840,18 @@ function AnalyzePageContent() {
                               {minMatch[0]}%
                             </span>
                           </div>
-                          <Slider
+                           <Slider
                             defaultValue={[0]}
                             max={100}
                             step={5}
                             value={minMatch}
-                            onValueChange={(v) => setMinMatch(v as number[])}
+                            onValueChange={(v) => {
+                              setMinMatch(v as number[]);
+                              trackFilterApplied({
+                                filter_type: "min_match",
+                                filter_value: v[0],
+                              });
+                            }}
                             className="my-4"
                           />
                         </div>
@@ -744,7 +861,13 @@ function AnalyzePageContent() {
                           </label>
                           <Switch
                             checked={requireSalary}
-                            onCheckedChange={setRequireSalary}
+                            onCheckedChange={(v) => {
+                              setRequireSalary(v);
+                              trackFilterApplied({
+                                filter_type: "require_salary",
+                                filter_value: v,
+                              });
+                            }}
                           />
                         </div>
                       </div>
@@ -874,13 +997,19 @@ function AnalyzePageContent() {
                       className="text-sm font-bold w-48"
                     >
                       <DropdownMenuItem
-                        onClick={() => setSortBy("match")}
+                        onClick={() => {
+                          setSortBy("match");
+                          trackSortChanged({ sort_by: "match" });
+                        }}
                         className="py-2"
                       >
                         🎯 Highest Match Ranking
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => setSortBy("recent")}
+                        onClick={() => {
+                          setSortBy("recent");
+                          trackSortChanged({ sort_by: "recent" });
+                        }}
                         className="py-2"
                       >
                         🕐 Most Recent Posts

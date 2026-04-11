@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   MapPin,
   Building2,
@@ -14,6 +15,7 @@ import SkillBadge from "./SkillBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { trackJobCardImpression, trackJobApplied } from "@/lib/analytics";
 
 interface JobCardProps {
   job: JobMatch;
@@ -32,9 +34,41 @@ function timeAgo(dateStr?: string): string {
 }
 
 export default function JobCard({ job, rank }: JobCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const impressionFired = useRef(false);
+
   const postedText = timeAgo(job.postedAt);
   const showMatched = job.matchedSkills.slice(0, 5);
   const showMissing = job.missingSkills.slice(0, 4);
+
+  // ── Impression tracking via Intersection Observer ──────────────────────────
+  useEffect(() => {
+    const node = cardRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !impressionFired.current) {
+            impressionFired.current = true;
+            trackJobCardImpression({
+              job_id: job.id,
+              job_title: job.title,
+              company_name: job.company,
+              match_score: job.matchPercentage,
+              is_remote: Boolean(job.isRemote),
+              job_rank: rank,
+            });
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.5 }, // Fire when ≥50% of the card is visible
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [job.id, job.title, job.company, job.matchPercentage, job.isRemote, rank]);
 
   const getRankStyles = (idx: number) => {
     if (idx === 0) return "bg-foreground text-background font-bold";
@@ -44,6 +78,7 @@ export default function JobCard({ job, rank }: JobCardProps) {
 
   return (
     <Card
+      ref={cardRef}
       className="animate-slide-up flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all hover:border-foreground/40 bg-card rounded-2xl overflow-hidden"
       style={{
         animationDelay: `${rank * 60}ms`,
@@ -151,6 +186,16 @@ export default function JobCard({ job, rank }: JobCardProps) {
             rel="noopener noreferrer"
             className={buttonVariants({ variant: "default", size: "lg" }) + " w-full font-bold text-base gap-2"}
             id={`apply-btn-${job.id}`}
+            onClick={() =>
+              trackJobApplied({
+                job_id: job.id,
+                job_title: job.title,
+                company_name: job.company,
+                match_score: job.matchPercentage,
+                is_remote: Boolean(job.isRemote),
+                job_rank: rank,
+              })
+            }
           >
             Apply for this position
             <ExternalLink className="h-4 w-4" />
@@ -160,3 +205,4 @@ export default function JobCard({ job, rank }: JobCardProps) {
     </Card>
   );
 }
+
