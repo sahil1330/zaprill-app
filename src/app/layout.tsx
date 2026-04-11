@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+import { Providers } from "@/providers/Providers";
+import { GoogleAnalytics } from "@next/third-parties/google";
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,17 +33,19 @@ export const metadata: Metadata = {
   },
 };
 
-import { Providers } from "@/providers/Providers";
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn("font-sans", geist.variable)}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body>
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID!} />
       </body>
     </html>
   );
