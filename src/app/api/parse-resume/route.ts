@@ -55,6 +55,7 @@ const ResumeSchema = z.object({
     .describe(
       'Job titles this candidate would be a good fit for based on their experience and skills'
     ),
+  totalYearsOfExperience: z.number().describe('Estimated total years of professional experience across all roles'),
 })
 
 export async function POST(request: Request) {
@@ -140,6 +141,8 @@ For skills, be comprehensive — include every programming language, framework, 
 For location, look for the candidate's current residence (City and State/Country).
 
 For inferredJobTitles, think about what roles this person would realistically apply for based on their entire background — include 3-6 specific, searchable job titles (e.g., "Senior React Developer", "Full Stack Engineer", "Node.js Backend Developer").
+
+For totalYearsOfExperience, sum up the candidate's professional career duration in years, rounding to the nearest whole number.
 
 Be precise and thorough. Do not make up information that isn't in the resume.`,
     })

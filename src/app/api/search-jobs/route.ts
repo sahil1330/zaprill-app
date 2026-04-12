@@ -27,10 +27,11 @@ function buildSalaryString(result: AdzunaResult): string | undefined {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { skills, jobTitles, location } = body as {
+    const { skills, jobTitles, location, experienceYears } = body as {
       skills: string[];
       jobTitles: string[];
       location?: string;
+      experienceYears?: number;
     };
 
     if (!skills?.length || !jobTitles?.length) {
@@ -56,7 +57,15 @@ export async function POST(request: Request) {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     // 3 queries — each fetches 2 pages of 50 results = up to 300 jobs total
-    const queries = jobTitles;
+    // Refine queries based on experience if provided
+    const queries = experienceYears !== undefined
+      ? jobTitles.map(title => {
+          if (experienceYears >= 12) return `Lead ${title}`;
+          if (experienceYears >= 7) return `Senior ${title}`;
+          if (experienceYears <= 1) return `Junior ${title}`;
+          return title;
+        })
+      : jobTitles;
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();

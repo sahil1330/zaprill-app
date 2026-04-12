@@ -16,6 +16,11 @@ const STEPS: Step[] = [
     description: "Gemini AI extracts your skills & experience",
   },
   {
+    key: "reviewing",
+    label: "Reviewing Data",
+    description: "Customize your search profile & titles",
+  },
+  {
     key: "searching",
     label: "Searching Jobs",
     description: "Scanning thousands of real job listings",
@@ -36,6 +41,7 @@ const STEP_ORDER: AnalysisStep[] = [
   "idle",
   "uploading",
   "parsing",
+  "reviewing",
   "searching",
   "analyzing",
   "done",

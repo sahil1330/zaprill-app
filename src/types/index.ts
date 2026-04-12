@@ -9,6 +9,7 @@ export interface ParsedResume {
   education: Education[];
   inferredJobTitles: string[];
   summary?: string;
+  totalYearsOfExperience?: number;
 }
 
 export interface WorkExperience {
@@ -92,6 +93,7 @@ export type AnalysisStep =
   | "idle"
   | "uploading"
   | "parsing"
+  | "reviewing"
   | "searching"
   | "analyzing"
   | "done"

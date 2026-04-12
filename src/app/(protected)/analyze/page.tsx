@@ -41,6 +41,10 @@ import {
   X,
   ChevronDown,
   Loader2,
+  Plus,
+  Trash2,
+  Check,
+  Info,
 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -130,8 +134,13 @@ function AnalyzePageContent() {
   const [empType, setEmpType] = useState("any");
   const [minMatch, setMinMatch] = useState([0]);
   const [requireSalary, setRequireSalary] = useState(false);
-
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+
+  // Review State
+  const [reviewSkills, setReviewSkills] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState("");
+  const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
+  const [experienceYears, setExperienceYears] = useState<number>(0);
 
   const { user } = useAuth();
 
@@ -148,19 +157,29 @@ function AnalyzePageContent() {
         if (locationOverride) setIsSearchingLocation(true);
 
         trackAnalysisStart({
-          skill_count: parsedResume.skills.length,
+          skill_count: reviewSkills.length,
           search_location: locationOverride || parsedResume.location,
           is_location_override: Boolean(locationOverride),
         });
+
+        // Update the main resume state so that follow-up steps (saving, reporting) use the reviewed data
+        const updatedResume: ParsedResume = {
+          ...parsedResume,
+          skills: reviewSkills,
+          inferredJobTitles: selectedTitles,
+          totalYearsOfExperience: experienceYears,
+        };
+        setResume(updatedResume);
 
         const jobSearchStart = performance.now();
         const jobRes = await fetch("/api/search-jobs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            skills: parsedResume.skills,
-            jobTitles: parsedResume.inferredJobTitles,
+            skills: reviewSkills,
+            jobTitles: selectedTitles,
             location: locationOverride || parsedResume.location,
+            experienceYears: experienceYears,
           }),
         });
         if (!jobRes.ok) {
@@ -196,9 +215,9 @@ function AnalyzePageContent() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            resumeSkills: parsedResume.skills,
+            resumeSkills: reviewSkills,
             jobs: rawJobs,
-            inferredJobTitles: parsedResume.inferredJobTitles,
+            inferredJobTitles: selectedTitles,
           }),
         });
         if (!gapRes.ok) {
@@ -255,8 +274,27 @@ function AnalyzePageContent() {
         setIsSearchingLocation(false);
       }
     },
-    [idFromUrl, router, step],
+    [idFromUrl, router, step, reviewSkills, selectedTitles, experienceYears],
   );
+
+  const addSkill = () => {
+    if (newSkill.trim() && !reviewSkills.includes(newSkill.trim())) {
+      setReviewSkills([...reviewSkills, newSkill.trim()]);
+      setNewSkill("");
+    }
+  };
+
+  const removeSkill = (skill: string) => {
+    setReviewSkills(reviewSkills.filter((s) => s !== skill));
+  };
+
+  const toggleTitle = (title: string) => {
+    if (selectedTitles.includes(title)) {
+      setSelectedTitles(selectedTitles.filter((t) => t !== title));
+    } else if (selectedTitles.length < 3) {
+      setSelectedTitles([...selectedTitles, title]);
+    }
+  };
 
   // Handle loading via URL ID
   const [isFetchingHistory, setIsFetchingHistory] = useState(false);
@@ -320,7 +358,11 @@ function AnalyzePageContent() {
         );
         setSearchLoc(matched ? matched.city : cityName);
       }
-      runAnalysis(parsed);
+      // Instead of starting analysis immediately, go to reviewing stage
+      setReviewSkills(parsed.skills);
+      setSelectedTitles(parsed.inferredJobTitles.slice(0, 3));
+      setExperienceYears(parsed.totalYearsOfExperience || 0);
+      setStep("reviewing");
     }
   }, [router, runAnalysis, idFromUrl, isFetchingHistory, resume]);
 
@@ -498,6 +540,191 @@ function AnalyzePageContent() {
       />
 
       <div className="max-w-7xl mx-auto px-6 py-10 w-full flex-1">
+        {/* Review Stage */}
+        {step === "reviewing" && resume && (
+          <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="mb-10 text-center">
+              <h2 className="text-4xl font-black tracking-tight text-foreground mb-3">
+                Finalize Your Profile
+              </h2>
+              <p className="text-lg text-muted-foreground font-semibold">
+                We've parsed your resume. Review and customize the data before
+                we search for jobs.
+              </p>
+            </div>
+
+            <div className="space-y-8">
+              {/* Quality Note */}
+              <Card className="border-amber-200/50 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900/50 overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
+                      <Info className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-amber-900 dark:text-amber-300 mb-1">
+                        Search Quality Tip
+                      </h4>
+                      <p className="text-sm text-amber-800/80 dark:text-amber-400/80 leading-relaxed font-medium">
+                        For the best results, avoid selecting very diverse job
+                        roles (e.g., "Web Developer" AND "Data Analyst"). The
+                        analysis quality is highest when you focus on a specific
+                        career path.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Experience Section */}
+              <Card className="shadow-sm border-border overflow-hidden">
+                <CardHeader className="pb-4 bg-muted/30 border-b border-border/50">
+                  <CardTitle className="text-xl font-black flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Years of Experience
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-8 pb-10 px-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                      Experience Level
+                    </span>
+                    <span className="text-3xl font-black text-foreground">
+                      {experienceYears} Years
+                    </span>
+                  </div>
+                  <Slider
+                    value={[experienceYears]}
+                    min={0}
+                    max={20}
+                    step={1}
+                    onValueChange={(val) => setExperienceYears(val[0])}
+                    className="py-4"
+                  />
+                  <p className="mt-4 text-xs text-muted-foreground font-semibold text-center italic">
+                    Slide to adjust your total professional experience for
+                    better job matching.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Job Titles Section */}
+              <Card className="shadow-sm border-border overflow-hidden">
+                <CardHeader className="pb-4 bg-muted/30 border-b border-border/50">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl font-black flex items-center gap-2">
+                      <Briefcase className="h-5 w-5" />
+                      Target Job Titles
+                    </CardTitle>
+                    <Badge
+                      variant={
+                        selectedTitles.length === 3 ? "default" : "secondary"
+                      }
+                      className="font-black"
+                    >
+                      {selectedTitles.length}/3 Selected
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {resume.inferredJobTitles.map((title) => {
+                      const isSelected = selectedTitles.includes(title);
+                      return (
+                        <button
+                          key={title}
+                          onClick={() => toggleTitle(title)}
+                          className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 text-left group
+                            ${
+                              isSelected
+                                ? "border-foreground bg-foreground text-background"
+                                : "border-border bg-card hover:border-muted-foreground/30 text-foreground"
+                            }
+                          `}
+                        >
+                          <span className="font-bold tracking-tight">
+                            {title}
+                          </span>
+                          <div
+                            className={`w-6 h-6 rounded-full flex items-center justify-center border
+                            ${
+                              isSelected
+                                ? "bg-background border-background"
+                                : "bg-muted border-border group-hover:border-muted-foreground/30"
+                            }
+                          `}
+                          >
+                            {isSelected && (
+                              <Check className="h-3.5 w-3.5 text-foreground stroke-[3px]" />
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Skills Section */}
+              <Card className="shadow-sm border-border overflow-hidden">
+                <CardHeader className="pb-4 bg-muted/30 border-b border-border/50">
+                  <CardTitle className="text-xl font-black flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    Key Skills
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {reviewSkills.map((skill) => (
+                      <Badge
+                        key={skill}
+                        variant="secondary"
+                        className="pl-3 pr-1 py-1.5 text-sm font-bold flex items-center gap-1 hover:bg-muted-foreground/10 transition-colors"
+                      >
+                        {skill}
+                        <button
+                          onClick={() => removeSkill(skill)}
+                          className="w-5 h-5 rounded-md flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a missing skill..."
+                      value={newSkill}
+                      onChange={(e) => setNewSkill(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addSkill()}
+                      className="bg-muted/50 border-border font-bold h-12"
+                    />
+                    <Button
+                      onClick={addSkill}
+                      variant="default"
+                      className="h-12 w-12 p-0 shrink-0"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="pt-4">
+                <Button
+                  onClick={() => runAnalysis(resume)}
+                  disabled={selectedTitles.length === 0}
+                  className="w-full h-16 text-xl font-black tracking-tight shadow-xl group"
+                >
+                  <Zap className="mr-3 h-6 w-6 fill-current group-hover:scale-110 transition-transform" />
+                  Start Job Search Analysis
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Loading / Progress state */}
         {isLoading && (
           <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 items-start">

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import db from "@/db";
-import { resumeAnalysis } from "@/db/schema";
+import { resumeAnalysis, userProfile } from "@/db/schema";
 import { ParsedResume, JobMatch, SkillGap, RoadmapItem } from "@/types";
 
 export async function POST(req: Request) {
@@ -66,6 +66,27 @@ export async function POST(req: Request) {
       topMatchScore,
       avgMatchScore,
     });
+    
+    // Also update the permanent user profile with the reviewed data
+    try {
+      await db
+        .insert(userProfile)
+        .values({
+          id: crypto.randomUUID(),
+          userId: session.user.id,
+          resumeRaw: resume,
+        })
+        .onConflictDoUpdate({
+          target: userProfile.userId,
+          set: {
+            resumeRaw: resume,
+            updatedAt: new Date(),
+          },
+        });
+    } catch (profileErr) {
+      console.error("Failed to update user profile during save:", profileErr);
+      // Don't fail the whole request if profile update fails
+    }
 
     return NextResponse.json({ success: true, analysisId });
   } catch (error: any) {
