@@ -113,7 +113,7 @@ function SignInForm() {
             <BriefcaseIcon className="h-4 w-4 text-background" />
           </div>
           <span className="font-bold text-xl tracking-tight text-foreground">
-            AI Job God
+            Zaprill
           </span>
         </Link>
 

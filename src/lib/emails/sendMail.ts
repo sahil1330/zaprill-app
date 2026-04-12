@@ -3,7 +3,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendMail = async (to: string, subject: string, text: string, html: string) => {
     try {
         const res = await resend.emails.send({
-            from: "AI Job God <noreply@sahilmane.in>",
+            from: "Zaprill <noreply@sahilmane.in>",
             to,
             subject,
             html: html,

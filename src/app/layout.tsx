@@ -14,9 +14,9 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AI Job God — Resume Analyzer & Career GPS",
+  title: "Zaprill — Resume Analyzer & Career GPS",
   description:
-    "Upload your resume and let AI find the best job matches, reveal skill gaps, and build a personalized learning roadmap to land your dream role.",
+    "Upload your resume and let Zaprill find the best job matches, reveal skill gaps, and build a personalized learning roadmap to land your dream role.",
   keywords: [
     "resume analyzer",
     "job matching",
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     "AI job search",
   ],
   openGraph: {
-    title: "AI Job God — Your AI Career GPS",
+    title: "Zaprill — Your Career GPS",
     description:
-      "Stop guessing. Let AI analyze your resume, match real jobs, and tell you exactly what to learn next.",
+      "Stop guessing. Let Zaprill analyze your resume, match real jobs, and tell you exactly what to learn next.",
     type: "website",
   },
 };

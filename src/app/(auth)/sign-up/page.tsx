@@ -109,7 +109,7 @@ function SignUpForm() {
             <BriefcaseIcon className="h-4 w-4 text-background" />
           </div>
           <span className="font-bold text-xl tracking-tight text-foreground">
-            AI Job God
+            Zaprill
           </span>
         </Link>
 
@@ -158,7 +158,7 @@ function SignUpForm() {
                 Create an account
               </CardTitle>
               <CardDescription className="text-sm font-medium mt-1">
-                Join AI Job God and accelerate your career
+                Join Zaprill and accelerate your career
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -1,7 +1,7 @@
 /**
  * analytics.ts
  *
- * Single source of truth for all GA4 telemetry in AI Job God.
+ * Single source of truth for all GA4 telemetry in Zaprill.
  * NO component should call gtag() directly — always use these typed helpers.
  *
  * Architecture:

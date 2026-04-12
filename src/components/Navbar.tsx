@@ -101,7 +101,7 @@ export default function Navbar({
               <BriefcaseIcon className="h-4 w-4 text-background" />
             </div>
             <span className="font-bold text-lg tracking-tight text-foreground hidden sm:block">
-              AI Job God
+              Zaprill
             </span>
           </Link>
         )}
