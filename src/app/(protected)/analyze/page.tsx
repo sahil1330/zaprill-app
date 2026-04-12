@@ -662,7 +662,11 @@ function AnalyzePageContent() {
                     max={20}
                     step={1}
                     onValueChange={(val) =>
-                      setExperienceYears(val[0] ?? experienceYears)
+                      setExperienceYears(
+                        Array.isArray(val)
+                          ? (val[0] ?? experienceYears)
+                          : val,
+                      )
                     }
                     className="py-4"
                   />
@@ -1157,7 +1161,7 @@ function AnalyzePageContent() {
                             step={5}
                             value={minMatch}
                             onValueChange={(v) => {
-                              const valArr = v as number[];
+                              const valArr = Array.isArray(v) ? v : [v];
                               setMinMatch(valArr);
                               trackFilterApplied({
                                 filter_type: "min_match",
