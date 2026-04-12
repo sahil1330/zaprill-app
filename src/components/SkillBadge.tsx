@@ -27,7 +27,8 @@ export default function SkillBadge({
       break;
   }
 
-  const sClass = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
+  const sClass =
+    size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs";
 
   return (
     <Badge

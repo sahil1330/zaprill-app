@@ -14,7 +14,10 @@ import {
   Dumbbell,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { trackRoadmapItemExpanded, trackResourceLinkClicked } from "@/lib/analytics";
+import {
+  trackRoadmapItemExpanded,
+  trackResourceLinkClicked,
+} from "@/lib/analytics";
 
 interface LearningRoadmapProps {
   roadmap: RoadmapItem[];
@@ -54,8 +57,8 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
   const style = PRIORITY_STYLES[item.priority];
 
   return (
-    <Card 
-      className={`overflow-hidden transition-all rounded-xl shadow-sm border ${expanded ? "border-foreground/20 bg-card" : "border-border bg-card/50"}`} 
+    <Card
+      className={`overflow-hidden transition-all rounded-xl shadow-sm border ${expanded ? "border-foreground/20 bg-card" : "border-border bg-card/50"}`}
       id={`roadmap-item-${index}`}
     >
       {/* Header */}
@@ -87,7 +90,9 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
             <span className="text-base font-bold text-foreground capitalize tracking-tight">
               {item.skill}
             </span>
-            <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border ${style.bg} ${style.border} ${style.color}`}>
+            <span
+              className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border ${style.bg} ${style.border} ${style.color}`}
+            >
               {style.label}
             </span>
           </div>
@@ -112,7 +117,8 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
         <CardContent className="px-6 pb-6 pt-0 border-t border-border mt-1">
           {/* Why */}
           <p className="text-sm font-medium text-muted-foreground leading-relaxed py-4">
-            <span className="font-bold text-foreground">Why: </span>{item.why}
+            <span className="font-bold text-foreground">Why: </span>
+            {item.why}
           </p>
 
           {/* Resources */}
@@ -132,9 +138,13 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                       {res.name}
                     </p>
                     <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground mt-0.5 pl-1">
-                      <span className="uppercase tracking-wider">{res.type}</span>
+                      <span className="uppercase tracking-wider">
+                        {res.type}
+                      </span>
                       {res.estimatedTime && <span>· {res.estimatedTime}</span>}
-                      <span className={`px-1.5 py-0.5 rounded-sm border ${res.free ? 'bg-muted text-foreground border-border' : 'bg-background border-border text-muted-foreground'}`}>
+                      <span
+                        className={`px-1.5 py-0.5 rounded-sm border ${res.free ? "bg-muted text-foreground border-border" : "bg-background border-border text-muted-foreground"}`}
+                      >
                         {res.free ? "Free" : "Paid"}
                       </span>
                     </div>
@@ -146,13 +156,15 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                       rel="noopener noreferrer"
                       id={`resource-link-${index}-${i}`}
                       className="text-muted-foreground transition-colors shrink-0 p-2 hover:text-foreground hover:bg-muted rounded"
-                      onClick={() => trackResourceLinkClicked({
-                        skill_name: item.skill,
-                        resource_name: res.name,
-                        resource_type: res.type,
-                        resource_url: res.url!,
-                        is_free: res.free,
-                      })}
+                      onClick={() =>
+                        trackResourceLinkClicked({
+                          skill_name: item.skill,
+                          resource_name: res.name,
+                          resource_type: res.type,
+                          resource_url: res.url!,
+                          is_free: res.free,
+                        })
+                      }
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>

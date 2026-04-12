@@ -25,15 +25,18 @@ export async function POST(req: Request) {
     };
 
     if (!resume) {
-      return NextResponse.json({ error: "Missing resume data" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing resume data" },
+        { status: 400 },
+      );
     }
 
     const totalJobsFound = jobs?.length || 0;
-    
+
     // Calculate average and top match score
     let topMatchScore = 0;
     let sumMatchScore = 0;
-    
+
     if (jobs && jobs.length > 0) {
       for (const job of jobs) {
         if (job.matchPercentage > topMatchScore) {
@@ -42,8 +45,9 @@ export async function POST(req: Request) {
         sumMatchScore += job.matchPercentage;
       }
     }
-    
-    const avgMatchScore = totalJobsFound > 0 ? Math.round(sumMatchScore / totalJobsFound) : 0;
+
+    const avgMatchScore =
+      totalJobsFound > 0 ? Math.round(sumMatchScore / totalJobsFound) : 0;
 
     const analysisId = crypto.randomUUID();
 
@@ -61,12 +65,12 @@ export async function POST(req: Request) {
       skillGaps: skillGaps || [],
       roadmap: roadmap || [],
       advice: advice || "",
-      searchLocation: resume.location, 
+      searchLocation: resume.location,
       totalJobsFound,
       topMatchScore,
       avgMatchScore,
     });
-    
+
     // Also update the permanent user profile with the reviewed data
     try {
       await db
@@ -93,7 +97,7 @@ export async function POST(req: Request) {
     console.error("Save analysis error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to save analysis" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

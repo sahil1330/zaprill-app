@@ -25,7 +25,7 @@ export async function GET() {
     console.error("Get analysis history error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to retrieve history" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

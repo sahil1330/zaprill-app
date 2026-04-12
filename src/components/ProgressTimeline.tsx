@@ -116,11 +116,7 @@ export default function ProgressTimeline({
             {idx < STEPS.length - 1 && (
               <div
                 className={`w-[1px] h-7 ml-[15px] my-1 transition-colors duration-500 ease-in-out
-                  ${
-                    isCompleted
-                      ? "bg-foreground"
-                      : "bg-border"
-                  }
+                  ${isCompleted ? "bg-foreground" : "bg-border"}
                 `}
               />
             )}

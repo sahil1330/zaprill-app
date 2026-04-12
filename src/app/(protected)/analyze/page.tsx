@@ -203,6 +203,12 @@ function AnalyzePageContent() {
   const [reviewSkills, setReviewSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
+  const [reviewTitles, setReviewTitles] = useState<string[]>([]);
+  const [newTitleValue, setNewTitleValue] = useState("");
+  const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(
+    null,
+  );
+  const [editingTitleValue, setEditingTitleValue] = useState("");
   const [experienceYears, setExperienceYears] = useState<number>(0);
 
   const { user } = useAuth();
@@ -359,6 +365,44 @@ function AnalyzePageContent() {
     }
   };
 
+  const addTitle = () => {
+    const val = newTitleValue.trim();
+    if (val && !reviewTitles.includes(val)) {
+      setReviewTitles([...reviewTitles, val]);
+      if (selectedTitles.length < 3) {
+        setSelectedTitles([...selectedTitles, val]);
+      }
+      setNewTitleValue("");
+    }
+  };
+
+  const removeTitle = (title: string) => {
+    setReviewTitles(reviewTitles.filter((t) => t !== title));
+    setSelectedTitles(selectedTitles.filter((t) => t !== title));
+  };
+
+  const startEditingTitle = (index: number, text: string) => {
+    setEditingTitleIndex(index);
+    setEditingTitleValue(text);
+  };
+
+  const saveEditedTitle = (index: number) => {
+    const newVal = editingTitleValue.trim();
+    if (!newVal) {
+      setEditingTitleIndex(null);
+      return;
+    }
+    const oldVal = reviewTitles[index];
+    const newReviewTitles = [...reviewTitles];
+    newReviewTitles[index] = newVal;
+    setReviewTitles(newReviewTitles);
+
+    if (selectedTitles.includes(oldVal)) {
+      setSelectedTitles(selectedTitles.map((t) => (t === oldVal ? newVal : t)));
+    }
+    setEditingTitleIndex(null);
+  };
+
   // Handle loading via URL ID
   const [isFetchingHistory, setIsFetchingHistory] = useState(false);
   useEffect(() => {
@@ -423,6 +467,7 @@ function AnalyzePageContent() {
       }
       // Instead of starting analysis immediately, go to reviewing stage
       setReviewSkills(parsed.skills);
+      setReviewTitles(parsed.inferredJobTitles);
       setSelectedTitles(parsed.inferredJobTitles.slice(0, 3));
       setExperienceYears(parsed.totalYearsOfExperience || 0);
       setStep("reviewing");
@@ -663,9 +708,7 @@ function AnalyzePageContent() {
                     step={1}
                     onValueChange={(val) =>
                       setExperienceYears(
-                        Array.isArray(val)
-                          ? (val[0] ?? experienceYears)
-                          : val,
+                        Array.isArray(val) ? (val[0] ?? experienceYears) : val,
                       )
                     }
                     className="py-4"
@@ -696,40 +739,113 @@ function AnalyzePageContent() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {resume.inferredJobTitles.map((title) => {
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    {reviewTitles.map((title, idx) => {
                       const isSelected = selectedTitles.includes(title);
-                      return (
-                        <button
-                          key={title}
-                          onClick={() => toggleTitle(title)}
-                          className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200 text-left group
-                            ${
-                              isSelected
-                                ? "border-foreground bg-foreground text-background"
-                                : "border-border bg-card hover:border-muted-foreground/30 text-foreground"
-                            }
-                          `}
-                        >
-                          <span className="font-bold tracking-tight">
-                            {title}
-                          </span>
+                      const isEditing = editingTitleIndex === idx;
+
+                      if (isEditing) {
+                        return (
                           <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center border
-                            ${
-                              isSelected
-                                ? "bg-background border-background"
-                                : "bg-muted border-border group-hover:border-muted-foreground/30"
-                            }
-                          `}
+                            key={"edit-" + idx}
+                            className="flex items-center gap-2"
                           >
-                            {isSelected && (
-                              <Check className="h-3.5 w-3.5 text-foreground stroke-[3px]" />
-                            )}
+                            <Input
+                              value={editingTitleValue}
+                              onChange={(e) =>
+                                setEditingTitleValue(e.target.value)
+                              }
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && saveEditedTitle(idx)
+                              }
+                              autoFocus
+                              className="h-12 font-bold"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => saveEditedTitle(idx)}
+                              className="h-12"
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
                           </div>
-                        </button>
+                        );
+                      }
+
+                      return (
+                        <div key={title} className="relative group/item">
+                          <button
+                            onClick={() => toggleTitle(title)}
+                            className={`flex items-center justify-between w-full p-4 rounded-xl border-2 transition-all duration-200 text-left group
+                              ${
+                                isSelected
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-border bg-card hover:border-muted-foreground/30 text-foreground"
+                              }
+                            `}
+                          >
+                            <span className="font-bold tracking-tight pr-10 truncate">
+                              {title}
+                            </span>
+                            <div
+                              className={`w-6 h-6 rounded-full flex items-center justify-center border shrink-0
+                                ${
+                                  isSelected
+                                    ? "bg-background border-background"
+                                    : "bg-muted border-border group-hover:border-muted-foreground/30"
+                                }
+                              `}
+                            >
+                              {isSelected && (
+                                <Check className="h-3.5 w-3.5 text-foreground stroke-[3px]" />
+                              )}
+                            </div>
+                          </button>
+                          {/* Floating Actions */}
+                          <div className="absolute right-12 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditingTitle(idx, title);
+                              }}
+                              className={`p-1.5 rounded-md hover:bg-muted transition-colors ${isSelected ? "text-background hover:bg-background/20" : "text-muted-foreground hover:text-foreground"}`}
+                              title="Edit"
+                            >
+                              <TrendingUp className="h-3.5 w-3.5 rotate-90" />{" "}
+                              {/* Reusing existing icon or using a dash */}
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeTitle(title);
+                              }}
+                              className={`p-1.5 rounded-md hover:bg-destructive hover:text-white transition-colors ${isSelected ? "text-background" : "text-muted-foreground"}`}
+                              title="Remove"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
                       );
                     })}
+                  </div>
+
+                  <div className="flex gap-2 p-3 bg-muted/30 rounded-xl border border-dashed border-border">
+                    <Input
+                      placeholder="Add custom job title (e.g. Lead Dev)..."
+                      value={newTitleValue}
+                      onChange={(e) => setNewTitleValue(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addTitle()}
+                      className="bg-background border-border font-bold h-12"
+                    />
+                    <Button
+                      onClick={addTitle}
+                      variant="outline"
+                      className="h-12 px-6 font-bold"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

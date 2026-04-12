@@ -7,11 +7,13 @@ import { FileUpload } from "@/components/ui/file-upload";
 interface ResumeUploaderProps {
   onUpload: (file: File) => void;
   disabled?: boolean;
+  file?: File | null;
 }
 
 export default function ResumeUploader({
   onUpload,
   disabled,
+  file,
 }: ResumeUploaderProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -39,17 +41,20 @@ export default function ResumeUploader({
       }
       onUpload(file);
     },
-    [onUpload]
+    [onUpload],
   );
 
   return (
-    <div className={`w-full ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
+    <div
+      className={`w-full ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+    >
       <FileUpload
         onChange={(files) => {
           if (files && files.length > 0) {
             validateAndSet(files[0]);
           }
         }}
+        value={file ? [file] : undefined}
       />
       <div className="mt-2 text-center text-[10px] uppercase tracking-widest text-neutral-500/60 dark:text-neutral-400/60 font-medium">
         Supports PDF, DOCX, DOC, TXT (Max 10MB)

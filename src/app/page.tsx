@@ -11,7 +11,7 @@ import {
   Shield,
   Globe,
   Loader2,
-  Zap
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/ui/file-upload";
@@ -31,22 +31,26 @@ const FEATURES = [
   {
     icon: Target,
     title: "AI Resume Parsing",
-    description: "Our intelligence engine extracts every skill, project, and experience from your resume with surgical precision.",
+    description:
+      "Our intelligence engine extracts every skill, project, and experience from your resume with surgical precision.",
   },
   {
     icon: Globe,
     title: "Real Job Search",
-    description: "Live job listings from LinkedIn, Indeed, Google Jobs — matched to your exact skill profile.",
+    description:
+      "Live job listings from LinkedIn, Indeed, Google Jobs — matched to your exact skill profile.",
   },
   {
     icon: TrendingUp,
     title: "Skill Match Score",
-    description: "See your compatibility percentage for each role. Know exactly where you stand before applying.",
+    description:
+      "See your compatibility percentage for each role. Know exactly where you stand before applying.",
   },
   {
     icon: Map,
     title: "Learning Roadmap",
-    description: "Personalized action plan: skills to learn, resources to use, and timeline to get job-ready.",
+    description:
+      "Personalized action plan: skills to learn, resources to use, and timeline to get job-ready.",
   },
 ];
 
@@ -59,7 +63,7 @@ const STATS = [
 export default function HomePage() {
   const router = useRouter();
   const { data: session, isPending: sessionLoading } = useSession();
-  
+
   const [profile, setProfile] = useState<any>(null);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
 
@@ -70,14 +74,14 @@ export default function HomePage() {
   useEffect(() => {
     if (session?.user) {
       setIsFetchingProfile(true);
-      fetch('/api/profile')
-        .then(res => res.json())
-        .then(data => {
+      fetch("/api/profile")
+        .then((res) => res.json())
+        .then((data) => {
           if (data.profile) {
             setProfile(data.profile);
           }
         })
-        .catch(err => console.error("Failed to load profile", err))
+        .catch((err) => console.error("Failed to load profile", err))
         .finally(() => setIsFetchingProfile(false));
     } else {
       setProfile(null);
@@ -87,7 +91,10 @@ export default function HomePage() {
   const handleUseSavedProfile = () => {
     if (profile?.resumeRaw) {
       trackSavedProfileUsed();
-      sessionStorage.setItem("ai_job_god_resume", JSON.stringify(profile.resumeRaw));
+      sessionStorage.setItem(
+        "ai_job_god_resume",
+        JSON.stringify(profile.resumeRaw),
+      );
       router.push("/analyze");
     }
   };
@@ -106,7 +113,8 @@ export default function HomePage() {
     setIsAnalyzing(true);
     setError(null);
 
-    const fileType = selectedFile.name.split(".").pop()?.toLowerCase() ?? "unknown";
+    const fileType =
+      selectedFile.name.split(".").pop()?.toLowerCase() ?? "unknown";
     const fileSizeKb = Math.round(selectedFile.size / 1024);
     const startTime = performance.now();
 
@@ -138,7 +146,8 @@ export default function HomePage() {
       sessionStorage.setItem("ai_job_god_resume", JSON.stringify(resume));
       router.push("/analyze");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
       trackResumeParseFailure({ error_message: message, file_type: fileType });
       setError(message);
       setIsAnalyzing(false);
@@ -158,8 +167,12 @@ export default function HomePage() {
           sessionLoading
             ? undefined
             : session
-            ? { name: session.user.name, email: session.user.email, image: session.user.image }
-            : null
+              ? {
+                  name: session.user.name,
+                  email: session.user.email,
+                  image: session.user.image,
+                }
+              : null
         }
       />
 
@@ -171,8 +184,8 @@ export default function HomePage() {
           </span>
         </div>
 
-        <WordFadeIn 
-          words="Your Resume, Decoded by AI." 
+        <WordFadeIn
+          words="Your Resume, Decoded by AI."
           className="text-5xl md:text-7xl font-black tracking-tighter leading-tight max-w-4xl mb-6 text-foreground"
         />
 
@@ -187,20 +200,27 @@ export default function HomePage() {
           {isFetchingProfile ? (
             <div className="w-full py-12 flex items-center justify-center">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground mr-2" />
-              <span className="text-muted-foreground font-medium text-sm">Checking for saved profile...</span>
+              <span className="text-muted-foreground font-medium text-sm">
+                Checking for saved profile...
+              </span>
             </div>
-          ) : profile ? (
+          ) : profile && !selectedFile ? (
             <div className="w-full flex flex-col items-center pt-4 pb-8 px-4">
               <div className="h-16 w-16 bg-muted border border-border rounded-2xl flex items-center justify-center mb-4">
                 <Target className="h-8 w-8 text-foreground" />
               </div>
               <h3 className="text-2xl font-black mb-2">Saved Profile Found</h3>
               <p className="text-muted-foreground text-center mb-8 font-medium">
-                We have <span className="font-bold text-foreground">{profile.resumeRaw?.name}</span>'s resume saved in your profile. You can start analyzing right away or upload a new one to replace it.
+                We have{" "}
+                <span className="font-bold text-foreground">
+                  {profile.resumeRaw?.name}
+                </span>
+                's resume saved in your profile. You can start analyzing right
+                away or upload a new one to replace it.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="font-bold w-full sm:w-auto h-12 px-8"
                   onClick={handleUseSavedProfile}
                 >
@@ -208,7 +228,11 @@ export default function HomePage() {
                   Analyze Saved Resume
                 </Button>
                 <div className="relative overflow-hidden group">
-                  <Button variant="outline" size="lg" className="font-bold w-full sm:w-auto h-12 bg-background">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="font-bold w-full sm:w-auto h-12 bg-background"
+                  >
                     Upload New Resume
                   </Button>
                   <input
@@ -229,37 +253,42 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <ResumeUploader onUpload={handleUpload} disabled={isAnalyzing} />
+            <ResumeUploader
+              onUpload={handleUpload}
+              disabled={isAnalyzing}
+              file={selectedFile}
+            />
           )}
-          
-          {(!profile || selectedFile) && (
-          <div className="w-full mt-4 flex flex-col md:flex-row items-center justify-between gap-4 px-4 bg-muted/30 py-3 rounded-lg border border-border/50">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="h-4 w-4" />
-              <span className="text-xs font-medium">
-                100% private — processed on request, never saved without permission.
-              </span>
-            </div>
 
-            <Button
-              id="analyze-resume-btn"
-              onClick={handleAnalyze}
-              disabled={!selectedFile || isAnalyzing}
-              className="w-full md:w-auto transition-all"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  Analyze Request
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </div>
+          {(!profile || selectedFile) && (
+            <div className="w-full mt-4 flex flex-col md:flex-row items-center justify-between gap-4 px-4 bg-muted/30 py-3 rounded-lg border border-border/50">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Shield className="h-4 w-4" />
+                <span className="text-xs font-medium">
+                  100% private — processed on request, never saved without
+                  permission.
+                </span>
+              </div>
+
+              <Button
+                id="analyze-resume-btn"
+                onClick={handleAnalyze}
+                disabled={!selectedFile || isAnalyzing}
+                className="w-full md:w-auto transition-all"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    Analyze Request
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
           )}
           {error && (
             <div className="w-full mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm font-medium">
@@ -300,11 +329,16 @@ export default function HomePage() {
             {FEATURES.map((feat) => {
               const Icon = feat.icon;
               return (
-                <div key={feat.title} className="flex flex-col p-6 rounded-xl border border-border bg-background shadow-sm hover:shadow-md transition-shadow">
+                <div
+                  key={feat.title}
+                  className="flex flex-col p-6 rounded-xl border border-border bg-background shadow-sm hover:shadow-md transition-shadow"
+                >
                   <div className="w-10 h-10 rounded border border-border bg-muted/50 flex items-center justify-center mb-6">
                     <Icon className="h-5 w-5 text-foreground" />
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2">{feat.title}</h3>
+                  <h3 className="text-lg font-bold text-foreground mb-2">
+                    {feat.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {feat.description}
                   </p>

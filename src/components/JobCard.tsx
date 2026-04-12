@@ -72,7 +72,8 @@ export default function JobCard({ job, rank }: JobCardProps) {
 
   const getRankStyles = (idx: number) => {
     if (idx === 0) return "bg-foreground text-background font-bold";
-    if (idx <= 2) return "bg-muted text-foreground font-bold border-border border";
+    if (idx <= 2)
+      return "bg-muted text-foreground font-bold border-border border";
     return "bg-background text-muted-foreground font-semibold border-border border";
   };
 
@@ -103,14 +104,21 @@ export default function JobCard({ job, rank }: JobCardProps) {
             </h3>
             <div className="flex items-center gap-3 text-muted-foreground text-sm flex-wrap">
               <Building2 className="h-4 w-4 shrink-0" />
-              <span className="font-semibold text-foreground">{job.company}</span>
+              <span className="font-semibold text-foreground">
+                {job.company}
+              </span>
               <span className="opacity-50">·</span>
               <MapPin className="h-4 w-4 shrink-0" />
-              <span className="font-medium truncate max-w-[200px]">{job.location}</span>
+              <span className="font-medium truncate max-w-[200px]">
+                {job.location}
+              </span>
               {job.isRemote && (
                 <>
                   <span className="opacity-50">·</span>
-                  <Badge variant="outline" className="px-2 py-0.5 text-xs h-6 leading-none bg-muted text-foreground gap-1.5 rounded-sm uppercase tracking-wider font-bold">
+                  <Badge
+                    variant="outline"
+                    className="px-2 py-0.5 text-xs h-6 leading-none bg-muted text-foreground gap-1.5 rounded-sm uppercase tracking-wider font-bold"
+                  >
                     <Wifi className="h-3 w-3" /> Remote
                   </Badge>
                 </>
@@ -119,27 +127,45 @@ export default function JobCard({ job, rank }: JobCardProps) {
           </div>
 
           {/* Match ring */}
-          <MatchRing percentage={job.matchPercentage} size={60} strokeWidth={5} />
+          <MatchRing
+            percentage={job.matchPercentage}
+            size={60}
+            strokeWidth={5}
+          />
         </div>
 
         {/* Meta row */}
         <div className="flex gap-4 mb-8 flex-wrap text-sm font-semibold">
           {job.salary && (
             <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
-              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">Salary</span>
-              <span className="flex items-center"><DollarSign className="h-3.5 w-3.5" />{job.salary}</span>
+              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">
+                Salary
+              </span>
+              <span className="flex items-center">
+                <DollarSign className="h-3.5 w-3.5" />
+                {job.salary}
+              </span>
             </span>
           )}
           {job.employmentType && (
             <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
-              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">Type</span>
-              <span className="capitalize">{job.employmentType.replace("_", " ").toLowerCase()}</span>
+              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">
+                Type
+              </span>
+              <span className="capitalize">
+                {job.employmentType.replace("_", " ").toLowerCase()}
+              </span>
             </span>
           )}
           {postedText && (
             <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
-              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">Posted</span>
-              <span className="flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5" />{postedText}</span>
+              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">
+                Posted
+              </span>
+              <span className="flex items-center">
+                <Clock className="h-3.5 w-3.5 mr-1.5" />
+                {postedText}
+              </span>
             </span>
           )}
         </div>
@@ -184,7 +210,10 @@ export default function JobCard({ job, rank }: JobCardProps) {
             href={job.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={buttonVariants({ variant: "default", size: "lg" }) + " w-full font-bold text-base gap-2"}
+            className={
+              buttonVariants({ variant: "default", size: "lg" }) +
+              " w-full font-bold text-base gap-2"
+            }
             id={`apply-btn-${job.id}`}
             onClick={() =>
               trackJobApplied({
@@ -205,4 +234,3 @@ export default function JobCard({ job, rank }: JobCardProps) {
     </Card>
   );
 }
-

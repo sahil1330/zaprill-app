@@ -47,7 +47,7 @@ export const user = pgTable("user", {
   appMetadata: jsonb("app_metadata"),
   invitedAt: timestamp("invited_at"),
   lastSignInAt: timestamp("last_sign_in_at"),
-  
+
   // anonymous plugin fields
   isAnonymous: boolean("is_anonymous").default(false),
 
@@ -135,25 +135,25 @@ export const resumeAnalysis = pgTable("resume_analysis", {
     .references(() => user.id, { onDelete: "cascade" }),
 
   // Parsed resume snapshot
-  resumeName: text("resume_name"),          // candidate's name from resume
+  resumeName: text("resume_name"), // candidate's name from resume
   resumeEmail: text("resume_email"),
   resumePhone: text("resume_phone"),
   resumeLocation: text("resume_location"),
   resumeSkills: text("resume_skills").array().default([]), // flat skill list for indexed search
   inferredJobTitles: text("inferred_job_titles").array().default([]),
-  resumeRaw: jsonb("resume_raw"),           // full ParsedResume object
+  resumeRaw: jsonb("resume_raw"), // full ParsedResume object
 
   // Analysis results
-  jobs: jsonb("jobs").default([]),           // JobMatch[]
+  jobs: jsonb("jobs").default([]), // JobMatch[]
   skillGaps: jsonb("skill_gaps").default([]), // SkillGap[]
-  roadmap: jsonb("roadmap").default([]),     // RoadmapItem[]
-  advice: text("advice"),                    // AI Advice
+  roadmap: jsonb("roadmap").default([]), // RoadmapItem[]
+  advice: text("advice"), // AI Advice
 
   // Meta
-  searchLocation: text("search_location"),  // location used for job search
+  searchLocation: text("search_location"), // location used for job search
   totalJobsFound: integer("total_jobs_found").default(0),
-  topMatchScore: integer("top_match_score").default(0),  // 0-100
-  avgMatchScore: integer("avg_match_score").default(0),  // 0-100
+  topMatchScore: integer("top_match_score").default(0), // 0-100
+  avgMatchScore: integer("avg_match_score").default(0), // 0-100
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -173,7 +173,7 @@ export const savedJob = pgTable("saved_job", {
 
   // Denormalised job snapshot so it stays readable even if the
   // original analysis is deleted
-  jobId: text("job_id").notNull(),          // external job listing id
+  jobId: text("job_id").notNull(), // external job listing id
   title: text("title").notNull(),
   company: text("company").notNull(),
   location: text("location").notNull(),
@@ -182,7 +182,7 @@ export const savedJob = pgTable("saved_job", {
   salary: text("salary"),
   employmentType: text("employment_type"),
   isRemote: boolean("is_remote").default(false),
-  jobRaw: jsonb("job_raw"),                 // full JobMatch snapshot
+  jobRaw: jsonb("job_raw"), // full JobMatch snapshot
 
   savedAt: timestamp("saved_at").notNull().defaultNow(),
 });

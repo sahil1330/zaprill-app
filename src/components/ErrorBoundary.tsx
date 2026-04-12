@@ -41,14 +41,20 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="w-full flex-1 min-h-[200px] flex flex-col items-center justify-center p-6 border border-destructive/20 bg-destructive/5 rounded-xl animate-in fade-in duration-300">
           <AlertCircle className="h-10 w-10 text-destructive mb-4 opacity-80" />
-          <h3 className="text-lg font-bold text-foreground mb-2">Component Crashed</h3>
+          <h3 className="text-lg font-bold text-foreground mb-2">
+            Component Crashed
+          </h3>
           <p className="text-sm text-muted-foreground text-center mb-6 max-w-sm">
-            A section of this page failed to load due to an unexpected error. 
-            {this.state.error && <span className="block mt-2 text-xs font-mono opacity-60 truncate">{this.state.error.message}</span>}
+            A section of this page failed to load due to an unexpected error.
+            {this.state.error && (
+              <span className="block mt-2 text-xs font-mono opacity-60 truncate">
+                {this.state.error.message}
+              </span>
+            )}
           </p>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={this.handleReset}
             className="font-bold border-border"
           >

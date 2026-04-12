@@ -23,7 +23,11 @@ export const INDIA_CITIES = [
   // Metros & Megacities
   { city: "Mumbai", state: "Maharashtra", aliases: ["bombay"] },
   { city: "Delhi", state: "Delhi", aliases: ["new delhi", "ncr"] },
-  { city: "Bangalore", state: "Karnataka", aliases: ["bengaluru", "bengalore"] },
+  {
+    city: "Bangalore",
+    state: "Karnataka",
+    aliases: ["bengaluru", "bengalore"],
+  },
   { city: "Hyderabad", state: "Telangana", aliases: ["hyd"] },
   { city: "Chennai", state: "Tamil Nadu", aliases: ["madras"] },
   { city: "Kolkata", state: "West Bengal", aliases: ["calcutta"] },
@@ -112,11 +116,14 @@ export function extractCityFromLocation(location: string): string {
  * Returns true if the job location matches the selected city.
  * Handles aliases like "Bengaluru" for "Bangalore", "Gurugram" for "Gurgaon", etc.
  */
-export function locationMatchesCity(jobLocation: string, selectedCity: string): boolean {
+export function locationMatchesCity(
+  jobLocation: string,
+  selectedCity: string,
+): boolean {
   if (!selectedCity) return true;
 
   const cityEntry = INDIA_CITIES.find(
-    (c) => c.city.toLowerCase() === selectedCity.toLowerCase()
+    (c) => c.city.toLowerCase() === selectedCity.toLowerCase(),
   );
 
   const jobLoc = jobLocation.toLowerCase();
@@ -129,7 +136,10 @@ export function locationMatchesCity(jobLocation: string, selectedCity: string): 
   }
 
   // Fallback: substring match
-  return jobCity.includes(selectedCity.toLowerCase()) || jobLoc.includes(selectedCity.toLowerCase());
+  return (
+    jobCity.includes(selectedCity.toLowerCase()) ||
+    jobLoc.includes(selectedCity.toLowerCase())
+  );
 }
 
 interface LocationComboboxProps {
@@ -138,11 +148,15 @@ interface LocationComboboxProps {
   disabled?: boolean;
 }
 
-export function LocationCombobox({ value, onChange, disabled }: LocationComboboxProps) {
+export function LocationCombobox({
+  value,
+  onChange,
+  disabled,
+}: LocationComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
   const selectedEntry = INDIA_CITIES.find(
-    (c) => c.city.toLowerCase() === value.toLowerCase()
+    (c) => c.city.toLowerCase() === value.toLowerCase(),
   );
 
   return (
@@ -189,7 +203,10 @@ export function LocationCombobox({ value, onChange, disabled }: LocationCombobox
                 }}
               >
                 <Check
-                  className={cn("mr-2 h-4 w-4", !value ? "opacity-100" : "opacity-0")}
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    !value ? "opacity-100" : "opacity-0",
+                  )}
                 />
                 <span className="text-muted-foreground">Any location</span>
               </CommandItem>
@@ -207,11 +224,13 @@ export function LocationCombobox({ value, onChange, disabled }: LocationCombobox
                       "mr-2 h-4 w-4",
                       value.toLowerCase() === entry.city.toLowerCase()
                         ? "opacity-100"
-                        : "opacity-0"
+                        : "opacity-0",
                     )}
                   />
                   <span className="flex-1">{entry.city}</span>
-                  <span className="text-xs text-muted-foreground ml-2 truncate">{entry.state}</span>
+                  <span className="text-xs text-muted-foreground ml-2 truncate">
+                    {entry.state}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

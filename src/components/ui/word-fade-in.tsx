@@ -38,7 +38,12 @@ export function WordFadeIn({
       )}
     >
       {_words.map((word, i) => (
-        <motion.span key={word} variants={variants} custom={i} className="inline-block">
+        <motion.span
+          key={word}
+          variants={variants}
+          custom={i}
+          className="inline-block"
+        >
           {word}{" "}
         </motion.span>
       ))}

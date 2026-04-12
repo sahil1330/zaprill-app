@@ -58,14 +58,15 @@ export async function POST(request: Request) {
 
     // 3 queries — each fetches 2 pages of 50 results = up to 300 jobs total
     // Refine queries based on experience if provided
-    const queries = experienceYears !== undefined
-      ? jobTitles.map(title => {
-          if (experienceYears >= 12) return `Lead ${title}`;
-          if (experienceYears >= 7) return `Senior ${title}`;
-          if (experienceYears <= 1) return `Junior ${title}`;
-          return title;
-        })
-      : jobTitles;
+    const queries =
+      experienceYears !== undefined
+        ? jobTitles.map((title) => {
+            if (experienceYears >= 12) return `Lead ${title}`;
+            if (experienceYears >= 7) return `Senior ${title}`;
+            if (experienceYears <= 1) return `Junior ${title}`;
+            return title;
+          })
+        : jobTitles;
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
@@ -87,27 +88,36 @@ export async function POST(request: Request) {
           url.searchParams.set("content-type", "application/json");
           if (location) url.searchParams.set("where", location);
 
-          console.log(`[search-jobs] ${title} (page ${page}) → ${url.toString().replace(appKey, "***")}`);
+          console.log(
+            `[search-jobs] ${title} (page ${page}) → ${url.toString().replace(appKey, "***")}`,
+          );
 
           const res = await fetch(url.toString());
           console.log(`[search-jobs] "${title}" p${page} → HTTP ${res.status}`);
 
           if (!res.ok) {
             const text = await res.text();
-            console.error(`[search-jobs] Error: ${res.status}`, text.slice(0, 200));
+            console.error(
+              `[search-jobs] Error: ${res.status}`,
+              text.slice(0, 200),
+            );
             if (res.status === 429) break; // stop paging this title
             continue;
           }
 
           const data = await res.json();
           const results: AdzunaResult[] = data?.results ?? [];
-          console.log(`[search-jobs] "${title}" p${page} → ${results.length} results`);
+          console.log(
+            `[search-jobs] "${title}" p${page} → ${results.length} results`,
+          );
 
           for (const result of results) {
             if (seenIds.has(result.id)) continue;
             seenIds.add(result.id);
 
-            const requiredSkills = extractSkillsFromText(result.description ?? "");
+            const requiredSkills = extractSkillsFromText(
+              result.description ?? "",
+            );
 
             allJobs.push({
               id: result.id,
@@ -119,8 +129,15 @@ export async function POST(request: Request) {
               url: result.redirect_url,
               salary: buildSalaryString(result),
               postedAt: result.created,
-              employmentType: result.contract_time === "full_time" ? "FULLTIME" : result.contract_time === "part_time" ? "PARTTIME" : undefined,
-              isRemote: result.title.toLowerCase().includes("remote") || result.description.toLowerCase().includes("remote"),
+              employmentType:
+                result.contract_time === "full_time"
+                  ? "FULLTIME"
+                  : result.contract_time === "part_time"
+                    ? "PARTTIME"
+                    : undefined,
+              isRemote:
+                result.title.toLowerCase().includes("remote") ||
+                result.description.toLowerCase().includes("remote"),
               publisher: "Adzuna",
             });
           }
@@ -128,7 +145,10 @@ export async function POST(request: Request) {
           // If fewer than 50 results, no point fetching page 2
           if (results.length < 50) break;
         } catch (err) {
-          console.error(`[search-jobs] Exception for "${title}" p${page}:`, err);
+          console.error(
+            `[search-jobs] Exception for "${title}" p${page}:`,
+            err,
+          );
         }
       }
     }

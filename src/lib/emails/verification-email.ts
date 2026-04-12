@@ -2,9 +2,19 @@ import { User } from "better-auth/types";
 
 import { sendMail } from "./sendMail";
 
-export const sendVerificationEmail = async ({ user, url }: { user: User, url: string }) => {
+export const sendVerificationEmail = async ({
+  user,
+  url,
+}: {
+  user: User;
+  url: string;
+}) => {
   try {
-    const res = await sendMail(user.email, "Verify your email", `Click the link to verify your email: ${url}`, `
+    const res = await sendMail(
+      user.email,
+      "Verify your email",
+      `Click the link to verify your email: ${url}`,
+      `
                   <div style="font-family:sans-serif;max-width:480px;margin:auto">
                     <h2 style="font-size:24px;font-weight:900;margin-bottom:8px">Welcome to Zaprill 🚀</h2>
                     <p style="color:#555;margin-bottom:24px">Click below to verify your email and start analyzing your resume.</p>
@@ -17,4 +27,4 @@ export const sendVerificationEmail = async ({ user, url }: { user: User, url: st
   } catch (err) {
     console.error("VERIFICATION EMAIL ERROR:", err);
   }
-}
+};

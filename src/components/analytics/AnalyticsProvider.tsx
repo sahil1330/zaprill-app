@@ -23,11 +23,7 @@ import {
   trackException,
 } from "@/lib/analytics";
 
-export function AnalyticsProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const prevPathname = useRef<string | null>(null);
@@ -67,7 +63,7 @@ export function AnalyticsProvider({
     const handleError = (event: ErrorEvent) => {
       trackException(
         `${event.message} (${event.filename}:${event.lineno})`,
-        /* fatal */ false
+        /* fatal */ false,
       );
     };
 
@@ -84,7 +80,10 @@ export function AnalyticsProvider({
 
     return () => {
       window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
     };
   }, []);
 

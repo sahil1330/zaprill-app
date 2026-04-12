@@ -154,6 +154,12 @@ export default function Navbar({
                     )}
                   </div>
                   <DropdownMenuItem
+                    onClick={() => router.push("/profile")}
+                    className="font-semibold cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     onClick={() => router.push("/history")}
                     className="font-semibold cursor-pointer"
                   >

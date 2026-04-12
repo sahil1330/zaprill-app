@@ -12,16 +12,32 @@ const RoadmapItemSchema = z.object({
   priority: z.enum(["high", "medium", "low"]),
   estimatedTime: z.string(),
   why: z.string(),
-  resources: z.array(
-    z.object({
-      type: z.enum(["course", "book", "tutorial", "documentation", "practice"]),
-      name: z.string(),
-      url: z.string().optional(),
-      free: z.boolean(),
-      estimatedTime: z.string().optional(),
-    }),
-  ).max(4),
-  category: z.enum(["language", "framework", "database", "cloud", "tool", "soft", "other"]),
+  resources: z
+    .array(
+      z.object({
+        type: z.enum([
+          "course",
+          "book",
+          "tutorial",
+          "documentation",
+          "practice",
+        ]),
+        name: z.string(),
+        url: z.string().optional(),
+        free: z.boolean(),
+        estimatedTime: z.string().optional(),
+      }),
+    )
+    .max(4),
+  category: z.enum([
+    "language",
+    "framework",
+    "database",
+    "cloud",
+    "tool",
+    "soft",
+    "other",
+  ]),
 });
 
 const AnalysisResponseSchema = z.object({
@@ -76,7 +92,12 @@ export async function POST(request: Request) {
     const topGaps = skillGaps.slice(0, 20);
 
     if (topGaps.length === 0) {
-      return NextResponse.json({ matchedJobs, skillGaps: [], roadmap: [], advice: "" });
+      return NextResponse.json({
+        matchedJobs,
+        skillGaps: [],
+        roadmap: [],
+        advice: "",
+      });
     }
 
     const { text, usage } = await generateText({
@@ -132,15 +153,27 @@ Prefer free resources. Use real, working URLs.`,
       if (parsed.success) {
         roadmap = parsed.data.roadmap;
         advice = parsed.data.advice;
-        
+
         // Filter the original skillGaps based on the LLM's selected relevant skills
-        const relevantSkillMap = new Set(parsed.data.relevantSkillGaps.map((s) => s.toLowerCase().trim()));
-        filteredGaps = skillGaps.filter((g) => relevantSkillMap.has(g.skill.toLowerCase().trim()));
+        const relevantSkillMap = new Set(
+          parsed.data.relevantSkillGaps.map((s) => s.toLowerCase().trim()),
+        );
+        filteredGaps = skillGaps.filter((g) =>
+          relevantSkillMap.has(g.skill.toLowerCase().trim()),
+        );
       } else {
-        console.warn("Analysis response schema validation failed:", parsed.error.issues);
+        console.warn(
+          "Analysis response schema validation failed:",
+          parsed.error.issues,
+        );
       }
     } catch (parseErr) {
-      console.warn("Could not parse roadmap JSON:", parseErr, "\nRaw:", text.slice(0, 300));
+      console.warn(
+        "Could not parse roadmap JSON:",
+        parseErr,
+        "\nRaw:",
+        text.slice(0, 300),
+      );
       // Non-fatal — return empty roadmap rather than crashing
     }
 
@@ -158,4 +191,3 @@ Prefer free resources. Use real, working URLs.`,
     );
   }
 }
-

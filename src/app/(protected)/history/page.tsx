@@ -7,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Zap, Target, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { trackHistoryPageViewed, trackHistoryItemClicked } from "@/lib/analytics";
+import {
+  trackHistoryPageViewed,
+  trackHistoryItemClicked,
+} from "@/lib/analytics";
 
 type HistoryItem = {
   id: string;

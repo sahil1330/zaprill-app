@@ -71,7 +71,12 @@ export default function SkillGapPanel({
 
           <div className="flex flex-wrap gap-2 mb-4 flex-1 content-start">
             {displayedHave.map((skill) => (
-              <SkillBadge key={skill} skill={skill} variant="matched" size="sm" />
+              <SkillBadge
+                key={skill}
+                skill={skill}
+                variant="matched"
+                size="sm"
+              />
             ))}
           </div>
 
@@ -89,7 +94,8 @@ export default function SkillGapPanel({
                 </>
               ) : (
                 <>
-                  <ChevronDown className="mr-1.5 h-3.5 w-3.5" /> +{resume.skills.length - LIMIT} more
+                  <ChevronDown className="mr-1.5 h-3.5 w-3.5" /> +
+                  {resume.skills.length - LIMIT} more
                 </>
               )}
             </Button>
@@ -130,7 +136,9 @@ export default function SkillGapPanel({
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-foreground bg-foreground text-background"
                       >
                         {g.skill}
-                        <span className="opacity-70 text-[10px] pl-1 font-medium border-l border-background/20">{g.frequency}</span>
+                        <span className="opacity-70 text-[10px] pl-1 font-medium border-l border-background/20">
+                          {g.frequency}
+                        </span>
                       </span>
                     ))}
                 </div>
@@ -151,7 +159,9 @@ export default function SkillGapPanel({
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-border bg-muted text-foreground"
                       >
                         {g.skill}
-                        <span className="opacity-60 text-[10px] pl-1 font-medium border-l border-border">{g.frequency}</span>
+                        <span className="opacity-60 text-[10px] pl-1 font-medium border-l border-border">
+                          {g.frequency}
+                        </span>
                       </span>
                     ))}
                 </div>
@@ -182,7 +192,11 @@ export default function SkillGapPanel({
           {highPriority.length > 0 && (
             <div className="flex items-start gap-2.5 mt-6 p-3 bg-muted rounded border border-border text-xs text-foreground font-medium">
               <TrendingUp className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-              <span className="leading-relaxed">Focus on high-priority skills first — these appear most frequently across all sampled job listings for your target roles.</span>
+              <span className="leading-relaxed">
+                Focus on high-priority skills first — these appear most
+                frequently across all sampled job listings for your target
+                roles.
+              </span>
             </div>
           )}
         </CardContent>

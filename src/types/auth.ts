@@ -1,8 +1,8 @@
-import { User } from "better-auth/types"
+import { User } from "better-auth/types";
 
 export type AuthState = {
-    auth: {
-        user: User | null,
-        isAuthenticated: boolean
-    }
-}
+  auth: {
+    user: User | null;
+    isAuthenticated: boolean;
+  };
+};

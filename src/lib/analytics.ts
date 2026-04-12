@@ -26,14 +26,19 @@ type GtagCommand = "config" | "event" | "set" | "js" | "consent";
 
 /** Type-safe wrapper around the global gtag() injected by @next/third-parties */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function gtag(command: GtagCommand, target: string, params?: Record<string, any>): void {
+function gtag(
+  command: GtagCommand,
+  target: string,
+  params?: Record<string, any>,
+): void {
   const payload = IS_DEBUG ? { ...params, debug_mode: true } : params;
 
   if (IS_DEBUG) {
     console.log(`[Analytics] ${command} ${target}`, payload);
   }
 
-  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  if (typeof window === "undefined" || typeof window.gtag !== "function")
+    return;
   if (!GA_MEASUREMENT_ID) return;
 
   window.gtag(command, target, payload);
@@ -44,10 +49,7 @@ function gtag(command: GtagCommand, target: string, params?: Record<string, any>
 // ─────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function track(
-  eventName: string,
-  params?: Record<string, any>
-): void {
+export function track(eventName: string, params?: Record<string, any>): void {
   gtag("event", eventName, params);
 }
 
@@ -136,7 +138,7 @@ export function trackLogin(method: "email" | "github" | "google"): void {
 }
 
 export function trackOAuthProviderSelected(
-  provider: "github" | "google"
+  provider: "github" | "google",
 ): void {
   gtag("event", "select_content", {
     content_type: "oauth_provider",
@@ -153,7 +155,7 @@ export function trackSessionExpired(): void {
 // ─────────────────────────────────────────────────────────
 
 export interface ResumeFileParams {
-  file_type: string;        // 'pdf' | 'docx' | 'txt'
+  file_type: string; // 'pdf' | 'docx' | 'txt'
   file_size_kb: number;
 }
 
@@ -173,7 +175,7 @@ export interface ResumeParseSuccessParams extends ResumeFileParams {
 }
 
 export function trackResumeParseSuccess(
-  params: ResumeParseSuccessParams
+  params: ResumeParseSuccessParams,
 ): void {
   gtag("event", "resume_parse_success", params);
 }
@@ -335,12 +337,12 @@ export function trackFilterPanelOpen(): void {
 
 export function trackFilterApplied(params: {
   filter_type:
-  | "title"
-  | "location"
-  | "work_type"
-  | "employment_type"
-  | "min_match"
-  | "require_salary";
+    | "title"
+    | "location"
+    | "work_type"
+    | "employment_type"
+    | "min_match"
+    | "require_salary";
   filter_value: string | number | boolean;
 }): void {
   gtag("event", "filter_applied", params);

@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+
 import { motion } from "motion/react";
 import { IconUpload } from "@tabler/icons-react";
 import { useDropzone } from "react-dropzone";
@@ -28,10 +29,19 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
+  value,
 }: {
   onChange?: (files: File[]) => void;
+  value?: File[];
 }) => {
   const [files, setFiles] = useState<File[]>([]);
+
+  useEffect(() => {
+    if (value) {
+      setFiles(value);
+    }
+  }, [value]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
