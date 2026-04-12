@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Get staged files that Biome can handle
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|jsx|ts|tsx|json|jsonccss)$')
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+echo "✨ Running Biome check and format on staged files..."
+
+# Run Biome on the staged files
+# --no-errors-on-unmatched avoids errors if glob pattern doesn't match
+# --write fixes lint and format issues
+pnpm biome check --write --no-errors-on-unmatched $STAGED_FILES
+
+# Re-stage the files in case Biome made changes
+echo "$STAGED_FILES" | xargs git add
+
+echo "✅ Biome check complete."
+exit 0
