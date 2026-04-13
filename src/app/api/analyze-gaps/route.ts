@@ -190,7 +190,11 @@ YOUR TASK:
    - STRICTLY EXCLUDE generic soft skills and methodologies (e.g., exclude "Communication", "Agile", "Scrum", "Teamwork") as these clutter the roadmap.
    - EXCLUDE alternative tech stacks that clearly don't fit their primary profile (e.g., exclude "Java", "PHP", "C#" if they are a strong "Node.js" dev, unless they are explicitly standard for the roles).
    - KEEP skills that are genuine, distinct, and valuable additions to their current stack (e.g., Docker, AWS, Redis).
-2. Generate an overall "advice" string providing strategic guidance on their career, what to focus on, and why certain skills were skipped.
+2. Generate an overall "advice" string providing strategic guidance on their career and what to focus on next.
+   - Do NOT explain why you are excluding basic or foundational skills (like HTML/CSS) in the advice string.
+   - Focus purely on the value of the skills you ARE recommending and how they complement their current stack.
+   - Avoid generic fluff; be specific and strategic.
+   - Ensure you do not recommend skills that the candidate already possesses: ${resumeSkills.join(", ")}.
 3. Choose the most relevant missing skills from the list for the roadmap.
 4. Add these chosen true gaps to the "relevantSkillGaps" array.
 5. Generate a learning roadmap for the chosen relevant skills.

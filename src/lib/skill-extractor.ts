@@ -148,6 +148,12 @@ const SKILL_ALIASES: Record<string, string> = {
   tailwind: "tailwindcss",
   es6: "javascript",
   es2015: "javascript",
+  "git/github": "git",
+  "html/css": "html",
+  "rest/graphql": "rest api",
+  "nodejs/express": "node.js",
+  expressjs: "express",
+  "express.js": "express",
 };
 
 export function normalizeSkill(skill: string): string {
