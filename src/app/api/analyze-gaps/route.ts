@@ -1,9 +1,14 @@
 import { generateText } from "ai";
+import { and, desc, eq, gt } from "drizzle-orm";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { matchJobsToResume, aggregateSkillGaps } from "@/lib/match-engine";
-import type { JobListing } from "@/types";
+import db from "@/db";
+import { resumeAnalysis } from "@/db/schema";
+import { auth } from "@/lib/auth";
 import { hackclub } from "@/lib/hackClubClient";
+import { aggregateSkillGaps, matchJobsToResume } from "@/lib/match-engine";
+import type { JobListing, RoadmapItem } from "@/types";
 
 export const maxDuration = 60;
 
@@ -61,6 +66,19 @@ function extractJSON(text: string): string | null {
   return null;
 }
 
+function arraysMatch(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sortedA = [...a]
+    .map((s) => s.toLowerCase().trim())
+    .sort()
+    .join("|");
+  const sortedB = [...b]
+    .map((s) => s.toLowerCase().trim())
+    .sort()
+    .join("|");
+  return sortedA === sortedB;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -88,21 +106,77 @@ export async function POST(request: Request) {
     // Aggregate skill gaps across all jobs
     const skillGaps = aggregateSkillGaps(resumeSkills, matchedJobs);
 
-    // Pass top 20 missing skills to the LLM so it can filter intelligently
-    const topGaps = skillGaps.slice(0, 20);
+    // --- CACHING LOGIC ---
+    // Check if we can reuse a recent analysis for this user
+    let roadmap: RoadmapItem[] = [];
+    let advice = "";
+    let filteredGaps = skillGaps;
+    let usedCache = false;
 
-    if (topGaps.length === 0) {
-      return NextResponse.json({
-        matchedJobs,
-        skillGaps: [],
-        roadmap: [],
-        advice: "",
+    try {
+      const session = await auth.api.getSession({
+        headers: await headers(),
       });
+
+      if (session?.user) {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        // Fetch recent analyses for this user
+        const recentAnalyses = await db
+          .select()
+          .from(resumeAnalysis)
+          .where(
+            and(
+              eq(resumeAnalysis.userId, session.user.id),
+              gt(resumeAnalysis.createdAt, sevenDaysAgo),
+            ),
+          )
+          .orderBy(desc(resumeAnalysis.createdAt))
+          .limit(10);
+
+        // Find matches based on skills and titles
+        const match = recentAnalyses.find(
+          (a) =>
+            arraysMatch(a.resumeSkills ?? [], resumeSkills) &&
+            arraysMatch(a.inferredJobTitles ?? [], inferredJobTitles ?? []),
+        );
+
+        if (match && match.roadmap && match.advice) {
+          console.log("[analyze-gaps] Cache Hit! Reusing analysis:", match.id);
+          roadmap = match.roadmap as RoadmapItem[];
+          advice = match.advice;
+          usedCache = true;
+
+          // Still need to filter the current skillGaps based on the cached relevant gaps
+          const relevantSkillMap = new Set(
+            roadmap.map((s) => s.skill.toLowerCase().trim()),
+          );
+          filteredGaps = skillGaps.filter((g) =>
+            relevantSkillMap.has(g.skill.toLowerCase().trim()),
+          );
+        }
+      }
+    } catch (cacheErr) {
+      console.error("[analyze-gaps] Cache lookup failed:", cacheErr);
     }
 
-    const { text, usage } = await generateText({
-      model: hackclub("google/gemini-2.5-flash"),
-      prompt: `You are a senior tech career coach. Respond ONLY with valid JSON — no markdown, no explanation, no code fences.
+    if (!usedCache) {
+      // Pass top 20 missing skills to the LLM so it can filter intelligently
+      const topGaps = skillGaps.slice(0, 20);
+
+      if (topGaps.length === 0) {
+        return NextResponse.json({
+          matchedJobs: matchedJobs.slice(0, 100),
+          skillGaps: [],
+          roadmap: [],
+          advice: "",
+        });
+      }
+
+      const { text, usage } = await generateText({
+        model: hackclub("google/gemini-2.5-flash"),
+        prompt: `You are a senior tech career coach. Respond ONLY with valid JSON — no markdown, no explanation, no code fences.
 
 A candidate has these skills: ${resumeSkills.join(", ")}
 They are targeting roles like: ${(inferredJobTitles ?? []).join(", ")}
@@ -140,41 +214,38 @@ Return ONLY a JSON object with this exact shape:
 }
 
 Prefer free resources. Use real, working URLs.`,
-    });
-    console.log("analyze gaps usage", usage);
-    // Parse JSON out of the model response (handles thinking tokens / extra text)
-    let roadmap: z.infer<typeof AnalysisResponseSchema>["roadmap"] = [];
-    let advice = "";
-    let filteredGaps = skillGaps;
+      });
+      console.log("analyze gaps usage", usage);
 
-    try {
-      const jsonStr = extractJSON(text) ?? text;
-      const parsed = AnalysisResponseSchema.safeParse(JSON.parse(jsonStr));
-      if (parsed.success) {
-        roadmap = parsed.data.roadmap;
-        advice = parsed.data.advice;
+      try {
+        const jsonStr = extractJSON(text) ?? text;
+        const parsed = AnalysisResponseSchema.safeParse(JSON.parse(jsonStr));
+        if (parsed.success) {
+          roadmap = parsed.data.roadmap as RoadmapItem[];
+          advice = parsed.data.advice;
 
-        // Filter the original skillGaps based on the LLM's selected relevant skills
-        const relevantSkillMap = new Set(
-          parsed.data.relevantSkillGaps.map((s) => s.toLowerCase().trim()),
-        );
-        filteredGaps = skillGaps.filter((g) =>
-          relevantSkillMap.has(g.skill.toLowerCase().trim()),
-        );
-      } else {
+          // Filter the original skillGaps based on the LLM's selected relevant skills
+          const relevantSkillMap = new Set(
+            parsed.data.relevantSkillGaps.map((s) => s.toLowerCase().trim()),
+          );
+          filteredGaps = skillGaps.filter((g) =>
+            relevantSkillMap.has(g.skill.toLowerCase().trim()),
+          );
+        } else {
+          console.warn(
+            "Analysis response schema validation failed:",
+            parsed.error.issues,
+          );
+        }
+      } catch (parseErr) {
         console.warn(
-          "Analysis response schema validation failed:",
-          parsed.error.issues,
+          "Could not parse roadmap JSON:",
+          parseErr,
+          "\nRaw:",
+          text.slice(0, 300),
         );
+        // Non-fatal — return empty roadmap rather than crashing
       }
-    } catch (parseErr) {
-      console.warn(
-        "Could not parse roadmap JSON:",
-        parseErr,
-        "\nRaw:",
-        text.slice(0, 300),
-      );
-      // Non-fatal — return empty roadmap rather than crashing
     }
 
     return NextResponse.json({
