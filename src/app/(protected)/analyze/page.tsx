@@ -1,59 +1,53 @@
 "use client";
 
 import {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  Suspense,
-  useRef,
-} from "react";
+  AlertCircle,
+  Briefcase,
+  Check,
+  ChevronDown,
+  Filter,
+  Info,
+  Loader2,
+  Map,
+  Plus,
+  RefreshCw,
+  Trash2,
+  TrendingUp,
+  User,
+  X,
+  Zap,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import type {
-  ParsedResume,
-  JobMatch,
-  SkillGap,
-  RoadmapItem,
-  AnalysisStep,
-} from "@/types";
-import ProgressTimeline from "@/components/ProgressTimeline";
-import JobCard from "@/components/JobCard";
-import SkillGapPanel from "@/components/SkillGapPanel";
-import LearningRoadmap from "@/components/LearningRoadmap";
-import SkillBadge from "@/components/SkillBadge";
-import { categorizeSkill } from "@/lib/skill-extractor";
-import { getAnalysisSummary } from "@/lib/match-engine";
 import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import JobCard from "@/components/JobCard";
+import LearningRoadmap from "@/components/LearningRoadmap";
+import {
+  extractCityFromLocation,
+  INDIA_CITIES,
   LocationCombobox,
   locationMatchesCity,
-  INDIA_CITIES,
-  extractCityFromLocation,
 } from "@/components/LocationCombobox";
-import {
-  Zap,
-  User,
-  Briefcase,
-  TrendingUp,
-  Map,
-  RefreshCw,
-  AlertCircle,
-  Filter,
-  X,
-  ChevronDown,
-  Loader2,
-  Plus,
-  Trash2,
-  Check,
-  Info,
-} from "lucide-react";
-
+import Navbar from "@/components/Navbar";
+import ProgressTimeline from "@/components/ProgressTimeline";
+import SkillBadge from "@/components/SkillBadge";
+import SkillGapPanel from "@/components/SkillGapPanel";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -61,28 +55,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useAuth from "@/hooks/useAuth";
-import Navbar from "@/components/Navbar";
 import {
-  trackAnalysisStart,
-  trackJobSearchComplete,
-  trackGapAnalysisComplete,
   trackAnalysisComplete,
   trackAnalysisError,
-  trackLocationSearch,
-  trackFilterPanelOpen,
+  trackAnalysisSaved,
+  trackAnalysisStart,
   trackFilterApplied,
+  trackFilterPanelOpen,
+  trackGapAnalysisComplete,
+  trackJobListViewed,
+  trackJobSearchComplete,
+  trackLocationSearch,
   trackSortChanged,
   trackTabViewed,
-  trackAnalysisSaved,
-  trackJobListViewed,
 } from "@/lib/analytics";
+import { getAnalysisSummary } from "@/lib/match-engine";
+import { categorizeSkill } from "@/lib/skill-extractor";
+import type {
+  AnalysisStep,
+  JobMatch,
+  ParsedResume,
+  RoadmapItem,
+  SkillGap,
+} from "@/types";
 
 type TabId = "jobs" | "gaps" | "roadmap";
 
@@ -1450,7 +1449,7 @@ function AnalyzePageContent() {
                   </DropdownMenu>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
+                <div className="flex flex-col gap-4 pb-20">
                   {displayedJobs.map((job, idx) => (
                     <JobCard key={job.id} job={job} rank={idx} />
                   ))}

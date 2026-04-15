@@ -1,21 +1,21 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import {
-  MapPin,
   Building2,
-  ExternalLink,
-  Wifi,
   Clock,
   DollarSign,
+  ExternalLink,
+  MapPin,
+  Wifi,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { trackJobApplied, trackJobCardImpression } from "@/lib/analytics";
 import type { JobMatch } from "@/types";
 import MatchRing from "./MatchRing";
 import SkillBadge from "./SkillBadge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { trackJobCardImpression, trackJobApplied } from "@/lib/analytics";
 
 interface JobCardProps {
   job: JobMatch;
@@ -63,172 +63,164 @@ export default function JobCard({ job, rank }: JobCardProps) {
           }
         }
       },
-      { threshold: 0.5 }, // Fire when ≥50% of the card is visible
+      { threshold: 0.5 },
     );
 
     observer.observe(node);
     return () => observer.disconnect();
   }, [job.id, job.title, job.company, job.matchPercentage, job.isRemote, rank]);
 
-  const getRankStyles = (idx: number) => {
-    if (idx === 0) return "bg-foreground text-background font-bold";
-    if (idx <= 2)
-      return "bg-muted text-foreground font-bold border-border border";
-    return "bg-background text-muted-foreground font-semibold border-border border";
-  };
-
   return (
     <Card
       ref={cardRef}
-      className="animate-slide-up flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all hover:border-foreground/40 bg-card rounded-2xl overflow-hidden"
+      className="animate-slide-up hover:shadow-md transition-all hover:border-primary/30 bg-card rounded-xl overflow-hidden border border-border/60"
       style={{
-        animationDelay: `${rank * 60}ms`,
+        animationDelay: `${rank * 50}ms`,
         animationFillMode: "both",
       }}
       id={`job-card-${job.id}`}
     >
-      <CardContent className="p-7 flex flex-col flex-1">
-        {/* Header row */}
-        <div className="flex gap-5 items-start mb-6">
-          {/* Rank badge */}
-          <div
-            className={`shrink-0 w-10 h-10 rounded-md flex items-center justify-center text-sm ${getRankStyles(rank)}`}
-          >
-            #{rank + 1}
-          </div>
+      <CardContent className="p-0">
+        <div className="flex flex-col lg:flex-row lg:items-center">
+          {/* Main Info Section */}
+          <div className="flex-1 p-6 lg:p-8 flex items-start gap-5">
+            {/* Rank - Subtle */}
+            <div className="hidden sm:flex shrink-0 w-8 h-8 rounded-lg items-center justify-center text-xs font-black bg-muted text-muted-foreground border border-border/50">
+              {rank + 1}
+            </div>
 
-          {/* Title + company */}
-          <div className="flex-1 min-w-0 pt-0.5">
-            <h3 className="text-xl font-black text-foreground mb-2 leading-tight truncate">
-              {job.title}
-            </h3>
-            <div className="flex items-center gap-3 text-muted-foreground text-sm flex-wrap">
-              <Building2 className="h-4 w-4 shrink-0" />
-              <span className="font-semibold text-foreground">
-                {job.company}
-              </span>
-              <span className="opacity-50">·</span>
-              <MapPin className="h-4 w-4 shrink-0" />
-              <span className="font-medium truncate max-w-[200px]">
-                {job.location}
-              </span>
-              {job.isRemote && (
-                <>
-                  <span className="opacity-50">·</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <h3 className="text-xl font-black text-foreground tracking-tight truncate leading-tight">
+                  {job.title}
+                </h3>
+                {job.isRemote && (
                   <Badge
-                    variant="outline"
-                    className="px-2 py-0.5 text-xs h-6 leading-none bg-muted text-foreground gap-1.5 rounded-sm uppercase tracking-wider font-bold"
+                    variant="secondary"
+                    className="h-5 px-1.5 text-[10px] font-black uppercase tracking-wider bg-primary/10 text-primary border-none"
                   >
-                    <Wifi className="h-3 w-3" /> Remote
+                    Remote
                   </Badge>
-                </>
+                )}
+              </div>
+
+              <div className="flex items-center gap-x-4 gap-y-2 text-muted-foreground text-sm flex-wrap font-semibold">
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <Building2 className="h-3.5 w-3.5 opacity-70" />
+                  <span>{job.company}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 opacity-70" />
+                  <span className="truncate max-w-[150px]">{job.location}</span>
+                </div>
+                {job.salary && (
+                  <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                    <DollarSign className="h-3.5 w-3.5" />
+                    <span>{job.salary}</span>
+                  </div>
+                )}
+                {postedText && (
+                  <div className="flex items-center gap-1.5 opacity-80">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{postedText}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Skills Section - Hidden on very small screens, shown as middle block on desktop */}
+          <div className="flex-1 px-6 lg:px-4 py-2 lg:py-0 border-t lg:border-t-0 lg:border-x border-border/40">
+            <div className="space-y-3 lg:space-y-2 py-4">
+              {showMatched.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap items-center">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest w-16">
+                    Matched
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {showMatched.map((s) => (
+                      <SkillBadge
+                        key={s}
+                        skill={s}
+                        variant="matched"
+                        size="sm"
+                      />
+                    ))}
+                    {job.matchedSkills.length > 5 && (
+                      <span className="text-[10px] text-muted-foreground font-bold">
+                        +{job.matchedSkills.length - 5} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              {showMissing.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap items-center">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest w-16">
+                    Missing
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {showMissing.map((s) => (
+                      <SkillBadge
+                        key={s}
+                        skill={s}
+                        variant="missing"
+                        size="sm"
+                      />
+                    ))}
+                    {job.missingSkills.length > 4 && (
+                      <span className="text-[10px] text-muted-foreground font-bold">
+                        +{job.missingSkills.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Match ring */}
-          <MatchRing
-            percentage={job.matchPercentage}
-            size={60}
-            strokeWidth={5}
-          />
-        </div>
-
-        {/* Meta row */}
-        <div className="flex gap-4 mb-8 flex-wrap text-sm font-semibold">
-          {job.salary && (
-            <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
-              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">
-                Salary
-              </span>
-              <span className="flex items-center">
-                <DollarSign className="h-3.5 w-3.5" />
-                {job.salary}
-              </span>
-            </span>
-          )}
-          {job.employmentType && (
-            <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
-              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">
-                Type
-              </span>
-              <span className="capitalize">
-                {job.employmentType.replace("_", " ").toLowerCase()}
-              </span>
-            </span>
-          )}
-          {postedText && (
-            <span className="flex items-center gap-2 text-foreground bg-muted/50 px-3 flex-col rounded-md py-2 border border-border flex-1 min-w-[120px]">
-              <span className="uppercase text-[11px] text-muted-foreground font-bold tracking-widest leading-none">
-                Posted
-              </span>
-              <span className="flex items-center">
-                <Clock className="h-3.5 w-3.5 mr-1.5" />
-                {postedText}
-              </span>
-            </span>
-          )}
-        </div>
-
-        {/* Skills */}
-        <div className="mb-8 flex-1 space-y-4">
-          {showMatched.length > 0 && (
-            <div className="flex gap-2 flex-wrap items-center">
-              <span className="text-xs font-bold text-foreground uppercase tracking-widest w-20">
-                Matched
-              </span>
-              {showMatched.map((s) => (
-                <SkillBadge key={s} skill={s} variant="matched" size="md" />
-              ))}
-              {job.matchedSkills.length > 5 && (
-                <span className="text-xs text-muted-foreground font-bold pl-1 border-l border-border ml-1">
-                  +{job.matchedSkills.length - 5}
+          {/* Action/Match Section */}
+          <div className="p-6 lg:p-8 flex items-center justify-between lg:justify-end gap-8 bg-muted/20 lg:bg-transparent border-t lg:border-t-0 border-border/40">
+            <div className="flex items-center gap-4 lg:flex-row-reverse">
+              <MatchRing
+                percentage={job.matchPercentage}
+                size={52}
+                strokeWidth={5}
+              />
+              <div className="text-right flex flex-col items-end lg:items-start shrink-0">
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">
+                  Match Score
                 </span>
-              )}
-            </div>
-          )}
-          {showMissing.length > 0 && (
-            <div className="flex gap-2 flex-wrap items-center">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest w-20">
-                Missing
-              </span>
-              {showMissing.map((s) => (
-                <SkillBadge key={s} skill={s} variant="missing" size="md" />
-              ))}
-              {job.missingSkills.length > 4 && (
-                <span className="text-xs text-muted-foreground font-bold pl-1 border-l border-border ml-1">
-                  +{job.missingSkills.length - 4}
+                <span className="text-lg font-black text-foreground leading-none">
+                  {job.matchPercentage}%
                 </span>
-              )}
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Apply button */}
-        <div className="mt-auto pt-5 border-t border-border">
-          <a
-            href={job.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={
-              buttonVariants({ variant: "default", size: "lg" }) +
-              " w-full font-bold text-base gap-2"
-            }
-            id={`apply-btn-${job.id}`}
-            onClick={() =>
-              trackJobApplied({
-                job_id: job.id,
-                job_title: job.title,
-                company_name: job.company,
-                match_score: job.matchPercentage,
-                is_remote: Boolean(job.isRemote),
-                job_rank: rank,
-              })
-            }
-          >
-            Apply for this position
-            <ExternalLink className="h-4 w-4" />
-          </a>
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={
+                buttonVariants({ variant: "default", size: "lg" }) +
+                " font-bold px-8 shadow-sm hover:shadow-md transition-all active:scale-95"
+              }
+              id={`apply-btn-${job.id}`}
+              onClick={() =>
+                trackJobApplied({
+                  job_id: job.id,
+                  job_title: job.title,
+                  company_name: job.company,
+                  match_score: job.matchPercentage,
+                  is_remote: Boolean(job.isRemote),
+                  job_rank: rank,
+                })
+              }
+            >
+              Apply
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          </div>
         </div>
       </CardContent>
     </Card>
