@@ -8,6 +8,7 @@ import { resumeAnalysis } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { hackclub } from "@/lib/hackClubClient";
 import { aggregateSkillGaps, matchJobsToResume } from "@/lib/match-engine";
+import { enhanceRoadmapResource } from "@/lib/reliable-resources";
 import type { JobListing, RoadmapItem } from "@/types";
 
 export const maxDuration = 60;
@@ -217,7 +218,14 @@ Return ONLY a JSON object with this exact shape:
   ]
 }
 
-Prefer free resources. Use real, working URLs.`,
+Prefer free resources.
+RESOURCE URL GUIDELINES:
+- ONLY use official documentation (e.g., react.dev, nodejs.org, docs.aws.amazon.com, developer.mozilla.org).
+- Use high-authority platforms for tutorials/courses (e.g., FreeCodeCamp, Coursera, Udemy, YouTube).
+- DO NOT hallucinate specific article or course paths if you are not 100% certain.
+- If a specific URL is not known, provide the domain name and I will provide a search fallback.
+- Prioritize official project sites over random blog posts.
+- All URLs must be real and working. Use https protocol.`,
       });
       console.log("analyze gaps usage", usage);
 
@@ -235,6 +243,14 @@ Prefer free resources. Use real, working URLs.`,
           filteredGaps = skillGaps.filter((g) =>
             relevantSkillMap.has(g.skill.toLowerCase().trim()),
           );
+
+          // Post-process roadmap resources for reliability
+          roadmap = (parsed.data.roadmap as RoadmapItem[]).map((item) => ({
+            ...item,
+            resources: item.resources.map((res) =>
+              enhanceRoadmapResource(res, item.skill),
+            ),
+          }));
         } else {
           console.warn(
             "Analysis response schema validation failed:",

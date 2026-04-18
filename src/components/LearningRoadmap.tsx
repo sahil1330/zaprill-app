@@ -1,23 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import type { RoadmapItem } from "@/types";
 import {
-  Clock,
-  ExternalLink,
+  BookOpen,
   ChevronDown,
   ChevronUp,
-  BookOpen,
-  Video,
+  Clock,
   Code2,
-  FileText,
   Dumbbell,
+  ExternalLink,
+  FileText,
+  Search,
+  Video,
 } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  trackRoadmapItemExpanded,
   trackResourceLinkClicked,
+  trackRoadmapItemExpanded,
 } from "@/lib/analytics";
+import type { RoadmapItem } from "@/types";
 
 interface LearningRoadmapProps {
   roadmap: RoadmapItem[];
@@ -125,6 +126,8 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
           <div className="flex flex-col gap-2.5">
             {item.resources.map((res, i) => {
               const Icon = RESOURCE_ICONS[res.type] ?? FileText;
+              const isSearch = res.url?.includes("google.com/search");
+
               return (
                 <div
                   key={i}
@@ -147,6 +150,11 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                       >
                         {res.free ? "Free" : "Paid"}
                       </span>
+                      {isSearch && (
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-tighter">
+                          <Search className="w-2.5 h-2.5" /> Fallback
+                        </span>
+                      )}
                     </div>
                   </div>
                   {res.url && (
@@ -155,7 +163,7 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       id={`resource-link-${index}-${i}`}
-                      className="text-muted-foreground transition-colors shrink-0 p-2 hover:text-foreground hover:bg-muted rounded"
+                      className="text-muted-foreground transition-colors shrink-0 p-2 hover:text-foreground hover:bg-muted rounded flex items-center gap-1.5"
                       onClick={() =>
                         trackResourceLinkClicked({
                           skill_name: item.skill,
@@ -166,7 +174,20 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                         })
                       }
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      {isSearch ? (
+                        <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline">
+                          Search
+                        </span>
+                      ) : (
+                        <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline">
+                          Open
+                        </span>
+                      )}
+                      {isSearch ? (
+                        <Search className="w-4 h-4" />
+                      ) : (
+                        <ExternalLink className="w-4 h-4" />
+                      )}
                     </a>
                   )}
                 </div>
