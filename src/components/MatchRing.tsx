@@ -38,7 +38,7 @@ export default function MatchRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--foreground)"
+          stroke="var(--primary)"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}

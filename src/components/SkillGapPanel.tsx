@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import type { SkillGap, ParsedResume } from "@/types";
-import SkillBadge from "./SkillBadge";
 import {
-  TrendingUp,
   AlertCircle,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  TrendingUp,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import type { ParsedResume, SkillGap } from "@/types";
+import SkillBadge from "./SkillBadge";
 
 interface SkillGapPanelProps {
   resume: ParsedResume;
@@ -21,7 +21,7 @@ interface SkillGapPanelProps {
 
 function PriorityDot({ priority }: { priority: SkillGap["priority"] }) {
   const colorMap = {
-    high: "bg-foreground",
+    high: "bg-primary",
     medium: "bg-muted-foreground",
     low: "bg-border",
   };
@@ -133,10 +133,10 @@ export default function SkillGapPanel({
                     .map((g) => (
                       <span
                         key={g.skill}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-foreground bg-foreground text-background"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-primary bg-primary text-primary-foreground"
                       >
                         {g.skill}
-                        <span className="opacity-70 text-[10px] pl-1 font-medium border-l border-background/20">
+                        <span className="opacity-70 text-[10px] pl-1 font-medium border-l border-primary-foreground/20">
                           {g.frequency}
                         </span>
                       </span>

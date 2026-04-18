@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { ArrowRight, BriefcaseIcon, Loader2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signUp, signIn } from "@/lib/auth-client";
+import { Suspense, useState } from "react";
 import { checkUserExists } from "@/app/actions/auth";
+import GithubIcon from "@/components/icons/github-svg";
+import GoogleIcon from "@/components/icons/google-svg";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { BriefcaseIcon, Loader2, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import GoogleIcon from "@/components/icons/google-svg";
-import GithubIcon from "@/components/icons/github-svg";
+import { signIn, signUp } from "@/lib/auth-client";
 
 function SignUpForm() {
   const router = useRouter();
@@ -105,11 +106,14 @@ function SignUpForm() {
 
       <div className="w-full max-w-sm relative z-10 flex flex-col items-center">
         <Link href="/" className="flex items-center gap-2 mb-8 group">
-          <div className="w-8 h-8 rounded bg-foreground flex items-center justify-center transition-transform group-hover:scale-105">
-            <BriefcaseIcon className="h-4 w-4 text-background" />
-          </div>
-          <span className="font-bold text-xl tracking-tight text-foreground">
-            Zaprill
+          <span>
+            <Image
+              src={"/logo.png"}
+              alt={"Zaprill"}
+              width={100}
+              height={100}
+              loading="eager"
+            />
           </span>
         </Link>
 

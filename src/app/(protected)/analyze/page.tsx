@@ -610,8 +610,8 @@ function AnalyzePageContent() {
         }
         pageTitle={
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-lg shrink-0 bg-foreground flex items-center justify-center">
-              <Zap className="h-4 w-4 text-background" />
+            <div className="w-9 h-9 rounded-lg shrink-0 bg-primary flex items-center justify-center">
+              <Zap className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="font-extrabold text-lg tracking-tight text-foreground truncate">
               {resume?.name ? `${resume.name}'s Setup` : "Career Setup"}
@@ -619,7 +619,7 @@ function AnalyzePageContent() {
             {analysisId && (
               <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-muted/50 border border-border/50 animate-in fade-in zoom-in duration-300">
                 <svg
-                  className="w-3 h-3 text-green-500"
+                  className="w-3 h-3 text-primary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -639,7 +639,7 @@ function AnalyzePageContent() {
         centreBadge={
           isDone ? (
             <span className="text-[11px] uppercase font-bold text-foreground flex items-center gap-2 tracking-widest border border-border px-3 py-1.5 rounded-md bg-muted/50">
-              <div className="w-2 h-2 rounded-full bg-foreground" />
+              <div className="w-2 h-2 rounded-full bg-primary" />
               Complete
             </span>
           ) : undefined
@@ -662,17 +662,17 @@ function AnalyzePageContent() {
 
             <div className="space-y-8">
               {/* Quality Note */}
-              <Card className="border-amber-200/50 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900/50 overflow-hidden">
+              <Card className="border-accent/30 bg-accent/5 dark:bg-accent/10 dark:border-accent/20 overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
-                      <Info className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    <div className="w-10 h-10 rounded-full bg-accent/10 dark:bg-accent/20 flex items-center justify-center shrink-0">
+                      <Info className="h-5 w-5 text-accent-foreground" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-amber-900 dark:text-amber-300 mb-1">
+                      <h4 className="font-bold text-foreground mb-1">
                         Search Quality Tip
                       </h4>
-                      <p className="text-sm text-amber-800/80 dark:text-amber-400/80 leading-relaxed font-medium">
+                      <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                         For the best results, avoid selecting very diverse job
                         roles (e.g., "Web Developer" AND "Data Analyst"). The
                         analysis quality is highest when you focus on a specific
@@ -778,7 +778,7 @@ function AnalyzePageContent() {
                             className={`flex items-center justify-between w-full p-4 rounded-xl border-2 transition-all duration-200 text-left group
                               ${
                                 isSelected
-                                  ? "border-foreground bg-foreground text-background"
+                                  ? "border-primary bg-primary text-primary-foreground"
                                   : "border-border bg-card hover:border-muted-foreground/30 text-foreground"
                               }
                             `}
@@ -790,13 +790,13 @@ function AnalyzePageContent() {
                               className={`w-6 h-6 rounded-full flex items-center justify-center border shrink-0
                                 ${
                                   isSelected
-                                    ? "bg-background border-background"
+                                    ? "bg-primary-foreground border-primary-foreground"
                                     : "bg-muted border-border group-hover:border-muted-foreground/30"
                                 }
                               `}
                             >
                               {isSelected && (
-                                <Check className="h-3.5 w-3.5 text-foreground stroke-[3px]" />
+                                <Check className="h-3.5 w-3.5 text-primary stroke-[3px]" />
                               )}
                             </div>
                           </button>
@@ -1076,19 +1076,19 @@ function AnalyzePageContent() {
               }}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted p-2 rounded-xl border border-border shadow-sm h-auto">
+              <TabsList className="flex w-full mb-8 bg-muted p-1 rounded-full border border-border shadow-sm h-12">
                 {TABS.map((tab) => (
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="rounded-lg py-2.5 text-sm font-bold tracking-wide data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md"
+                    className="flex-1 rounded-full h-full text-sm font-bold tracking-wide data-active:bg-background data-active:text-foreground data-active:shadow-md transition-all"
                   >
                     <tab.icon className="h-5 w-5 mr-2.5 hidden sm:inline" />
                     {tab.label}
                     {tab.id === "jobs" && (
                       <Badge
                         variant="secondary"
-                        className="ml-2.5 px-2 py-0.5 text-xs font-black shadow-none border-border group-data-[state=active]:bg-foreground group-data-[state=active]:text-background"
+                        className="ml-2.5 px-2 py-0.5 text-xs font-black shadow-none border-border group-data-active:bg-primary group-data-active:text-primary-foreground"
                       >
                         {jobs.length}
                       </Badge>

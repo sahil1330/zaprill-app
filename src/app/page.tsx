@@ -1,31 +1,32 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import ResumeUploader from "@/components/ResumeUploader";
 import {
-  Target,
-  TrendingUp,
-  Map,
   ArrowRight,
-  Shield,
   Globe,
   Loader2,
+  Map,
+  Shield,
+  Target,
+  TrendingUp,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
+import ResumeUploader from "@/components/ResumeUploader";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/ui/file-upload";
 import { WordFadeIn } from "@/components/ui/word-fade-in";
-import { useSession } from "@/lib/auth-client";
-import Navbar from "@/components/Navbar";
 import {
   trackResumeFileSelected,
-  trackResumeUploadStart,
-  trackResumeParseSuccess,
   trackResumeParseFailure,
-  trackSavedProfileUsed,
+  trackResumeParseSuccess,
   trackResumeReplaced,
+  trackResumeUploadStart,
+  trackSavedProfileUsed,
 } from "@/lib/analytics";
+import { useSession } from "@/lib/auth-client";
 
 const FEATURES = [
   {
@@ -351,7 +352,10 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="py-8 border-t border-border bg-background text-sm font-medium text-muted-foreground text-center relative z-10">
-        Built with Next.js 16 · Vercel AI SDK · Gemini · Shadcn UI
+        Made with ❤️ by{" "}
+        <span className="italic text-primary">
+          <Link href={"https://github.com/sahil1330"}>Sahil Mane</Link>
+        </span>
       </footer>
     </main>
   );

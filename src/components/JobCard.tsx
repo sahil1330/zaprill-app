@@ -114,7 +114,7 @@ export default function JobCard({ job, rank }: JobCardProps) {
                   <span className="truncate max-w-[150px]">{job.location}</span>
                 </div>
                 {job.salary && (
-                  <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                  <div className="flex items-center gap-1.5 text-foreground font-bold">
                     <DollarSign className="h-3.5 w-3.5" />
                     <span>{job.salary}</span>
                   </div>

@@ -1,7 +1,7 @@
 "use client";
 
+import { CheckCircle, Circle, Loader } from "lucide-react";
 import type { AnalysisStep } from "@/types";
-import { CheckCircle, Loader, Circle } from "lucide-react";
 
 interface Step {
   key: AnalysisStep;
@@ -75,9 +75,9 @@ export default function ProgressTimeline({
                 className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center border transition-all duration-400 ease-in-out
                   ${
                     isCompleted
-                      ? "bg-foreground border-foreground text-background"
+                      ? "bg-primary border-primary text-primary-foreground"
                       : isActive
-                        ? "bg-muted border-foreground/30 text-foreground"
+                        ? "bg-muted border-primary/30 text-foreground"
                         : "bg-background border-border text-muted-foreground"
                   }
                 `}
@@ -116,8 +116,8 @@ export default function ProgressTimeline({
             {idx < STEPS.length - 1 && (
               <div
                 className={`w-[1px] h-7 ml-[15px] my-1 transition-colors duration-500 ease-in-out
-                  ${isCompleted ? "bg-foreground" : "bg-border"}
-                `}
+                    ${isCompleted ? "bg-primary" : "bg-border"}
+                  `}
               />
             )}
           </div>

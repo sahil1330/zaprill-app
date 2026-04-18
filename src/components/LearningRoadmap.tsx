@@ -26,9 +26,9 @@ interface LearningRoadmapProps {
 
 const PRIORITY_STYLES = {
   high: {
-    bg: "bg-foreground",
-    border: "border-foreground",
-    color: "text-background",
+    bg: "bg-primary",
+    border: "border-primary",
+    color: "text-primary-foreground",
     label: "High Priority",
   },
   medium: {
@@ -151,7 +151,7 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
                         {res.free ? "Free" : "Paid"}
                       </span>
                       {isSearch && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-tighter">
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-accent-foreground uppercase tracking-tighter">
                           <Search className="w-2.5 h-2.5" /> Fallback
                         </span>
                       )}

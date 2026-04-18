@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import { ArrowLeft, BriefcaseIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BriefcaseIcon, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import type React from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -97,11 +98,14 @@ export default function Navbar({
           </Button>
         ) : (
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-8 h-8 rounded bg-foreground flex items-center justify-center transition-transform group-hover:scale-105">
-              <BriefcaseIcon className="h-4 w-4 text-background" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-foreground hidden sm:block">
-              Zaprill
+            <span className="hidden sm:block">
+              <Image
+                src={"/logo.png"}
+                alt={"Zaprill"}
+                width={100}
+                height={100}
+                loading="eager"
+              />
             </span>
           </Link>
         )}

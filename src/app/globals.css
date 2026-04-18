@@ -248,3 +248,18 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
 }
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.dark ::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+::-moz-selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
