@@ -42,6 +42,7 @@ function SignInForm() {
     const { data, error } = await signIn.email({
       email,
       password,
+      rememberMe: true,
       callbackURL: callbackUrl,
     });
 
@@ -51,20 +52,6 @@ function SignInForm() {
       setLoading(false);
     } else {
       router.push(callbackUrl);
-    }
-  };
-
-  const handleGithubSignIn = async () => {
-    setGithubLoading(true);
-    setError(null);
-    const { data, error } = await signIn.social({
-      provider: "github",
-      callbackURL: callbackUrl,
-    });
-
-    if (error) {
-      setError(error.message || "Failed to sign in with GitHub");
-      setGithubLoading(false);
     }
   };
 

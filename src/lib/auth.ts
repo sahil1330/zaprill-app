@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { createAuthMiddleware } from "better-auth/api";
 import { admin, anonymous, phoneNumber } from "better-auth/plugins";
 import { Resend } from "resend";
 import db from "@/db";
@@ -58,6 +59,28 @@ export const auth = betterAuth({
 
   // ── Plugins ───────────────────────────────────────────────────────
   plugins: [admin(), anonymous(), phoneNumber()],
+
+  // ── Hooks ─────────────────────────────────────────────────────────
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      // Check for sign-in and sign-up endpoints (email/password, social, etc.)
+      if (
+        ctx.path === "/sign-in/email" ||
+        ctx.path === "/sign-up/email" ||
+        ctx.path.startsWith("/callback") || // OAuth callbacks (e.g., /callback/google)
+        ctx.path === "/sign-in/anonymous" ||
+        ctx.path === "/sign-in/phone-number"
+      ) {
+        const newSession = ctx.context.newSession;
+        if (newSession?.user?.id) {
+          // Update the user's lastSignInAt field
+          await ctx.context.internalAdapter.updateUser(newSession.user.id, {
+            lastSignInAt: new Date(),
+          });
+        }
+      }
+    }),
+  },
 
   // ── User additional fields ────────────────────────────────────────
   user: {
