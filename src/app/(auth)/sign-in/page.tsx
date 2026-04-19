@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signIn } from "@/lib/auth-client";
 import { login } from "@/store/authSlice";
 
@@ -190,8 +191,7 @@ function SignInForm() {
                     Forgot password?
                   </Link>
                 </div>
-                <Input
-                  type="password"
+                <PasswordInput
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading || githubLoading}

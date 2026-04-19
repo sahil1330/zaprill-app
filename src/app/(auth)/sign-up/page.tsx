@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signIn, signUp } from "@/lib/auth-client";
 
 function SignUpForm() {
@@ -244,8 +245,7 @@ function SignUpForm() {
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Password (min 8 chars)
                   </label>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading || githubLoading}
