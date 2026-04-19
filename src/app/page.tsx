@@ -55,12 +55,6 @@ const FEATURES = [
   },
 ];
 
-const STATS = [
-  { value: "200+", label: "Skills tracked" },
-  { value: "10k+", label: "Jobs searched" },
-  { value: "< 60s", label: "Full analysis" },
-];
-
 export default function HomePage() {
   const router = useRouter();
   const { data: session, isPending: sessionLoading } = useSession();
@@ -297,20 +291,6 @@ export default function HomePage() {
             </div>
           )}
         </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 md:gap-16 pt-10 border-t border-border/50 w-full max-w-3xl">
-          {STATS.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-                {stat.value}
-              </div>
-              <div className="text-sm font-medium text-muted-foreground mt-1 uppercase tracking-wide">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Features Section */}
@@ -355,6 +335,10 @@ export default function HomePage() {
         Made with ❤️ by{" "}
         <span className="italic text-primary">
           <Link href={"https://github.com/sahil1330"}>Sahil Mane</Link>
+        </span>{" "}
+        and{" "}
+        <span className="italic text-primary">
+          <Link href={"https://github.com/harsh-gupta-10"}>Harsh Gupta</Link>
         </span>
       </footer>
     </main>
