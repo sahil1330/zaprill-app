@@ -12,6 +12,7 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
+    "db:test-user": "tsx src/scripts/create-test-user.ts",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
