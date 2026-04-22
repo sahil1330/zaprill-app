@@ -63,7 +63,8 @@ export async function POST(request: Request) {
         ? jobTitles.map((title) => {
             if (experienceYears >= 12) return `Lead ${title}`;
             if (experienceYears >= 7) return `Senior ${title}`;
-            if (experienceYears <= 1) return `Junior ${title}`;
+            // For entry-level (<=1 year), searching for "Junior" is too restrictive on Adzuna.
+            // It's better to search the base title and get all relevant results.
             return title;
           })
         : jobTitles;
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
           url.searchParams.set("app_key", appKey);
           url.searchParams.set("what", title);
           url.searchParams.set("results_per_page", "50");
+          url.searchParams.set("max_days_old", "30");
           url.searchParams.set("content-type", "application/json");
           if (location) url.searchParams.set("where", location);
 
