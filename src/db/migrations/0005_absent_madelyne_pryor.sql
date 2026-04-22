@@ -1,0 +1,1 @@
+ALTER TYPE "public"."billing_cycle" ADD VALUE 'quarterly' BEFORE 'yearly';

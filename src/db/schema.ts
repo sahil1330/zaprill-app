@@ -1,11 +1,14 @@
 import {
   boolean,
+  index,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ─────────────────────────────────────────────────
@@ -186,3 +189,247 @@ export const savedJob = pgTable("saved_job", {
 
   savedAt: timestamp("saved_at").notNull().defaultNow(),
 });
+
+// ─────────────────────────────────────────────────
+// Billing Enums
+// ─────────────────────────────────────────────────
+
+export const billingCycleEnum = pgEnum("billing_cycle", [
+  "monthly",
+  "quarterly",
+  "yearly",
+]);
+
+export const couponTypeEnum = pgEnum("coupon_type", ["percentage", "flat"]);
+
+export const couponStatusEnum = pgEnum("coupon_status", [
+  "active",
+  "expired",
+  "disabled",
+]);
+
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "active",
+  "trialing",
+  "past_due",
+  "canceled",
+]);
+
+export const invoiceStatusEnum = pgEnum("invoice_status", [
+  "pending",
+  "paid",
+  "failed",
+  "void",
+]);
+
+export const billingReasonEnum = pgEnum("billing_reason", [
+  "subscription_create",
+  "renewal",
+  "upgrade",
+  "downgrade",
+]);
+
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "initiated",
+  "success",
+  "failed",
+  "refunded",
+]);
+
+// ─────────────────────────────────────────────────
+// Billing Tables
+// ─────────────────────────────────────────────────
+
+/**
+ * Subscription plans available in the product.
+ * Stored in DB so pricing can be managed without redeploys.
+ */
+export const plan = pgTable("plan", {
+  id: text("id").primaryKey(), // e.g. "plan_pro_monthly"
+  name: text("name").notNull(), // "Pro Monthly"
+  slug: text("slug").notNull().unique(), // "pro-monthly"
+  description: text("description"),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(), // in INR (stored as string for precision)
+  currency: text("currency").notNull().default("INR"),
+  billingCycle: billingCycleEnum("billing_cycle").notNull(),
+  features: jsonb("features").default([]), // string[] of feature bullets
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+/**
+ * Discount coupons. Admin-managed.
+ */
+export const coupons = pgTable(
+  "coupons",
+  {
+    id: text("id").primaryKey(),
+    code: text("code").notNull(), // unique enforced via index below
+    type: couponTypeEnum("type").notNull(),
+    value: numeric("value", { precision: 10, scale: 2 }).notNull(), // % or flat INR
+    maxDiscount: numeric("max_discount", { precision: 10, scale: 2 }), // cap for percentage type
+    minOrderValue: numeric("min_order_value", {
+      precision: 10,
+      scale: 2,
+    }).default("0"),
+    startTime: timestamp("start_time"),
+    endTime: timestamp("end_time"),
+    usageLimitGlobal: integer("usage_limit_global"), // null = unlimited
+    usageLimitPerUser: integer("usage_limit_per_user").default(1),
+    newUserOnly: boolean("new_user_only").notNull().default(false),
+    status: couponStatusEnum("status").notNull().default("active"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("coupons_code_idx").on(t.code)],
+);
+
+/**
+ * Tracks each coupon reservation and redemption.
+ * One row per (coupon, user, order) attempt.
+ * status: reserved → redeemed | released
+ */
+export const couponUsage = pgTable(
+  "coupon_usage",
+  {
+    id: text("id").primaryKey(),
+    couponId: text("coupon_id")
+      .notNull()
+      .references(() => coupons.id, { onDelete: "restrict" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    orderId: text("order_id"), // invoice id, set at reservation
+    status: text("status").notNull().default("reserved"), // reserved | redeemed | released
+    reservedAt: timestamp("reserved_at").notNull().defaultNow(),
+    redeemedAt: timestamp("redeemed_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("coupon_usage_coupon_id_idx").on(t.couponId),
+    index("coupon_usage_user_id_idx").on(t.userId),
+  ],
+);
+
+/**
+ * User subscriptions — one active subscription per user at a time.
+ * Manages the subscription lifecycle independently of payment provider.
+ */
+export const subscription = pgTable(
+  "subscription",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    planId: text("plan_id")
+      .notNull()
+      .references(() => plan.id, { onDelete: "restrict" }),
+    status: subscriptionStatusEnum("status").notNull().default("active"),
+    startDate: timestamp("start_date").notNull().defaultNow(),
+    endDate: timestamp("end_date"), // null = open-ended (until canceled)
+    currentPeriodStart: timestamp("current_period_start").notNull(),
+    currentPeriodEnd: timestamp("current_period_end").notNull(),
+    billingCycle: billingCycleEnum("billing_cycle").notNull(),
+    priceAtPurchase: numeric("price_at_purchase", {
+      precision: 10,
+      scale: 2,
+    }).notNull(),
+    couponId: text("coupon_id").references(() => coupons.id, {
+      onDelete: "set null",
+    }),
+    discountAmount: numeric("discount_amount", {
+      precision: 10,
+      scale: 2,
+    }).default("0"),
+    cashfreeSubscriptionId: text("cashfree_subscription_id"), // reserved for future Cashfree mandate
+    metadata: jsonb("metadata").default({}), // extensibility (future credit system)
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("subscription_user_id_status_idx").on(t.userId, t.status),
+    index("subscription_user_id_idx").on(t.userId),
+  ],
+);
+
+/**
+ * Invoice — single source of truth for billing.
+ * One subscription can have many invoices (create, renewal, etc.)
+ */
+export const invoice = pgTable(
+  "invoice",
+  {
+    id: text("id").primaryKey(),
+    subscriptionId: text("subscription_id").references(() => subscription.id, {
+      onDelete: "set null",
+    }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    amountDue: numeric("amount_due", { precision: 10, scale: 2 }).notNull(),
+    amountPaid: numeric("amount_paid", { precision: 10, scale: 2 }).default(
+      "0",
+    ),
+    currency: text("currency").notNull().default("INR"),
+    status: invoiceStatusEnum("status").notNull().default("pending"),
+    billingReason: billingReasonEnum("billing_reason").notNull(),
+    dueDate: timestamp("due_date"),
+    paidAt: timestamp("paid_at"),
+    couponId: text("coupon_id").references(() => coupons.id, {
+      onDelete: "set null",
+    }),
+    discountAmount: numeric("discount_amount", {
+      precision: 10,
+      scale: 2,
+    }).default("0"),
+    taxAmount: numeric("tax_amount", { precision: 10, scale: 2 }).default("0"),
+    totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
+    cashfreeOrderId: text("cashfree_order_id"), // used for webhook lookup
+    metadata: jsonb("metadata").default({}),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("invoice_user_id_idx").on(t.userId),
+    index("invoice_user_id_status_idx").on(t.userId, t.status),
+    index("invoice_subscription_id_idx").on(t.subscriptionId),
+    uniqueIndex("invoice_cashfree_order_id_idx").on(t.cashfreeOrderId),
+  ],
+);
+
+/**
+ * Individual payment attempts against an invoice.
+ * Each invoice can have multiple attempts (retry flow).
+ * idempotency_key ensures exactly-once processing.
+ */
+export const payment = pgTable(
+  "payment",
+  {
+    id: text("id").primaryKey(),
+    invoiceId: text("invoice_id")
+      .notNull()
+      .references(() => invoice.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("INR"),
+    status: paymentStatusEnum("status").notNull().default("initiated"),
+    paymentMethod: text("payment_method"), // upi | card | netbanking | wallet
+    transactionId: text("transaction_id"), // bank/UPI reference
+    cashfreePaymentId: text("cashfree_payment_id"), // cf_payment_id from Cashfree
+    idempotencyKey: text("idempotency_key").notNull(), // unique per attempt
+    paidAt: timestamp("paid_at"),
+    metadata: jsonb("metadata").default({}), // full Cashfree payment object snapshot
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("payment_idempotency_key_idx").on(t.idempotencyKey),
+    index("payment_invoice_id_idx").on(t.invoiceId),
+    index("payment_user_id_idx").on(t.userId),
+    index("payment_cashfree_payment_id_idx").on(t.cashfreePaymentId),
+  ],
+);
