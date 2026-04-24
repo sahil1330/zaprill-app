@@ -2,7 +2,6 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
 import { admin, anonymous, emailOTP, phoneNumber } from "better-auth/plugins";
-import { Resend } from "resend";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { sendResetPasswordMail } from "./emails/reset-password";
