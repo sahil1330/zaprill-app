@@ -41,6 +41,69 @@ export async function POST(request: Request) {
       );
     }
 
+    const { headers } = await import("next/headers");
+    const { auth } = await import("@/lib/auth");
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const { getActiveSubscription } = await import(
+      "@/services/billing/subscription.service"
+    );
+    const db = (await import("@/db")).default;
+    const { user } = await import("@/db/schema");
+    const { eq } = await import("drizzle-orm");
+
+    const activeSub = await getActiveSubscription(userId);
+    const isPro = !!activeSub;
+
+    if (!isPro) {
+      const [currentUser] = await db
+        .select({
+          monthlySearchesCount: user.monthlySearchesCount,
+          searchesResetDate: user.searchesResetDate,
+        })
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1);
+
+      if (!currentUser) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      const now = new Date();
+      const lastReset = currentUser.searchesResetDate
+        ? new Date(currentUser.searchesResetDate)
+        : null;
+
+      // Reset if older than 30 days or never set
+      const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+      let newCount = currentUser.monthlySearchesCount || 0;
+      let shouldReset = false;
+
+      if (!lastReset || now.getTime() - lastReset.getTime() > thirtyDaysMs) {
+        newCount = 0;
+        shouldReset = true;
+      }
+
+      if (newCount >= 3) {
+        return NextResponse.json({ error: "LIMIT_REACHED" }, { status: 403 });
+      }
+
+      await db
+        .update(user)
+        .set({
+          monthlySearchesCount: newCount + 1,
+          ...(shouldReset ? { searchesResetDate: now } : {}),
+        })
+        .where(eq(user.id, userId));
+    }
+
     const appId = process.env.ADZUNA_APP_ID;
     const appKey = process.env.ADZUNA_APP_KEY;
     if (!appId || !appKey || appId === "your_app_id_here") {

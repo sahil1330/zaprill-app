@@ -252,6 +252,9 @@ function AnalyzePageContent() {
         });
         if (!jobRes.ok) {
           const err = await jobRes.json();
+          if (err.error === "LIMIT_REACHED") {
+            throw new Error("LIMIT_REACHED");
+          }
           if (err.error === "API_SUBSCRIPTION_REQUIRED") {
             throw new Error(
               "JSearch API Subscription Required: Please go to https://rapidapi.com/letscrape-6bRBa3QG1q/api/jsearch and subscribe to the Free Basic tier.",
@@ -991,19 +994,34 @@ function AnalyzePageContent() {
               <AlertCircle className="h-8 w-8 text-foreground" />
             </div>
             <h2 className="text-3xl font-black mb-3 text-foreground tracking-tight">
-              Analysis Paused
+              {error === "LIMIT_REACHED"
+                ? "Monthly Limit Reached"
+                : "Analysis Paused"}
             </h2>
             <p className="text-base text-muted-foreground mb-8 font-semibold leading-relaxed">
-              {error}
+              {error === "LIMIT_REACHED"
+                ? "You have reached your limit of 3 free job searches for this month. Upgrade to Pro to get unlimited job searches and unlock all features."
+                : error}
             </p>
-            <Button
-              onClick={() => router.push("/")}
-              variant="default"
-              size="lg"
-              className="w-full text-base font-bold h-14"
-            >
-              <RefreshCw className="mr-2 h-5 w-5" /> Try Again
-            </Button>
+            {error === "LIMIT_REACHED" ? (
+              <Button
+                onClick={() => router.push("/pricing")}
+                variant="default"
+                size="lg"
+                className="w-full text-base font-bold h-14"
+              >
+                <Zap className="mr-2 h-5 w-5 fill-current" /> Upgrade to Pro
+              </Button>
+            ) : (
+              <Button
+                onClick={() => router.push("/")}
+                variant="default"
+                size="lg"
+                className="w-full text-base font-bold h-14"
+              >
+                <RefreshCw className="mr-2 h-5 w-5" /> Try Again
+              </Button>
+            )}
           </div>
         )}
 

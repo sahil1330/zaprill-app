@@ -59,6 +59,10 @@ export const user = pgTable("user", {
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
+
+  // usage limits
+  monthlySearchesCount: integer("monthly_searches_count").default(0),
+  searchesResetDate: timestamp("searches_reset_date"),
 });
 
 export const session = pgTable("session", {

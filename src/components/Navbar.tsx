@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
+import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -34,18 +35,42 @@ export interface NavUser {
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  isPro?: boolean;
 }
 
 function UserAvatar({ user }: { user: NavUser }) {
+  const [isPro, setIsPro] = useState(user.isPro ?? false);
+
+  useEffect(() => {
+    if (user.isPro !== undefined) return;
+    fetch("/api/billing/subscription")
+      .then((res) => res.json())
+      .then((data) => {
+        setIsPro(data.hasActiveSubscription);
+      })
+      .catch(console.error);
+  }, [user.isPro]);
+
   return (
-    <Avatar size="default" className="cursor-pointer">
-      {user.image && (
-        <AvatarImage src={user.image} alt={user.name ?? "User avatar"} />
-      )}
-      <AvatarFallback className="font-bold text-xs tracking-wide">
-        {getInitials(user.name, user.email)}
-      </AvatarFallback>
-    </Avatar>
+    <div className="relative">
+      <Avatar size="default" className="cursor-pointer">
+        {user.image && (
+          <AvatarImage src={user.image} alt={user.name ?? "User avatar"} />
+        )}
+        <AvatarFallback className="font-bold text-xs tracking-wide">
+          {getInitials(user.name, user.email)}
+        </AvatarFallback>
+      </Avatar>
+      <div
+        className={`absolute -bottom-1 -right-1 px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-sm border shadow-sm ${
+          isPro
+            ? "bg-primary text-primary-foreground border-primary"
+            : "bg-muted text-muted-foreground border-border"
+        }`}
+      >
+        {isPro ? "PRO" : "FREE"}
+      </div>
+    </div>
   );
 }
 
@@ -162,6 +187,12 @@ export default function Navbar({
                     className="font-semibold cursor-pointer"
                   >
                     Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/billing")}
+                    className="font-semibold cursor-pointer"
+                  >
+                    Billing
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push("/history")}
