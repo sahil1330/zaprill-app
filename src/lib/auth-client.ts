@@ -10,4 +10,4 @@ export const authClient = createAuthClient({
   plugins: [adminClient(), anonymousClient(), phoneNumberClient()],
 });
 
-export const { signIn, signOut, signUp, useSession, getSession } = authClient;
+export const { signIn, signOut, signUp, useSession, getSession, forgetPassword, resetPassword } = authClient;
