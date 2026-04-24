@@ -16,7 +16,7 @@ export const sendSubscriptionCreatedMail = async (
           <h2 style="font-size:24px;font-weight:900;margin-bottom:8px">Welcome to Zaprill Pro! \uD83C\uDF89</h2>
           <p style="color:#555;margin-bottom:16px">Thank you for subscribing to the <strong>${planName}</strong> plan.</p>
           <p style="color:#555;margin-bottom:24px">Your payment of <strong>${amount}</strong> for this ${billingCycle} has been processed successfully.</p>
-          <a href="https://app.zaprill.com/dashboard" style="background:#000;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block">Go to Dashboard</a>
+          <a href="https://app.zaprill.com" style="background:#000;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block">Go to Dashboard</a>
         </div>
       `,
     );

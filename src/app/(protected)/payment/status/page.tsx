@@ -139,10 +139,7 @@ export default function PaymentStatusPage({
         </CardContent>
         <CardFooter className="flex-col gap-3 pb-8">
           {status === "paid" && (
-            <Button
-              className="w-full"
-              onClick={() => router.push("/dashboard")}
-            >
+            <Button className="w-full" onClick={() => router.push("/")}>
               Go to Dashboard
             </Button>
           )}
