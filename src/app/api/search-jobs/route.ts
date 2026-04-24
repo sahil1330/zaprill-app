@@ -91,7 +91,7 @@ export async function POST(request: Request) {
         shouldReset = true;
       }
 
-      if (newCount >= 3) {
+      if (newCount >= 2) {
         return NextResponse.json({ error: "LIMIT_REACHED" }, { status: 403 });
       }
 

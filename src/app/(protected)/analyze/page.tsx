@@ -34,6 +34,7 @@ import {
   LocationCombobox,
   locationMatchesCity,
 } from "@/components/LocationCombobox";
+import LockedJobCard from "@/components/LockedJobCard";
 import Navbar from "@/components/Navbar";
 import ProgressTimeline from "@/components/ProgressTimeline";
 import SkillBadge from "@/components/SkillBadge";
@@ -177,6 +178,7 @@ function AnalyzePageContent() {
   const [error, setError] = useState<string | null>(null);
   const [resume, setResume] = useState<ParsedResume | null>(null);
   const [jobs, setJobs] = useState<JobMatch[]>([]);
+  const [isPro, setIsPro] = useState(false);
   const [skillGaps, setSkillGaps] = useState<SkillGap[]>([]);
   const [roadmap, setRoadmap] = useState<RoadmapItem[]>([]);
   const [advice, setAdvice] = useState<string>("");
@@ -300,7 +302,9 @@ function AnalyzePageContent() {
           skillGaps: gaps,
           roadmap: rm,
           advice: aiAdvice,
+          isPro: isUserPro,
         } = await gapRes.json();
+        setIsPro(!!isUserPro);
 
         trackGapAnalysisComplete({
           skill_gaps_count: gaps.length,
@@ -1000,7 +1004,7 @@ function AnalyzePageContent() {
             </h2>
             <p className="text-base text-muted-foreground mb-8 font-semibold leading-relaxed">
               {error === "LIMIT_REACHED"
-                ? "You have reached your limit of 3 free job searches for this month. Upgrade to Pro to get unlimited job searches and unlock all features."
+                ? "You have reached your limit of 2 free job searches for this month. Upgrade to Pro to get unlimited job searches and unlock all features."
                 : error}
             </p>
             {error === "LIMIT_REACHED" ? (
@@ -1468,9 +1472,13 @@ function AnalyzePageContent() {
                 </div>
 
                 <div className="flex flex-col gap-4 pb-20">
-                  {displayedJobs.map((job, idx) => (
-                    <JobCard key={job.id} job={job} rank={idx} />
-                  ))}
+                  {displayedJobs.map((job, idx) =>
+                    !isPro && job.matchPercentage >= 50 ? (
+                      <LockedJobCard key={job.id} job={job} rank={idx} />
+                    ) : (
+                      <JobCard key={job.id} job={job} rank={idx} />
+                    ),
+                  )}
                 </div>
 
                 {displayedJobs.length === 0 && (

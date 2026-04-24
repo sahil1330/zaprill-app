@@ -104,6 +104,30 @@ export async function POST(request: Request) {
     // Compute match scores for all jobs
     const matchedJobs = matchJobsToResume(resumeSkills, jobs);
 
+    // --- SUBSCRIPTION GATE ---
+    // Strip apply URLs for free users on jobs with >= 50% match (server-side, not in DOM)
+    let isPro = false;
+    try {
+      const session = await auth.api.getSession({ headers: await headers() });
+      if (session?.user) {
+        const { getActiveSubscription } = await import(
+          "@/services/billing/subscription.service"
+        );
+        const activeSub = await getActiveSubscription(session.user.id);
+        isPro = !!activeSub;
+      }
+    } catch {
+      // Default to free if subscription check fails
+    }
+
+    if (!isPro) {
+      for (const job of matchedJobs) {
+        if (job.matchPercentage >= 50) {
+          job.url = ""; // strip URL — not null/undefined to avoid TS issues
+        }
+      }
+    }
+
     // Aggregate skill gaps across all jobs
     const skillGaps = aggregateSkillGaps(resumeSkills, matchedJobs);
 
@@ -273,6 +297,7 @@ RESOURCE URL GUIDELINES:
       skillGaps: filteredGaps,
       roadmap,
       advice,
+      isPro,
     });
   } catch (error) {
     console.error("Gap analysis error:", error);
