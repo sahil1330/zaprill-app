@@ -330,16 +330,41 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-border bg-background text-sm font-medium text-muted-foreground text-center relative z-10">
-        Made with ❤️ by{" "}
-        <span className="italic text-primary">
-          <Link href={"https://github.com/sahil1330"}>Sahil Mane</Link>
-        </span>{" "}
-        and{" "}
-        <span className="italic text-primary">
-          <Link href={"https://github.com/harsh-gupta-10"}>Harsh Gupta</Link>
-        </span>
+      <footer className="py-12 border-t border-border bg-background relative z-10">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-sm font-medium text-muted-foreground">
+            Made with ❤️ by{" "}
+            <span className="italic text-primary">
+              <Link href={"https://github.com/sahil1330"}>Sahil Mane</Link>
+            </span>{" "}
+            and{" "}
+            <span className="italic text-primary">
+              <Link href={"https://github.com/harsh-gupta-10"}>
+                Harsh Gupta
+              </Link>
+            </span>
+          </div>
+          <div className="flex items-center gap-6 text-sm font-bold">
+            <Link
+              href="/pricing"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/history"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              History
+            </Link>
+            <Link
+              href="/profile"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Profile
+            </Link>
+          </div>
+        </div>
       </footer>
     </main>
   );

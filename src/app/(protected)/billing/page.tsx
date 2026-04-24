@@ -1,5 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { headers } from "next/headers";
+import PricingPlans from "@/components/PricingPlans";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -47,6 +48,13 @@ export default async function BillingPage() {
       .limit(1);
     activePlan = p;
   }
+
+  // Fetch plans for display if not subscribed
+  const plans = await db
+    .select()
+    .from(plan)
+    .where(eq(plan.isActive, true))
+    .orderBy(plan.sortOrder);
 
   // Fetch invoices
   const invoices = await db
@@ -107,16 +115,14 @@ export default async function BillingPage() {
               )}
             </div>
           ) : (
-            <div className="p-4 border rounded-lg bg-muted/20 text-center">
-              <p className="mb-4">
-                You don&apos;t have an active premium subscription.
-              </p>
-              <a
-                href="/pricing"
-                className="text-primary hover:underline font-medium"
-              >
-                View Pricing Plans
-              </a>
+            <div className="space-y-8">
+              <div className="p-8 border rounded-lg bg-muted/10 text-center">
+                <p className="text-muted-foreground font-medium">
+                  You don&apos;t have an active premium subscription. Choose a
+                  plan below to get started.
+                </p>
+              </div>
+              <PricingPlans plans={plans} />
             </div>
           )}
         </CardContent>

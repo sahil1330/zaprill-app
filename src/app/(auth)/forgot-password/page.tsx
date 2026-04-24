@@ -20,7 +20,6 @@ export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,45 +72,37 @@ export default function ForgotPasswordPage() {
               </div>
             )}
 
-            {success ? (
-              <div className="p-4 text-sm font-medium text-green-600 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-md text-center">
-                We've sent a password reset link to{" "}
-                <span className="font-bold">{email}</span>. Please check your
-                inbox.
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
-                  >
-                    Email
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    required
-                    className="h-11 font-medium bg-background"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full font-bold h-11"
-                  disabled={loading || !email}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
                 >
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    "Reset password"
-                  )}
-                </Button>
-              </form>
-            )}
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                  required
+                  className="h-11 font-medium bg-background"
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full font-bold h-11"
+                disabled={loading || !email}
+              >
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  "Reset password"
+                )}
+              </Button>
+            </form>
           </CardContent>
           <CardFooter className="flex flex-col border-t border-border pt-6 pb-6 bg-muted/20">
             <p className="text-sm text-center text-muted-foreground font-medium">
