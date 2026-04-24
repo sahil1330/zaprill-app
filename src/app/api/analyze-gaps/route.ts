@@ -124,6 +124,7 @@ export async function POST(request: Request) {
       for (const job of matchedJobs) {
         if (job.matchPercentage >= 50) {
           job.url = ""; // strip URL — not null/undefined to avoid TS issues
+          job.company = "Locked"; // obfuscate company
         }
       }
     }

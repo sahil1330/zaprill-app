@@ -47,10 +47,6 @@ export default function LockedJobCard({ job, rank }: LockedJobCardProps) {
                 )}
               </div>
               <div className="flex items-center gap-x-4 gap-y-2 text-muted-foreground text-sm flex-wrap font-semibold">
-                <div className="flex items-center gap-1.5 text-foreground">
-                  <Building2 className="h-3.5 w-3.5 opacity-70" />
-                  <span>{job.company}</span>
-                </div>
                 <div className="flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5 opacity-70" />
                   <span className="truncate max-w-[150px]">{job.location}</span>
@@ -109,14 +105,6 @@ export default function LockedJobCard({ job, rank }: LockedJobCardProps) {
                 size={52}
                 strokeWidth={5}
               />
-              <div className="text-right flex flex-col items-end lg:items-start shrink-0">
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter">
-                  Match Score
-                </span>
-                <span className="text-lg font-black text-foreground leading-none">
-                  {job.matchPercentage}%
-                </span>
-              </div>
             </div>
 
             <Button

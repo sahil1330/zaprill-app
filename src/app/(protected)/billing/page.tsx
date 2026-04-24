@@ -31,7 +31,7 @@ export default async function BillingPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return null; // handled by middleware
 
-  // Fetch active subscription
+  // Fetch latest subscription attempt/record
   const [sub] = await db
     .select()
     .from(subscription)
@@ -49,7 +49,7 @@ export default async function BillingPage() {
     activePlan = p;
   }
 
-  // Fetch plans for display if not subscribed
+  // Fetch plans for display
   const plans = await db
     .select()
     .from(plan)
@@ -64,19 +64,27 @@ export default async function BillingPage() {
     .orderBy(desc(invoice.createdAt))
     .limit(20);
 
+  // Functional "Active" check: trialing, active, or past_due
+  // 'canceled' is NOT in this list because even though it keeps access,
+  // we want to show the pricing plans for them to "renew" or "switch" easily
+  // or at least show them the options.
+  const isFunctionallyActive =
+    sub && ["active", "trialing", "past_due"].includes(sub.status);
+
   return (
-    <div className="container max-w-5xl mx-auto py-12 px-4 space-y-8">
+    <div className="container max-w-5xl py-10 space-y-8">
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
           Billing & Subscription
         </h1>
         <p className="text-muted-foreground mt-2">
-          Manage your active plan and billing history.
+          Manage your plan, payment methods, and invoices.
         </p>
       </div>
 
       {/* Subscription Status Card */}
-      <Card>
+      <Card className={isFunctionallyActive ? "border-primary/50" : ""}>
         <CardHeader>
           <CardTitle>Current Plan</CardTitle>
           <CardDescription>
@@ -88,7 +96,7 @@ export default async function BillingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {sub && activePlan ? (
+          {isFunctionallyActive && activePlan ? (
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border rounded-lg bg-muted/20">
               <div>
                 <div className="flex items-center gap-2">
@@ -113,6 +121,34 @@ export default async function BillingPage() {
               {sub.status === "active" && (
                 <CancelSubscriptionButton subscriptionId={sub.id} />
               )}
+            </div>
+          ) : sub?.status === "canceled" && activePlan ? (
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border rounded-lg bg-yellow-500/10 border-yellow-500/20">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-lg">
+                      {activePlan.name}
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="text-yellow-600 border-yellow-600"
+                    >
+                      CANCELED
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Access ends on:{" "}
+                    {new Date(sub.currentPeriodEnd).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <div className="pt-4 border-t">
+                <p className="text-sm font-medium mb-4">
+                  Want to restart your subscription?
+                </p>
+                <PricingPlans plans={plans} />
+              </div>
             </div>
           ) : (
             <div className="space-y-8">
@@ -140,7 +176,7 @@ export default async function BillingPage() {
               No invoices found.
             </p>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>

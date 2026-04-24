@@ -112,7 +112,12 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
               </ul>
             </CardContent>
             <CardFooter className="pb-8">
-              <Link href={`/checkout?planId=${p.id}`} className="w-full">
+              <Link
+                href={
+                  parseFloat(p.amount) === 0 ? "/" : `/checkout?planId=${p.id}`
+                }
+                className="w-full"
+              >
                 <Button
                   className="w-full"
                   variant={isPro && !isYearly ? "default" : "outline"}
