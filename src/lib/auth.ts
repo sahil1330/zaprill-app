@@ -8,7 +8,7 @@ import * as schema from "@/db/schema";
 import { sendResetPasswordMail } from "./emails/reset-password";
 import { sendVerificationEmail } from "./emails/verification-email";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

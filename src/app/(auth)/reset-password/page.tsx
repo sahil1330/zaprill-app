@@ -116,10 +116,14 @@ function ResetPasswordForm() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  <label
+                    htmlFor="otp"
+                    className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
+                  >
                     Verification Code
                   </label>
                   <Input
+                    id="otp"
                     type="text"
                     placeholder="Enter 6-digit code"
                     value={otp}
@@ -130,10 +134,14 @@ function ResetPasswordForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  <label
+                    htmlFor="password"
+                    className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
+                  >
                     New Password
                   </label>
                   <PasswordInput
+                    id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
@@ -142,10 +150,14 @@ function ResetPasswordForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="text-xs font-bold text-muted-foreground uppercase tracking-wider"
+                  >
                     Confirm Password
                   </label>
                   <PasswordInput
+                    id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={loading}
