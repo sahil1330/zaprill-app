@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, BriefcaseIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -163,15 +163,6 @@ export default function Navbar({
                   History
                 </Button>
               </Link>
-              <Link href="/pricing">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="font-bold text-xs hidden sm:inline-flex"
-                >
-                  Pricing
-                </Button>
-              </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -202,12 +193,6 @@ export default function Navbar({
                     className="font-semibold cursor-pointer"
                   >
                     Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push("/pricing")}
-                    className="font-semibold cursor-pointer"
-                  >
-                    Pricing
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push("/history")}

@@ -18,7 +18,7 @@ export default async function CheckoutPage(props: CheckoutPageProps) {
   const { planId } = searchParams;
 
   if (!planId) {
-    redirect("/pricing");
+    redirect("/billing");
   }
 
   const [selectedPlan] = await db
@@ -28,7 +28,7 @@ export default async function CheckoutPage(props: CheckoutPageProps) {
     .limit(1);
 
   if (!selectedPlan || !selectedPlan.isActive) {
-    redirect("/pricing");
+    redirect("/billing");
   }
 
   // Fetch available coupons

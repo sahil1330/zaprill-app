@@ -1005,7 +1005,7 @@ function AnalyzePageContent() {
             </p>
             {error === "LIMIT_REACHED" ? (
               <Button
-                onClick={() => router.push("/pricing")}
+                onClick={() => router.push("/billing")}
                 variant="default"
                 size="lg"
                 className="w-full text-base font-bold h-14"

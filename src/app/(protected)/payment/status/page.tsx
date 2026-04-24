@@ -29,7 +29,7 @@ export default function PaymentStatusPage({
 
   useEffect(() => {
     if (!orderId) {
-      router.push("/pricing");
+      router.push("/billing");
       return;
     }
 
@@ -151,7 +151,7 @@ export default function PaymentStatusPage({
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => router.push("/pricing")}
+                onClick={() => router.push("/billing")}
               >
                 View Plans
               </Button>

@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
+import PricingPlans from "@/components/PricingPlans";
 import ResumeUploader from "@/components/ResumeUploader";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/ui/file-upload";
@@ -65,6 +66,18 @@ export default function HomePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/billing/plans")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.plans) {
+          setPlans(data.plans);
+        }
+      })
+      .catch((err) => console.error("Failed to load plans", err));
+  }, []);
 
   useEffect(() => {
     if (session?.user) {
@@ -330,6 +343,27 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      {plans.length > 0 && (
+        <section
+          id="pricing"
+          className="py-24 px-6 border-t border-border/50 relative z-10 w-full"
+        >
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="mb-16">
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-foreground">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                Choose the perfect plan for your career growth. No hidden fees,
+                just pure AI power.
+              </p>
+            </div>
+            <PricingPlans plans={plans} />
+          </div>
+        </section>
+      )}
+
       <footer className="py-12 border-t border-border bg-background relative z-10">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-sm font-medium text-muted-foreground">
@@ -346,7 +380,7 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-6 text-sm font-bold">
             <Link
-              href="/pricing"
+              href="/#pricing"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               Pricing

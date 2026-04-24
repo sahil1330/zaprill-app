@@ -66,7 +66,7 @@ export const sendSubscriptionCanceledMail = async (
           <h2 style="font-size:24px;font-weight:900;margin-bottom:8px">Subscription Canceled</h2>
           <p style="color:#555;margin-bottom:16px">We're sorry to see you go! Your <strong>${planName}</strong> plan has been canceled.</p>
           <p style="color:#555;margin-bottom:24px">You will continue to have access to your premium features until the end of your current billing period on <strong>${endDate}</strong>.</p>
-          <a href="https://app.zaprill.com/pricing" style="background:#000;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block">Re-subscribe Anytime</a>
+          <a href="https://app.zaprill.com/billing" style="background:#000;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block">Re-subscribe Anytime</a>
         </div>
       `,
     );
