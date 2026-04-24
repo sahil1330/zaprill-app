@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { extractSkillsFromText } from "@/lib/skill-extractor";
 import type { JobListing } from "@/types";
 
-export const maxDuration = 30;
+export const maxDuration = 200;
 
 interface AdzunaResult {
   id: string;
@@ -117,104 +117,103 @@ export async function POST(request: Request) {
       );
     }
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-    // 3 queries — each fetches 2 pages of 50 results = up to 300 jobs total
     // Refine queries based on experience if provided
     const queries =
       experienceYears !== undefined
         ? jobTitles.map((title) => {
             if (experienceYears >= 12) return `Lead ${title}`;
             if (experienceYears >= 7) return `Senior ${title}`;
-            // For entry-level (<=1 year), searching for "Junior" is too restrictive on Adzuna.
-            // It's better to search the base title and get all relevant results.
+            // For entry-level (<=1 year), "Junior" is too restrictive on Adzuna India.
             return title;
           })
         : jobTitles;
 
+    // Build a flat list of all (title, page) combos and fetch them all in parallel
+    const fetchPage = async (
+      title: string,
+      page: number,
+    ): Promise<AdzunaResult[]> => {
+      const url = new URL(
+        `https://api.adzuna.com/v1/api/jobs/in/search/${page}`,
+      );
+      url.searchParams.set("app_id", appId);
+      url.searchParams.set("app_key", appKey);
+      url.searchParams.set("what", title);
+      url.searchParams.set("results_per_page", "50");
+      url.searchParams.set("max_days_old", "30");
+      url.searchParams.set("content-type", "application/json");
+      if (location) url.searchParams.set("where", location);
+
+      console.log(
+        `[search-jobs] Fetching "${title}" p${page} → ${url.toString().replace(appKey, "***")}`,
+      );
+
+      const t0 = Date.now();
+      const res = await fetch(url.toString());
+      console.log(
+        `[search-jobs] "${title}" p${page} → HTTP ${res.status} (${Date.now() - t0}ms)`,
+      );
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error(`[search-jobs] Error ${res.status}:`, text.slice(0, 200));
+        return [];
+      }
+
+      const data = await res.json();
+      const results: AdzunaResult[] = data?.results ?? [];
+      console.log(
+        `[search-jobs] "${title}" p${page} → ${results.length} results`,
+      );
+      return results;
+    };
+
+    // Fire all title×page fetches simultaneously
+    const billingDone = Date.now();
+    const pageTasks = queries.flatMap((title) => [
+      fetchPage(title, 1),
+      fetchPage(title, 2),
+    ]);
+    const settled = await Promise.allSettled(pageTasks);
+    console.log(
+      `[search-jobs] All fetches done in ${Date.now() - billingDone}ms`,
+    );
+
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
 
-    for (let i = 0; i < queries.length; i++) {
-      if (i > 0) await sleep(500); // Adzuna is generous but be polite
+    for (const outcome of settled) {
+      if (outcome.status === "rejected") {
+        console.error("[search-jobs] Fetch rejected:", outcome.reason);
+        continue;
+      }
+      for (const result of outcome.value) {
+        if (seenIds.has(result.id)) continue;
+        seenIds.add(result.id);
 
-      const title = queries[i];
+        const requiredSkills = extractSkillsFromText(result.description ?? "");
 
-      for (let page = 1; page <= 2; page++) {
-        try {
-          const url = new URL(
-            `https://api.adzuna.com/v1/api/jobs/in/search/${page}`,
-          );
-          url.searchParams.set("app_id", appId);
-          url.searchParams.set("app_key", appKey);
-          url.searchParams.set("what", title);
-          url.searchParams.set("results_per_page", "50");
-          url.searchParams.set("max_days_old", "30");
-          url.searchParams.set("content-type", "application/json");
-          if (location) url.searchParams.set("where", location);
-
-          console.log(
-            `[search-jobs] ${title} (page ${page}) → ${url.toString().replace(appKey, "***")}`,
-          );
-
-          const res = await fetch(url.toString());
-          console.log(`[search-jobs] "${title}" p${page} → HTTP ${res.status}`);
-
-          if (!res.ok) {
-            const text = await res.text();
-            console.error(
-              `[search-jobs] Error: ${res.status}`,
-              text.slice(0, 200),
-            );
-            if (res.status === 429) break; // stop paging this title
-            continue;
-          }
-
-          const data = await res.json();
-          const results: AdzunaResult[] = data?.results ?? [];
-          console.log(
-            `[search-jobs] "${title}" p${page} → ${results.length} results`,
-          );
-
-          for (const result of results) {
-            if (seenIds.has(result.id)) continue;
-            seenIds.add(result.id);
-
-            const requiredSkills = extractSkillsFromText(
-              result.description ?? "",
-            );
-
-            allJobs.push({
-              id: result.id,
-              title: result.title,
-              company: result.company?.display_name ?? "Unknown",
-              location: result.location?.display_name ?? "India",
-              description: result.description ?? "",
-              requiredSkills,
-              url: result.redirect_url,
-              salary: buildSalaryString(result),
-              postedAt: result.created,
-              employmentType:
-                result.contract_time === "full_time"
-                  ? "FULLTIME"
-                  : result.contract_time === "part_time"
-                    ? "PARTTIME"
-                    : undefined,
-              isRemote:
-                result.title.toLowerCase().includes("remote") ||
-                result.description.toLowerCase().includes("remote"),
-              publisher: "Adzuna",
-            });
-          }
-
-          // If fewer than 50 results, no point fetching page 2
-          if (results.length < 50) break;
-        } catch (err) {
-          console.error(
-            `[search-jobs] Exception for "${title}" p${page}:`,
-            err,
-          );
-        }
+        allJobs.push({
+          id: result.id,
+          title: result.title,
+          company: result.company?.display_name ?? "Unknown",
+          location: result.location?.display_name ?? "India",
+          description: result.description ?? "",
+          requiredSkills,
+          url: result.redirect_url,
+          salary: buildSalaryString(result),
+          postedAt: result.created,
+          employmentType:
+            result.contract_time === "full_time"
+              ? "FULLTIME"
+              : result.contract_time === "part_time"
+                ? "PARTTIME"
+                : undefined,
+          isRemote:
+            result.title.toLowerCase().includes("remote") ||
+            result.description.toLowerCase().includes("remote"),
+          publisher: "Adzuna",
+        });
       }
     }
 
