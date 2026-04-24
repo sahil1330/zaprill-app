@@ -46,7 +46,7 @@ function UserAvatar({ user }: { user: NavUser }) {
     fetch("/api/billing/subscription")
       .then((res) => res.json())
       .then((data) => {
-        setIsPro(data.hasActiveSubscription);
+        setIsPro(!!data.subscription);
       })
       .catch(console.error);
   }, [user.isPro]);

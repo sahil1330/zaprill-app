@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { ArrowLeft, ArrowRight, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,9 +14,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { forgetPassword } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -26,18 +28,17 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await forgetPassword({
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
       email,
-      redirectTo: "/reset-password",
+      type: "forget-password",
     });
 
     if (error) {
-      setError(error.message || "Failed to send reset email");
+      setError(error.message || "Failed to send OTP code");
+      setLoading(false);
     } else {
-      setSuccess(true);
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
     }
-    
-    setLoading(false);
   };
 
   return (
@@ -45,7 +46,10 @@ export default function ForgotPasswordPage() {
       <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
 
       <div className="w-full max-w-sm relative z-10 flex flex-col items-center">
-        <Link href="/sign-in" className="flex items-center gap-2 mb-8 group text-sm font-medium text-muted-foreground hover:text-foreground">
+        <Link
+          href="/sign-in"
+          className="flex items-center gap-2 mb-8 group text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Back to login
         </Link>
@@ -68,10 +72,12 @@ export default function ForgotPasswordPage() {
                 {error}
               </div>
             )}
-            
+
             {success ? (
               <div className="p-4 text-sm font-medium text-green-600 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-md text-center">
-                We've sent a password reset link to <span className="font-bold">{email}</span>. Please check your inbox.
+                We've sent a password reset link to{" "}
+                <span className="font-bold">{email}</span>. Please check your
+                inbox.
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

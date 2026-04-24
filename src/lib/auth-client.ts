@@ -1,13 +1,19 @@
-import { createAuthClient } from "better-auth/react";
 import {
   adminClient,
   anonymousClient,
+  emailOTPClient,
   phoneNumberClient,
 } from "better-auth/client/plugins";
+import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  plugins: [adminClient(), anonymousClient(), phoneNumberClient()],
+  plugins: [
+    adminClient(),
+    anonymousClient(),
+    phoneNumberClient(),
+    emailOTPClient(),
+  ],
 });
 
-export const { signIn, signOut, signUp, useSession, getSession, forgetPassword, resetPassword } = authClient;
+export const { signIn, signOut, signUp, useSession, getSession } = authClient;

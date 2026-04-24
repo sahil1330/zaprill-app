@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, Suspense } from "react";
 import { ArrowRight, KeyRound, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,11 +13,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { resetPassword } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
+
+  const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,12 +46,29 @@ function ResetPasswordForm() {
       return;
     }
 
-    const { error } = await resetPassword({
-      newPassword: password,
+    if (!email) {
+      setError("Email is missing. Please restart the password reset process.");
+      setLoading(false);
+      return;
+    }
+
+    if (!otp) {
+      setError("Please enter the verification code.");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await authClient.emailOtp.resetPassword({
+      email,
+      otp,
+      password: password,
     });
 
     if (error) {
-      setError(error.message || "Failed to reset password. The link might be invalid or expired.");
+      setError(
+        error.message ||
+          "Failed to reset password. The link might be invalid or expired.",
+      );
     } else {
       setSuccess(true);
       // Optional: redirect to sign-in after a few seconds
@@ -54,7 +76,7 @@ function ResetPasswordForm() {
         router.push("/sign-in");
       }, 3000);
     }
-    
+
     setLoading(false);
   };
 
@@ -85,13 +107,28 @@ function ResetPasswordForm() {
                 {error}
               </div>
             )}
-            
+
             {success ? (
               <div className="p-4 text-sm font-medium text-green-600 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-md text-center">
-                Your password has been reset successfully! Redirecting to login...
+                Your password has been reset successfully! Redirecting to
+                login...
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    Verification Code
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Enter 6-digit code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    disabled={loading}
+                    required
+                    className="h-11 font-medium bg-background tracking-widest"
+                  />
+                </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     New Password

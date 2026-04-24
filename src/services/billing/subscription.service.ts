@@ -4,12 +4,18 @@
 
 import { and, eq, inArray } from "drizzle-orm";
 import db from "@/db";
-import { subscription } from "@/db/schema";
+import { plan, subscription, user } from "@/db/schema";
 import {
   BillingError,
   calculatePeriodEnd,
+  formatCurrency,
   generateId,
 } from "@/lib/billing-utils";
+import {
+  sendSubscriptionCanceledMail,
+  sendSubscriptionCreatedMail,
+  sendSubscriptionRenewedMail,
+} from "@/lib/emails/subscription-emails";
 import type {
   BillingCycle,
   Subscription,
@@ -44,6 +50,29 @@ export async function createSubscription(opts: {
       discountAmount: (opts.discountAmount ?? 0).toFixed(2),
     })
     .returning();
+
+  try {
+    const [u] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, opts.userId))
+      .limit(1);
+    const [p] = await db
+      .select()
+      .from(plan)
+      .where(eq(plan.id, opts.planId))
+      .limit(1);
+    if (u?.email && p) {
+      void sendSubscriptionCreatedMail(
+        u.email,
+        p.name,
+        formatCurrency(opts.priceAtPurchase),
+        opts.billingCycle,
+      );
+    }
+  } catch (err) {
+    console.error("Error sending subscription created email:", err);
+  }
 
   return created as Subscription;
 }
@@ -98,6 +127,30 @@ export async function renewSubscription(
     .where(eq(subscription.id, subscriptionId))
     .returning();
 
+  try {
+    const [u] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, updated.userId))
+      .limit(1);
+    const [p] = await db
+      .select()
+      .from(plan)
+      .where(eq(plan.id, updated.planId))
+      .limit(1);
+    if (u?.email && p) {
+      void sendSubscriptionRenewedMail(
+        u.email,
+        p.name,
+        formatCurrency(Number(updated.priceAtPurchase)),
+        updated.billingCycle,
+        new Date(newEnd).toLocaleDateString(),
+      );
+    }
+  } catch (err) {
+    console.error("Error sending subscription renewed email:", err);
+  }
+
   return updated as Subscription;
 }
 
@@ -121,6 +174,28 @@ export async function cancelSubscription(
       updatedAt: new Date(),
     })
     .where(eq(subscription.id, subscriptionId));
+
+  try {
+    const [u] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+    const [p] = await db
+      .select()
+      .from(plan)
+      .where(eq(plan.id, sub.planId))
+      .limit(1);
+    if (u?.email && p) {
+      void sendSubscriptionCanceledMail(
+        u.email,
+        p.name,
+        new Date(sub.currentPeriodEnd).toLocaleDateString(),
+      );
+    }
+  } catch (err) {
+    console.error("Error sending subscription canceled email:", err);
+  }
 }
 
 /** Mark subscription past_due on renewal payment failure. */

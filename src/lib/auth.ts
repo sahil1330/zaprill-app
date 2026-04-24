@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
-import { admin, anonymous, phoneNumber } from "better-auth/plugins";
+import { admin, anonymous, emailOTP, phoneNumber } from "better-auth/plugins";
 import { Resend } from "resend";
 import db from "@/db";
 import * as schema from "@/db/schema";
@@ -58,7 +58,17 @@ export const auth = betterAuth({
   },
 
   // ── Plugins ───────────────────────────────────────────────────────
-  plugins: [admin(), anonymous(), phoneNumber()],
+  plugins: [
+    admin(),
+    anonymous(),
+    phoneNumber(),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        const { sendOTPMail } = await import("./emails/otp-email");
+        void sendOTPMail({ email, otp, type });
+      },
+    }),
+  ],
 
   // ── Hooks ─────────────────────────────────────────────────────────
   hooks: {
