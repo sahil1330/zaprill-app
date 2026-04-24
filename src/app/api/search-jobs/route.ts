@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     if (!isPro) {
       const [currentUser] = await db
         .select({
-          monthlySearchesCount: user.monthlySearchesCount,
+          dailySearchesCount: user.monthlySearchesCount, // column reused for daily tracking
           searchesResetDate: user.searchesResetDate,
         })
         .from(user)
@@ -81,12 +81,12 @@ export async function POST(request: Request) {
         ? new Date(currentUser.searchesResetDate)
         : null;
 
-      // Reset if older than 30 days or never set
-      const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-      let newCount = currentUser.monthlySearchesCount || 0;
+      // Reset if last reset was on a different calendar day (midnight boundary)
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      let newCount = currentUser.dailySearchesCount || 0;
       let shouldReset = false;
 
-      if (!lastReset || now.getTime() - lastReset.getTime() > thirtyDaysMs) {
+      if (!lastReset || now.getTime() - lastReset.getTime() > oneDayMs) {
         newCount = 0;
         shouldReset = true;
       }
