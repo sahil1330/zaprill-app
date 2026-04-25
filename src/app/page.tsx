@@ -369,14 +369,9 @@ export default function HomePage() {
           <div className="text-sm font-medium text-muted-foreground">
             Made with ❤️ by{" "}
             <span className="italic text-primary">
-              <Link href={"https://github.com/sahil1330"}>Sahil Mane</Link>
+              Zaprill Team
             </span>{" "}
             and{" "}
-            <span className="italic text-primary">
-              <Link href={"https://github.com/harsh-gupta-10"}>
-                Harsh Gupta
-              </Link>
-            </span>
           </div>
           <div className="flex items-center gap-6 text-sm font-bold">
             <Link
