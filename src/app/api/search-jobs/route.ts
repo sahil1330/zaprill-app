@@ -25,11 +25,12 @@ function buildSalaryString(result: AdzunaResult): string | undefined {
 }
 
 function optimizeJobTitle(title: string): string {
-  // Remove "Stack" if it follows a common tech term to broaden results
-  // e.g., "MERN Stack Developer" -> "MERN Developer"
+  // Remove "Stack" to broaden results without forcing "Developer"
+  // e.g., "Full Stack Designer" -> "Full Designer"
   return title
     .replace(/\b(MERN|MEAN|LAMP|JAM|Full|Web)\s+Stack\b/gi, "$1")
-    .replace(/\bStack\s+Developer\b/gi, "Developer")
+    .replace(/\bStack\b/gi, "")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -251,26 +252,36 @@ export async function POST(request: Request) {
       );
 
       const topSkills = skills.slice(0, 3);
-      // Try skills one by one to ensure we don't miss anything due to syntax issues with OR
+
+      // Stage 2: Broaden by searching for top skills individually
+      // This helps find jobs that use the tech but might have different titles
       for (const skill of topSkills) {
-        if (allJobs.length >= 60) break; // Stop if we've found enough
-        const results = await fetchPage(`${skill} developer`, 1);
+        if (allJobs.length >= 60) break;
+        const results = await fetchPage(skill, 1);
         processOutcomes([{ status: "fulfilled", value: results }]);
-        // Small delay between sequential fallback calls
         await new Promise((r) => setTimeout(r, 300));
       }
 
-      // If still extremely low, try generic baselines sequentially
-      if (allJobs.length < 30) {
+      // Stage 3: If still low, try the "generic" version of titles (last word)
+      // e.g., "MERN Developer" -> "Developer", "Social Media Manager" -> "Manager"
+      if (allJobs.length < 40) {
         console.log(
-          `[search-jobs] Still low (${allJobs.length}), adding generic baselines...`,
+          `[search-jobs] Still low (${allJobs.length}), searching generic variations...`,
         );
-        const genericTerms = ["Web Developer", "Software Engineer"];
-        for (const term of genericTerms) {
+        const genericTitles = Array.from(
+          new Set(
+            queries.map((q) => {
+              const words = q.split(" ");
+              return words[words.length - 1];
+            }),
+          ),
+        );
+
+        for (const title of genericTitles) {
           if (allJobs.length >= 100) break;
-          // Fetch multiple pages of generic terms to hit the ~100 mark
+          // Fetch multiple pages of generic variations
           for (const page of [1, 2]) {
-            const results = await fetchPage(term, page);
+            const results = await fetchPage(title, page);
             processOutcomes([{ status: "fulfilled", value: results }]);
             await new Promise((r) => setTimeout(r, 400));
           }
