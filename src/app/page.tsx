@@ -369,9 +369,8 @@ export default function HomePage() {
           <div className="text-sm font-medium text-muted-foreground">
             Made with ❤️ by{" "}
             <span className="italic text-primary">
-              Zaprill Team
-            </span>{" "}
-            and{" "}
+              Team Zaprill
+            </span>
           </div>
           <div className="flex items-center gap-6 text-sm font-bold">
             <Link
