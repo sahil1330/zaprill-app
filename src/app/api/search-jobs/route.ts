@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { extractSkillsFromText } from "@/lib/skill-extractor";
 import type { JobListing } from "@/types";
 
-export const maxDuration = 120;
+export const maxDuration = 240;
 
 interface AdzunaResult {
   id: string;
@@ -22,6 +22,15 @@ function buildSalaryString(result: AdzunaResult): string | undefined {
     return `INR ${result.salary_min.toLocaleString()} – ${result.salary_max.toLocaleString()}`;
   }
   return undefined;
+}
+
+function optimizeJobTitle(title: string): string {
+  // Remove "Stack" if it follows a common tech term to broaden results
+  // e.g., "MERN Stack Developer" -> "MERN Developer"
+  return title
+    .replace(/\b(MERN|MEAN|LAMP|JAM|Full|Web)\s+Stack\b/gi, "$1")
+    .replace(/\bStack\s+Developer\b/gi, "Developer")
+    .trim();
 }
 
 export async function POST(request: Request) {
@@ -117,20 +126,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Refine queries based on experience if provided
-    const queries =
-      experienceYears !== undefined
-        ? jobTitles.map((title) => {
-            if (experienceYears >= 12) return `Lead ${title}`;
-            if (experienceYears >= 7) return `Senior ${title}`;
-            // For entry-level (<=1 year), "Junior" is too restrictive on Adzuna India.
-            return title;
-          })
-        : jobTitles;
+    // Normalize location: strip ", India" or ", IN" as they are redundant on the /in/ endpoint
+    const normalizedLocation = location
+      ? location.replace(/,\s*(India|IN)$/i, "").trim()
+      : undefined;
 
-    // Build a flat list of all (title, page) combos and fetch them all in parallel
+    // Refine queries based on experience if provided
+    const queries = (jobTitles || []).map((t) => {
+      let title = optimizeJobTitle(t);
+      if (experienceYears !== undefined) {
+        if (experienceYears >= 12) title = `Lead ${title}`;
+        else if (experienceYears >= 7) title = `Senior ${title}`;
+      }
+      return title;
+    });
+
+    // Fire all title×page fetches simultaneously
+    const billingDone = Date.now();
+
     const fetchPage = async (
-      title: string,
+      query: string,
       page: number,
     ): Promise<AdzunaResult[]> => {
       const url = new URL(
@@ -138,84 +153,134 @@ export async function POST(request: Request) {
       );
       url.searchParams.set("app_id", appId);
       url.searchParams.set("app_key", appKey);
-      url.searchParams.set("what", title);
+      url.searchParams.set("what", query);
       url.searchParams.set("results_per_page", "50");
       url.searchParams.set("max_days_old", "30");
       url.searchParams.set("content-type", "application/json");
-      if (location) url.searchParams.set("where", location);
+      if (normalizedLocation) url.searchParams.set("where", normalizedLocation);
+
+      const fullUrl = url.toString();
 
       console.log(
-        `[search-jobs] Fetching "${title}" p${page} → ${url.toString().replace(appKey, "***")}`,
+        `[search-jobs] Fetching "${query}" p${page} → ${fullUrl.replace(appKey, "***")}`,
       );
 
       const t0 = Date.now();
-      const res = await fetch(url.toString());
-      console.log(
-        `[search-jobs] "${title}" p${page} → HTTP ${res.status} (${Date.now() - t0}ms)`,
-      );
+      try {
+        // Add a small artificial delay between requests to avoid 429 rate limits
+        // especially when firing many parallel fetches
+        const burstDelay = page > 1 ? 200 * page : 0;
+        if (burstDelay > 0) await new Promise((r) => setTimeout(r, burstDelay));
 
-      if (!res.ok) {
-        const text = await res.text();
-        console.error(`[search-jobs] Error ${res.status}:`, text.slice(0, 200));
+        const res = await fetch(fullUrl);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error(
+            `[search-jobs] Error ${res.status}:`,
+            text.slice(0, 200),
+          );
+          return [];
+        }
+        const data = await res.json();
+        const results: AdzunaResult[] = data?.results ?? [];
+        console.log(
+          `[search-jobs] "${query}" p${page} → ${results.length} results (${Date.now() - t0}ms)`,
+        );
+        return results;
+      } catch (e) {
+        console.error(`[search-jobs] Fetch failed for "${query}":`, e);
         return [];
       }
-
-      const data = await res.json();
-      const results: AdzunaResult[] = data?.results ?? [];
-      console.log(
-        `[search-jobs] "${title}" p${page} → ${results.length} results`,
-      );
-      return results;
     };
 
-    // Fire all title×page fetches simultaneously
-    const billingDone = Date.now();
-    const pageTasks = queries.flatMap((title) => [
+    // --- STAGE 1: Title-Based Search ---
+    const stage1Tasks = queries.flatMap((title) => [
       fetchPage(title, 1),
       fetchPage(title, 2),
+      fetchPage(title, 3),
     ]);
-    const settled = await Promise.allSettled(pageTasks);
-    console.log(
-      `[search-jobs] All fetches done in ${Date.now() - billingDone}ms`,
-    );
+    const stage1Outcomes = await Promise.allSettled(stage1Tasks);
 
     const allJobs: JobListing[] = [];
     const seenIds = new Set<string>();
 
-    for (const outcome of settled) {
-      if (outcome.status === "rejected") {
-        console.error("[search-jobs] Fetch rejected:", outcome.reason);
-        continue;
+    const processOutcomes = (
+      outcomes: PromiseSettledResult<AdzunaResult[]>[],
+    ) => {
+      for (const outcome of outcomes) {
+        if (outcome.status === "rejected") continue;
+        for (const result of outcome.value) {
+          if (seenIds.has(result.id)) continue;
+          seenIds.add(result.id);
+
+          const requiredSkills = extractSkillsFromText(
+            result.description ?? "",
+          );
+
+          allJobs.push({
+            id: result.id,
+            title: result.title,
+            company: result.company?.display_name ?? "Unknown",
+            location: result.location?.display_name ?? "India",
+            description: result.description ?? "",
+            requiredSkills,
+            url: result.redirect_url,
+            salary: buildSalaryString(result),
+            postedAt: result.created,
+            employmentType:
+              result.contract_time === "full_time"
+                ? "FULLTIME"
+                : result.contract_time === "part_time"
+                  ? "PARTTIME"
+                  : undefined,
+            isRemote:
+              result.title.toLowerCase().includes("remote") ||
+              result.description.toLowerCase().includes("remote"),
+            publisher: "Adzuna",
+          });
+        }
       }
-      for (const result of outcome.value) {
-        if (seenIds.has(result.id)) continue;
-        seenIds.add(result.id);
+    };
 
-        const requiredSkills = extractSkillsFromText(result.description ?? "");
+    processOutcomes(stage1Outcomes);
 
-        allJobs.push({
-          id: result.id,
-          title: result.title,
-          company: result.company?.display_name ?? "Unknown",
-          location: result.location?.display_name ?? "India",
-          description: result.description ?? "",
-          requiredSkills,
-          url: result.redirect_url,
-          salary: buildSalaryString(result),
-          postedAt: result.created,
-          employmentType:
-            result.contract_time === "full_time"
-              ? "FULLTIME"
-              : result.contract_time === "part_time"
-                ? "PARTTIME"
-                : undefined,
-          isRemote:
-            result.title.toLowerCase().includes("remote") ||
-            result.description.toLowerCase().includes("remote"),
-          publisher: "Adzuna",
-        });
+    // --- STAGE 2: Skill-Based Fallback ---
+    if (allJobs.length < 40 && skills?.length > 0) {
+      console.log(
+        `[search-jobs] Low results (${allJobs.length}), triggering Stage 2 fallback...`,
+      );
+
+      const topSkills = skills.slice(0, 3);
+      // Try skills one by one to ensure we don't miss anything due to syntax issues with OR
+      for (const skill of topSkills) {
+        if (allJobs.length >= 60) break; // Stop if we've found enough
+        const results = await fetchPage(`${skill} developer`, 1);
+        processOutcomes([{ status: "fulfilled", value: results }]);
+        // Small delay between sequential fallback calls
+        await new Promise((r) => setTimeout(r, 300));
+      }
+
+      // If still extremely low, try generic baselines sequentially
+      if (allJobs.length < 30) {
+        console.log(
+          `[search-jobs] Still low (${allJobs.length}), adding generic baselines...`,
+        );
+        const genericTerms = ["Web Developer", "Software Engineer"];
+        for (const term of genericTerms) {
+          if (allJobs.length >= 100) break;
+          // Fetch multiple pages of generic terms to hit the ~100 mark
+          for (const page of [1, 2]) {
+            const results = await fetchPage(term, page);
+            processOutcomes([{ status: "fulfilled", value: results }]);
+            await new Promise((r) => setTimeout(r, 400));
+          }
+        }
       }
     }
+
+    console.log(
+      `[search-jobs] All fetches done in ${Date.now() - billingDone}ms`,
+    );
 
     // Deduplicate by title + company
     const deduplicated = allJobs.filter(
@@ -226,7 +291,9 @@ export async function POST(request: Request) {
     );
 
     console.log(`[search-jobs] Returning ${deduplicated.length} jobs`);
-    return NextResponse.json({ jobs: deduplicated });
+    return NextResponse.json({
+      jobs: deduplicated,
+    });
   } catch (error) {
     console.error("Job search error:", error);
     return NextResponse.json(
