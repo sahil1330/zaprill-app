@@ -72,7 +72,7 @@ export default async function BillingPage() {
     sub && ["active", "trialing", "past_due"].includes(sub.status);
 
   return (
-    <div className="container max-w-5xl py-10 space-y-8">
+    <div className="container max-w-5xl mx-auto py-10 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">

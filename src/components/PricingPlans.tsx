@@ -24,7 +24,7 @@ interface Plan {
 
 export default function PricingPlans({ plans }: { plans: Plan[] }) {
   return (
-    <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+    <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto pt-6">
       {plans.map((p) => {
         const isPro = p.slug.includes("pro");
         const isYearly = p.billingCycle === "yearly";
@@ -41,7 +41,7 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
         return (
           <Card
             key={p.id}
-            className={`relative flex flex-col ${
+            className={`relative flex flex-col overflow-visible ${
               isPro && !isYearly
                 ? "border-primary shadow-lg scale-105 z-10"
                 : "border-border"
