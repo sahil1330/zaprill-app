@@ -162,11 +162,8 @@ export async function handleWebhookEvent(
       await markSubscriptionPastDue(inv.subscriptionId);
     }
 
-    // Keep invoice as pending — allows user to retry payment
-    // Only mark failed if it's a hard failure (not user_dropped)
-    if (type === "PAYMENT_FAILED_WEBHOOK") {
-      await markInvoiceFailed(inv.id);
-    }
+    // Mark invoice as failed — this also triggers coupon release in invoice service
+    await markInvoiceFailed(inv.id);
 
     console.log(`[webhook] FAILED/DROPPED handled for invoice ${inv.id}`);
     return { handled: true, action: "payment_failed" };

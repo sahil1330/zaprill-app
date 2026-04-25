@@ -12,6 +12,7 @@ import {
   generateId,
 } from "@/lib/billing-utils";
 import type { BillingReason, Invoice } from "@/types/billing";
+import { getCouponUsageByInvoice, releaseCoupon } from "./coupon.service";
 
 // ─────────────────────────────────────────────────
 // Creation
@@ -85,18 +86,34 @@ export async function markInvoicePaid(
 
 /** Mark invoice failed. */
 export async function markInvoiceFailed(invoiceId: string): Promise<void> {
-  await db
+  const result = await db
     .update(invoice)
     .set({ status: "failed" })
-    .where(and(eq(invoice.id, invoiceId), eq(invoice.status, "pending")));
+    .where(and(eq(invoice.id, invoiceId), eq(invoice.status, "pending")))
+    .returning({ id: invoice.id });
+
+  if (result.length > 0) {
+    const couponUsage = await getCouponUsageByInvoice(invoiceId);
+    if (couponUsage) {
+      await releaseCoupon(couponUsage.id);
+    }
+  }
 }
 
 /** Void an invoice (e.g., on subscription cancel before payment). */
 export async function voidInvoice(invoiceId: string): Promise<void> {
-  await db
+  const result = await db
     .update(invoice)
     .set({ status: "void" })
-    .where(and(eq(invoice.id, invoiceId), eq(invoice.status, "pending")));
+    .where(and(eq(invoice.id, invoiceId), eq(invoice.status, "pending")))
+    .returning({ id: invoice.id });
+
+  if (result.length > 0) {
+    const couponUsage = await getCouponUsageByInvoice(invoiceId);
+    if (couponUsage) {
+      await releaseCoupon(couponUsage.id);
+    }
+  }
 }
 
 /** Attach the Cashfree order ID to an invoice after order creation. */
@@ -161,7 +178,11 @@ export async function expireStaleInvoices(): Promise<number> {
     .set({ status: "void" })
     .where(and(eq(invoice.status, "pending")))
     .returning({ id: invoice.id });
-  // Note: In production, add .where(lt(invoice.dueDate, cutoff)) once drizzle lt is imported
-  void cutoff; // placeholder until CRON job wires this up
+  if (result.length > 0) {
+    for (const inv of result) {
+      const usage = await getCouponUsageByInvoice(inv.id);
+      if (usage) await releaseCoupon(usage.id);
+    }
+  }
   return result.length;
 }

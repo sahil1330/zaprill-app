@@ -1,17 +1,21 @@
 import { google } from "@ai-sdk/google";
-import { generateText, Output } from "ai";
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { normalizeSkillList } from "@/lib/skill-extractor";
-import { hackclub } from "@/lib/hackClubClient";
-import { auth } from "@/lib/auth";
+import { type FilePart, generateText, Output, type TextPart } from "ai";
+import mammoth from "mammoth";
 import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import WordExtractor from "word-extractor";
+import { z } from "zod";
 import db from "@/db";
 import { userProfile } from "@/db/schema";
-import mammoth from "mammoth";
-import WordExtractor from "word-extractor";
+import { auth } from "@/lib/auth";
+import { hackclub } from "@/lib/hackClubClient";
+import { normalizeSkillList } from "@/lib/skill-extractor";
+import { logAiUsage } from "@/services/ai/usage.service";
 
 export const maxDuration = 60;
+
+/** Model identifier — single source of truth for this route. */
+const MODEL = "google/gemini-2.5-flash" as const;
 
 const ResumeSchema = z.object({
   isResume: z
@@ -111,7 +115,7 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    let content: any[] = [];
+    const content: (TextPart | FilePart)[] = [];
 
     if (isPdf) {
       content.push({
@@ -162,8 +166,9 @@ For totalYearsOfExperience, sum up the candidate's professional career duration 
 Be precise and thorough. Do not make up information that isn't in the resume.`,
     });
 
+    const llmStart = Date.now();
     const { output: parsed, usage } = await generateText({
-      model: hackclub("google/gemini-2.5-flash"),
+      model: hackclub(MODEL),
       output: Output.object({ schema: ResumeSchema }),
       messages: [
         {
@@ -172,6 +177,7 @@ Be precise and thorough. Do not make up information that isn't in the resume.`,
         },
       ],
     });
+    const latencyMs = Date.now() - llmStart;
 
     if (!parsed) {
       return NextResponse.json(
@@ -190,7 +196,22 @@ Be precise and thorough. Do not make up information that isn't in the resume.`,
       );
     }
 
-    console.log("parse resume usage", usage);
+    // Resolve session for usage logging + profile save (single lookup)
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id ?? null;
+
+    // Log token usage — fire-and-forget
+    logAiUsage({
+      userId,
+      action: "parse_resume",
+      model: MODEL,
+      promptTokens: usage.inputTokens ?? 0,
+      completionTokens: usage.outputTokens ?? 0,
+      totalTokens: usage.totalTokens ?? 0,
+      latencyMs,
+      success: true,
+    });
+
     // Normalize and deduplicate skills across all sections
     const allSkills = normalizeSkillList([
       ...parsed.skills,
@@ -200,12 +221,8 @@ Be precise and thorough. Do not make up information that isn't in the resume.`,
 
     const finalResumeData = { ...parsed, skills: allSkills };
 
-    // Save to user profile if authenticated
+    // Save to user profile if authenticated (reuse session from usage logging above)
     try {
-      const session = await auth.api.getSession({
-        headers: await headers(),
-      });
-
       if (session?.user) {
         await db
           .insert(userProfile)

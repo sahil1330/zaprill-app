@@ -50,6 +50,13 @@
       "when": 1777048467341,
       "tag": "0006_stiff_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777132817853,
+      "tag": "0007_cooing_scrambler",
+      "breakpoints": true
     }
   ]
 }

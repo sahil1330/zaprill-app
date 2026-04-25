@@ -7,10 +7,11 @@
  * two concurrent requests from both passing the usage limit check.
  */
 
-import { and, count, eq, inArray } from "drizzle-orm";
+import { and, count, eq, inArray, isNull, ne, or } from "drizzle-orm";
 import db from "@/db";
 import { withTransaction } from "@/db/pool";
-import { coupons, couponUsage } from "@/db/schema";
+import { coupons, couponUsage, invoice } from "@/db/schema";
+
 import {
   BillingError,
   calculateDiscount,
@@ -80,10 +81,20 @@ export async function validateCoupon(
     const [{ value: globalUsed }] = await db
       .select({ value: count() })
       .from(couponUsage)
+      .leftJoin(invoice, eq(couponUsage.orderId, invoice.id))
       .where(
         and(
           eq(couponUsage.couponId, coupon.id),
-          inArray(couponUsage.status, ["reserved", "redeemed"]),
+          or(
+            eq(couponUsage.status, "redeemed"),
+            and(
+              eq(couponUsage.status, "reserved"),
+              or(
+                isNull(invoice.status),
+                and(ne(invoice.status, "void"), ne(invoice.status, "failed")),
+              ),
+            ),
+          ),
         ),
       );
 
@@ -97,11 +108,21 @@ export async function validateCoupon(
   const [{ value: userUsed }] = await db
     .select({ value: count() })
     .from(couponUsage)
+    .leftJoin(invoice, eq(couponUsage.orderId, invoice.id))
     .where(
       and(
         eq(couponUsage.couponId, coupon.id),
         eq(couponUsage.userId, userId),
-        inArray(couponUsage.status, ["reserved", "redeemed"]),
+        or(
+          eq(couponUsage.status, "redeemed"),
+          and(
+            eq(couponUsage.status, "reserved"),
+            or(
+              isNull(invoice.status),
+              and(ne(invoice.status, "void"), ne(invoice.status, "failed")),
+            ),
+          ),
+        ),
       ),
     );
 
@@ -167,7 +188,10 @@ export async function reserveCoupon(
     // Check global usage (within lock)
     if (row.usage_limit_global !== null) {
       const usageRes = await client.query(
-        `SELECT count(*) FROM coupon_usage WHERE coupon_id = $1 AND status IN ('reserved','redeemed')`,
+        `SELECT count(*) FROM coupon_usage cu
+         LEFT JOIN invoice i ON cu.order_id = i.id
+         WHERE cu.coupon_id = $1 
+         AND (cu.status = 'redeemed' OR (cu.status = 'reserved' AND (i.status IS NULL OR i.status NOT IN ('void', 'failed'))))`,
         [row.id],
       );
       if (Number(usageRes.rows[0].count) >= Number(row.usage_limit_global)) {
@@ -181,7 +205,10 @@ export async function reserveCoupon(
     // Check per-user usage (within lock)
     const perUserLimit = row.usage_limit_per_user ?? 1;
     const userUsageRes = await client.query(
-      `SELECT count(*) FROM coupon_usage WHERE coupon_id = $1 AND user_id = $2 AND status IN ('reserved','redeemed')`,
+      `SELECT count(*) FROM coupon_usage cu
+       LEFT JOIN invoice i ON cu.order_id = i.id
+       WHERE cu.coupon_id = $1 AND cu.user_id = $2
+       AND (cu.status = 'redeemed' OR (cu.status = 'reserved' AND (i.status IS NULL OR i.status NOT IN ('void', 'failed'))))`,
       [row.id, userId],
     );
     if (Number(userUsageRes.rows[0].count) >= perUserLimit) {

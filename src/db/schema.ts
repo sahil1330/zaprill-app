@@ -437,3 +437,55 @@ export const payment = pgTable(
     index("payment_cashfree_payment_id_idx").on(t.cashfreePaymentId),
   ],
 );
+
+// ─────────────────────────────────────────────────
+// AI Usage Intelligence
+// ─────────────────────────────────────────────────
+
+export const aiActionEnum = pgEnum("ai_action", [
+  "parse_resume",
+  "analyze_gaps",
+]);
+
+/**
+ * Append-only log of every AI / LLM call made by the application.
+ *
+ * Design principles:
+ *  - Never update rows — always insert a new record per call.
+ *  - Store raw token counts AND an estimated USD cost so historical
+ *    records remain accurate even if pricing changes in the future.
+ *  - Fire-and-forget writes (non-blocking) so logging never delays the
+ *    user response.
+ *  - `cache_hit = true` rows have zero tokens consumed but are still
+ *    recorded to prove the value of the analysis cache.
+ */
+export const aiUsageLog = pgTable(
+  "ai_usage_log",
+  {
+    id: text("id").primaryKey(), // nanoid
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    analysisId: text("analysis_id").references(() => resumeAnalysis.id, {
+      onDelete: "set null",
+    }),
+    action: aiActionEnum("action").notNull(), // which route called the LLM
+    model: text("model").notNull(), // model identifier as passed to the SDK (e.g. "google/gemini-2.5-flash")
+    promptTokens: integer("prompt_tokens").notNull().default(0),
+    completionTokens: integer("completion_tokens").notNull().default(0),
+    totalTokens: integer("total_tokens").notNull().default(0),
+    // Estimated USD cost computed at write-time from the model rate table.
+    // Null when the model is unknown / cost cannot be computed.
+    costUsd: numeric("cost_usd", { precision: 12, scale: 8 }),
+    latencyMs: integer("latency_ms"), // wall-clock time for the LLM call
+    cacheHit: boolean("cache_hit").notNull().default(false), // true = no LLM tokens were consumed
+    success: boolean("success").notNull().default(true),
+    errorCode: text("error_code"), // structured error code, e.g. "PARSE_FAILED"
+    metadata: jsonb("metadata").default({}), // extensibility
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("ai_usage_log_user_id_idx").on(t.userId),
+    index("ai_usage_log_created_at_idx").on(t.createdAt),
+    index("ai_usage_log_action_idx").on(t.action),
+    index("ai_usage_log_model_idx").on(t.model),
+  ],
+);

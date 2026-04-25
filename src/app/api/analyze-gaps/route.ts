@@ -9,9 +9,13 @@ import { auth } from "@/lib/auth";
 import { hackclub } from "@/lib/hackClubClient";
 import { aggregateSkillGaps, matchJobsToResume } from "@/lib/match-engine";
 import { enhanceRoadmapResource } from "@/lib/reliable-resources";
+import { logAiUsage } from "@/services/ai/usage.service";
 import type { JobListing, RoadmapItem } from "@/types";
 
 export const maxDuration = 60;
+
+/** Model identifier — single source of truth for this route. */
+const MODEL = "google/gemini-2.5-flash" as const;
 
 const RoadmapItemSchema = z.object({
   skill: z.string(),
@@ -104,11 +108,13 @@ export async function POST(request: Request) {
     // Compute match scores for all jobs
     const matchedJobs = matchJobsToResume(resumeSkills, jobs);
 
+    // Resolve session early for subscription check, caching, and usage logging
+    const session = await auth.api.getSession({ headers: await headers() });
+
     // --- SUBSCRIPTION GATE ---
     // Strip apply URLs for free users on jobs with >= 50% match (server-side, not in DOM)
     let isPro = false;
     try {
-      const session = await auth.api.getSession({ headers: await headers() });
       if (session?.user) {
         const { getActiveSubscription } = await import(
           "@/services/billing/subscription.service"
@@ -140,10 +146,6 @@ export async function POST(request: Request) {
     let usedCache = false;
 
     try {
-      const session = await auth.api.getSession({
-        headers: await headers(),
-      });
-
       if (session?.user) {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -181,6 +183,17 @@ export async function POST(request: Request) {
           filteredGaps = skillGaps.filter((g) =>
             relevantSkillMap.has(g.skill.toLowerCase().trim()),
           );
+
+          // Log cache hit — 0 tokens consumed
+          logAiUsage({
+            userId: session?.user?.id ?? null,
+            action: "analyze_gaps",
+            model: MODEL,
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+            cacheHit: true,
+          });
         }
       }
     } catch (cacheErr) {
@@ -200,8 +213,9 @@ export async function POST(request: Request) {
         });
       }
 
+      const llmStart = Date.now();
       const { text, usage } = await generateText({
-        model: hackclub("google/gemini-2.5-flash"),
+        model: hackclub(MODEL),
         prompt: `You are a senior tech career coach. Respond ONLY with valid JSON — no markdown, no explanation, no code fences.
 
 A candidate has these skills: ${resumeSkills.join(", ")}
@@ -252,7 +266,19 @@ RESOURCE URL GUIDELINES:
 - Prioritize official project sites over random blog posts.
 - All URLs must be real and working. Use https protocol.`,
       });
-      console.log("analyze gaps usage", usage);
+      const latencyMs = Date.now() - llmStart;
+
+      logAiUsage({
+        userId: session?.user?.id ?? null,
+        action: "analyze_gaps",
+        model: MODEL,
+        promptTokens: usage.inputTokens ?? 0,
+        completionTokens: usage.outputTokens ?? 0,
+        totalTokens: usage.totalTokens ?? 0,
+        latencyMs,
+        cacheHit: false,
+        success: true,
+      });
 
       try {
         const jsonStr = extractJSON(text) ?? text;
