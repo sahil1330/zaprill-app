@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { extractSkillsFromText } from "@/lib/skill-extractor";
 import type { JobListing } from "@/types";
 
-export const maxDuration = 200;
+export const maxDuration = 120;
 
 interface AdzunaResult {
   id: string;
