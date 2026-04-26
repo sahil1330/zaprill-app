@@ -14,16 +14,25 @@ export default function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const isHqSubdomain = hostname.startsWith("hq.");
 
-  // Admin subdomain: rewrite to /hq/* — let hq/layout.tsx handle auth
-  // Skip rewrite for /api paths — they live at /api/*, not /hq/api/*
+  // Admin subdomain routing
   if (isHqSubdomain) {
-    if (!pathname.startsWith("/hq") && !pathname.startsWith("/api")) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/hq${pathname}`;
-      return NextResponse.rewrite(url);
+    // Skip /api paths — they live at /api/*, not /hq/api/*
+    if (pathname.startsWith("/api")) {
+      return NextResponse.next();
     }
-    // /api paths and already-rewritten /hq paths pass through as-is
-    return NextResponse.next();
+
+    // Strip redundant /hq prefix: hq.zaprill.com/hq/dashboard → hq.zaprill.com/dashboard
+    // This happens when sidebar links have hardcoded /hq/* hrefs
+    if (pathname.startsWith("/hq")) {
+      const url = request.nextUrl.clone();
+      url.pathname = pathname.replace(/^\/hq/, "") || "/";
+      return NextResponse.redirect(url);
+    }
+
+    // Rewrite clean path to internal /hq/* route: hq.zaprill.com/dashboard → /hq/dashboard
+    const url = request.nextUrl.clone();
+    url.pathname = `/hq${pathname}`;
+    return NextResponse.rewrite(url);
   }
 
   // Regular app protection logic (main domain only)
