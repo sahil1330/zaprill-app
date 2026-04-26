@@ -14,15 +14,15 @@ export default function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const isHqSubdomain = hostname.startsWith("hq.");
 
-  // Admin subdomain: simply rewrite to /hq/* — let hq/layout.tsx handle auth
-  // This avoids all redirect loops since layout uses absolute redirects
+  // Admin subdomain: rewrite to /hq/* — let hq/layout.tsx handle auth
+  // Skip rewrite for /api paths — they live at /api/*, not /hq/api/*
   if (isHqSubdomain) {
-    if (!pathname.startsWith("/hq")) {
+    if (!pathname.startsWith("/hq") && !pathname.startsWith("/api")) {
       const url = request.nextUrl.clone();
       url.pathname = `/hq${pathname}`;
       return NextResponse.rewrite(url);
     }
-    // Already rewritten path, just continue
+    // /api paths and already-rewritten /hq paths pass through as-is
     return NextResponse.next();
   }
 
