@@ -15,18 +15,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import PricingPlans from "@/components/PricingPlans";
-import ResumeUploader from "@/components/ResumeUploader";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/ui/file-upload";
 import { WordFadeIn } from "@/components/ui/word-fade-in";
-import {
-  trackResumeFileSelected,
-  trackResumeParseFailure,
-  trackResumeParseSuccess,
-  trackResumeReplaced,
-  trackResumeUploadStart,
-  trackSavedProfileUsed,
-} from "@/lib/analytics";
+import { trackSavedProfileUsed } from "@/lib/analytics";
 import { useSession } from "@/lib/auth-client";
 
 const FEATURES = [
@@ -62,10 +54,6 @@ export default function HomePage() {
 
   const [profile, setProfile] = useState<any>(null);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
-
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [plans, setPlans] = useState<any[]>([]);
 
   useEffect(() => {
@@ -107,61 +95,6 @@ export default function HomePage() {
     }
   };
 
-  const handleUpload = useCallback((file: File) => {
-    setSelectedFile(file);
-    setError(null);
-    trackResumeFileSelected({
-      file_type: file.name.split(".").pop()?.toLowerCase() ?? "unknown",
-      file_size_kb: Math.round(file.size / 1024),
-    });
-  }, []);
-
-  const handleAnalyze = async () => {
-    if (!selectedFile) return;
-    setIsAnalyzing(true);
-    setError(null);
-
-    const fileType =
-      selectedFile.name.split(".").pop()?.toLowerCase() ?? "unknown";
-    const fileSizeKb = Math.round(selectedFile.size / 1024);
-    const startTime = performance.now();
-
-    trackResumeUploadStart({ file_type: fileType, file_size_kb: fileSizeKb });
-
-    try {
-      const formData = new FormData();
-      formData.append("resume", selectedFile);
-
-      const parseRes = await fetch("/api/parse-resume", {
-        method: "POST",
-        body: formData,
-      });
-      if (!parseRes.ok) {
-        const err = await parseRes.json();
-        throw new Error(err.error ?? "Failed to parse resume");
-      }
-      const resume = await parseRes.json();
-
-      trackResumeParseSuccess({
-        file_type: fileType,
-        file_size_kb: fileSizeKb,
-        skill_count: resume.skills?.length ?? 0,
-        has_location: Boolean(resume.location),
-        experience_count: resume.experience?.length ?? 0,
-        duration_ms: Math.round(performance.now() - startTime),
-      });
-
-      sessionStorage.setItem("ai_job_god_resume", JSON.stringify(resume));
-      router.push("/analyze");
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
-      trackResumeParseFailure({ error_message: message, file_type: fileType });
-      setError(message);
-      setIsAnalyzing(false);
-    }
-  };
-
   return (
     <main className="min-h-screen flex flex-col bg-background relative overflow-hidden">
       {/* Background Grid Pattern */}
@@ -186,122 +119,88 @@ export default function HomePage() {
       />
 
       {/* Hero Section */}
-      <section className="flex-1 pt-32 pb-20 flex flex-col items-center text-center px-6 relative z-10 w-full max-w-6xl mx-auto">
-        <div className="mb-6">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Not just an ATS checker
+      <section className="flex-1 pt-40 pb-32 flex flex-col items-center text-center px-6 relative z-10 w-full max-w-6xl mx-auto">
+        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
+            <Zap className="h-3 w-3 fill-current" />
+            AI-Powered Career Intelligence
           </span>
         </div>
 
         <WordFadeIn
-          words="Your Resume, Decoded by AI."
-          className="text-5xl md:text-7xl font-black tracking-tighter leading-tight max-w-4xl mb-6 text-foreground"
+          words="Find the job you actually deserve."
+          className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] max-w-5xl mb-8 text-foreground"
         />
 
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-12">
-          Upload your resume. We'll find real jobs matching your skills, show
-          you exactly where you fall short, and build a personalized roadmap to
-          get you hired.
+        <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed mb-12 font-medium animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+          We decode your professional DNA to match you with roles where you'll
+          actually thrive. No more keyword guessing, just pure data-driven
+          career growth.
         </p>
 
-        {/* Form area / Upload */}
-        <div className="w-full max-w-3xl flex flex-col items-center border border-border/50 bg-background/50 backdrop-blur-xl rounded-2xl shadow-sm p-4 mb-20">
+        {/* Primary Action Area */}
+        <div className="w-full max-w-2xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
           {isFetchingProfile ? (
-            <div className="w-full py-12 flex items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground mr-2" />
-              <span className="text-muted-foreground font-medium text-sm">
-                Checking for saved profile...
-              </span>
+            <div className="h-20 flex items-center justify-center gap-3 text-muted-foreground font-bold">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              Syncing career profile...
             </div>
-          ) : profile && !selectedFile ? (
-            <div className="w-full flex flex-col items-center pt-4 pb-8 px-4">
-              <div className="h-16 w-16 bg-muted border border-border rounded-2xl flex items-center justify-center mb-4">
-                <Target className="h-8 w-8 text-foreground" />
-              </div>
-              <h3 className="text-2xl font-black mb-2">Saved Profile Found</h3>
-              <p className="text-muted-foreground text-center mb-8 font-medium">
-                We have{" "}
-                <span className="font-bold text-foreground">
-                  {profile.resumeRaw?.name}
-                </span>
-                's resume saved in your profile. You can start analyzing right
-                away or upload a new one to replace it.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+          ) : session ? (
+            profile ? (
+              <div className="flex flex-col items-center gap-6 w-full">
                 <Button
                   size="lg"
-                  className="font-bold w-full sm:w-auto h-12 px-8"
+                  className="group relative h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
                   onClick={handleUseSavedProfile}
                 >
-                  <Zap className="mr-2 h-4 w-4 fill-current" />
-                  Analyze Saved Resume
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="relative flex items-center gap-3">
+                    Search Jobs for {profile.resumeRaw?.name?.split(" ")[0]}
+                    <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                  </span>
                 </Button>
-                <div className="relative overflow-hidden group">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="font-bold w-full sm:w-auto h-12 bg-background"
-                  >
-                    Upload New Resume
-                  </Button>
-                  <input
-                    type="file"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    accept=".pdf,.doc,.docx,.txt"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        trackResumeReplaced();
-                        handleUpload(e.target.files[0]);
-                      }
-                    }}
-                  />
+                <div className="flex items-center gap-2 text-muted-foreground font-bold text-xs uppercase tracking-widest">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  Profile Ready & Analyzed
                 </div>
               </div>
-              <div className="mt-4 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-bold">
-                Supports PDF, DOCX, DOC, TXT (Max 10MB)
+            ) : (
+              <div className="flex flex-col items-center gap-6 w-full">
+                <Link href="/profile" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full"
+                  >
+                    Set Up Career Profile
+                    <ArrowRight className="ml-3 h-6 w-6" />
+                  </Button>
+                </Link>
+                <p className="text-sm text-muted-foreground font-bold">
+                  Upload your resume in your profile to start matching.
+                </p>
               </div>
-            </div>
+            )
           ) : (
-            <ResumeUploader
-              onUpload={handleUpload}
-              disabled={isAnalyzing}
-              file={selectedFile}
-            />
-          )}
-
-          {(!profile || selectedFile) && (
-            <div className="w-full mt-4 flex flex-col md:flex-row items-center justify-between gap-4 px-4 bg-muted/30 py-3 rounded-lg border border-border/50">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-4 w-4" />
-                <span className="text-xs font-medium">
-                  100% private — processed on request, never saved without
-                  permission.
-                </span>
+            <div className="flex flex-col items-center gap-8 w-full">
+              <Link href="/login" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full"
+                >
+                  Get Started Now
+                  <ArrowRight className="ml-3 h-6 w-6" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-8 text-muted-foreground font-bold text-xs uppercase tracking-widest opacity-60">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  100% Private
+                </div>
+                <div className="flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  AI Precision
+                </div>
               </div>
-
-              <Button
-                id="analyze-resume-btn"
-                onClick={handleAnalyze}
-                disabled={!selectedFile || isAnalyzing}
-                className="w-full md:w-auto transition-all"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    Analyze Request
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-          {error && (
-            <div className="w-full mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm font-medium">
-              ⚠️ {error}
             </div>
           )}
         </div>

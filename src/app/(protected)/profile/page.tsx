@@ -1,24 +1,25 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { IconBrandGithub, IconBrandLinkedin } from "@tabler/icons-react";
 import {
-  User,
-  Briefcase,
-  Save,
-  Plus,
-  Trash2,
-  ChevronRight,
   AlertCircle,
-  CheckCircle2,
-  Loader2,
   BookOpen,
-  FolderKanban,
-  FileText,
+  Briefcase,
+  ExternalLink,
+  Globe,
+  Loader2,
+  Plus,
+  Save,
+  Trash2,
+  User,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
+import ResumeUploader from "@/components/ResumeUploader";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -26,14 +27,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import Navbar from "@/components/Navbar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import useAuth from "@/hooks/useAuth";
-import { ParsedResume, WorkExperience, Project, Education } from "@/types";
-import { toast } from "sonner";
+import type { ParsedResume } from "@/types";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -50,6 +50,9 @@ export default function ProfilePage() {
   const [resumeData, setResumeData] = useState<ParsedResume | null>(null);
   const [newSkill, setNewSkill] = useState("");
   const [newRole, setNewRole] = useState("");
+
+  const [isUpdatingResume, setIsUpdatingResume] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -125,6 +128,33 @@ export default function ProfilePage() {
     updResume({ skills: (resumeData.skills || []).filter((s) => s !== skill) });
   };
 
+  const addSocialProfile = () => {
+    if (!resumeData) return;
+    const current = resumeData.socialProfiles || [];
+    updResume({
+      socialProfiles: [...current, { platform: "Portfolio", url: "" }],
+    });
+  };
+
+  const updateSocialProfile = (
+    index: number,
+    updates: { platform?: string; url?: string },
+  ) => {
+    if (!resumeData) return;
+    const current = [...(resumeData.socialProfiles || [])];
+    if (!current[index]) return;
+    current[index] = { ...current[index], ...updates };
+    updResume({ socialProfiles: current });
+  };
+
+  const removeSocialProfile = (index: number) => {
+    if (!resumeData) return;
+    const current = (resumeData.socialProfiles || []).filter(
+      (_, i) => i !== index,
+    );
+    updResume({ socialProfiles: current });
+  };
+
   const addRole = () => {
     if (!resumeData || !newRole.trim()) return;
     const currentRoles = resumeData.inferredJobTitles || [];
@@ -143,6 +173,34 @@ export default function ProfilePage() {
         (r) => r !== role,
       ),
     });
+  };
+
+  const handleResumeUpload = async (file: File) => {
+    setIsParsing(true);
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const res = await fetch("/api/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to parse resume");
+      }
+
+      const newParsedResume = await res.json();
+      setResumeData(newParsedResume);
+      setIsUpdatingResume(false);
+      toast.success("Resume parsed! Review and save your changes.");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.message || "Failed to upload and parse resume");
+    } finally {
+      setIsParsing(false);
+    }
   };
 
   if (loading) {
@@ -290,6 +348,115 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                      <Globe className="h-3.5 w-3.5" />
+                      Social & Professional Profiles
+                    </Label>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={addSocialProfile}
+                      className="h-8 text-xs font-bold border-2"
+                    >
+                      <Plus className="mr-2 h-3 w-3" />
+                      Add Profile
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-4">
+                    {(resumeData?.socialProfiles || []).map((social, idx) => {
+                      const platform = social.platform.toLowerCase();
+                      const Icon = platform.includes("linkedin")
+                        ? IconBrandLinkedin
+                        : platform.includes("github")
+                          ? IconBrandGithub
+                          : Globe;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex flex-col md:flex-row gap-4 p-4 rounded-xl border-2 border-border bg-muted/30 group relative"
+                        >
+                          <div className="flex-1 grid md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                Platform
+                              </Label>
+                              <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                                  <Icon className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                                <Input
+                                  value={social.platform}
+                                  onChange={(e) =>
+                                    updateSocialProfile(idx, {
+                                      platform: e.target.value,
+                                    })
+                                  }
+                                  placeholder="LinkedIn, GitHub, etc."
+                                  className="h-10 pl-10 font-bold border-2"
+                                />
+                              </div>
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                URL
+                              </Label>
+                              <div className="relative">
+                                <Input
+                                  value={social.url}
+                                  onChange={(e) =>
+                                    updateSocialProfile(idx, {
+                                      url: e.target.value,
+                                    })
+                                  }
+                                  placeholder="https://..."
+                                  className="h-10 font-bold border-2 pr-10"
+                                />
+                                {social.url && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-1 top-1 h-8 w-8 text-muted-foreground hover:text-primary transition-colors"
+                                    onClick={() => {
+                                      const url = social.url.startsWith("http")
+                                        ? social.url
+                                        : `https://${social.url}`;
+                                      window.open(url, "_blank");
+                                    }}
+                                    title="Open link in new tab"
+                                  >
+                                    <ExternalLink className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeSocialProfile(idx)}
+                            className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-background border-2 border-border opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+
+                    {(!resumeData?.socialProfiles ||
+                      resumeData.socialProfiles.length === 0) && (
+                      <div className="text-center py-8 border-2 border-dashed border-border rounded-xl">
+                        <p className="text-sm text-muted-foreground font-medium">
+                          No social profiles added.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid gap-3 opacity-60 cursor-not-allowed">
                   <Label
                     htmlFor="email"
@@ -331,12 +498,37 @@ export default function ProfilePage() {
               <>
                 {/* Summary & Roles */}
                 <Card className="border-border shadow-sm">
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-2xl font-black">
                       Professional Summary
                     </CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsUpdatingResume(!isUpdatingResume)}
+                      className="font-bold border-2"
+                    >
+                      {isUpdatingResume ? "Cancel" : "Update from File"}
+                    </Button>
                   </CardHeader>
                   <CardContent className="space-y-8">
+                    {isUpdatingResume && (
+                      <div className="mb-10 p-6 border-2 border-dashed border-primary/20 rounded-2xl bg-primary/5 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-primary mb-4">
+                          Upload New Resume
+                        </h4>
+                        <ResumeUploader
+                          onUpload={handleResumeUpload}
+                          disabled={isParsing}
+                        />
+                        {isParsing && (
+                          <div className="flex items-center justify-center gap-3 mt-4 text-primary font-bold">
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            Parsing your experience...
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="grid md:grid-cols-2 gap-8">
                       <div className="grid gap-3">
                         <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">

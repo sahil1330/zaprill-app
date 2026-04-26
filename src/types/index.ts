@@ -10,6 +10,12 @@ export interface ParsedResume {
   inferredJobTitles: string[];
   summary?: string;
   totalYearsOfExperience?: number;
+  socialProfiles: SocialProfile[];
+}
+
+export interface SocialProfile {
+  platform: string;
+  url: string;
 }
 
 export interface WorkExperience {
