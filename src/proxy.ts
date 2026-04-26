@@ -4,8 +4,6 @@ import { NextResponse } from "next/server";
 
 // Routes that require authentication on the main app
 const PROTECTED_ROUTES = ["/analyze"];
-// Routes only for guests on the main app
-const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -42,7 +40,6 @@ export default function proxy(request: NextRequest) {
   const isProtected = PROTECTED_ROUTES.some((route) =>
     pathname.startsWith(route),
   );
-  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
   if (isProtected && !sessionCookie) {
     const url = request.nextUrl.clone();
