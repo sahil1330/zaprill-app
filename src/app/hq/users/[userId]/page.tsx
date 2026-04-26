@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { eq } from "drizzle-orm";
 import {
   ArrowLeft,
   Ban,
@@ -29,27 +30,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import db from "@/db";
+import * as schema from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { UserActionsClient } from "./user-actions-client";
 
 export default async function UserDetailPage({
   params,
 }: {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }) {
-  const { userId } = params;
+  const { userId } = await params;
 
   // Fetch user details via admin API
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  const { users } = await auth.api.listUsers({
-    headers: await headers(),
-    query: {},
+  // Fetch user details directly from DB for reliability
+  const user = await db.query.user.findFirst({
+    where: eq(schema.user.id, userId),
   });
-
-  const user = users.find((u) => u.id === userId);
 
   if (!user) {
     notFound();
