@@ -91,6 +91,12 @@ export interface NavbarProps {
   sticky?: boolean;
   /** Authenticated user — if omitted the nav shows a Sign In button */
   user?: NavUser | null;
+  /**
+   * Pass `true` while the session is being fetched client-side.
+   * The nav will render an inert skeleton instead of Sign In / avatar so
+   * users can't accidentally trigger the proxy redirect loop during loading.
+   */
+  sessionLoading?: boolean;
 }
 
 export default function Navbar({
@@ -101,6 +107,7 @@ export default function Navbar({
   backLabel = "Back",
   sticky = true,
   user,
+  sessionLoading = false,
 }: NavbarProps) {
   const router = useRouter();
   const positionClass = sticky ? "sticky top-0" : "fixed top-0 left-0 right-0";
@@ -152,7 +159,13 @@ export default function Navbar({
 
         {/* ── Right-side actions ── */}
         <div className="flex items-center gap-3 shrink-0">
-          {user ? (
+          {sessionLoading ? (
+            // Skeleton placeholder — prevents Sign In being clicked before session resolves
+            <div
+              className="h-9 w-20 rounded-md bg-muted animate-pulse"
+              aria-hidden
+            />
+          ) : user ? (
             <>
               <Link href="/history">
                 <Button

@@ -9,6 +9,9 @@ const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // getSessionCookie resolves the better-auth session cookie name automatically.
+  // No extra options needed — it handles both plain and __Secure- prefixed
+  // variants based on what's present in the request cookies.
   const sessionCookie = getSessionCookie(request);
 
   const hostname = request.headers.get("host") || "";

@@ -173,15 +173,16 @@ export default function HomePage() {
         sticky={false}
         user={
           sessionLoading
-            ? undefined
+            ? undefined // render skeleton — no Sign In button while loading
             : session
               ? {
                   name: session.user.name,
                   email: session.user.email,
                   image: session.user.image,
                 }
-              : null
+              : null // explicitly null = signed out → show Sign In
         }
+        sessionLoading={sessionLoading}
       />
 
       {/* Hero Section */}
@@ -368,9 +369,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-sm font-medium text-muted-foreground">
             Made with ❤️ by{" "}
-            <span className="italic text-primary">
-              Team Zaprill
-            </span>
+            <span className="italic text-primary">Team Zaprill</span>
           </div>
           <div className="flex items-center gap-6 text-sm font-bold">
             <Link
