@@ -249,7 +249,7 @@ export default function HomePage() {
           id="pricing"
           className="py-24 px-6 border-t border-border/50 relative z-10 w-full"
         >
-          <div className="max-w-6xl mx-auto text-center">
+          <div className="max-w-7xl mx-auto text-center">
             <div className="mb-16">
               <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-foreground">
                 Simple, Transparent Pricing

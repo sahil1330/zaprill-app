@@ -13,8 +13,10 @@ export type Plan = {
   slug: string;
   description: string | null;
   amount: string;
+  originalAmount: string | null;
   currency: string;
   billingCycle: "monthly" | "quarterly" | "yearly";
+  category: string;
   features: string[];
   isActive: boolean;
   sortOrder: number;

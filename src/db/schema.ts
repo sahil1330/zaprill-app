@@ -254,8 +254,10 @@ export const plan = pgTable("plan", {
   slug: text("slug").notNull().unique(), // "pro-monthly"
   description: text("description"),
   amount: numeric("amount", { precision: 10, scale: 2 }).notNull(), // in INR (stored as string for precision)
+  originalAmount: numeric("original_amount", { precision: 10, scale: 2 }), // original price before discount
   currency: text("currency").notNull().default("INR"),
   billingCycle: billingCycleEnum("billing_cycle").notNull(),
+  category: text("category").notNull().default("pro"), // e.g. "pro", "max"
   features: jsonb("features").default([]), // string[] of feature bullets
   isActive: boolean("is_active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),

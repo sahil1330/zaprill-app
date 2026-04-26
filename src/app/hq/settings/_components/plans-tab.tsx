@@ -45,7 +45,9 @@ const EMPTY_FORM = {
   slug: "",
   description: "",
   amount: "",
+  originalAmount: "",
   billingCycle: "monthly" as "monthly" | "quarterly" | "yearly",
+  category: "pro",
   features: "",
   isActive: true,
   sortOrder: 0,
@@ -71,7 +73,9 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
       slug: plan.slug,
       description: plan.description ?? "",
       amount: plan.amount,
+      originalAmount: plan.originalAmount ?? "",
       billingCycle: plan.billingCycle,
+      category: plan.category || "pro",
       features: Array.isArray(plan.features) ? plan.features.join("\n") : "",
       isActive: plan.isActive,
       sortOrder: plan.sortOrder,
@@ -163,6 +167,9 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <Badge variant="outline" className="capitalize text-xs">
+                      {plan.category}
+                    </Badge>
+                    <Badge variant="outline" className="capitalize text-xs">
                       {plan.billingCycle}
                     </Badge>
                     {!plan.isActive && (
@@ -174,14 +181,23 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-baseline gap-1 mb-3">
-                  <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-2xl font-bold">
-                    {Number(plan.amount).toLocaleString("en-IN")}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    / {plan.billingCycle}
-                  </span>
+                <div className="flex flex-col mb-3">
+                  <div className="flex items-baseline gap-1">
+                    <IndianRupee className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-2xl font-bold">
+                      {Number(plan.amount).toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      / {plan.billingCycle}
+                    </span>
+                  </div>
+                  {plan.originalAmount &&
+                    Number(plan.originalAmount) > Number(plan.amount) && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground line-through ml-5">
+                        <IndianRupee className="h-3 w-3" />
+                        {Number(plan.originalAmount).toLocaleString("en-IN")}
+                      </div>
+                    )}
                 </div>
                 {Array.isArray(plan.features) && plan.features.length > 0 && (
                   <ul className="text-xs text-muted-foreground space-y-1 mb-4">
@@ -263,16 +279,29 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label>Amount (INR)</Label>
+                <Label>Selling Price (INR)</Label>
                 <Input
                   type="number"
                   value={form.amount}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, amount: e.target.value }))
                   }
-                  placeholder="999"
+                  placeholder="49"
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label>Original Price (INR)</Label>
+                <Input
+                  type="number"
+                  value={form.originalAmount}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, originalAmount: e.target.value }))
+                  }
+                  placeholder="99"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Billing Cycle</Label>
                 <Select
@@ -291,27 +320,22 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Description</Label>
-              <Input
-                value={form.description}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, description: e.target.value }))
-                }
-                placeholder="Optional description"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Features (one per line)</Label>
-              <Textarea
-                value={form.features}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, features: e.target.value }))
-                }
-                rows={4}
-                placeholder={"Unlimited analyses\nPriority support\nAI roadmap"}
-              />
+              <div className="space-y-1.5">
+                <Label>Category</Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="pro">Pro</SelectItem>
+                    <SelectItem value="max">Max</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -336,6 +360,34 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                 />
                 <Label>Active</Label>
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Description</Label>
+              <Input
+                value={form.description}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, description: e.target.value }))
+                }
+                placeholder="Optional description"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Features (one per line)</Label>
+              <Textarea
+                value={form.features}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, features: e.target.value }))
+                }
+                rows={4}
+                placeholder={"Unlimited analyses\nPriority support\nAI roadmap"}
+              />
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <Switch
+                checked={form.isActive}
+                onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
+              />
+              <Label>Active</Label>
             </div>
           </div>
           <DialogFooter>
