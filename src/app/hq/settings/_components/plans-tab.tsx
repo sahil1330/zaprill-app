@@ -47,7 +47,7 @@ const EMPTY_FORM = {
   amount: "",
   originalAmount: "",
   billingCycle: "monthly" as "monthly" | "quarterly" | "yearly",
-  category: "pro",
+  category: "pro" as string,
   features: "",
   isActive: true,
   sortOrder: 0,
@@ -324,7 +324,9 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                 <Label>Category</Label>
                 <Select
                   value={form.category}
-                  onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
+                  onValueChange={(v) =>
+                    setForm((f) => ({ ...f, category: v as any }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
