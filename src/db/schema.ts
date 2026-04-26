@@ -489,3 +489,55 @@ export const aiUsageLog = pgTable(
     index("ai_usage_log_model_idx").on(t.model),
   ],
 );
+
+// ─────────────────────────────────────────────────
+// Email Hub
+// ─────────────────────────────────────────────────
+
+export const receivedEmail = pgTable(
+  "received_email",
+  {
+    id: text("id").primaryKey(), // nanoid
+    resendId: text("resend_id").notNull().unique(), // resend internal id
+    from: text("from").notNull(),
+    to: text("to").notNull(),
+    subject: text("subject"),
+    text: text("text"),
+    html: text("html"),
+    raw: jsonb("raw"), // full Resend webhook payload
+    receivedAt: timestamp("received_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("received_email_from_idx").on(t.from),
+    index("received_email_received_at_idx").on(t.receivedAt),
+  ],
+);
+
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: text("id").primaryKey(), // nanoid
+    adminId: text("admin_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    action: text("action").notNull(), // e.g. "BAN_USER", "DELETE_USER", "UPDATE_PLAN"
+    entityType: text("entity_type").notNull(), // e.g. "user", "plan", "coupon"
+    entityId: text("entity_id"),
+    details: jsonb("details"),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("audit_log_admin_id_idx").on(t.adminId),
+    index("audit_log_entity_type_idx").on(t.entityType),
+    index("audit_log_created_at_idx").on(t.createdAt),
+  ],
+);

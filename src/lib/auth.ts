@@ -10,6 +10,20 @@ import { sendVerificationEmail } from "./emails/verification-email";
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://lvh.me:3000",
+    "http://hq.lvh.me:3000",
+    "https://app.zaprill.com",
+    "https://hq.zaprill.com",
+  ],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+      domain:
+        process.env.NODE_ENV === "production" ? "zaprill.com" : "localhost",
+    },
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -98,6 +112,8 @@ export const auth = betterAuth({
       appMetadata: { type: "json", required: false, input: false },
       invitedAt: { type: "date", required: false, input: false },
       lastSignInAt: { type: "date", required: false, input: false },
+      role: { type: "string", required: false, input: false },
+      banned: { type: "boolean", required: false, input: false },
     },
   },
 });

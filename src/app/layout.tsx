@@ -26,7 +26,7 @@ const satoshi = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Zaprill — Resume Analyzer & Career GPS",
+  title: "Zaprill — Career GPS",
   description:
     "Upload your resume and let Zaprill find the best job matches, reveal skill gaps, and build a personalized learning roadmap to land your dream role.",
   keywords: [

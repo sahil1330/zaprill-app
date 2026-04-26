@@ -1,18 +1,36 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Routes that require authentication
+// Routes that require authentication on the main app
 const PROTECTED_ROUTES = ["/analyze"];
-// Routes only for guests (redirect to home if already logged in)
+// Routes only for guests on the main app
 const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
-export function proxy(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = getSessionCookie(request);
 
-  const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
-  const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
+  const hostname = request.headers.get("host") || "";
+  const isHqSubdomain = hostname.startsWith("hq.");
+
+  // Admin subdomain: simply rewrite to /hq/* — let hq/layout.tsx handle auth
+  // This avoids all redirect loops since layout uses absolute redirects
+  if (isHqSubdomain) {
+    if (!pathname.startsWith("/hq")) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/hq${pathname}`;
+      return NextResponse.rewrite(url);
+    }
+    // Already rewritten path, just continue
+    return NextResponse.next();
+  }
+
+  // Regular app protection logic (main domain only)
+  const isProtected = PROTECTED_ROUTES.some((route) =>
+    pathname.startsWith(route),
+  );
+  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
   if (isProtected && !sessionCookie) {
     const url = request.nextUrl.clone();
@@ -29,12 +47,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static, _next/image, favicon.ico
-     * - /api/auth/* (better-auth needs to be publicly accessible)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api/auth).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
 };
