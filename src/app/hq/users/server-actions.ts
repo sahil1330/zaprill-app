@@ -16,15 +16,13 @@ async function ensureAdmin() {
   return session;
 }
 
-export async function setRoleAction(userId: string, role: string) {
+export async function setRoleAction(userId: string, role: "user" | "admin") {
   await ensureAdmin();
 
-  const { data, error } = await auth.api.setRole({
+  const data = await auth.api.setRole({
     headers: await headers(),
     body: { userId, role },
   });
-
-  if (error) throw new Error(error.message);
 
   await logAuditAction({
     action: "SET_ROLE",
@@ -33,19 +31,17 @@ export async function setRoleAction(userId: string, role: string) {
     details: { role },
   });
 
-  revalidatePath("/users");
+  revalidatePath("/hq/users");
   return data;
 }
 
 export async function banUserAction(userId: string, reason?: string) {
   await ensureAdmin();
 
-  const { data, error } = await auth.api.banUser({
+  const data = await auth.api.banUser({
     headers: await headers(),
-    body: { userId, reason },
+    body: { userId, banReason: reason },
   });
-
-  if (error) throw new Error(error.message);
 
   await logAuditAction({
     action: "BAN_USER",
@@ -54,19 +50,17 @@ export async function banUserAction(userId: string, reason?: string) {
     details: { reason },
   });
 
-  revalidatePath("/users");
+  revalidatePath("/hq/users");
   return data;
 }
 
 export async function unbanUserAction(userId: string) {
   await ensureAdmin();
 
-  const { data, error } = await auth.api.unbanUser({
+  const data = await auth.api.unbanUser({
     headers: await headers(),
     body: { userId },
   });
-
-  if (error) throw new Error(error.message);
 
   await logAuditAction({
     action: "UNBAN_USER",
@@ -74,19 +68,17 @@ export async function unbanUserAction(userId: string) {
     entityId: userId,
   });
 
-  revalidatePath("/users");
+  revalidatePath("/hq/users");
   return data;
 }
 
 export async function deleteUserAction(userId: string) {
   await ensureAdmin();
 
-  const { data, error } = await auth.api.removeUser({
+  const data = await auth.api.removeUser({
     headers: await headers(),
     body: { userId },
   });
-
-  if (error) throw new Error(error.message);
 
   await logAuditAction({
     action: "DELETE_USER",
@@ -94,6 +86,6 @@ export async function deleteUserAction(userId: string) {
     entityId: userId,
   });
 
-  revalidatePath("/users");
+  revalidatePath("/hq/users");
   return data;
 }

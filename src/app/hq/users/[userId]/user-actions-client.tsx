@@ -114,20 +114,22 @@ export function UserActionsClient({ user }: UserActionsClientProps) {
           </Button>
 
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                className="justify-start"
-                disabled={!!isLoading}
-              >
-                {isLoading === "delete" ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="mr-2 h-4 w-4" />
-                )}
-                Delete User Permanent
-              </Button>
-            </AlertDialogTrigger>
+            <AlertDialogTrigger
+              render={
+                <Button
+                  variant="destructive"
+                  className="justify-start"
+                  disabled={!!isLoading}
+                >
+                  {isLoading === "delete" ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="mr-2 h-4 w-4" />
+                  )}
+                  Delete User Permanent
+                </Button>
+              }
+            />
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

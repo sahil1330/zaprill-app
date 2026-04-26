@@ -45,7 +45,7 @@ const EMPTY_FORM = {
   slug: "",
   description: "",
   amount: "",
-  billingCycle: "monthly" as const,
+  billingCycle: "monthly" as "monthly" | "quarterly" | "yearly",
   features: "",
   isActive: true,
   sortOrder: 0,

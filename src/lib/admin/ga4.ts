@@ -22,7 +22,7 @@ async function getGA4Client() {
   if (!token) throw new Error("Failed to get Google Access Token");
 
   return new BetaAnalyticsDataClient({
-    auth: oauth2Client,
+    auth: oauth2Client as any,
   });
 }
 

@@ -13,7 +13,7 @@ import {
 export const useAdminActions = () => {
   const router = useRouter();
 
-  const setRole = async (userId: string, role: string) => {
+  const setRole = async (userId: string, role: "user" | "admin") => {
     try {
       await setRoleAction(userId, role);
       toast.success(`User promoted to ${role}`);

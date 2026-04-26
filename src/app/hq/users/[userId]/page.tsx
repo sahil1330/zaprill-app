@@ -46,9 +46,7 @@ export default async function UserDetailPage({
 
   const { users } = await auth.api.listUsers({
     headers: await headers(),
-    query: {
-      userId: userId,
-    },
+    query: {},
   });
 
   const user = users.find((u) => u.id === userId);
@@ -60,10 +58,8 @@ export default async function UserDetailPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/users">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+        <Button variant="ghost" size="icon" render={<Link href="/hq/users" />}>
+          <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">User Details</h1>
@@ -79,7 +75,8 @@ export default async function UserDetailPage({
         <Card className="lg:col-span-1">
           <CardHeader className="flex flex-col items-center gap-4 text-center pb-8">
             <Avatar className="h-24 w-24 border-4 border-muted">
-              <AvatarImage src={user.image} alt={user.name} />
+              {/* @ts-ignore - image is not defined in user type*/}
+              <AvatarImage src={user?.image || undefined} alt={user.name} />
               <AvatarFallback className="text-3xl">
                 {user.name[0]}
               </AvatarFallback>
@@ -149,9 +146,9 @@ export default async function UserDetailPage({
               <UserActionsClient
                 user={{
                   id: user.id,
-                  name: user.name,
-                  role: user.role,
-                  banned: user.banned,
+                  name: user.name!,
+                  role: user.role as "admin" | "user",
+                  banned: !!user.banned,
                 }}
               />
             </CardContent>
