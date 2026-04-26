@@ -51,9 +51,11 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (isAuthRoute && sessionCookie) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  // NOTE: We intentionally do NOT redirect logged-in users away from auth
+  // routes here. Doing so causes Next.js Link prefetch requests to /sign-in
+  // to be cached as a redirect to /, which breaks the Sign In button for users
+  // who are briefly shown it during the useSession() loading window.
+  // The (auth)/layout.tsx handles this redirect server-side with a real session check.
 
   return NextResponse.next();
 }
