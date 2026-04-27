@@ -1,7 +1,7 @@
 "use client";
 
+import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import { useEffect } from "react";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({
@@ -34,9 +34,11 @@ export default function ErrorPage({
           </p>
         </div>
 
-        <div className="bg-muted/50 border border-border p-4 rounded-lg text-left text-sm font-mono text-muted-foreground overflow-x-auto max-h-[150px]">
-          {error.message || "Unknown Application Error"}
-        </div>
+        {process.env.NODE_ENV === "development" && (
+          <div className="bg-muted/50 border border-border p-4 rounded-lg text-left text-sm font-mono text-muted-foreground overflow-x-auto max-h-[150px]">
+            {error.message || "Unknown Application Error"}
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <Button
