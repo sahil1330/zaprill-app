@@ -27,11 +27,20 @@ const plans = [
     currency: "INR",
     billingCycle: "monthly" as const,
     category: "free",
-    features: JSON.stringify([
-      "1 resume analysis per month",
-      "Basic job matching",
-      "Skill gap overview",
-    ]),
+    features: [
+      {
+        text: "1 resume analysis per month",
+        info: "Upload and analyze one resume every 30 days to extract skills and job matches.",
+      },
+      {
+        text: "Basic job matching",
+        info: "See job listings that match your core skills extracted from the resume.",
+      },
+      {
+        text: "Skill gap overview",
+        info: "Get a high-level view of the skills you are missing for your target roles.",
+      },
+    ],
     isActive: true,
     sortOrder: 0,
   },
@@ -45,14 +54,32 @@ const plans = [
     currency: "INR",
     billingCycle: "monthly" as const,
     category: "pro",
-    features: JSON.stringify([
-      "Ads-free experience",
-      "100% job match visibility",
-      "AI-powered resume rewrite",
-      "Search up to 7 job titles",
-      "1 skill test per week",
-      "Priority support",
-    ]),
+    features: [
+      {
+        text: "Ads-free experience",
+        info: "Focus on your career without any distracting advertisements across the platform.",
+      },
+      {
+        text: "100% job match visibility",
+        info: "See all available job matches instead of just the top few.",
+      },
+      {
+        text: "AI-powered resume rewrite",
+        info: "Our AI helps you rephrase and optimize your resume bullet points for better ATS scores.",
+      },
+      {
+        text: "Search up to 7 job titles",
+        info: "Broaden your search by targeting up to 7 different job categories simultaneously.",
+      },
+      {
+        text: "1 skill test per week",
+        info: "Validate your expertise with one AI-generated skill assessment every week.",
+      },
+      {
+        text: "Priority support",
+        info: "Get your questions answered by our support team with priority response times.",
+      },
+    ],
     isActive: true,
     sortOrder: 1,
   },
@@ -66,14 +93,32 @@ const plans = [
     currency: "INR",
     billingCycle: "quarterly" as const,
     category: "pro",
-    features: JSON.stringify([
-      "Ads-free experience",
-      "100% job match visibility",
-      "AI-powered resume rewrite",
-      "Search up to 7 job titles",
-      "1 skill test per week",
-      "Priority support",
-    ]),
+    features: [
+      {
+        text: "Ads-free experience",
+        info: "Focus on your career without any distracting advertisements across the platform.",
+      },
+      {
+        text: "100% job match visibility",
+        info: "See all available job matches instead of just the top few.",
+      },
+      {
+        text: "AI-powered resume rewrite",
+        info: "Our AI helps you rephrase and optimize your resume bullet points for better ATS scores.",
+      },
+      {
+        text: "Search up to 7 job titles",
+        info: "Broaden your search by targeting up to 7 different job categories simultaneously.",
+      },
+      {
+        text: "1 skill test per week",
+        info: "Validate your expertise with one AI-generated skill assessment every week.",
+      },
+      {
+        text: "Priority support",
+        info: "Get your questions answered by our support team with priority response times.",
+      },
+    ],
     isActive: true,
     sortOrder: 2,
   },
@@ -87,14 +132,32 @@ const plans = [
     currency: "INR",
     billingCycle: "yearly" as const,
     category: "pro",
-    features: JSON.stringify([
-      "Ads-free experience",
-      "100% job match visibility",
-      "AI-powered resume rewrite",
-      "Search up to 7 job titles",
-      "1 skill test per week",
-      "Priority support",
-    ]),
+    features: [
+      {
+        text: "Ads-free experience",
+        info: "Focus on your career without any distracting advertisements across the platform.",
+      },
+      {
+        text: "100% job match visibility",
+        info: "See all available job matches instead of just the top few.",
+      },
+      {
+        text: "AI-powered resume rewrite",
+        info: "Our AI helps you rephrase and optimize your resume bullet points for better ATS scores.",
+      },
+      {
+        text: "Search up to 7 job titles",
+        info: "Broaden your search by targeting up to 7 different job categories simultaneously.",
+      },
+      {
+        text: "1 skill test per week",
+        info: "Validate your expertise with one AI-generated skill assessment every week.",
+      },
+      {
+        text: "Priority support",
+        info: "Get your questions answered by our support team with priority response times.",
+      },
+    ],
     isActive: true,
     sortOrder: 3,
   },
@@ -108,14 +171,32 @@ const plans = [
     currency: "INR",
     billingCycle: "monthly" as const,
     category: "max",
-    features: JSON.stringify([
-      "Everything in Pro",
-      "Unlimited resume analyses",
-      "One-on-one AI coaching",
-      "Priority matching for top jobs",
-      "Weekly career roadmap",
-      "Expert human review (1/mo)",
-    ]),
+    features: [
+      {
+        text: "Everything in Pro",
+        info: "Get all the benefits of the Pro plan plus exclusive Max features.",
+      },
+      {
+        text: "Unlimited resume analyses",
+        info: "No limits on how many resumes or variations you can analyze per month.",
+      },
+      {
+        text: "One-on-one AI coaching",
+        info: "Personalized AI session to discuss your career path and interview preparation.",
+      },
+      {
+        text: "Priority matching for top jobs",
+        info: "Get early access and higher visibility for top-tier job openings.",
+      },
+      {
+        text: "Weekly career roadmap",
+        info: "A dynamic, updated action plan delivered every week based on your progress.",
+      },
+      {
+        text: "Expert human review (1/mo)",
+        info: "One professional review of your resume and profile by a career expert each month.",
+      },
+    ],
     isActive: true,
     sortOrder: 4,
   },
@@ -129,14 +210,32 @@ const plans = [
     currency: "INR",
     billingCycle: "quarterly" as const,
     category: "max",
-    features: JSON.stringify([
-      "Everything in Pro",
-      "Unlimited resume analyses",
-      "One-on-one AI coaching",
-      "Priority matching for top jobs",
-      "Weekly career roadmap",
-      "Expert human review (1/mo)",
-    ]),
+    features: [
+      {
+        text: "Everything in Pro",
+        info: "Get all the benefits of the Pro plan plus exclusive Max features.",
+      },
+      {
+        text: "Unlimited resume analyses",
+        info: "No limits on how many resumes or variations you can analyze per month.",
+      },
+      {
+        text: "One-on-one AI coaching",
+        info: "Personalized AI session to discuss your career path and interview preparation.",
+      },
+      {
+        text: "Priority matching for top jobs",
+        info: "Get early access and higher visibility for top-tier job openings.",
+      },
+      {
+        text: "Weekly career roadmap",
+        info: "A dynamic, updated action plan delivered every week based on your progress.",
+      },
+      {
+        text: "Expert human review (1/mo)",
+        info: "One professional review of your resume and profile by a career expert each month.",
+      },
+    ],
     isActive: true,
     sortOrder: 5,
   },
@@ -150,14 +249,32 @@ const plans = [
     currency: "INR",
     billingCycle: "yearly" as const,
     category: "max",
-    features: JSON.stringify([
-      "Everything in Pro",
-      "Unlimited resume analyses",
-      "One-on-one AI coaching",
-      "Priority matching for top jobs",
-      "Weekly career roadmap",
-      "Expert human review (1/mo)",
-    ]),
+    features: [
+      {
+        text: "Everything in Pro",
+        info: "Get all the benefits of the Pro plan plus exclusive Max features.",
+      },
+      {
+        text: "Unlimited resume analyses",
+        info: "No limits on how many resumes or variations you can analyze per month.",
+      },
+      {
+        text: "One-on-one AI coaching",
+        info: "Personalized AI session to discuss your career path and interview preparation.",
+      },
+      {
+        text: "Priority matching for top jobs",
+        info: "Get early access and higher visibility for top-tier job openings.",
+      },
+      {
+        text: "Weekly career roadmap",
+        info: "A dynamic, updated action plan delivered every week based on your progress.",
+      },
+      {
+        text: "Expert human review (1/mo)",
+        info: "One professional review of your resume and profile by a career expert each month.",
+      },
+    ],
     isActive: true,
     sortOrder: 6,
   },

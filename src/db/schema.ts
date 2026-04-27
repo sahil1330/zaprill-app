@@ -258,7 +258,7 @@ export const plan = pgTable("plan", {
   currency: text("currency").notNull().default("INR"),
   billingCycle: billingCycleEnum("billing_cycle").notNull(),
   category: text("category").notNull().default("pro"), // e.g. "pro", "max"
-  features: jsonb("features").default([]), // string[] of feature bullets
+  features: jsonb("features").default([]), // { text: string, info: string | null }[] of feature bullets
   isActive: boolean("is_active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),

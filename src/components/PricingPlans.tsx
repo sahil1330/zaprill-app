@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Info } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatCurrency } from "@/lib/billing-utils";
 
 interface Plan {
@@ -172,16 +178,47 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
               </CardHeader>
 
               <CardContent className="flex-1 mt-6">
-                <ul className="space-y-3">
-                  {features.map((feature: any, i: number) => (
-                    <li key={i} className="flex items-start text-left">
-                      <Check className="h-5 w-5 text-primary shrink-0 mr-3" />
-                      <span className="text-muted-foreground text-sm">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <TooltipProvider>
+                  <ul className="space-y-3">
+                    {features.map((feature: any, i: number) => {
+                      const text =
+                        typeof feature === "string" ? feature : feature.text;
+                      const info =
+                        typeof feature === "string" ? null : feature.info;
+
+                      return (
+                        <li key={i} className="flex items-start text-left">
+                          <Check className="h-5 w-5 text-primary shrink-0 mr-3" />
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="text-muted-foreground text-sm">
+                              {text}
+                            </span>
+                            {info && (
+                              <Tooltip>
+                                <TooltipTrigger
+                                  render={
+                                    <button
+                                      type="button"
+                                      className="text-muted-foreground/50 hover:text-primary transition-colors outline-none"
+                                    >
+                                      <Info className="h-3.5 w-3.5" />
+                                    </button>
+                                  }
+                                />
+                                <TooltipContent
+                                  side="right"
+                                  className="max-w-[200px] text-xs"
+                                >
+                                  {info}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </TooltipProvider>
               </CardContent>
 
               <CardFooter className="pb-8">

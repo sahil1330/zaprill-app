@@ -17,7 +17,7 @@ export type Plan = {
   currency: string;
   billingCycle: "monthly" | "quarterly" | "yearly";
   category: string;
-  features: string[];
+  features: any[]; // { text: string, info: string | null }[]
   isActive: boolean;
   sortOrder: number;
   createdAt: string;

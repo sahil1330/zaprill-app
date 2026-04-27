@@ -48,7 +48,7 @@ const EMPTY_FORM = {
   originalAmount: "",
   billingCycle: "monthly" as "monthly" | "quarterly" | "yearly",
   category: "pro" as string,
-  features: "",
+  features: [] as { text: string; info: string }[],
   isActive: true,
   sortOrder: 0,
 };
@@ -76,7 +76,11 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
       originalAmount: plan.originalAmount ?? "",
       billingCycle: plan.billingCycle,
       category: plan.category || "pro",
-      features: Array.isArray(plan.features) ? plan.features.join("\n") : "",
+      features: Array.isArray(plan.features)
+        ? plan.features.map((f: any) =>
+            typeof f === "string" ? { text: f, info: "" } : f,
+          )
+        : [],
       isActive: plan.isActive,
       sortOrder: plan.sortOrder,
     });
@@ -91,9 +95,11 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
     setSaving(true);
     try {
       const features = form.features
-        .split("\n")
-        .map((f) => f.trim())
-        .filter(Boolean);
+        .filter((f) => f.text.trim())
+        .map((f) => ({
+          text: f.text.trim(),
+          info: f.info.trim() || null,
+        }));
 
       if (editTarget) {
         await onMutate("update_plan", { id: editTarget.id, ...form, features });
@@ -201,10 +207,12 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                 </div>
                 {Array.isArray(plan.features) && plan.features.length > 0 && (
                   <ul className="text-xs text-muted-foreground space-y-1 mb-4">
-                    {plan.features.slice(0, 3).map((f, i) => (
+                    {plan.features.slice(0, 3).map((f: any, i) => (
                       <li key={i} className="flex items-center gap-1.5">
                         <span className="h-1 w-1 rounded-full bg-primary shrink-0" />
-                        {f}
+                        <span className="truncate">
+                          {typeof f === "string" ? f : f.text}
+                        </span>
                       </li>
                     ))}
                     {plan.features.length > 3 && (
@@ -373,16 +381,70 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                 placeholder="Optional description"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label>Features (one per line)</Label>
-              <Textarea
-                value={form.features}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, features: e.target.value }))
-                }
-                rows={4}
-                placeholder={"Unlimited analyses\nPriority support\nAI roadmap"}
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Features</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-[10px]"
+                  onClick={() =>
+                    setForm((f) => ({
+                      ...f,
+                      features: [...f.features, { text: "", info: "" }],
+                    }))
+                  }
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Add Feature
+                </Button>
+              </div>
+              <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+                {form.features.map((feat, index) => (
+                  <div key={index} className="flex gap-2 items-start group">
+                    <div className="grid flex-1 gap-1.5">
+                      <Input
+                        placeholder="Feature name"
+                        value={feat.text}
+                        className="h-8 text-xs"
+                        onChange={(e) => {
+                          const newFeats = [...form.features];
+                          newFeats[index].text = e.target.value;
+                          setForm((f) => ({ ...f, features: newFeats }));
+                        }}
+                      />
+                      <Input
+                        placeholder="Info (optional)"
+                        value={feat.info}
+                        className="h-8 text-[10px] opacity-70 focus:opacity-100"
+                        onChange={(e) => {
+                          const newFeats = [...form.features];
+                          newFeats[index].info = e.target.value;
+                          setForm((f) => ({ ...f, features: newFeats }));
+                        }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => {
+                        const newFeats = [...form.features];
+                        newFeats.splice(index, 1);
+                        setForm((f) => ({ ...f, features: newFeats }));
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+                {form.features.length === 0 && (
+                  <p className="text-[10px] text-muted-foreground text-center py-4 border border-dashed rounded-lg">
+                    No features added.
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3 pt-2">
               <Switch
