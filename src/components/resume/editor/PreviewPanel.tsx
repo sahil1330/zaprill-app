@@ -1,6 +1,7 @@
 "use client";
 
 import { useSelector } from "react-redux";
+import ExecutiveProTemplate from "@/components/resume/templates/ExecutiveProTemplate";
 import MinimalistTemplate from "@/components/resume/templates/MinimalistTemplate";
 import TechStackTemplate from "@/components/resume/templates/TechStackTemplate";
 import type { RootState } from "@/store/store";
@@ -12,6 +13,7 @@ const TEMPLATE_COMPONENTS: Record<
 > = {
   minimalist: MinimalistTemplate,
   "tech-stack": TechStackTemplate,
+  "executive-pro": ExecutiveProTemplate,
 };
 
 /**

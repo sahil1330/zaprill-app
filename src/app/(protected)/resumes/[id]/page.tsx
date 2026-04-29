@@ -279,7 +279,11 @@ export default function ResumeEditorPage({
             <span className="hidden sm:inline">Save</span>
           </Button>
 
-          <Button size="sm" className="gap-1.5">
+          <Button
+            size="sm"
+            className="gap-1.5"
+            onClick={() => window.open(`/resumes/${id}/export`, "_blank")}
+          >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Export</span>
           </Button>

@@ -323,3 +323,201 @@
   }
 }
 
+/* ─── Executive Pro Template ──────────────────── */
+.exec-template {
+  padding: 28px 32px;
+}
+
+.exec-header {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 3px double var(--resume-primary, #1a1a2e);
+}
+
+.exec-name {
+  font-size: 2em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--resume-primary, #1a1a2e);
+  margin: 0 0 2px;
+}
+
+.exec-title {
+  font-size: 1em;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--resume-text, #555);
+  margin: 0 0 10px;
+}
+
+.exec-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 0.82em;
+  color: var(--resume-text, #555);
+}
+
+.exec-section {
+  margin-bottom: 18px;
+}
+
+.exec-section-title {
+  font-size: 0.95em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--resume-primary, #1a1a2e);
+  border-bottom: 1px solid var(--resume-accent, #4a6cf7);
+  padding-bottom: 3px;
+  margin: 0 0 10px;
+}
+
+.exec-summary-text {
+  font-size: 0.9em;
+  line-height: 1.6;
+  color: var(--resume-text, #333);
+  font-style: italic;
+}
+
+.exec-entry {
+  margin-bottom: 14px;
+}
+
+.exec-entry:last-child {
+  margin-bottom: 0;
+}
+
+.exec-entry-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.exec-entry-role {
+  font-size: 0.95em;
+  font-weight: 700;
+  color: var(--resume-text, #222);
+  margin: 0;
+}
+
+.exec-entry-company {
+  font-size: 0.85em;
+  color: var(--resume-accent, #4a6cf7);
+  font-weight: 500;
+  margin: 0;
+}
+
+.exec-entry-dates {
+  font-size: 0.82em;
+  color: var(--resume-text, #777);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exec-bullets {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  list-style: square;
+}
+
+.exec-bullets li {
+  font-size: 0.88em;
+  line-height: 1.45;
+  margin-bottom: 2px;
+  color: var(--resume-text, #333);
+}
+
+.exec-text {
+  font-size: 0.88em;
+  line-height: 1.5;
+  color: var(--resume-text, #333);
+}
+
+.exec-edu-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 0.88em;
+}
+
+.exec-edu-degree {
+  font-weight: 700;
+  color: var(--resume-text, #222);
+}
+
+.exec-edu-sep {
+  color: var(--resume-text, #777);
+}
+
+.exec-edu-school {
+  color: var(--resume-text, #555);
+}
+
+.exec-competencies {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exec-comp-group {
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+.exec-comp-label {
+  font-weight: 700;
+  color: var(--resume-text, #222);
+}
+
+.exec-comp-values {
+  color: var(--resume-text, #444);
+}
+
+.exec-lang-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.88em;
+}
+
+.exec-lang-item {
+  color: var(--resume-text, #333);
+}
+
+@media print {
+  .exec-template {
+    padding: 0;
+  }
+
+  .exec-entry {
+    break-inside: avoid;
+  }
+}
+
+/* ─── Export page ─────────────────────────────── */
+.resume-export-page {
+  background: white;
+  min-height: 100vh;
+}
+
+@media print {
+  .resume-export-page {
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
