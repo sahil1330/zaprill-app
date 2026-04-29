@@ -10,18 +10,26 @@ import { sendVerificationEmail } from "./emails/verification-email";
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://lvh.me:3000",
-    "http://hq.lvh.me:3000",
-    "https://app.zaprill.com",
-    "https://hq.zaprill.com",
-  ],
+  baseURL: {
+    allowedHosts: [
+      "localhost:3000",
+      "lvh.me:3000",
+      "hq.lvh.me:3000",
+      "app.zaprill.com",
+      "hq.zaprill.com",
+      "*.vercel.app",
+      "*.zaprill.com",
+    ],
+  },
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
       domain:
-        process.env.NODE_ENV === "production" ? "zaprill.com" : "localhost",
+        process.env.VERCEL_ENV === "preview"
+          ? undefined
+          : process.env.NODE_ENV === "production"
+            ? "zaprill.com"
+            : "localhost",
     },
   },
   database: drizzleAdapter(db, {
