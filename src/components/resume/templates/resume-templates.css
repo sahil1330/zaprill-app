@@ -9,7 +9,7 @@
   width: 100%;
   max-width: 210mm; /* A4 width */
   margin: 0 auto;
-  padding: 24px 28px;
+  padding: var(--resume-padding, 24px 28px);
   background: var(--resume-bg, #ffffff);
   color: var(--resume-text, #333333);
   box-sizing: border-box;
@@ -173,7 +173,8 @@
 /* ─── Print styles ────────────────────────────── */
 @media print {
   .resume-page {
-    padding: 0;
+    /* Respect user's selected padding margin with 15mm fallback */
+    padding: var(--resume-padding, 15mm) !important;
     max-width: none;
     box-shadow: none;
   }

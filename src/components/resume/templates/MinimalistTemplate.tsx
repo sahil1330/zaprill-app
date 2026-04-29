@@ -22,7 +22,7 @@ export default function MinimalistTemplate({
     certifications,
     languages,
   } = data;
-  const { theme, typography, sectionOrder, sectionVisibility } = metadata;
+  const { theme, typography, sectionOrder, sectionVisibility, page } = metadata;
 
   const fontFamily = typography.font.family;
   const fontSize = `${typography.font.size}pt`;
@@ -187,6 +187,7 @@ export default function MinimalistTemplate({
         fontFamily,
         fontSize,
         lineHeight,
+        ["--resume-padding" as string]: `${page.margin}mm`,
         ["--resume-primary" as string]: theme.primary,
         ["--resume-bg" as string]: theme.background,
         ["--resume-text" as string]: theme.text,

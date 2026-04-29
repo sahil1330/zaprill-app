@@ -22,7 +22,7 @@ export default function TechStackTemplate({
     certifications,
     languages,
   } = data;
-  const { theme, typography, sectionVisibility } = metadata;
+  const { theme, typography, sectionVisibility, page } = metadata;
 
   const fontFamily = typography.font.family;
   const fontSize = `${typography.font.size}pt`;
@@ -35,6 +35,7 @@ export default function TechStackTemplate({
         fontFamily,
         fontSize,
         lineHeight,
+        ["--resume-padding" as string]: `${page.margin}mm`,
         ["--resume-primary" as string]: theme.primary,
         ["--resume-bg" as string]: theme.background,
         ["--resume-text" as string]: theme.text,
