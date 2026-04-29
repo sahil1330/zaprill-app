@@ -207,3 +207,119 @@
   max-width: 210mm;
   min-height: 297mm;
 }
+
+/* ─── Tech Stack Template ─────────────────────── */
+.tech-stack-template .ts-header {
+  text-align: center;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 3px solid var(--resume-primary, #1a1a2e);
+}
+
+.ts-columns {
+  display: flex;
+  gap: 24px;
+}
+
+.ts-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-sidebar {
+  width: 180px;
+  flex-shrink: 0;
+  border-left: 1.5px solid var(--resume-primary, #1a1a2e);
+  padding-left: 16px;
+}
+
+.ts-sidebar-title {
+  font-size: 0.9em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--resume-primary, #1a1a2e);
+  margin: 0 0 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--resume-primary, #1a1a2e);
+}
+
+.ts-skill-block {
+  margin-bottom: 12px;
+}
+
+.ts-skill-category {
+  font-size: 0.82em;
+  font-weight: 700;
+  color: var(--resume-text, #222);
+  margin: 0 0 4px;
+}
+
+.ts-skill-tags,
+.ts-tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ts-tag {
+  font-size: 0.72em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--resume-primary, #1a1a2e);
+  color: var(--resume-bg, #fff);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ts-edu-block,
+.ts-cert-block {
+  margin-bottom: 10px;
+}
+
+.ts-edu-title {
+  font-size: 0.82em;
+  font-weight: 700;
+  color: var(--resume-text, #222);
+  margin: 0;
+}
+
+.ts-edu-degree {
+  font-size: 0.78em;
+  color: var(--resume-text, #555);
+  margin: 1px 0 0;
+}
+
+.ts-edu-date {
+  font-size: 0.72em;
+  color: var(--resume-text, #777);
+  margin: 1px 0 0;
+}
+
+.ts-lang-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+  margin-bottom: 4px;
+}
+
+.ts-lang-name {
+  font-weight: 600;
+  color: var(--resume-text, #333);
+}
+
+.ts-lang-level {
+  color: var(--resume-text, #777);
+  font-size: 0.9em;
+}
+
+@media print {
+  .ts-columns {
+    gap: 16px;
+  }
+
+  .ts-sidebar {
+    width: 160px;
+  }
+}
+

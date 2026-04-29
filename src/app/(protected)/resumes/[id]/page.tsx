@@ -22,7 +22,11 @@ import { use, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PreviewPanel from "@/components/resume/editor/PreviewPanel";
 import BasicsForm from "@/components/resume/editor/sections/BasicsForm";
+import CertificationsForm from "@/components/resume/editor/sections/CertificationsForm";
 import EducationForm from "@/components/resume/editor/sections/EducationForm";
+import LanguagesForm from "@/components/resume/editor/sections/LanguagesForm";
+import ProjectsForm from "@/components/resume/editor/sections/ProjectsForm";
+import SettingsForm from "@/components/resume/editor/sections/SettingsForm";
 import SkillsForm from "@/components/resume/editor/sections/SkillsForm";
 import WorkForm from "@/components/resume/editor/sections/WorkForm";
 import { Badge } from "@/components/ui/badge";
@@ -194,22 +198,13 @@ export default function ResumeEditorPage({
       case "skills":
         return <SkillsForm />;
       case "projects":
+        return <ProjectsForm />;
       case "certifications":
+        return <CertificationsForm />;
       case "languages":
-        return (
-          <div className="flex items-center justify-center h-64 text-muted-foreground font-medium">
-            <p>
-              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}{" "}
-              section — coming soon
-            </p>
-          </div>
-        );
+        return <LanguagesForm />;
       case "settings":
-        return (
-          <div className="flex items-center justify-center h-64 text-muted-foreground font-medium">
-            <p>Template and theme settings — coming soon</p>
-          </div>
-        );
+        return <SettingsForm />;
       default:
         return null;
     }

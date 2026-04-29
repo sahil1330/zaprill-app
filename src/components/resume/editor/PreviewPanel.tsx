@@ -1,11 +1,22 @@
 "use client";
 
+import { useSelector } from "react-redux";
 import MinimalistTemplate from "@/components/resume/templates/MinimalistTemplate";
+import TechStackTemplate from "@/components/resume/templates/TechStackTemplate";
+import type { RootState } from "@/store/store";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
+
+const TEMPLATE_COMPONENTS: Record<
+  string,
+  React.ComponentType<{ data: ResumeData; metadata: ResumeMetadata }>
+> = {
+  minimalist: MinimalistTemplate,
+  "tech-stack": TechStackTemplate,
+};
 
 /**
  * PreviewPanel — Renders the active template inside a paper-like container.
- * For V1, only the MinimalistTemplate is implemented.
+ * Falls back to Minimalist if the selected template component isn't available yet.
  */
 export default function PreviewPanel({
   data,
@@ -14,10 +25,14 @@ export default function PreviewPanel({
   data: ResumeData;
   metadata: ResumeMetadata;
 }) {
+  const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
+  const TemplateComponent =
+    TEMPLATE_COMPONENTS[templateSlug] ?? MinimalistTemplate;
+
   return (
     <div className="resume-preview-container w-full h-full p-6">
       <div className="resume-preview-paper">
-        <MinimalistTemplate data={data} metadata={metadata} />
+        <TemplateComponent data={data} metadata={metadata} />
       </div>
     </div>
   );
