@@ -441,12 +441,131 @@ export const payment = pgTable(
 );
 
 // ─────────────────────────────────────────────────
+// Resume Builder Enums
+// ─────────────────────────────────────────────────
+
+export const resumeStatusEnum = pgEnum("resume_status", [
+  "draft",
+  "complete",
+  "archived",
+]);
+
+// ─────────────────────────────────────────────────
+// Resume Builder Tables
+// ─────────────────────────────────────────────────
+
+/**
+ * Core resume table — one user has many resumes.
+ * The `data` JSONB column stores the full resume content (JSON Resume standard).
+ * The `metadata` JSONB column stores rendering preferences (theme, fonts, etc.).
+ * Both are validated by Zod schemas on every API write.
+ */
+export const resume = pgTable(
+  "resume",
+  {
+    id: text("id").primaryKey(), // nanoid
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    // Metadata
+    title: text("title").notNull().default("Untitled Resume"),
+    slug: text("slug").notNull().unique(), // for public sharing: /r/{slug}
+    status: resumeStatusEnum("status").notNull().default("draft"),
+
+    // Template & Industry
+    templateSlug: text("template_slug").notNull().default("minimalist"),
+    industry: text("industry").notNull().default("technology"),
+
+    // The full resume content — JSON Resume standard extended
+    data: jsonb("data").notNull().default({}),
+
+    // Rendering preferences (theme, fonts, margins, section order/visibility)
+    metadata: jsonb("metadata").notNull().default({}),
+
+    // Denormalized fields for search/filter
+    targetRole: text("target_role"),
+
+    // Stats
+    version: integer("version").notNull().default(1),
+    isPublic: boolean("is_public").notNull().default(false),
+    sharePassword: text("share_password"), // bcrypt hash, null = no password
+    viewCount: integer("view_count").notNull().default(0),
+    downloadCount: integer("download_count").notNull().default(0),
+    lastAtsScore: integer("last_ats_score"), // cached ATS score (0-100)
+
+    // Source tracking — links to existing analysis for auto-import
+    sourceAnalysisId: text("source_analysis_id").references(
+      () => resumeAnalysis.id,
+      { onDelete: "set null" },
+    ),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("resume_user_id_idx").on(t.userId),
+    index("resume_status_idx").on(t.status),
+    index("resume_slug_idx").on(t.slug),
+  ],
+);
+
+/**
+ * Resume version snapshots.
+ * Created before AI bulk-rewrites or major edits.
+ * Allows rollback to any previous version.
+ */
+export const resumeVersion = pgTable(
+  "resume_version",
+  {
+    id: text("id").primaryKey(), // nanoid
+    resumeId: text("resume_id")
+      .notNull()
+      .references(() => resume.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    data: jsonb("data").notNull(),
+    metadata: jsonb("metadata").notNull(),
+    changeDescription: text("change_description"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("resume_version_resume_id_idx").on(t.resumeId),
+    uniqueIndex("resume_version_unique").on(t.resumeId, t.version),
+  ],
+);
+
+/**
+ * ATS (Applicant Tracking System) analysis results.
+ * Each analysis is scored against an optional job description.
+ * The breakdown JSONB stores: keywordMatches, missingKeywords, suggestions, criteriaScores.
+ */
+export const resumeAtsAnalysis = pgTable(
+  "resume_ats_analysis",
+  {
+    id: text("id").primaryKey(), // nanoid
+    resumeId: text("resume_id")
+      .notNull()
+      .references(() => resume.id, { onDelete: "cascade" }),
+    jobDescription: text("job_description"),
+    score: integer("score"), // 0-100
+    breakdown: jsonb("breakdown").notNull().default({}),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("resume_ats_analysis_resume_id_idx").on(t.resumeId)],
+);
+
+// ─────────────────────────────────────────────────
 // AI Usage Intelligence
 // ─────────────────────────────────────────────────
 
 export const aiActionEnum = pgEnum("ai_action", [
   "parse_resume",
   "analyze_gaps",
+  "enhance_bullet",
+  "generate_summary",
+  "tailor_resume",
+  "ats_scan",
+  "resume_roast",
 ]);
 
 /**
