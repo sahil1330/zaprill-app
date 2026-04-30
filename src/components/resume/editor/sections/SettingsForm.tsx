@@ -1,7 +1,14 @@
 "use client";
 
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Check, Lock, Palette, Type } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import SortableItem from "@/components/resume/editor/SortableItem";
 import { TEMPLATE_REGISTRY } from "@/components/resume/templates/registry";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,11 +42,53 @@ const PAGE_FORMATS = [
   { value: "letter", label: "US Letter (8.5 × 11in)" },
 ];
 
+const SECTION_LABELS: Record<string, string> = {
+  summary: "Summary",
+  work: "Experience",
+  education: "Education",
+  skills: "Skills",
+  projects: "Projects",
+  certifications: "Certifications",
+  languages: "Languages",
+  volunteer: "Volunteer",
+  awards: "Awards",
+  publications: "Publications",
+  references: "References",
+};
+
 export default function SettingsForm() {
   const dispatch = useDispatch<AppDispatch>();
   const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
   const metadata = useSelector((s: RootState) => s.resume.metadata);
-  const { theme, typography, page, sectionVisibility } = metadata;
+  const { theme, typography, page, sectionVisibility, sectionOrder } = metadata;
+
+  // Check if user has an active subscription (Pro)
+  const [isPro, setIsPro] = useState(false);
+  useEffect(() => {
+    fetch("/api/billing/subscription")
+      .then((r) => r.json())
+      .then((data) => {
+        setIsPro(!!data.subscription);
+      })
+      .catch(() => setIsPro(false));
+  }, []);
+
+  // Filter sectionOrder to only sections that have forms
+  const orderableSections = sectionOrder.filter((key) => key in SECTION_LABELS);
+
+  const handleSectionDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (over && active.id !== over.id) {
+        const from = sectionOrder.indexOf(active.id as string);
+        const to = sectionOrder.indexOf(over.id as string);
+        if (from !== -1 && to !== -1) {
+          dispatch(resumeActions.reorderSections({ from, to }));
+        }
+      }
+    },
+    [sectionOrder, dispatch],
+  );
 
   const setTemplate = (slug: string) => {
     dispatch(resumeActions.setTemplateSluq(slug));
@@ -99,20 +148,6 @@ export default function SettingsForm() {
     );
   };
 
-  const SECTION_LABELS: Record<string, string> = {
-    summary: "Summary",
-    work: "Experience",
-    education: "Education",
-    skills: "Skills",
-    projects: "Projects",
-    certifications: "Certifications",
-    languages: "Languages",
-    volunteer: "Volunteer",
-    awards: "Awards",
-    publications: "Publications",
-    references: "References",
-  };
-
   return (
     <div className="space-y-8">
       {/* Template Selection */}
@@ -121,57 +156,60 @@ export default function SettingsForm() {
           Template
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {TEMPLATE_REGISTRY.map((tmpl) => (
-            <button
-              type="button"
-              key={tmpl.slug}
-              onClick={() => !tmpl.isPremium && setTemplate(tmpl.slug)}
-              className={`relative text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                templateSlug === tmpl.slug
-                  ? "border-primary bg-primary/5"
-                  : tmpl.isPremium
-                    ? "border-border bg-muted/20 opacity-60 cursor-not-allowed"
-                    : "border-border bg-card hover:border-muted-foreground/30 cursor-pointer"
-              }`}
-            >
-              {templateSlug === tmpl.slug && (
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="h-3 w-3 text-primary-foreground" />
-                </div>
-              )}
-              {tmpl.isPremium && (
-                <div className="absolute top-3 right-3">
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                </div>
-              )}
-              <h4 className="font-bold text-sm">{tmpl.name}</h4>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                {tmpl.description}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge
-                  variant="outline"
-                  className="text-[10px] font-bold uppercase"
-                >
-                  {tmpl.layout}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] font-bold uppercase"
-                >
-                  ATS {tmpl.atsScore}%
-                </Badge>
-                {tmpl.isPremium && (
+          {TEMPLATE_REGISTRY.map((tmpl) => {
+            const locked = tmpl.isPremium && !isPro;
+            return (
+              <button
+                type="button"
+                key={tmpl.slug}
+                onClick={() => !locked && setTemplate(tmpl.slug)}
+                className={`relative text-left p-4 rounded-xl border-2 transition-all duration-200 ${
+                  templateSlug === tmpl.slug
+                    ? "border-primary bg-primary/5"
+                    : locked
+                      ? "border-border bg-muted/20 opacity-60 cursor-not-allowed"
+                      : "border-border bg-card hover:border-muted-foreground/30 cursor-pointer"
+                }`}
+              >
+                {templateSlug === tmpl.slug && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="h-3 w-3 text-primary-foreground" />
+                  </div>
+                )}
+                {locked && (
+                  <div className="absolute top-3 right-3">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+                <h4 className="font-bold text-sm">{tmpl.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {tmpl.description}
+                </p>
+                <div className="flex items-center gap-2 mt-2">
                   <Badge
-                    variant="secondary"
+                    variant="outline"
                     className="text-[10px] font-bold uppercase"
                   >
-                    Pro
+                    {tmpl.layout}
                   </Badge>
-                )}
-              </div>
-            </button>
-          ))}
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] font-bold uppercase"
+                  >
+                    ATS {tmpl.atsScore}%
+                  </Badge>
+                  {locked && (
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] font-bold uppercase"
+                    >
+                      Pro
+                    </Badge>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -354,6 +392,39 @@ export default function SettingsForm() {
                 />
               </div>
             ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Section Order */}
+      <section>
+        <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4">
+          Section Order
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Drag sections to reorder them on your resume
+        </p>
+        <Card className="border-border">
+          <CardContent className="p-2">
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleSectionDragEnd}
+            >
+              <SortableContext
+                items={orderableSections}
+                strategy={verticalListSortingStrategy}
+              >
+                {orderableSections.map((key) => (
+                  <SortableItem key={key} id={key}>
+                    <div className="flex items-center gap-2 py-2.5 px-2 rounded-lg hover:bg-muted/50 transition-colors">
+                      <span className="text-sm font-medium pl-6">
+                        {SECTION_LABELS[key] || key}
+                      </span>
+                    </div>
+                  </SortableItem>
+                ))}
+              </SortableContext>
+            </DndContext>
           </CardContent>
         </Card>
       </section>
