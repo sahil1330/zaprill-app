@@ -1,6 +1,9 @@
 "use client";
 
+import { Loader2, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +16,9 @@ import type { AppDispatch, RootState } from "@/store/store";
 export default function BasicsForm() {
   const dispatch = useDispatch<AppDispatch>();
   const basics = useSelector((s: RootState) => s.resume.data.basics);
+  const resumeId = useSelector((s: RootState) => s.resume.resumeId);
+  const resumeData = useSelector((s: RootState) => s.resume.data);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const update = (field: string, value: string) => {
     dispatch(resumeActions.setBasics({ [field]: value }));
@@ -165,12 +171,46 @@ export default function BasicsForm() {
 
       {/* Summary */}
       <div className="space-y-2">
-        <Label
-          htmlFor="basics-summary"
-          className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-        >
-          Professional Summary
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label
+            htmlFor="basics-summary"
+            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
+          >
+            Professional Summary
+          </Label>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={isGenerating || !resumeId}
+            onClick={async () => {
+              if (!resumeId) return;
+              setIsGenerating(true);
+              try {
+                const res = await fetch(`/api/resumes/${resumeId}/ai/summary`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ data: resumeData }),
+                });
+                if (res.ok) {
+                  const { summary } = await res.json();
+                  dispatch(resumeActions.setBasics({ summary }));
+                }
+              } catch {
+                // Silently fail
+              } finally {
+                setIsGenerating(false);
+              }
+            }}
+            className="h-7 text-xs gap-1.5 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+          >
+            {isGenerating ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3" />
+            )}
+            {isGenerating ? "Generating..." : "Generate with AI"}
+          </Button>
+        </div>
         <Textarea
           id="basics-summary"
           value={basics.summary}

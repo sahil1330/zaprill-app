@@ -1,7 +1,8 @@
 "use client";
 
-import { GripVertical, Plus, Trash2 } from "lucide-react";
+import { GripVertical, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { nanoid } from "nanoid";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,10 +15,15 @@ import type { ResumeWorkItem } from "@/types/resume";
 
 /**
  * WorkForm — Work experience section with add/remove/edit items.
+ * Includes AI-powered "Enhance" button for each highlight bullet.
  */
 export default function WorkForm() {
   const dispatch = useDispatch<AppDispatch>();
   const work = useSelector((s: RootState) => s.resume.data.work);
+  const resumeId = useSelector((s: RootState) => s.resume.resumeId);
+
+  // Track which highlight is currently being enhanced: "itemId-hIdx"
+  const [enhancingKey, setEnhancingKey] = useState<string | null>(null);
 
   const addItem = () => {
     const newItem: ResumeWorkItem = {
@@ -67,6 +73,32 @@ export default function WorkForm() {
     if (item) {
       const newHighlights = item.highlights.filter((_, i) => i !== index);
       updateItem(itemId, "highlights", newHighlights);
+    }
+  };
+
+  const enhanceHighlight = async (
+    itemId: string,
+    index: number,
+    bullet: string,
+    context: { position: string; company: string },
+  ) => {
+    if (!resumeId || !bullet.trim()) return;
+    const key = `${itemId}-${index}`;
+    setEnhancingKey(key);
+    try {
+      const res = await fetch(`/api/resumes/${resumeId}/ai/enhance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bullet, context }),
+      });
+      if (res.ok) {
+        const { enhanced } = await res.json();
+        updateHighlight(itemId, index, enhanced);
+      }
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setEnhancingKey(null);
     }
   };
 
@@ -192,30 +224,52 @@ export default function WorkForm() {
                   <Plus className="h-3 w-3" /> Add
                 </Button>
               </div>
-              {item.highlights.map((highlight, hIdx) => (
-                <div key={hIdx} className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-xs w-4 shrink-0">
-                    •
-                  </span>
-                  <Textarea
-                    value={highlight}
-                    onChange={(e) =>
-                      updateHighlight(item.id, hIdx, e.target.value)
-                    }
-                    placeholder="Describe your achievement with metrics..."
-                    className="min-h-[40px] resize-y text-sm"
-                    rows={1}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeHighlight(item.id, hIdx)}
-                    className="h-8 w-8 p-0 shrink-0 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
+              {item.highlights.map((highlight, hIdx) => {
+                const isEnhancing = enhancingKey === `${item.id}-${hIdx}`;
+                return (
+                  <div key={hIdx} className="flex items-start gap-2">
+                    <span className="text-muted-foreground text-xs w-4 shrink-0 mt-2.5">
+                      •
+                    </span>
+                    <Textarea
+                      value={highlight}
+                      onChange={(e) =>
+                        updateHighlight(item.id, hIdx, e.target.value)
+                      }
+                      placeholder="Describe your achievement with metrics..."
+                      className="min-h-[40px] resize-y text-sm"
+                      rows={1}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        enhanceHighlight(item.id, hIdx, highlight, {
+                          position: item.position,
+                          company: item.company,
+                        })
+                      }
+                      disabled={isEnhancing || !highlight.trim()}
+                      className="h-8 w-8 p-0 shrink-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                      title="Enhance with AI"
+                    >
+                      {isEnhancing ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeHighlight(item.id, hIdx)}
+                      className="h-8 w-8 p-0 shrink-0 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

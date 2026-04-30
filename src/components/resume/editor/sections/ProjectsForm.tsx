@@ -1,6 +1,6 @@
 "use client";
 
-import { GripVertical, Plus, Trash2, X } from "lucide-react";
+import { GripVertical, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,7 +17,9 @@ import type { ResumeProjectItem } from "@/types/resume";
 export default function ProjectsForm() {
   const dispatch = useDispatch<AppDispatch>();
   const projects = useSelector((s: RootState) => s.resume.data.projects);
+  const resumeId = useSelector((s: RootState) => s.resume.resumeId);
   const [newKeywords, setNewKeywords] = useState<Record<string, string>>({});
+  const [enhancingKey, setEnhancingKey] = useState<string | null>(null);
 
   const addItem = () => {
     const item: ResumeProjectItem = {
@@ -83,6 +85,35 @@ export default function ProjectsForm() {
         "keywords",
         proj.keywords.filter((k) => k !== keyword),
       );
+    }
+  };
+
+  const enhanceHighlight = async (
+    itemId: string,
+    index: number,
+    bullet: string,
+    projectName: string,
+  ) => {
+    if (!resumeId || !bullet.trim()) return;
+    const key = `${itemId}-${index}`;
+    setEnhancingKey(key);
+    try {
+      const res = await fetch(`/api/resumes/${resumeId}/ai/enhance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bullet,
+          context: { position: projectName, company: "Personal Project" },
+        }),
+      });
+      if (res.ok) {
+        const { enhanced } = await res.json();
+        updateHighlight(itemId, index, enhanced);
+      }
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setEnhancingKey(null);
     }
   };
 
@@ -267,33 +298,52 @@ export default function ProjectsForm() {
                   <Plus className="h-3 w-3" /> Add
                 </Button>
               </div>
-              {item.highlights.map((highlight, hIdx) => (
-                <div
-                  key={`${item.id}-h-${hIdx}`}
-                  className="flex items-center gap-2"
-                >
-                  <span className="text-muted-foreground text-xs w-4 shrink-0">
-                    •
-                  </span>
-                  <Textarea
-                    value={highlight}
-                    onChange={(e) =>
-                      updateHighlight(item.id, hIdx, e.target.value)
-                    }
-                    placeholder="Describe a key feature or achievement..."
-                    className="min-h-[40px] resize-y text-sm"
-                    rows={1}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeHighlight(item.id, hIdx)}
-                    className="h-8 w-8 p-0 shrink-0 text-muted-foreground hover:text-destructive"
+              {item.highlights.map((highlight, hIdx) => {
+                const isEnhancing = enhancingKey === `${item.id}-${hIdx}`;
+                return (
+                  <div
+                    key={`${item.id}-h-${hIdx}`}
+                    className="flex items-start gap-2"
                   >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
+                    <span className="text-muted-foreground text-xs w-4 shrink-0 mt-2.5">
+                      •
+                    </span>
+                    <Textarea
+                      value={highlight}
+                      onChange={(e) =>
+                        updateHighlight(item.id, hIdx, e.target.value)
+                      }
+                      placeholder="Describe a key feature or achievement..."
+                      className="min-h-[40px] resize-y text-sm"
+                      rows={1}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        enhanceHighlight(item.id, hIdx, highlight, item.name)
+                      }
+                      disabled={isEnhancing || !highlight.trim()}
+                      className="h-8 w-8 p-0 shrink-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
+                      title="Enhance with AI"
+                    >
+                      {isEnhancing ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeHighlight(item.id, hIdx)}
+                      className="h-8 w-8 p-0 shrink-0 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

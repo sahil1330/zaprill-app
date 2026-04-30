@@ -107,7 +107,13 @@ export interface LogUsageParams {
   /** `resumeAnalysis.id` if this call is part of an analysis run */
   analysisId?: string | null;
   /** Which application feature triggered the LLM call */
-  action: "parse_resume" | "analyze_gaps";
+  action:
+    | "parse_resume"
+    | "analyze_gaps"
+    | "enhance_bullet"
+    | "generate_summary"
+    | "ats_scan"
+    | "resume_roast";
   /**
    * The exact model identifier string used when constructing the SDK call,
    * e.g. `hackclub("google/gemini-2.5-flash")` → pass `"google/gemini-2.5-flash"`.
