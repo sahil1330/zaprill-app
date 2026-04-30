@@ -1,9 +1,15 @@
 "use client";
 
+import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Plus, Trash2, X } from "lucide-react";
 import { nanoid } from "nanoid";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import SortableItem from "@/components/resume/editor/SortableItem";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,6 +60,20 @@ export default function SkillsForm() {
     }
   };
 
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (over && active.id !== over.id) {
+        const from = skills.findIndex((s) => s.id === active.id);
+        const to = skills.findIndex((s) => s.id === over.id);
+        if (from !== -1 && to !== -1) {
+          dispatch(resumeActions.reorderSkillItems({ from, to }));
+        }
+      }
+    },
+    [skills, dispatch],
+  );
+
   return (
     <div className="space-y-5">
       {skills.length === 0 && (
@@ -66,87 +86,99 @@ export default function SkillsForm() {
           </Button>
         </div>
       )}
-      {skills.map((group) => (
-        <Card key={group.id} className="border-border">
-          <CardContent className="p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2 flex-1 mr-4">
-                <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                  Group Name *
-                </Label>
-                <Input
-                  value={group.name}
-                  onChange={(e) => update(group.id, "name", e.target.value)}
-                  placeholder="Frontend Development"
-                  className="h-11"
-                />
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  dispatch(resumeActions.removeSkillItem(group.id))
-                }
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive mt-6"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
 
-            {/* Keywords */}
-            <div className="space-y-2">
-              <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                Skills / Keywords
-              </Label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {group.keywords.map((kw) => (
-                  <Badge
-                    key={kw}
-                    variant="secondary"
-                    className="gap-1 pr-1 font-medium"
-                  >
-                    {kw}
-                    <button
-                      type="button"
-                      onClick={() => removeKeyword(group.id, kw)}
-                      className="ml-1 hover:text-destructive"
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={skills.map((s) => s.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {skills.map((group) => (
+            <SortableItem key={group.id} id={group.id}>
+              <Card className="border-border">
+                <CardContent className="p-5 pl-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2 flex-1 mr-4">
+                      <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
+                        Group Name *
+                      </Label>
+                      <Input
+                        value={group.name}
+                        onChange={(e) =>
+                          update(group.id, "name", e.target.value)
+                        }
+                        placeholder="Frontend Development"
+                        className="h-11"
+                      />
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        dispatch(resumeActions.removeSkillItem(group.id))
+                      }
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive mt-6"
                     >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={newKeywords[group.id] ?? ""}
-                  onChange={(e) =>
-                    setNewKeywords((prev) => ({
-                      ...prev,
-                      [group.id]: e.target.value,
-                    }))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addKeyword(group.id);
-                    }
-                  }}
-                  placeholder="Type a skill and press Enter"
-                  className="h-9 text-sm"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addKeyword(group.id)}
-                  className="h-9 px-3"
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Keywords */}
+                  <div className="space-y-2">
+                    <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
+                      Skills / Keywords
+                    </Label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {group.keywords.map((kw) => (
+                        <Badge
+                          key={kw}
+                          variant="secondary"
+                          className="gap-1 pr-1 font-medium"
+                        >
+                          {kw}
+                          <button
+                            type="button"
+                            onClick={() => removeKeyword(group.id, kw)}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newKeywords[group.id] ?? ""}
+                        onChange={(e) =>
+                          setNewKeywords((prev) => ({
+                            ...prev,
+                            [group.id]: e.target.value,
+                          }))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addKeyword(group.id);
+                          }
+                        }}
+                        placeholder="Type a skill and press Enter"
+                        className="h-9 text-sm"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addKeyword(group.id)}
+                        className="h-9 px-3"
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </SortableItem>
+          ))}
+        </SortableContext>
+      </DndContext>
       {skills.length > 0 && (
         <Button
           variant="outline"
