@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PreviewPanel from "@/components/resume/editor/PreviewPanel";
+import RoastDialog from "@/components/resume/editor/RoastDialog";
 import AtsScorePanel from "@/components/resume/editor/sections/AtsScorePanel";
 import BasicsForm from "@/components/resume/editor/sections/BasicsForm";
 import CertificationsForm from "@/components/resume/editor/sections/CertificationsForm";
@@ -272,6 +273,8 @@ export default function ResumeEditorPage({
             <Eye className="h-4 w-4" />
             {showPreview ? "Hide" : "Show"} Preview
           </Button>
+
+          <RoastDialog />
 
           <Button
             variant="outline"
