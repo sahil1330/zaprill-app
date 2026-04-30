@@ -4,18 +4,23 @@ import {
   AlertCircle,
   ArrowLeft,
   Award,
+  BookOpen,
   Briefcase,
   Check,
   Download,
   Eye,
+  EyeOff,
   FolderKanban,
   GraduationCap,
+  Heart,
   Languages,
   Loader2,
   Save,
   Settings,
   Shield,
+  Trophy,
   User,
+  UserCheck,
   Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -24,13 +29,17 @@ import { useDispatch, useSelector } from "react-redux";
 import PreviewPanel from "@/components/resume/editor/PreviewPanel";
 import RoastDialog from "@/components/resume/editor/RoastDialog";
 import AtsScorePanel from "@/components/resume/editor/sections/AtsScorePanel";
+import AwardsForm from "@/components/resume/editor/sections/AwardsForm";
 import BasicsForm from "@/components/resume/editor/sections/BasicsForm";
 import CertificationsForm from "@/components/resume/editor/sections/CertificationsForm";
 import EducationForm from "@/components/resume/editor/sections/EducationForm";
 import LanguagesForm from "@/components/resume/editor/sections/LanguagesForm";
 import ProjectsForm from "@/components/resume/editor/sections/ProjectsForm";
+import PublicationsForm from "@/components/resume/editor/sections/PublicationsForm";
+import ReferencesForm from "@/components/resume/editor/sections/ReferencesForm";
 import SettingsForm from "@/components/resume/editor/sections/SettingsForm";
 import SkillsForm from "@/components/resume/editor/sections/SkillsForm";
+import VolunteerForm from "@/components/resume/editor/sections/VolunteerForm";
 import WorkForm from "@/components/resume/editor/sections/WorkForm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,6 +61,10 @@ const SECTIONS = [
   { key: "projects", label: "Projects", icon: FolderKanban },
   { key: "certifications", label: "Certifications", icon: Award },
   { key: "languages", label: "Languages", icon: Languages },
+  { key: "volunteer", label: "Volunteer", icon: Heart },
+  { key: "awards", label: "Awards", icon: Trophy },
+  { key: "publications", label: "Publications", icon: BookOpen },
+  { key: "references", label: "References", icon: UserCheck },
   { key: "ats-score", label: "ATS Score", icon: Shield },
   { key: "settings", label: "Settings", icon: Settings },
 ] as const;
@@ -191,29 +204,86 @@ export default function ResumeEditorPage({
   }
 
   // ─── Render active section form ─────────────────
+  // Sections with visibility toggles
+  const VISIBILITY_SECTIONS = new Set([
+    "summary",
+    "work",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "languages",
+    "volunteer",
+    "awards",
+    "publications",
+    "references",
+  ]);
+
   const renderSectionForm = () => {
-    switch (activeSection) {
-      case "basics":
-        return <BasicsForm />;
-      case "work":
-        return <WorkForm />;
-      case "education":
-        return <EducationForm />;
-      case "skills":
-        return <SkillsForm />;
-      case "projects":
-        return <ProjectsForm />;
-      case "certifications":
-        return <CertificationsForm />;
-      case "languages":
-        return <LanguagesForm />;
-      case "ats-score":
-        return <AtsScorePanel />;
-      case "settings":
-        return <SettingsForm />;
-      default:
-        return null;
-    }
+    // Check if this section has a visibility toggle and is hidden
+    const isHidden =
+      VISIBILITY_SECTIONS.has(activeSection) &&
+      !(metadata.sectionVisibility as unknown as Record<string, boolean>)[
+        activeSection
+      ];
+
+    const formContent = (() => {
+      switch (activeSection) {
+        case "basics":
+          return <BasicsForm />;
+        case "work":
+          return <WorkForm />;
+        case "education":
+          return <EducationForm />;
+        case "skills":
+          return <SkillsForm />;
+        case "projects":
+          return <ProjectsForm />;
+        case "certifications":
+          return <CertificationsForm />;
+        case "languages":
+          return <LanguagesForm />;
+        case "volunteer":
+          return <VolunteerForm />;
+        case "awards":
+          return <AwardsForm />;
+        case "publications":
+          return <PublicationsForm />;
+        case "references":
+          return <ReferencesForm />;
+        case "ats-score":
+          return <AtsScorePanel />;
+        case "settings":
+          return <SettingsForm />;
+        default:
+          return null;
+      }
+    })();
+
+    return (
+      <>
+        {isHidden && (
+          <div className="flex items-center gap-3 p-3 mb-4 rounded-lg border border-amber-500/30 bg-amber-500/5 text-sm">
+            <EyeOff className="h-4 w-4 text-amber-500 shrink-0" />
+            <span className="text-muted-foreground flex-1">
+              This section is hidden from your resume.
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-1.5 border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
+              onClick={() =>
+                dispatch(resumeActions.toggleSectionVisibility(activeSection))
+              }
+            >
+              <Eye className="h-3.5 w-3.5" />
+              Enable
+            </Button>
+          </div>
+        )}
+        {formContent}
+      </>
+    );
   };
 
   return (

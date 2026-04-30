@@ -536,6 +536,17 @@ const resumeSlice = createSlice({
       state.metadata.sectionOrder = action.payload;
       state.isDirty = true;
     },
+    reorderSections(
+      state,
+      action: PayloadAction<{ from: number; to: number }>,
+    ) {
+      const { from, to } = action.payload;
+      const arr = [...state.metadata.sectionOrder];
+      const [item] = arr.splice(from, 1);
+      arr.splice(to, 0, item);
+      state.metadata.sectionOrder = arr;
+      state.isDirty = true;
+    },
     toggleSectionVisibility(state, action: PayloadAction<string>) {
       const key =
         action.payload as keyof typeof state.metadata.sectionVisibility;
