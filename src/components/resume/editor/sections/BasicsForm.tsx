@@ -3,10 +3,10 @@
 import { Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import RichTextEditor from "@/components/resume/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 
@@ -211,13 +211,10 @@ export default function BasicsForm() {
             {isGenerating ? "Generating..." : "Generate with AI"}
           </Button>
         </div>
-        <Textarea
-          id="basics-summary"
+        <RichTextEditor
           value={basics.summary}
-          onChange={(e) => update("summary", e.target.value)}
+          onChange={(html) => update("summary", html)}
           placeholder="A brief overview of your professional background, key achievements, and career objectives..."
-          className="min-h-[120px] resize-y"
-          rows={5}
         />
         <p className="text-xs text-muted-foreground">
           {basics.summary.length}/5000 characters
