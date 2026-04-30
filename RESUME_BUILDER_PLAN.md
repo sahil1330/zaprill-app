@@ -100,7 +100,8 @@
 - [x] **Color Theme** — 4 color pickers (primary, accent, text, background) with hex input
 - [x] **Typography** — Font family dropdown (8 fonts), font size slider, line height slider
 - [x] **Page Layout** — A4/Letter format, margin slider
-- [x] **Section Visibility** — Toggle switches for all 11 sections
+- [x] **Section Visibility** — Inline banners with "Enable" button inside forms for non-blocking UX
+- [x] **New Sections (7+4=11 total)** — Volunteer, Awards, Publications, References added to all templates
 
 ### Template System
 - [x] Code-driven registry (`src/components/resume/templates/registry.ts`)
@@ -191,7 +192,7 @@
 
 ---
 
-## Phase 6: Polish & Advanced Features ✅ (Partial)
+## Phase 6: Polish & Advanced Features ✅
 
 ### Drag-and-Drop Reorder ✅
 **Commit:** `159b5f0`
@@ -201,6 +202,7 @@
 - [x] `SkillsForm` — drag-and-drop reordering
 - [x] `ProjectsForm` — drag-and-drop reordering
 - [x] All dispatch existing `reorder*Items` Redux actions
+- [x] **Section Reordering** — Full page-level drag-and-drop for sections in Settings tab
 
 ### Rich Text Editing ✅
 **Commit:** `70fceb6`
@@ -209,8 +211,10 @@
 - [x] External value sync for AI-generated content
 - [x] Placeholder extension support
 - [x] Integrated in `BasicsForm` Professional Summary field
+- [x] **SSR Stability** — Fixed hydration mismatch error with `immediatelyRender: false`
 
 ### Remaining (Future)
+- [x] **Billing Integration** — Unlocked premium templates for Pro subscribers via API check
 - [ ] Undo/Redo — Wire up `redux-undo` for resumeSlice, Ctrl+Z/Ctrl+Shift+Z
 - [ ] Version History UI — Version list panel, preview past versions, restore
 - [ ] Resume Analytics — Dashboard metrics, per-resume stats
@@ -256,6 +260,10 @@ src/
 │   │       ├── ProjectsForm.tsx
 │   │       ├── CertificationsForm.tsx
 │   │       ├── LanguagesForm.tsx
+│   │       ├── VolunteerForm.tsx
+│   │       ├── AwardsForm.tsx
+│   │       ├── PublicationsForm.tsx
+│   │       ├── ReferencesForm.tsx
 │   │       └── SettingsForm.tsx
 │   └── templates/
 │       ├── registry.ts                # Template metadata registry
@@ -306,4 +314,8 @@ src/
 | `61f63ff` | 5 | Premium templates (Creative Portfolio + Modern Split) |
 | `159b5f0` | 6a | Drag-and-drop reordering with dnd-kit |
 | `70fceb6` | 6b | Rich text editing with Tiptap |
+| `f6f500c` | 6c | New sections (Volunteer, Awards, Publications, References) |
+| `3497d55` | 6d | Template renderers for new sections |
+| `48297be` | 6e | Pro unlocking & Section-level reordering |
+| `adf56b4` | 6f | UI Polish (Roast scroll, Tiptap SSR fix) |
 
