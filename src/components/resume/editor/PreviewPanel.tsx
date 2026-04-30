@@ -1,8 +1,10 @@
 "use client";
 
 import { useSelector } from "react-redux";
+import CreativePortfolioTemplate from "@/components/resume/templates/CreativePortfolioTemplate";
 import ExecutiveProTemplate from "@/components/resume/templates/ExecutiveProTemplate";
 import MinimalistTemplate from "@/components/resume/templates/MinimalistTemplate";
+import ModernSplitTemplate from "@/components/resume/templates/ModernSplitTemplate";
 import TechStackTemplate from "@/components/resume/templates/TechStackTemplate";
 import type { RootState } from "@/store/store";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
@@ -14,6 +16,8 @@ const TEMPLATE_COMPONENTS: Record<
   minimalist: MinimalistTemplate,
   "tech-stack": TechStackTemplate,
   "executive-pro": ExecutiveProTemplate,
+  "creative-portfolio": CreativePortfolioTemplate,
+  "modern-split": ModernSplitTemplate,
 };
 
 /**
