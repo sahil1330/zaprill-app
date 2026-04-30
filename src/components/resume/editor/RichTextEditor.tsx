@@ -31,6 +31,7 @@ export default function RichTextEditor({
   const isUpdatingRef = useRef(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: false, // resume fields don't need headings

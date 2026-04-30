@@ -73,7 +73,7 @@ export default function RoastDialog() {
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 px-6 py-4">
+        <ScrollArea className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
           {!roast && !isRoasting && (
             <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
               <div className="text-5xl">🔥</div>
