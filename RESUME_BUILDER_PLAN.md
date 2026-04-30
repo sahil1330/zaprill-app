@@ -135,85 +135,86 @@
 
 ---
 
-## Phase 4: AI Integration 🔲
+## Phase 4: AI Integration ✅
 
-> **Status:** Not started
+**Commits:** Phase 4a (`commit`), Phase 4b (`f2b8114`), Phase 4c (`efdb8d7`)
 
-### AI Bullet Enhancement
-- [ ] `POST /api/resumes/[id]/ai/enhance` — Takes a bullet point, returns enhanced version with stronger action verbs, quantified impact
-- [ ] UI: "Enhance" sparkle button next to each work/project highlight
-- [ ] Streaming response for real-time typing effect
-- [ ] Uses existing `aiActionEnum.enhance_bullet`
+### Phase 4a: AI Content Enhancement ✅
+- [x] `POST /api/resumes/[id]/ai/enhance` — Rewrites bullet points with stronger action verbs, STAR method, quantified impact
+- [x] UI: "✨ Enhance" sparkle button next to each work/project highlight
+- [x] Uses `aiActionEnum.enhance_bullet`
+- [x] AI usage tracking with `logAiUsage` (inputTokens/outputTokens)
 
-### ATS Scoring
-- [ ] `POST /api/resumes/[id]/ai/ats-score` — Analyzes resume against a job description
-- [ ] Returns: overall score, keyword matches, missing keywords, section-by-section suggestions
-- [ ] Results stored in `resumeAtsAnalysis` table
-- [ ] UI: Score card with donut chart, keyword breakdown, actionable tips
-- [ ] Uses existing `aiActionEnum.ats_score`
+### Phase 4a: AI Summary Generation ✅
+- [x] `POST /api/resumes/[id]/ai/summary` — Auto-generates professional summary from work/education/skills data
+- [x] UI: "✨ Generate with AI" button in BasicsForm summary section
+- [x] Uses `aiActionEnum.generate_summary`
 
-### Resume Roast
-- [ ] `POST /api/resumes/[id]/ai/roast` — Brutally honest feedback on the resume
-- [ ] Humorous but actionable — highlights weak areas, clichés, formatting issues
-- [ ] UI: Chat-bubble style feedback panel
-- [ ] Uses existing `aiActionEnum.roast_resume`
+### Phase 4b: ATS Scoring ✅
+- [x] `POST /api/resumes/[id]/ai/ats-score` — Analyzes resume against optional job description
+- [x] Returns: overall score, keyword matches, missing keywords, section-by-section suggestions
+- [x] Results stored in `resumeAtsAnalysis` table + cached on `resume.lastAtsScore`
+- [x] UI: `AtsScorePanel` with score visualization, keyword breakdown, actionable tips
+- [x] Shield icon in editor sidebar navigation
 
-### AI Summary Generation
-- [ ] `POST /api/resumes/[id]/ai/summary` — Auto-generates professional summary from work/education/skills data
-- [ ] Uses existing `aiActionEnum.generate_summary`
+### Phase 4c: Resume Roast ✅
+- [x] `POST /api/resumes/[id]/ai/roast` — Stand-up comedy style resume critique
+- [x] Humorous but actionable — highlights weak areas, clichés, formatting issues
+- [x] UI: `RoastDialog` Sheet with chat-bubble style feedback, "Roast Again" button
+- [x] 🔥 Roast button in editor header
 
-### Job Tailoring
-- [ ] Connect to existing job analysis data from the platform
-- [ ] `POST /api/resumes/[id]/ai/tailor` — Takes a job ID, adjusts resume keywords and ordering
-- [ ] Uses existing `aiActionEnum.tailor_resume`
-
----
-
-## Phase 5: Premium Templates 🔲
-
-> **Status:** Not started — depends on Pro tier payment integration
-
-### Creative Portfolio Template
-- [ ] Hybrid layout with color accents and portfolio section
-- [ ] Designed for designers, marketers, content creators
-- [ ] ATS Score: 82% (visual elements reduce parseability)
-- [ ] Premium (Pro tier only)
-
-### Modern Split Template
-- [ ] Bold header with sidebar layout
-- [ ] Designed for consulting, strategy, and business roles
-- [ ] ATS Score: 88%
-- [ ] Premium (Pro tier only)
+### Rate Limiting
+- [x] Client-side locking during AI requests (`isGenerating` / `enhancingKey` states)
 
 ---
 
-## Phase 6: Polish & Advanced Features 🔲
+## Phase 5: Premium Templates ✅
 
-> **Status:** Not started
+**Commit:** `61f63ff`
 
-### Drag-and-Drop Reorder
-- [ ] Wire up `@dnd-kit` for reordering work entries, education, skills, projects
-- [ ] Visual drag handle on each list item
-- [ ] Reorder syncs to Redux → auto-save
+### Creative Portfolio Template ✅
+- [x] Vibrant gradient header accent, colored skill tags, portfolio card grid
+- [x] Designed for designers, marketers, content creators
+- [x] ATS Score: 82% (visual elements reduce parseability)
+- [x] Premium (Pro tier only)
 
-### Undo/Redo
-- [ ] Wire up `redux-undo` for resumeSlice
-- [ ] Ctrl+Z / Ctrl+Shift+Z keyboard shortcuts
-- [ ] Undo/Redo buttons in editor header
+### Modern Split Template ✅
+- [x] Bold split header, sidebar layout with skills/education on left, experience on right
+- [x] Designed for consulting, strategy, and business roles
+- [x] ATS Score: 88%
+- [x] Premium (Pro tier only)
 
-### Rich Text Editing
-- [ ] Replace plain textarea for summary/highlights with Tiptap editor
-- [ ] Bold, italic, underline, bullet lists
-- [ ] Markdown-style shortcuts
+### Infrastructure
+- [x] CSS styles with CSS custom properties for theme support
+- [x] Registered in `PreviewPanel` component map
+- [x] Premium gating in template registry
 
-### Version History UI
-- [ ] Version list panel in editor
-- [ ] Preview past versions
-- [ ] Restore to a previous version
+---
 
-### Resume Analytics
-- [ ] Dashboard metrics: total downloads, views per resume
-- [ ] Per-resume stats: last edited, download count, ATS score trend
+## Phase 6: Polish & Advanced Features ✅ (Partial)
+
+### Drag-and-Drop Reorder ✅
+**Commit:** `159b5f0`
+- [x] Created reusable `SortableItem` component with drag handle overlay
+- [x] `WorkForm` — DndContext + SortableContext + SortableItem
+- [x] `EducationForm` — drag-and-drop reordering
+- [x] `SkillsForm` — drag-and-drop reordering
+- [x] `ProjectsForm` — drag-and-drop reordering
+- [x] All dispatch existing `reorder*Items` Redux actions
+
+### Rich Text Editing ✅
+**Commit:** `70fceb6`
+- [x] `RichTextEditor` component — Tiptap with toolbar (bold/italic/strike/list/undo/redo)
+- [x] Minimal mode option for inline fields
+- [x] External value sync for AI-generated content
+- [x] Placeholder extension support
+- [x] Integrated in `BasicsForm` Professional Summary field
+
+### Remaining (Future)
+- [ ] Undo/Redo — Wire up `redux-undo` for resumeSlice, Ctrl+Z/Ctrl+Shift+Z
+- [ ] Version History UI — Version list panel, preview past versions, restore
+- [ ] Resume Analytics — Dashboard metrics, per-resume stats
+- [ ] Job Tailoring — Connect to job analysis, `POST /api/resumes/[id]/ai/tailor`
 
 ---
 
@@ -234,11 +235,20 @@ src/
 │           ├── route.ts               # GET/PATCH/DELETE
 │           ├── duplicate/route.ts     # POST (clone)
 │           ├── export/route.ts        # POST (export data)
-│           └── versions/route.ts      # POST/GET (versions)
+│           ├── versions/route.ts      # POST/GET (versions)
+│           └── ai/
+│               ├── enhance/route.ts   # POST (bullet enhancement)
+│               ├── summary/route.ts   # POST (summary generation)
+│               ├── ats-score/route.ts # POST (ATS analysis)
+│               └── roast/route.ts     # POST (resume roast)
 ├── components/resume/
 │   ├── editor/
 │   │   ├── PreviewPanel.tsx           # Dynamic template renderer
+│   │   ├── RichTextEditor.tsx         # Tiptap rich text component
+│   │   ├── RoastDialog.tsx            # AI roast sheet dialog
+│   │   ├── SortableItem.tsx           # dnd-kit drag-and-drop wrapper
 │   │   └── sections/
+│   │       ├── AtsScorePanel.tsx
 │   │       ├── BasicsForm.tsx
 │   │       ├── WorkForm.tsx
 │   │       ├── EducationForm.tsx
@@ -252,7 +262,9 @@ src/
 │       ├── resume-templates.css       # All template styles
 │       ├── MinimalistTemplate.tsx
 │       ├── TechStackTemplate.tsx
-│       └── ExecutiveProTemplate.tsx
+│       ├── ExecutiveProTemplate.tsx
+│       ├── CreativePortfolioTemplate.tsx  # Premium
+│       └── ModernSplitTemplate.tsx        # Premium
 ├── hooks/
 │   └── use-auto-save.ts               # Dual-tier debounced save
 ├── lib/validations/
@@ -275,8 +287,8 @@ src/
 | Minimalist | `minimalist` | Single-column | 95% | Free | ✅ Done |
 | Tech Stack | `tech-stack` | Two-column | 90% | Free | ✅ Done |
 | Executive Pro | `executive-pro` | Single-column | 92% | Free | ✅ Done |
-| Creative Portfolio | `creative-portfolio` | Hybrid | 82% | Pro | 🔲 Planned |
-| Modern Split | `modern-split` | Sidebar | 88% | Pro | 🔲 Planned |
+| Creative Portfolio | `creative-portfolio` | Hybrid | 82% | Pro | ✅ Done |
+| Modern Split | `modern-split` | Sidebar | 88% | Pro | ✅ Done |
 
 ---
 
@@ -288,3 +300,10 @@ src/
 | `862e68a` | 2 | Editor Core — 3-panel UI, forms, MinimalistTemplate, auto-save |
 | `b138579` | 2b | Complete forms, settings, TechStackTemplate |
 | `d3633d2` | 3 | ExecutiveProTemplate, PDF export, wiring |
+| — | 4a | AI bullet enhancement + summary generation |
+| `f2b8114` | 4b | ATS scoring engine with analysis panel |
+| `efdb8d7` | 4c | Resume Roast with comedy-style AI critique |
+| `61f63ff` | 5 | Premium templates (Creative Portfolio + Modern Split) |
+| `159b5f0` | 6a | Drag-and-drop reordering with dnd-kit |
+| `70fceb6` | 6b | Rich text editing with Tiptap |
+
