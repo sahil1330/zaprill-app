@@ -14,6 +14,7 @@ import {
   Loader2,
   Save,
   Settings,
+  Shield,
   User,
   Wrench,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { use, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PreviewPanel from "@/components/resume/editor/PreviewPanel";
+import AtsScorePanel from "@/components/resume/editor/sections/AtsScorePanel";
 import BasicsForm from "@/components/resume/editor/sections/BasicsForm";
 import CertificationsForm from "@/components/resume/editor/sections/CertificationsForm";
 import EducationForm from "@/components/resume/editor/sections/EducationForm";
@@ -49,6 +51,7 @@ const SECTIONS = [
   { key: "projects", label: "Projects", icon: FolderKanban },
   { key: "certifications", label: "Certifications", icon: Award },
   { key: "languages", label: "Languages", icon: Languages },
+  { key: "ats-score", label: "ATS Score", icon: Shield },
   { key: "settings", label: "Settings", icon: Settings },
 ] as const;
 
@@ -203,6 +206,8 @@ export default function ResumeEditorPage({
         return <CertificationsForm />;
       case "languages":
         return <LanguagesForm />;
+      case "ats-score":
+        return <AtsScorePanel />;
       case "settings":
         return <SettingsForm />;
       default:
