@@ -21,6 +21,10 @@ export default function MinimalistTemplate({
     projects,
     certifications,
     languages,
+    volunteer,
+    awards,
+    publications,
+    references,
   } = data;
   const { theme, typography, sectionOrder, sectionVisibility, page } = metadata;
 
@@ -176,6 +180,90 @@ export default function MinimalistTemplate({
               </span>
             ))}
           </div>
+        </section>
+      ) : null,
+
+    volunteer: () =>
+      sectionVisibility.volunteer && volunteer.length > 0 ? (
+        <section key="volunteer" className="resume-section">
+          <h2 className="resume-section-title">Volunteer</h2>
+          {volunteer.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <div className="resume-entry-header">
+                <div>
+                  <h3 className="resume-entry-title">{item.position}</h3>
+                  <span className="resume-entry-subtitle">
+                    {item.organization}
+                  </span>
+                </div>
+                <span className="resume-entry-date">
+                  {item.startDate}
+                  {item.endDate ? ` – ${item.endDate}` : " – Present"}
+                </span>
+              </div>
+              {item.summary && <p className="resume-text">{item.summary}</p>}
+              {item.highlights.length > 0 && (
+                <ul className="resume-bullets">
+                  {item.highlights.map((h, i) => (
+                    <li key={`${item.id}-h-${i}`}>{h}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </section>
+      ) : null,
+
+    awards: () =>
+      sectionVisibility.awards && awards.length > 0 ? (
+        <section key="awards" className="resume-section">
+          <h2 className="resume-section-title">Awards</h2>
+          {awards.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <div className="resume-entry-header">
+                <h3 className="resume-entry-title">{item.title}</h3>
+                <span className="resume-entry-date">{item.date}</span>
+              </div>
+              {item.awarder && (
+                <span className="resume-entry-subtitle">{item.awarder}</span>
+              )}
+              {item.summary && <p className="resume-text">{item.summary}</p>}
+            </div>
+          ))}
+        </section>
+      ) : null,
+
+    publications: () =>
+      sectionVisibility.publications && publications.length > 0 ? (
+        <section key="publications" className="resume-section">
+          <h2 className="resume-section-title">Publications</h2>
+          {publications.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <div className="resume-entry-header">
+                <h3 className="resume-entry-title">{item.name}</h3>
+                <span className="resume-entry-date">{item.releaseDate}</span>
+              </div>
+              {item.publisher && (
+                <span className="resume-entry-subtitle">{item.publisher}</span>
+              )}
+              {item.summary && <p className="resume-text">{item.summary}</p>}
+            </div>
+          ))}
+        </section>
+      ) : null,
+
+    references: () =>
+      sectionVisibility.references && references.length > 0 ? (
+        <section key="references" className="resume-section">
+          <h2 className="resume-section-title">References</h2>
+          {references.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <h3 className="resume-entry-title">{item.name}</h3>
+              {item.reference && (
+                <p className="resume-text">{item.reference}</p>
+              )}
+            </div>
+          ))}
         </section>
       ) : null,
   };

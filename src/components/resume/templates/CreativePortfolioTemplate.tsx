@@ -24,6 +24,10 @@ export default function CreativePortfolioTemplate({
     projects,
     certifications,
     languages,
+    volunteer,
+    awards,
+    publications,
+    references,
   } = data;
   const { theme, typography, sectionOrder, sectionVisibility, page } = metadata;
 
@@ -183,6 +187,86 @@ export default function CreativePortfolioTemplate({
               </span>
             ))}
           </div>
+        </section>
+      ) : null,
+
+    volunteer: () =>
+      sectionVisibility.volunteer && volunteer.length > 0 ? (
+        <section key="volunteer" className="resume-section">
+          <h2 className="creative-section-title">Volunteer</h2>
+          {volunteer.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <div className="resume-entry-header">
+                <div>
+                  <h3 className="resume-entry-title">{item.position}</h3>
+                  <p className="creative-company">{item.organization}</p>
+                </div>
+                {item.startDate && (
+                  <span className="creative-date">
+                    {item.startDate}
+                    {item.endDate ? ` – ${item.endDate}` : " – Present"}
+                  </span>
+                )}
+              </div>
+              {item.summary && <p className="resume-text">{item.summary}</p>}
+              {item.highlights.length > 0 && (
+                <ul className="resume-bullets">
+                  {item.highlights.map((h, i) => (
+                    <li key={`vol-${item.id}-${i}`}>{h}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </section>
+      ) : null,
+
+    awards: () =>
+      sectionVisibility.awards && awards.length > 0 ? (
+        <section key="awards" className="resume-section">
+          <h2 className="creative-section-title">Awards</h2>
+          {awards.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <h3 className="resume-entry-title">{item.title}</h3>
+              <p className="creative-company">
+                {item.awarder}
+                {item.date ? ` · ${item.date}` : ""}
+              </p>
+              {item.summary && <p className="resume-text">{item.summary}</p>}
+            </div>
+          ))}
+        </section>
+      ) : null,
+
+    publications: () =>
+      sectionVisibility.publications && publications.length > 0 ? (
+        <section key="publications" className="resume-section">
+          <h2 className="creative-section-title">Publications</h2>
+          {publications.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <h3 className="resume-entry-title">{item.name}</h3>
+              <p className="creative-company">
+                {item.publisher}
+                {item.releaseDate ? ` · ${item.releaseDate}` : ""}
+              </p>
+              {item.summary && <p className="resume-text">{item.summary}</p>}
+            </div>
+          ))}
+        </section>
+      ) : null,
+
+    references: () =>
+      sectionVisibility.references && references.length > 0 ? (
+        <section key="references" className="resume-section">
+          <h2 className="creative-section-title">References</h2>
+          {references.map((item) => (
+            <div key={item.id} className="resume-entry">
+              <h3 className="resume-entry-title">{item.name}</h3>
+              {item.reference && (
+                <p className="resume-text">{item.reference}</p>
+              )}
+            </div>
+          ))}
         </section>
       ) : null,
   };

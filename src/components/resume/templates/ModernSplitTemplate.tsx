@@ -24,6 +24,10 @@ export default function ModernSplitTemplate({
     projects,
     certifications,
     languages,
+    volunteer,
+    awards,
+    publications,
+    references,
   } = data;
   const { theme, typography, sectionVisibility, page } = metadata;
 
@@ -140,6 +144,53 @@ export default function ModernSplitTemplate({
               ))}
             </section>
           )}
+
+          {/* Awards */}
+          {sectionVisibility.awards && awards.length > 0 && (
+            <section className="resume-section">
+              <h2 className="modern-split-section-title">Awards</h2>
+              {awards.map((item) => (
+                <div key={item.id} className="modern-split-cert-item">
+                  <h3 className="resume-entry-title">{item.title}</h3>
+                  <p className="modern-split-institution">
+                    {item.awarder}
+                    {item.date ? ` · ${item.date}` : ""}
+                  </p>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* Publications */}
+          {sectionVisibility.publications && publications.length > 0 && (
+            <section className="resume-section">
+              <h2 className="modern-split-section-title">Publications</h2>
+              {publications.map((item) => (
+                <div key={item.id} className="modern-split-cert-item">
+                  <h3 className="resume-entry-title">{item.name}</h3>
+                  <p className="modern-split-institution">
+                    {item.publisher}
+                    {item.releaseDate ? ` · ${item.releaseDate}` : ""}
+                  </p>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* References */}
+          {sectionVisibility.references && references.length > 0 && (
+            <section className="resume-section">
+              <h2 className="modern-split-section-title">References</h2>
+              {references.map((item) => (
+                <div key={item.id} className="modern-split-cert-item">
+                  <h3 className="resume-entry-title">{item.name}</h3>
+                  {item.reference && (
+                    <p className="modern-split-institution">{item.reference}</p>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
         </aside>
 
         {/* Right main content */}
@@ -210,6 +261,41 @@ export default function ModernSplitTemplate({
                     <ul className="resume-bullets">
                       {item.highlights.map((h, i) => (
                         <li key={`proj-${item.id}-${i}`}>{h}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* Volunteer */}
+          {sectionVisibility.volunteer && volunteer.length > 0 && (
+            <section className="resume-section">
+              <h2 className="modern-split-section-title">Volunteer</h2>
+              {volunteer.map((item) => (
+                <div key={item.id} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <div>
+                      <h3 className="resume-entry-title">{item.position}</h3>
+                      <p className="modern-split-company">
+                        {item.organization}
+                      </p>
+                    </div>
+                    {item.startDate && (
+                      <span className="modern-split-date">
+                        {item.startDate}
+                        {item.endDate ? ` – ${item.endDate}` : " – Present"}
+                      </span>
+                    )}
+                  </div>
+                  {item.summary && (
+                    <p className="resume-text">{item.summary}</p>
+                  )}
+                  {item.highlights.length > 0 && (
+                    <ul className="resume-bullets">
+                      {item.highlights.map((h, i) => (
+                        <li key={`vol-${item.id}-${i}`}>{h}</li>
                       ))}
                     </ul>
                   )}
