@@ -112,6 +112,7 @@ export interface LogUsageParams {
     | "analyze_gaps"
     | "enhance_bullet"
     | "generate_summary"
+    | "tailor_resume"
     | "ats_scan"
     | "resume_roast";
   /**

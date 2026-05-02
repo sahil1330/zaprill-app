@@ -218,7 +218,7 @@
 - [ ] Undo/Redo — Wire up `redux-undo` for resumeSlice, Ctrl+Z/Ctrl+Shift+Z
 - [ ] Version History UI — Version list panel, preview past versions, restore
 - [ ] Resume Analytics — Dashboard metrics, per-resume stats
-- [ ] Job Tailoring — Connect to job analysis, `POST /api/resumes/[id]/ai/tailor`
+- [x] Job Tailoring — Connect to job analysis, `POST /api/resumes/[id]/ai/tailor`
 
 ---
 

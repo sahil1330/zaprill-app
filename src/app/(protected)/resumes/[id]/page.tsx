@@ -41,6 +41,7 @@ import SettingsForm from "@/components/resume/editor/sections/SettingsForm";
 import SkillsForm from "@/components/resume/editor/sections/SkillsForm";
 import VolunteerForm from "@/components/resume/editor/sections/VolunteerForm";
 import WorkForm from "@/components/resume/editor/sections/WorkForm";
+import TailorDialog from "@/components/resume/editor/TailorDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -344,6 +345,7 @@ export default function ResumeEditorPage({
             {showPreview ? "Hide" : "Show"} Preview
           </Button>
 
+          <TailorDialog />
           <RoastDialog />
 
           <Button
