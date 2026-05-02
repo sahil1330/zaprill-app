@@ -1,11 +1,10 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume, resumeVersion } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { createVersionSchema } from "@/lib/validations/resume";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -13,7 +12,7 @@ interface RouteParams {
 
 /**
  * GET /api/resumes/[id]/versions
- * List all version snapshots for a resume.
+ * List all versions for a resume.
  */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
@@ -24,7 +23,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
-    // Verify resume ownership
+    // Verify ownership
     const [found] = await db
       .select({ id: resume.id })
       .from(resume)
@@ -36,15 +35,10 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     }
 
     const versions = await db
-      .select({
-        id: resumeVersion.id,
-        version: resumeVersion.version,
-        changeDescription: resumeVersion.changeDescription,
-        createdAt: resumeVersion.createdAt,
-      })
+      .select()
       .from(resumeVersion)
       .where(eq(resumeVersion.resumeId, id))
-      .orderBy(desc(resumeVersion.version));
+      .orderBy(desc(resumeVersion.createdAt));
 
     return NextResponse.json({ versions });
   } catch (error) {
@@ -58,8 +52,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 /**
  * POST /api/resumes/[id]/versions
- * Create a version snapshot of the current resume state.
- * Called before AI rewrites or major edits.
+ * Create a new version snapshot.
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
@@ -69,17 +62,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const body = await request.json();
-    const parsed = createVersionSchema.safeParse(body);
+    const { changeDescription } = await request.json();
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
-        { status: 400 },
-      );
-    }
-
-    // Fetch current resume state
+    // 1. Fetch current resume data
     const [current] = await db
       .select()
       .from(resume)
@@ -90,24 +75,45 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    // Create the version snapshot
-    const [version] = await db
+    // 2. Insert new version
+    const newVersion = await db
       .insert(resumeVersion)
       .values({
         id: nanoid(),
         resumeId: id,
         version: current.version,
-        data: current.data,
-        metadata: current.metadata,
-        changeDescription: parsed.data.changeDescription ?? null,
+        data: current.data as any,
+        metadata: current.metadata as any,
+        changeDescription: changeDescription || "Manual snapshot",
       })
       .returning();
 
-    return NextResponse.json({ version }, { status: 201 });
+    // 3. Prune old versions (keep last 20)
+    const existingVersions = await db
+      .select({ id: resumeVersion.id })
+      .from(resumeVersion)
+      .where(eq(resumeVersion.resumeId, id))
+      .orderBy(desc(resumeVersion.createdAt));
+
+    if (existingVersions.length > 20) {
+      const toDelete = existingVersions.slice(20);
+      const idsToDelete = toDelete.map((v) => v.id);
+
+      await db
+        .delete(resumeVersion)
+        .where(
+          and(
+            eq(resumeVersion.resumeId, id),
+            inArray(resumeVersion.id, idsToDelete),
+          ),
+        );
+    }
+
+    return NextResponse.json({ version: newVersion[0] });
   } catch (error) {
     console.error("POST /api/resumes/[id]/versions error:", error);
     return NextResponse.json(
-      { error: "Failed to create version" },
+      { error: "Failed to create version snapshot" },
       { status: 500 },
     );
   }

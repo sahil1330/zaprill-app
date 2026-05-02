@@ -645,7 +645,8 @@
 }
 
 .creative-portfolio-card {
-  border: 1px solid color-mix(in srgb, var(--resume-text, #333) 15%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--resume-text, #333) 15%, transparent);
   border-radius: 8px;
   padding: 12px;
 }
@@ -707,7 +708,8 @@
 .modern-split-sidebar {
   width: 32%;
   flex-shrink: 0;
-  border-right: 1px solid color-mix(in srgb, var(--resume-text, #333) 12%, transparent);
+  border-right: 1px solid
+    color-mix(in srgb, var(--resume-text, #333) 12%, transparent);
   padding-right: 20px;
 }
 
@@ -724,7 +726,8 @@
   color: var(--resume-primary, #1a1a2e);
   margin-bottom: 10px;
   padding-bottom: 4px;
-  border-bottom: 1px solid color-mix(in srgb, var(--resume-primary, #1a1a2e) 25%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--resume-primary, #1a1a2e) 25%, transparent);
 }
 
 .modern-split-skill-group {
@@ -782,4 +785,3 @@
   color: var(--resume-text, #333);
   opacity: 0.6;
 }
-

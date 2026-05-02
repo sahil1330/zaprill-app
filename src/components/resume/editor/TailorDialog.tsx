@@ -92,7 +92,7 @@ export default function TailorDialog() {
     }
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
     if (!tailoredData) return;
 
     const payload: TailoredPayload = {};

@@ -17,6 +17,13 @@ import type {
 } from "@/types/resume";
 import { DEFAULT_RESUME_DATA, DEFAULT_RESUME_METADATA } from "@/types/resume";
 
+export interface TailoredPayload {
+  summary?: string;
+  work?: Array<{ id: string; highlights: string[] }>;
+  projects?: Array<{ id: string; highlights: string[] }>;
+  skills?: Array<{ id: string; keywords: string[] }>;
+}
+
 // ─────────────────────────────────────────────────
 // State shape
 // ─────────────────────────────────────────────────
@@ -138,6 +145,39 @@ const resumeSlice = createSlice({
     },
     setActiveSection(state, action: PayloadAction<string>) {
       state.activeSection = action.payload;
+    },
+
+    // ── Bulk AI Apply ─────────────────────────────
+    applyTailoredData(state, action: PayloadAction<TailoredPayload>) {
+      const p = action.payload;
+      if (p.summary !== undefined) {
+        state.data.basics.summary = p.summary;
+      }
+      if (p.work) {
+        for (const w of p.work) {
+          const idx = state.data.work.findIndex((x) => x.id === w.id);
+          if (idx !== -1) {
+            state.data.work[idx].highlights = w.highlights;
+          }
+        }
+      }
+      if (p.projects) {
+        for (const proj of p.projects) {
+          const idx = state.data.projects.findIndex((x) => x.id === proj.id);
+          if (idx !== -1) {
+            state.data.projects[idx].highlights = proj.highlights;
+          }
+        }
+      }
+      if (p.skills) {
+        for (const s of p.skills) {
+          const idx = state.data.skills.findIndex((x) => x.id === s.id);
+          if (idx !== -1) {
+            state.data.skills[idx].keywords = s.keywords;
+          }
+        }
+      }
+      state.isDirty = true;
     },
 
     // ── Save state tracking ───────────────────────
@@ -570,4 +610,5 @@ const resumeSlice = createSlice({
 });
 
 export const resumeActions = resumeSlice.actions;
+
 export default resumeSlice.reducer;
