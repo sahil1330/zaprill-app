@@ -13,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -36,59 +35,49 @@ interface Plan {
 }
 
 export default function PricingPlans({ plans }: { plans: Plan[] }) {
-  // Extract unique categories (excluding 'free')
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(plans.map((p) => p.category))).filter(
-      (c) => c !== "free",
-    );
-    return cats.length > 0 ? cats : ["pro"];
-  }, [plans]);
-
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-
-  // Group plans by category
-  const plansByCategory = useMemo(() => {
-    const grouped: Record<string, Plan[]> = {};
-    for (const p of plans) {
-      if (!grouped[p.category]) grouped[p.category] = [];
-      grouped[p.category].push(p);
-    }
-    return grouped;
-  }, [plans]);
-
-  // The plans to show always (e.g. Free) + the plans for the selected category
+  // Filter plans to show exactly one per category: free, pro, max
   const activePlans = useMemo(() => {
-    const freePlans = plansByCategory["free"] || [];
-    const tierPlans = plansByCategory[selectedCategory] || [];
-    return [...freePlans, ...tierPlans].sort(
-      (a, b) => a.sortOrder - b.sortOrder,
-    );
-  }, [plansByCategory, selectedCategory]);
+    const categoriesToShow = ["free", "pro", "max"];
+    const displayPlans: Plan[] = [];
+
+    // Group plans by category for easy lookup
+    const plansByCategory: Record<string, Plan[]> = {};
+    for (const p of plans) {
+      if (!plansByCategory[p.category]) plansByCategory[p.category] = [];
+      plansByCategory[p.category].push(p);
+    }
+
+    for (const cat of categoriesToShow) {
+      const catPlans = plansByCategory[cat] || [];
+      if (catPlans.length === 0) continue;
+
+      // For premium plans, prefer yearly for initial display
+      if (cat !== "free") {
+        const yearlyPlan =
+          catPlans.find((p) => p.billingCycle === "yearly") || catPlans[0];
+        displayPlans.push(yearlyPlan);
+      } else {
+        displayPlans.push(catPlans[0]);
+      }
+    }
+
+    return displayPlans.sort((a, b) => a.sortOrder - b.sortOrder);
+  }, [plans]);
+
+  // Dynamic grid columns based on number of plans
+  const gridCols =
+    activePlans.length === 1
+      ? "md:grid-cols-1 max-w-md"
+      : activePlans.length === 2
+        ? "md:grid-cols-2 max-w-4xl"
+        : activePlans.length === 3
+          ? "md:grid-cols-3 max-w-6xl"
+          : "md:grid-cols-4 max-w-7xl";
 
   return (
     <div className="w-full max-w-7xl mx-auto py-12 flex flex-col items-center gap-10">
       {/* Category Tabs Switcher (only if more than 1 premium category) */}
-      {categories.length > 1 && (
-        <Tabs
-          value={selectedCategory}
-          onValueChange={setSelectedCategory}
-          className="w-auto"
-        >
-          <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-            {categories.map((cat) => (
-              <TabsTrigger
-                key={cat}
-                value={cat}
-                className="capitalize font-bold"
-              >
-                {cat}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full pt-6">
+      <div className={`grid grid-cols-1 ${gridCols} gap-8 w-full pt-6`}>
         {activePlans.map((p) => {
           const isYearly = p.billingCycle === "yearly";
           const isQuarterly = p.billingCycle === "quarterly";
@@ -140,40 +129,57 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
                 </div>
               )}
 
-              <CardHeader className="text-center pt-8">
+              <CardHeader className="text-center pt-8 space-y-4">
                 <CardTitle className="text-2xl capitalize">{p.name}</CardTitle>
-                <CardDescription className="pt-2 h-12">
+                <CardDescription className="h-12">
                   {p.description}
                 </CardDescription>
 
-                <div className="mt-4 flex flex-col items-center">
+                <div className="flex flex-col items-center pt-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">
-                      {formatCurrency(pricePerMonth.toString())}
+                    <span className="text-4xl font-black tracking-tight">
+                      {formatCurrency(pricePerMonth.toFixed(2))}
                     </span>
-                    <span className="text-muted-foreground ml-1">/mo</span>
+                    <span className="text-muted-foreground font-bold text-sm">
+                      /mo
+                    </span>
                   </div>
-                  {(isQuarterly || isYearly) && (
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-1">
-                      (billed {p.billingCycle})
+                  {isYearly && (
+                    <div className="flex flex-col items-center mt-1">
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                        Billed Yearly
+                      </span>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {formatCurrency(p.amount)} / year
+                      </span>
+                    </div>
+                  )}
+                  {isQuarterly && (
+                    <div className="flex flex-col items-center mt-1">
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                        Billed Quarterly
+                      </span>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {formatCurrency(p.amount)} / quarter
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 flex items-center justify-center gap-2 min-h-[28px]">
+                  {originalAmount > amount && (
+                    <span className="text-muted-foreground line-through text-sm font-medium">
+                      {formatCurrency(originalAmount.toString())}
                     </span>
                   )}
-
-                  <div className="mt-3 flex items-center gap-2 min-h-[28px]">
-                    {originalAmount > amount && (
-                      <span className="text-muted-foreground line-through text-sm font-medium">
-                        {formatCurrency(originalAmount.toString())}
-                      </span>
-                    )}
-                    {savings > 0 && (
-                      <Badge
-                        variant="outline"
-                        className="text-green-600 border-green-200 bg-green-50 dark:bg-green-950/30 font-bold"
-                      >
-                        Save {formatCurrency(savings.toString())}
-                      </Badge>
-                    )}
-                  </div>
+                  {savings > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="text-green-600 border-green-200 bg-green-50 dark:bg-green-950/30 font-bold"
+                    >
+                      Save {formatCurrency(savings.toString())}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
 
@@ -195,16 +201,14 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
                             </span>
                             {info && (
                               <Tooltip>
-                                <TooltipTrigger
-                                  render={
-                                    <button
-                                      type="button"
-                                      className="text-muted-foreground/50 hover:text-primary transition-colors outline-none"
-                                    >
-                                      <Info className="h-3.5 w-3.5" />
-                                    </button>
-                                  }
-                                />
+                                <TooltipTrigger>
+                                  <button
+                                    type="button"
+                                    className="text-muted-foreground/50 hover:text-primary transition-colors outline-none"
+                                  >
+                                    <Info className="h-3.5 w-3.5" />
+                                  </button>
+                                </TooltipTrigger>
                                 <TooltipContent
                                   side="right"
                                   className="max-w-[200px] text-xs"

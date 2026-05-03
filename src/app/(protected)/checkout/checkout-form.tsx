@@ -15,17 +15,27 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatCurrency } from "@/lib/billing-utils";
 import type { Plan } from "@/types/billing";
 
 export default function CheckoutForm({
-  plan,
+  plan: initialPlan,
+  availablePlans = [],
   availableCoupons = [],
 }: {
   plan: Plan;
+  availablePlans?: Plan[];
   availableCoupons?: any[];
 }) {
   const router = useRouter();
+  const [currentPlan, setCurrentPlan] = useState<Plan>(initialPlan);
   const [couponCode, setCouponCode] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -34,7 +44,7 @@ export default function CheckoutForm({
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
-  const planAmount = parseFloat(plan.amount);
+  const planAmount = parseFloat(currentPlan.amount);
   const taxRate = 0.18; // Keep in sync with backend
   const taxableAmount = Math.max(0, planAmount - discount);
   const taxAmount = taxableAmount * taxRate;
@@ -52,7 +62,7 @@ export default function CheckoutForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: codeToApply.toUpperCase(),
-          planId: plan.id,
+          planId: currentPlan.id,
         }),
       });
       const data = await res.json();
@@ -89,7 +99,7 @@ export default function CheckoutForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          planId: plan.id,
+          planId: currentPlan.id,
           couponCode: appliedCoupon || undefined,
         }),
       });
@@ -136,8 +146,65 @@ export default function CheckoutForm({
 
   return (
     <div className="grid md:grid-cols-5 gap-8">
-      {/* Left Column: Form / Coupon */}
+      {/* Left Column: Form / Billing Selector / Coupon */}
       <div className="md:col-span-3 space-y-6">
+        {/* Billing Cycle Selector */}
+        {availablePlans.length > 1 && (
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-primary" />
+                Select Billing Cycle
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-4">
+                <Select
+                  value={currentPlan.id}
+                  onValueChange={(id) => {
+                    const newPlan = availablePlans.find((p) => p.id === id);
+                    if (newPlan) {
+                      setCurrentPlan(newPlan);
+                      if (appliedCoupon) {
+                        handleApplyCoupon(appliedCoupon);
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full h-12 bg-background border-primary/20">
+                    <div className="flex items-center gap-2">
+                      <span className="capitalize font-semibold">
+                        {currentPlan.billingCycle}
+                      </span>
+                      <span className="text-muted-foreground text-sm">
+                        ({formatCurrency(currentPlan.amount)})
+                      </span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePlans.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        <div className="flex items-center justify-between w-full gap-8">
+                          <span className="capitalize font-medium">
+                            {p.billingCycle} billing
+                          </span>
+                          <span className="text-muted-foreground ml-auto font-mono">
+                            {formatCurrency(p.amount)}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground px-1">
+                  Choose the plan that best fits your career goals. Yearly plans
+                  offer the best value!
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Discount Code</CardTitle>
@@ -231,12 +298,12 @@ export default function CheckoutForm({
           <CardContent className="pt-6 space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-medium">{plan.name}</p>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {plan.billingCycle} billing
+                <p className="font-bold text-lg">{currentPlan.name}</p>
+                <p className="text-sm text-muted-foreground capitalize font-medium">
+                  {currentPlan.billingCycle} billing
                 </p>
               </div>
-              <p className="font-medium">{formatCurrency(planAmount)}</p>
+              <p className="font-bold text-lg">{formatCurrency(planAmount)}</p>
             </div>
 
             {discount > 0 && (

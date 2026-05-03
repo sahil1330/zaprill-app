@@ -31,6 +31,13 @@ export default async function CheckoutPage(props: CheckoutPageProps) {
     redirect("/billing");
   }
 
+  // Fetch all active plans in the same category (to allow switching billing cycles)
+  const availablePlans = await db
+    .select()
+    .from(plan)
+    .where(eq(plan.category, selectedPlan.category))
+    .orderBy(plan.amount);
+
   // Fetch available coupons
   const allCoupons = await db
     .select()
@@ -52,6 +59,7 @@ export default async function CheckoutPage(props: CheckoutPageProps) {
       </h1>
       <CheckoutForm
         plan={selectedPlan as any}
+        availablePlans={availablePlans as any}
         availableCoupons={availableCoupons}
       />
     </div>
