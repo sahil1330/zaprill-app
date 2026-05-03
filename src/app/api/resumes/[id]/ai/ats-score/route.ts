@@ -134,7 +134,7 @@ STABILITY & GROUND TRUTH RULES:
 CONTENT RULES:
 1. ACTION VERBS: Use elite, high-impact verbs (e.g., "Spearheaded", "Orchestrated", "Engineered", "Optimized").
 2. METRICS: Every fix for Work or Projects MUST include a quantified result (e.g., "reduced latency by 15%", "saved $50k/year", "scaled to 1M+ users").
-3. GPA & SCORES: If GPA (score) is missing and likely high, suggest adding it. If already present, don't mention it. NEVER use placeholders like "[GPA]" or "X.XX". Use actual values if known or provide a realistic high score (e.g. 3.8/4.0) if the user mentioned it in text but not the field.
+3. GPA & SCORES: If GPA (score) is missing and likely high, suggest adding it. If already present, don't mention it. NEVER use placeholders like "[GPA]" or "X.XX". Use actual values if known or provide a realistic high score (e.g. 3.8/4.0). KEEP IT CONCISE (max 20 chars). Do NOT include "equivalent" explanations or multiple scales.
 4. 1-PAGE LIMIT: Elite tech resumes must be 1 page. All suggestions must be extremely concise, punchy, and avoid fluff. Use high-density information patterns: [Action Verb] + [Quantifiable Impact] + [Tool/Tech Used]. No flowery intros or conclusions.
 5. DATE FORMAT: All dates MUST follow the "YYYY-MM" format (e.g., "2022-01", "2025-06"). NEVER use "Jan 2022" or "January 2022".
 
@@ -169,7 +169,7 @@ Response JSON Format:
   "sectionScores": { "Summary": 0-100, "Experience": 0-100, "Education": 0-100, "Skills": 0-100, "Projects": 0-100, "Formatting": 0-100 }
 }
 
-IMPORTANT: Only provide suggestions for sections with scores below 85. For scores 85-100, only provide a suggestion if there is a CRITICAL missing keyword or a MAJOR impact metric missing. Always ensure dates are in "YYYY-MM" format. Do not use placeholder text like "[Place Content Here]".`,
+IMPORTANT: Only provide suggestions for sections with scores below 85. For scores 85-100, only provide a suggestion if there is a CRITICAL missing keyword or a MAJOR impact metric missing. Always ensure dates are in "YYYY-MM" format and GPA/Score is under 20 characters. Do not use placeholder text like "[Place Content Here]".`,
     });
     const latencyMs = Date.now() - llmStart;
 
