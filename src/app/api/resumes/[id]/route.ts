@@ -62,7 +62,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.flatten() },
+        {
+          error: "Validation failed",
+          details: parsed.error.format(),
+          issues: parsed.error.issues,
+        },
         { status: 400 },
       );
     }

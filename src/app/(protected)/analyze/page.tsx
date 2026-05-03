@@ -421,7 +421,35 @@ function AnalyzePageContent() {
         .then((data) => {
           if (data.analysis) {
             const analysis = data.analysis;
-            setResume(normalizeResumeData(analysis.resumeRaw));
+            const normalized = normalizeResumeData(analysis.resumeRaw);
+            const pr: ParsedResume = {
+              name: normalized.basics?.name || "",
+              email: normalized.basics?.email || "",
+              location: normalized.basics?.location?.city || "",
+              skills: normalized.skills?.flatMap((s) => s.keywords || []) || [],
+              experience:
+                normalized.work?.map((w) => ({
+                  role: w.position || "",
+                  company: w.company || "",
+                  duration: `${w.startDate || ""} - ${w.endDate || ""}`,
+                  description: w.summary || "",
+                  skillsUsed: [],
+                })) || [],
+              education:
+                normalized.education?.map((e) => ({
+                  degree: e.studyType || "",
+                  institution: e.institution || "",
+                  year: e.endDate
+                    ? parseInt(e.endDate) || undefined
+                    : undefined,
+                })) || [],
+              inferredJobTitles: analysis.resumeRaw?.inferredJobTitles || [],
+              totalYearsOfExperience:
+                analysis.resumeRaw?.totalYearsOfExperience || 0,
+              projects: [],
+              socialProfiles: [],
+            };
+            setResume(pr);
             setJobs(analysis.jobs || []);
             setSkillGaps(analysis.skillGaps || []);
             setRoadmap(analysis.roadmap || []);
@@ -462,10 +490,34 @@ function AnalyzePageContent() {
     // If resume is not yet set up, initialize it
     if (!resume) {
       initRef.current = true;
-      setResume(parsed);
-      if (parsed.location) {
+      const pr: ParsedResume = {
+        name: parsed.basics?.name || "",
+        email: parsed.basics?.email || "",
+        location: parsed.basics?.location?.city || "",
+        skills: parsed.skills?.flatMap((s) => s.keywords || []) || [],
+        experience:
+          parsed.work?.map((w) => ({
+            role: w.position || "",
+            company: w.company || "",
+            duration: `${w.startDate || ""} - ${w.endDate || ""}`,
+            description: w.summary || "",
+            skillsUsed: [],
+          })) || [],
+        education:
+          parsed.education?.map((e) => ({
+            degree: e.studyType || "",
+            institution: e.institution || "",
+            year: e.endDate ? parseInt(e.endDate) || undefined : undefined,
+          })) || [],
+        inferredJobTitles: rawParsed.inferredJobTitles || [],
+        totalYearsOfExperience: rawParsed.totalYearsOfExperience || 0,
+        projects: [],
+        socialProfiles: [],
+      };
+      setResume(pr);
+      if (pr.location) {
         // Extract just the city name (e.g. "Mumbai" from "Mumbai, India")
-        const cityName = extractCityFromLocation(parsed.location);
+        const cityName = extractCityFromLocation(pr.location);
         // Check if this city is in our known city list (handles aliases)
         const matched = INDIA_CITIES.find(
           (c) =>
@@ -475,10 +527,10 @@ function AnalyzePageContent() {
         setSearchLoc(matched ? matched.city : cityName);
       }
       // Instead of starting analysis immediately, go to reviewing stage
-      setReviewSkills(parsed.skills || []);
-      setReviewTitles(parsed.inferredJobTitles || []);
-      setSelectedTitles(parsed.inferredJobTitles?.slice(0, 3) || []);
-      setExperienceYears(parsed.totalYearsOfExperience || 0);
+      setReviewSkills(pr.skills || []);
+      setReviewTitles(pr.inferredJobTitles || []);
+      setSelectedTitles(pr.inferredJobTitles?.slice(0, 3) || []);
+      setExperienceYears(pr.totalYearsOfExperience || 0);
       setStep("reviewing");
     }
   }, [router, runAnalysis, idFromUrl, isFetchingHistory, resume]);

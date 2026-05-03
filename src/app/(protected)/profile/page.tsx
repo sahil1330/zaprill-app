@@ -1075,12 +1075,12 @@ export default function ProfilePage() {
                               Field of Study
                             </Label>
                             <Input
-                              value={edu.field || ""}
+                              value={edu.area || ""}
                               onChange={(e) => {
                                 const newEdu = [
                                   ...(resumeData.education || []),
                                 ];
-                                newEdu[idx].field = e.target.value;
+                                newEdu[idx].area = e.target.value;
                                 updResume({ education: newEdu });
                               }}
                               placeholder="e.g. Information Technology"
@@ -1093,13 +1093,12 @@ export default function ProfilePage() {
                             </Label>
                             <Input
                               type="number"
-                              value={edu.year || ""}
+                              value={edu.endDate || ""}
                               onChange={(e) => {
                                 const newEdu = [
                                   ...(resumeData.education || []),
                                 ];
-                                newEdu[idx].year =
-                                  parseInt(e.target.value) || undefined;
+                                newEdu[idx].endDate = e.target.value || null;
                                 updResume({ education: newEdu });
                               }}
                               placeholder="e.g. 2025"

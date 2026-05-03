@@ -5,9 +5,12 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Lock, Palette, Type } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import type { z } from "zod";
 import SortableItem from "@/components/resume/editor/SortableItem";
 import { TEMPLATE_REGISTRY } from "@/components/resume/templates/registry";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { resumeMetadataSchema } from "@/lib/validations/resume";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import { DEFAULT_RESUME_METADATA } from "@/types/resume";
@@ -57,20 +61,66 @@ const SECTION_LABELS: Record<string, string> = {
   references: "References",
 };
 
-export default function SettingsForm() {
+type SettingsFormValues = z.input<typeof resumeMetadataSchema>;
+
+export default function SettingsForm({ serverErrors }: { serverErrors?: any }) {
   const dispatch = useDispatch<AppDispatch>();
   const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
   const metadata = useSelector((s: RootState) => s.resume.metadata);
-  const {
-    theme = DEFAULT_RESUME_METADATA.theme,
-    typography = DEFAULT_RESUME_METADATA.typography,
-    page = DEFAULT_RESUME_METADATA.page,
-    sectionVisibility = DEFAULT_RESUME_METADATA.sectionVisibility,
-    sectionOrder = DEFAULT_RESUME_METADATA.sectionOrder,
-  } = metadata || {};
 
-  // Check if user has an active subscription (Pro)
   const [isPro, setIsPro] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    setError,
+    reset,
+    getValues,
+  } = useForm<SettingsFormValues>({
+    resolver: zodResolver(resumeMetadataSchema),
+    defaultValues: metadata || DEFAULT_RESUME_METADATA,
+    mode: "onChange",
+  });
+
+  // Handle server-side errors
+  useEffect(() => {
+    if (!serverErrors) return;
+
+    Object.entries(serverErrors).forEach(([path, messages]) => {
+      if (Array.isArray(messages) && messages.length > 0) {
+        setError(path as any, {
+          type: "server",
+          message: messages[0] as string,
+        });
+      }
+    });
+  }, [serverErrors, setError]);
+
+  const getWatch = watch as any;
+  const setVal = setValue as any;
+  const watchedMetadata = watch();
+
+  // Watch for changes and update Redux
+  useEffect(() => {
+    const subscription = watch((value: any) => {
+      if (value) {
+        dispatch(resumeActions.setMetadata(value as any));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, dispatch]);
+
+  // Update form if Redux changes externally (e.g., AI enhancements)
+  useEffect(() => {
+    const currentRHF = getValues();
+    if (JSON.stringify(currentRHF) !== JSON.stringify(metadata)) {
+      reset(metadata || DEFAULT_RESUME_METADATA);
+    }
+  }, [metadata, reset, getValues]);
+
   useEffect(() => {
     fetch("/api/billing/subscription")
       .then((r) => r.json())
@@ -80,81 +130,29 @@ export default function SettingsForm() {
       .catch(() => setIsPro(false));
   }, []);
 
-  // Filter sectionOrder to only sections that have forms
-  const orderableSections = sectionOrder.filter(
-    (key: keyof typeof SECTION_LABELS) => key in SECTION_LABELS,
+  const orderableSections = (watchedMetadata.sectionOrder || []).filter(
+    (key: string) => key in SECTION_LABELS,
   );
 
   const handleSectionDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (over && active.id !== over.id) {
-        const from = sectionOrder.indexOf(active.id as string);
-        const to = sectionOrder.indexOf(over.id as string);
+        const currentOrder = [...(watchedMetadata.sectionOrder || [])];
+        const from = currentOrder.indexOf(active.id as string);
+        const to = currentOrder.indexOf(over.id as string);
         if (from !== -1 && to !== -1) {
-          dispatch(resumeActions.reorderSections({ from, to }));
+          const [removed] = currentOrder.splice(from, 1);
+          currentOrder.splice(to, 0, removed);
+          setVal("sectionOrder", currentOrder, { shouldValidate: true });
         }
       }
     },
-    [sectionOrder, dispatch],
+    [watchedMetadata.sectionOrder, setValue],
   );
 
   const setTemplate = (slug: string) => {
     dispatch(resumeActions.setTemplateSlug(slug));
-  };
-
-  const setThemeColor = (key: string, value: string) => {
-    dispatch(
-      resumeActions.setMetadata({
-        theme: { ...theme, [key]: value },
-      }),
-    );
-  };
-
-  const setFont = (family: string) => {
-    dispatch(
-      resumeActions.setMetadata({
-        typography: {
-          ...typography,
-          font: { ...typography.font, family },
-        },
-      }),
-    );
-  };
-
-  const setFontSize = (size: number) => {
-    dispatch(
-      resumeActions.setMetadata({
-        typography: {
-          ...typography,
-          font: { ...typography.font, size },
-        },
-      }),
-    );
-  };
-
-  const setLineHeight = (lineHeight: number) => {
-    dispatch(
-      resumeActions.setMetadata({
-        typography: { ...typography, lineHeight },
-      }),
-    );
-  };
-
-  const setPageFormat = (format: "a4" | "letter") => {
-    dispatch(
-      resumeActions.setMetadata({
-        page: { ...page, format },
-      }),
-    );
-  };
-
-  const setMargin = (margin: number) => {
-    dispatch(
-      resumeActions.setMetadata({
-        page: { ...page, margin },
-      }),
-    );
   };
 
   return (
@@ -241,13 +239,19 @@ export default function SettingsForm() {
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  value={theme[key as keyof typeof theme]}
-                  onChange={(e) => setThemeColor(key, e.target.value)}
+                  value={
+                    (getWatch(`theme.${key as any}` as any) as string) ||
+                    "#000000"
+                  }
+                  onChange={(e) =>
+                    setVal(`theme.${key as any}` as any, e.target.value, {
+                      shouldValidate: true,
+                    })
+                  }
                   className="w-10 h-10 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
-                  value={theme[key as keyof typeof theme]}
-                  onChange={(e) => setThemeColor(key, e.target.value)}
+                  {...register(`theme.${key as any}` as any)}
                   className="h-10 text-xs font-mono"
                   maxLength={7}
                 />
@@ -269,10 +273,12 @@ export default function SettingsForm() {
                 Font Family
               </Label>
               <Select
-                value={typography.font.family}
-                onValueChange={(v) => {
-                  if (v) setFont(v);
-                }}
+                value={getWatch("typography.font.family" as any)}
+                onValueChange={(v) =>
+                  setVal("typography.font.family" as any, v, {
+                    shouldValidate: true,
+                  })
+                }
               >
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="Select font" />
@@ -293,15 +299,19 @@ export default function SettingsForm() {
                   Font Size
                 </Label>
                 <span className="text-sm font-bold">
-                  {typography.font.size}pt
+                  {getWatch("typography.font.size" as any)}pt
                 </span>
               </div>
               <Slider
-                value={[typography.font.size]}
+                value={[getWatch("typography.font.size" as any) || 11]}
                 min={9}
                 max={14}
                 step={0.5}
-                onValueChange={(v) => setFontSize(Array.isArray(v) ? v[0] : v)}
+                onValueChange={(v: any) =>
+                  setVal("typography.font.size" as any, v[0], {
+                    shouldValidate: true,
+                  })
+                }
               />
             </div>
 
@@ -311,16 +321,18 @@ export default function SettingsForm() {
                   Line Height
                 </Label>
                 <span className="text-sm font-bold">
-                  {typography.lineHeight}
+                  {getWatch("typography.lineHeight" as any)}
                 </span>
               </div>
               <Slider
-                value={[typography.lineHeight]}
+                value={[getWatch("typography.lineHeight" as any) || 1.5]}
                 min={1.2}
                 max={2.0}
                 step={0.05}
-                onValueChange={(v) =>
-                  setLineHeight(Array.isArray(v) ? v[0] : v)
+                onValueChange={(v: any) =>
+                  setVal("typography.lineHeight" as any, v[0], {
+                    shouldValidate: true,
+                  })
                 }
               />
             </div>
@@ -340,10 +352,10 @@ export default function SettingsForm() {
                 Page Format
               </Label>
               <Select
-                value={page.format}
-                onValueChange={(v) => {
-                  if (v) setPageFormat(v as "a4" | "letter");
-                }}
+                value={getWatch("page.format")}
+                onValueChange={(v) =>
+                  setVal("page.format", v as any, { shouldValidate: true })
+                }
               >
                 <SelectTrigger className="h-11">
                   <SelectValue />
@@ -363,14 +375,18 @@ export default function SettingsForm() {
                 <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
                   Margin
                 </Label>
-                <span className="text-sm font-bold">{page.margin}mm</span>
+                <span className="text-sm font-bold">
+                  {getWatch("page.margin")}mm
+                </span>
               </div>
               <Slider
-                value={[page.margin]}
+                value={[getWatch("page.margin") || 20]}
                 min={10}
                 max={30}
                 step={1}
-                onValueChange={(v) => setMargin(Array.isArray(v) ? v[0] : v)}
+                onValueChange={(v: any) =>
+                  setVal("page.margin", v[0], { shouldValidate: true })
+                }
               />
             </div>
           </CardContent>
@@ -391,12 +407,11 @@ export default function SettingsForm() {
               >
                 <span className="text-sm font-medium">{label}</span>
                 <Switch
-                  checked={
-                    sectionVisibility[key as keyof typeof sectionVisibility] ??
-                    false
-                  }
-                  onCheckedChange={() =>
-                    dispatch(resumeActions.toggleSectionVisibility(key))
+                  checked={getWatch(`sectionVisibility.${key as any}`) ?? false}
+                  onCheckedChange={(checked) =>
+                    setVal(`sectionVisibility.${key as any}` as any, checked, {
+                      shouldValidate: true,
+                    })
                   }
                 />
               </div>
@@ -423,7 +438,7 @@ export default function SettingsForm() {
                 items={orderableSections}
                 strategy={verticalListSortingStrategy}
               >
-                {orderableSections.map((key) => (
+                {orderableSections.map((key: string) => (
                   <SortableItem key={key} id={key}>
                     <div className="flex items-center gap-2 py-2.5 px-2 rounded-lg hover:bg-muted/50 transition-colors">
                       <span className="text-sm font-medium pl-6">

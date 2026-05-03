@@ -4,11 +4,30 @@ import { z } from "zod";
 // Shared helpers
 // ─────────────────────────────────────────────────
 
-const optionalUrl = z.string().url().or(z.literal("")).default("");
+const optionalUrl = z
+  .preprocess(
+    (val) => {
+      if (typeof val !== "string" || val === "") return val;
+      // If it doesn't start with http:// or https://, prepend https://
+      if (!/^https?:\/\//i.test(val)) {
+        return `https://${val}`;
+      }
+      return val;
+    },
+    z.string().refine(
+      (val) => val === "" || z.string().url().safeParse(val).success,
+      (val) => ({
+        message: `Invalid URL: "${val}". Please use a valid format (e.g., https://example.com)`,
+      }),
+    ),
+  )
+  .default("");
+
 const optionalDate = z
   .string()
-  .regex(/^\d{4}(-\d{2})?(-\d{2})?$/, "Use YYYY, YYYY-MM, or YYYY-MM-DD format")
-  .or(z.literal(""))
+  .refine((val) => val === "" || /^\d{4}(-\d{2})?(-\d{2})?$/.test(val), {
+    message: "Use YYYY, YYYY-MM, or YYYY-MM-DD format",
+  })
   .default("");
 
 // ─────────────────────────────────────────────────

@@ -1,186 +1,232 @@
 "use client";
 
-import { Loader2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import type { z } from "zod";
 import RichTextEditor from "@/components/resume/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { basicsSchema } from "@/lib/validations/resume";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
+
+type BasicsFormValues = z.input<typeof basicsSchema>;
 
 /**
  * BasicsForm — Contact information and professional summary.
  */
-export default function BasicsForm() {
+export default function BasicsForm({ serverErrors }: { serverErrors?: any }) {
   const dispatch = useDispatch<AppDispatch>();
   const basics = useSelector((s: RootState) => s.resume.data.basics);
   const resumeId = useSelector((s: RootState) => s.resume.resumeId);
   const resumeData = useSelector((s: RootState) => s.resume.data);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const update = (field: string, value: string) => {
-    dispatch(resumeActions.setBasics({ [field]: value }));
-  };
+  const {
+    register,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+    setError,
+    reset,
+    getValues,
+  } = useForm<BasicsFormValues>({
+    resolver: zodResolver(basicsSchema),
+    defaultValues: basics,
+    mode: "onChange",
+  });
 
-  const updateLocation = (field: string, value: string) => {
-    dispatch(
-      resumeActions.setBasics({
-        location: { ...basics.location, [field]: value },
-      }),
-    );
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "profiles",
+  });
+
+  // Handle server-side errors
+  useEffect(() => {
+    if (!serverErrors) return;
+
+    Object.entries(serverErrors).forEach(([path, messages]) => {
+      if (Array.isArray(messages) && messages.length > 0) {
+        setError(path as any, {
+          type: "server",
+          message: messages[0] as string,
+        });
+      }
+    });
+  }, [serverErrors, setError]);
+
+  // Watch for changes and update Redux
+  useEffect(() => {
+    const subscription = watch((value) => {
+      if (value) {
+        dispatch(resumeActions.setBasics(value as any));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, dispatch]);
+
+  // Update form if Redux changes externally (e.g., AI enhancements)
+  useEffect(() => {
+    const currentRHF = getValues();
+    if (JSON.stringify(currentRHF) !== JSON.stringify(basics)) {
+      reset(basics);
+    }
+  }, [basics, reset, getValues]);
+
+  const addProfile = () => {
+    append({
+      network: "",
+      username: "",
+      url: "",
+    });
   };
 
   return (
     <div className="space-y-6">
       {/* Name + Label */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-name"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             Full Name *
-          </Label>
-          <Input
-            id="basics-name"
-            value={basics.name}
-            onChange={(e) => update("name", e.target.value)}
-            placeholder="John Doe"
-            className="h-11 font-medium"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-label"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("name")}
+              placeholder="John Doe"
+              className="h-11 font-medium"
+            />
+            <FieldError errors={[errors.name]} />
+          </FieldContent>
+        </Field>
+
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             Professional Title
-          </Label>
-          <Input
-            id="basics-label"
-            value={basics.label}
-            onChange={(e) => update("label", e.target.value)}
-            placeholder="Senior Software Engineer"
-            className="h-11"
-          />
-        </div>
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("label")}
+              placeholder="Senior Software Engineer"
+              className="h-11"
+            />
+            <FieldError errors={[errors.label]} />
+          </FieldContent>
+        </Field>
       </div>
 
       {/* Email + Phone */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-email"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             Email
-          </Label>
-          <Input
-            id="basics-email"
-            type="email"
-            value={basics.email}
-            onChange={(e) => update("email", e.target.value)}
-            placeholder="john@example.com"
-            className="h-11"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-phone"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              type="email"
+              {...register("email")}
+              placeholder="john@example.com"
+              className="h-11"
+            />
+            <FieldError errors={[errors.email]} />
+          </FieldContent>
+        </Field>
+
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             Phone
-          </Label>
-          <Input
-            id="basics-phone"
-            value={basics.phone}
-            onChange={(e) => update("phone", e.target.value)}
-            placeholder="+91 98765 43210"
-            className="h-11"
-          />
-        </div>
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("phone")}
+              placeholder="+91 98765 43210"
+              className="h-11"
+            />
+            <FieldError errors={[errors.phone]} />
+          </FieldContent>
+        </Field>
       </div>
 
       {/* Location */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-city"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             City
-          </Label>
-          <Input
-            id="basics-city"
-            value={basics.location.city}
-            onChange={(e) => updateLocation("city", e.target.value)}
-            placeholder="Mumbai"
-            className="h-11"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-region"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("location.city")}
+              placeholder="Mumbai"
+              className="h-11"
+            />
+            <FieldError errors={[errors.location?.city]} />
+          </FieldContent>
+        </Field>
+
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             State / Region
-          </Label>
-          <Input
-            id="basics-region"
-            value={basics.location.region}
-            onChange={(e) => updateLocation("region", e.target.value)}
-            placeholder="Maharashtra"
-            className="h-11"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label
-            htmlFor="basics-country"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("location.region")}
+              placeholder="Maharashtra"
+              className="h-11"
+            />
+            <FieldError errors={[errors.location?.region]} />
+          </FieldContent>
+        </Field>
+
+        <Field>
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             Country
-          </Label>
-          <Input
-            id="basics-country"
-            value={basics.location.countryCode}
-            onChange={(e) => updateLocation("countryCode", e.target.value)}
-            placeholder="IN"
-            className="h-11"
-          />
-        </div>
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              {...register("location.countryCode")}
+              placeholder="IN"
+              className="h-11"
+            />
+            <FieldError errors={[errors.location?.countryCode]} />
+          </FieldContent>
+        </Field>
       </div>
 
       {/* Website */}
-      <div className="space-y-2">
-        <Label
-          htmlFor="basics-url"
-          className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-        >
+      <Field>
+        <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
           Personal Website
-        </Label>
-        <Input
-          id="basics-url"
-          value={basics.url}
-          onChange={(e) => update("url", e.target.value)}
-          placeholder="https://johndoe.dev"
-          className="h-11"
-        />
-      </div>
+        </FieldLabel>
+        <FieldContent>
+          <Input
+            {...register("url")}
+            placeholder="https://johndoe.dev"
+            className="h-11"
+          />
+          <FieldError errors={[errors.url]} />
+        </FieldContent>
+      </Field>
 
       {/* Summary */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label
-            htmlFor="basics-summary"
-            className="font-bold text-xs uppercase tracking-wider text-muted-foreground"
-          >
+          <FieldLabel className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
             Professional Summary
-          </Label>
+          </FieldLabel>
           <Button
             variant="ghost"
             size="sm"
+            type="button"
             disabled={isGenerating || !resumeId}
             onClick={async () => {
               if (!resumeId) return;
@@ -193,7 +239,7 @@ export default function BasicsForm() {
                 });
                 if (res.ok) {
                   const { summary } = await res.json();
-                  dispatch(resumeActions.setBasics({ summary }));
+                  setValue("summary", summary, { shouldValidate: true });
                 }
               } catch {
                 // Silently fail
@@ -212,13 +258,112 @@ export default function BasicsForm() {
           </Button>
         </div>
         <RichTextEditor
-          value={basics.summary}
-          onChange={(html) => update("summary", html)}
+          value={watch("summary") || ""}
+          onChange={(html) =>
+            setValue("summary", html, { shouldValidate: true })
+          }
           placeholder="A brief overview of your professional background, key achievements, and career objectives..."
         />
+        <FieldError errors={[errors.summary]} />
         <p className="text-xs text-muted-foreground">
-          {basics.summary.length}/5000 characters
+          {(watch("summary") || "").length}/5000 characters
         </p>
+      </div>
+
+      {/* Social Profiles */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            Social Profiles
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={addProfile}
+            className="h-8 gap-1.5 text-xs"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Profile
+          </Button>
+        </div>
+
+        {fields.length === 0 && (
+          <p className="text-xs text-muted-foreground italic">
+            No social profiles added yet.
+          </p>
+        )}
+
+        <div className="grid grid-cols-1 gap-4">
+          {fields.map((field, idx) => (
+            <Card key={field.id} className="border-border">
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground uppercase">
+                    Profile {idx + 1}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => remove(idx)}
+                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Network
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...register(`profiles.${idx}.network`)}
+                        placeholder="LinkedIn, GitHub..."
+                        className="h-9 text-sm"
+                      />
+                      <FieldError
+                        errors={[(errors.profiles?.[idx] as any)?.network]}
+                      />
+                    </FieldContent>
+                  </Field>
+                  <Field>
+                    <FieldLabel className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Username
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...register(`profiles.${idx}.username`)}
+                        placeholder="johndoe"
+                        className="h-9 text-sm"
+                      />
+                      <FieldError
+                        errors={[(errors.profiles?.[idx] as any)?.username]}
+                      />
+                    </FieldContent>
+                  </Field>
+                </div>
+                <Field>
+                  <FieldLabel className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground">
+                    URL
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...register(`profiles.${idx}.url`)}
+                      placeholder="https://linkedin.com/in/johndoe"
+                      className="h-9 text-sm"
+                    />
+                    <FieldError
+                      errors={[(errors.profiles?.[idx] as any)?.url]}
+                    />
+                  </FieldContent>
+                </Field>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

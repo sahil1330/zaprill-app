@@ -233,6 +233,10 @@ const resumeSlice = createSlice({
       );
       state.isDirty = true;
     },
+    setWork(state, action: PayloadAction<ResumeWorkItem[]>) {
+      state.data.work = action.payload;
+      state.isDirty = true;
+    },
 
     // ── Education ─────────────────────────────────
     addEducationItem(state, action: PayloadAction<ResumeEducationItem>) {
@@ -274,6 +278,10 @@ const resumeSlice = createSlice({
       );
       state.isDirty = true;
     },
+    setEducation(state, action: PayloadAction<ResumeEducationItem[]>) {
+      state.data.education = action.payload;
+      state.isDirty = true;
+    },
 
     // ── Skills ─────────────────────────────────────
     addSkillItem(state, action: PayloadAction<ResumeSkillItem>) {
@@ -310,6 +318,10 @@ const resumeSlice = createSlice({
         action.payload.from,
         action.payload.to,
       );
+      state.isDirty = true;
+    },
+    setSkills(state, action: PayloadAction<ResumeSkillItem[]>) {
+      state.data.skills = action.payload;
       state.isDirty = true;
     },
 
@@ -353,6 +365,10 @@ const resumeSlice = createSlice({
       );
       state.isDirty = true;
     },
+    setProjects(state, action: PayloadAction<ResumeProjectItem[]>) {
+      state.data.projects = action.payload;
+      state.isDirty = true;
+    },
 
     // ── Certifications ─────────────────────────────
     addCertificationItem(
@@ -386,6 +402,10 @@ const resumeSlice = createSlice({
       );
       state.isDirty = true;
     },
+    setCertifications(state, action: PayloadAction<ResumeCertificationItem[]>) {
+      state.data.certifications = action.payload;
+      state.isDirty = true;
+    },
 
     // ── Languages ──────────────────────────────────
     addLanguageItem(state, action: PayloadAction<ResumeLanguageItem>) {
@@ -414,6 +434,10 @@ const resumeSlice = createSlice({
       state.data.languages = state.data.languages.filter(
         (l) => l.id !== action.payload,
       );
+      state.isDirty = true;
+    },
+    setLanguages(state, action: PayloadAction<ResumeLanguageItem[]>) {
+      state.data.languages = action.payload;
       state.isDirty = true;
     },
 
@@ -446,6 +470,10 @@ const resumeSlice = createSlice({
       );
       state.isDirty = true;
     },
+    setVolunteer(state, action: PayloadAction<ResumeVolunteerItem[]>) {
+      state.data.volunteer = action.payload;
+      state.isDirty = true;
+    },
 
     // ── Awards ─────────────────────────────────────
     addAwardItem(state, action: PayloadAction<ResumeAwardItem>) {
@@ -474,6 +502,10 @@ const resumeSlice = createSlice({
       state.data.awards = state.data.awards.filter(
         (a) => a.id !== action.payload,
       );
+      state.isDirty = true;
+    },
+    setAwards(state, action: PayloadAction<ResumeAwardItem[]>) {
+      state.data.awards = action.payload;
       state.isDirty = true;
     },
 
@@ -506,6 +538,10 @@ const resumeSlice = createSlice({
       );
       state.isDirty = true;
     },
+    setPublications(state, action: PayloadAction<ResumePublicationItem[]>) {
+      state.data.publications = action.payload;
+      state.isDirty = true;
+    },
 
     // ── References ─────────────────────────────────
     addReferenceItem(state, action: PayloadAction<ResumeReferenceItem>) {
@@ -534,6 +570,10 @@ const resumeSlice = createSlice({
       state.data.references = state.data.references.filter(
         (r) => r.id !== action.payload,
       );
+      state.isDirty = true;
+    },
+    setReferences(state, action: PayloadAction<ResumeReferenceItem[]>) {
+      state.data.references = action.payload;
       state.isDirty = true;
     },
 

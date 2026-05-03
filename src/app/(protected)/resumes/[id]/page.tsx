@@ -93,6 +93,7 @@ export default function ResumeEditorPage({
   const [isLoadingResume, setIsLoadingResume] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   // ─── Fetch resume on mount ──────────────────────
   useEffect(() => {
@@ -155,6 +156,59 @@ export default function ResumeEditorPage({
       if (res.ok) {
         const { resume } = await res.json();
         dispatch(resumeActions.markSaved({ version: resume.version }));
+        setValidationErrors(null);
+      } else if (res.status === 400) {
+        const result = await res.json();
+
+        // Build a flat error map by section
+        const errorsBySection: Record<string, Record<string, string[]>> = {};
+
+        if (result.issues && Array.isArray(result.issues)) {
+          result.issues.forEach((issue: any) => {
+            const path = issue.path; // e.g. ["data", "basics", "profiles", 0, "url"]
+            if (
+              (path[0] === "data" || path[0] === "metadata") &&
+              path.length >= 2
+            ) {
+              const root = path[0];
+              const section = root === "metadata" ? "settings" : path[1];
+
+              // Determine the relative path for RHF
+              // Forms like WorkForm expect "work.0.website"
+              // BasicsForm expects "profiles.0.url"
+              // SettingsForm expects "template"
+              let relativePath;
+              if (root === "metadata") {
+                relativePath = path.slice(1).join(".");
+              } else if (
+                [
+                  "work",
+                  "education",
+                  "skills",
+                  "projects",
+                  "certifications",
+                  "languages",
+                  "volunteer",
+                  "awards",
+                  "publications",
+                  "references",
+                ].includes(section)
+              ) {
+                relativePath = path.slice(1).join(".");
+              } else {
+                relativePath = path.slice(2).join(".");
+              }
+
+              if (!errorsBySection[section]) errorsBySection[section] = {};
+              if (!errorsBySection[section][relativePath])
+                errorsBySection[section][relativePath] = [];
+              errorsBySection[section][relativePath].push(issue.message);
+            }
+          });
+        }
+
+        setValidationErrors(errorsBySection);
+        dispatch(resumeActions.markSaveFailed());
       } else {
         dispatch(resumeActions.markSaveFailed());
       }
@@ -239,31 +293,37 @@ export default function ResumeEditorPage({
     const formContent = (() => {
       switch (activeSection) {
         case "basics":
-          return <BasicsForm />;
+          return <BasicsForm serverErrors={validationErrors?.basics} />;
         case "work":
-          return <WorkForm />;
+          return <WorkForm serverErrors={validationErrors?.work} />;
         case "education":
-          return <EducationForm />;
+          return <EducationForm serverErrors={validationErrors?.education} />;
         case "skills":
-          return <SkillsForm />;
+          return <SkillsForm serverErrors={validationErrors?.skills} />;
         case "projects":
-          return <ProjectsForm />;
+          return <ProjectsForm serverErrors={validationErrors?.projects} />;
         case "certifications":
-          return <CertificationsForm />;
+          return (
+            <CertificationsForm
+              serverErrors={validationErrors?.certifications}
+            />
+          );
         case "languages":
-          return <LanguagesForm />;
+          return <LanguagesForm serverErrors={validationErrors?.languages} />;
         case "volunteer":
-          return <VolunteerForm />;
+          return <VolunteerForm serverErrors={validationErrors?.volunteer} />;
         case "awards":
-          return <AwardsForm />;
+          return <AwardsForm serverErrors={validationErrors?.awards} />;
         case "publications":
-          return <PublicationsForm />;
+          return (
+            <PublicationsForm serverErrors={validationErrors?.publications} />
+          );
         case "references":
-          return <ReferencesForm />;
+          return <ReferencesForm serverErrors={validationErrors?.references} />;
         case "ats-score":
           return <AtsScorePanel />;
         case "settings":
-          return <SettingsForm />;
+          return <SettingsForm serverErrors={validationErrors?.settings} />;
         default:
           return null;
       }
@@ -388,7 +448,7 @@ export default function ResumeEditorPage({
                 type="button"
                 key={key}
                 onClick={() => dispatch(resumeActions.setActiveSection(key))}
-                className={`w-full flex items-center gap-3 px-3 lg:px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 lg:px-4 py-2.5 text-sm font-medium transition-colors relative ${
                   activeSection === key
                     ? "bg-primary/10 text-primary border-r-2 border-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -396,6 +456,9 @@ export default function ResumeEditorPage({
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="hidden lg:inline truncate">{label}</span>
+                {validationErrors?.[key] && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                )}
               </button>
             ))}
           </ScrollArea>

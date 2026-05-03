@@ -56,7 +56,7 @@ export default function RichTextEditor({
   // Sync external value changes (e.g. AI-generated summary)
   useEffect(() => {
     if (editor && editor.getHTML() !== (value || "")) {
-      editor.commands.setContent(value || "", false); // false = emitUpdate: false
+      editor.commands.setContent(value || "", false as any); // false = emitUpdate: false
     }
   }, [value, editor]);
 
