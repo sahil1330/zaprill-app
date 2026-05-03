@@ -2,8 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
-import { resume } from "@/db/schema";
+import { resume, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { enrichResumeMetadata } from "@/lib/inference";
 import { updateResumeSchema } from "@/lib/validations/resume";
 
 interface RouteParams {
@@ -89,7 +90,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       updateValues.targetRole = updates.targetRole;
     if (updates.isPublic !== undefined)
       updateValues.isPublic = updates.isPublic;
-    if (updates.data !== undefined) updateValues.data = updates.data;
+    if (updates.data !== undefined) {
+      // Enrich data with inferred metadata (experience, job titles)
+      updateValues.data = enrichResumeMetadata(updates.data as any);
+    }
     if (updates.metadata !== undefined)
       updateValues.metadata = updates.metadata;
 
@@ -131,6 +135,26 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         },
         { status: 409 },
       );
+    }
+
+    // Sync with user profile if this is the primary resume
+    try {
+      const profile = await db.query.userProfile.findFirst({
+        where: eq(userProfile.userId, session.user.id),
+      });
+
+      if (profile && profile.primaryResumeId === id) {
+        await db
+          .update(userProfile)
+          .set({
+            resumeRaw: updated.data,
+            updatedAt: new Date(),
+          })
+          .where(eq(userProfile.userId, session.user.id));
+      }
+    } catch (syncErr) {
+      console.error("Failed to sync resume update to profile:", syncErr);
+      // Non-blocking error
     }
 
     return NextResponse.json({ resume: updated });

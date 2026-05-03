@@ -16,6 +16,7 @@ import {
   Languages,
   Loader2,
   Save,
+  Search,
   Settings,
   Shield,
   Trophy,
@@ -402,6 +403,19 @@ export default function ResumeEditorPage({
           <Badge variant="outline" className="text-[10px] font-bold uppercase">
             {status}
           </Badge>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              sessionStorage.setItem("ai_job_god_resume", JSON.stringify(data));
+              router.push("/analyze");
+            }}
+            className="gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search Jobs</span>
+          </Button>
 
           <Button
             variant="ghost"

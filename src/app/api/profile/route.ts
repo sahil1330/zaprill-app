@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import db from "@/db";
 import { resume, user, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { enrichResumeMetadata } from "@/lib/inference";
 import { normalizeResumeData } from "@/lib/resume";
 
 export async function GET() {
@@ -99,6 +100,8 @@ export async function PATCH(req: Request) {
 
     // 3. Update Resume Table if resumeRaw is provided and we have a primaryResumeId
     if (resumeRaw) {
+      // Enrich data with inferred metadata
+      const enrichedResume = enrichResumeMetadata(resumeRaw);
       let targetResumeId = primaryResumeId;
 
       if (!targetResumeId) {
@@ -112,7 +115,7 @@ export async function PATCH(req: Request) {
         await db
           .update(resume)
           .set({
-            data: resumeRaw,
+            data: enrichedResume,
             updatedAt: new Date(),
           })
           .where(eq(resume.id, targetResumeId));
@@ -120,7 +123,7 @@ export async function PATCH(req: Request) {
         // Fallback: If no primaryResumeId, update legacy resumeRaw in userProfile
         await db
           .update(userProfile)
-          .set({ resumeRaw, updatedAt: new Date() })
+          .set({ resumeRaw: enrichedResume, updatedAt: new Date() })
           .where(eq(userProfile.userId, session.user.id));
       }
     }
