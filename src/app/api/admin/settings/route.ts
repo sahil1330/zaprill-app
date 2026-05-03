@@ -119,7 +119,10 @@ export async function POST(request: Request) {
     }
 
     if (_action === "delete_coupon") {
-      await db.delete(coupons).where(eq(coupons.id, data.id));
+      await db
+        .update(coupons)
+        .set({ status: "disabled", updatedAt: new Date() })
+        .where(eq(coupons.id, data.id));
       return NextResponse.json({ success: true });
     }
 

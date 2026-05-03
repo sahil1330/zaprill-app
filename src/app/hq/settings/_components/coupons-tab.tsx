@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { Loader2, Pencil, Plus, Tag, Trash2 } from "lucide-react";
+import { Archive, Loader2, Pencil, Plus, Tag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Coupon } from "./settings-content";
 
 interface Props {
@@ -61,7 +62,7 @@ const STATUS_VARIANT: Record<
 > = {
   active: "default",
   expired: "secondary",
-  disabled: "destructive",
+  disabled: "outline",
 };
 
 export function CouponsTab({ coupons, loading, onMutate, onRefresh }: Props) {
@@ -70,6 +71,12 @@ export function CouponsTab({ coupons, loading, onMutate, onRefresh }: Props) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [editTarget, setEditTarget] = useState<Coupon | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [currentFilter, setCurrentFilter] = useState<string>("active");
+
+  const filteredCoupons = coupons.filter((c) => {
+    if (currentFilter === "all") return true;
+    return c.status === currentFilter;
+  });
 
   function openCreate() {
     setEditTarget(null);
@@ -132,11 +139,14 @@ export function CouponsTab({ coupons, loading, onMutate, onRefresh }: Props) {
   }
 
   async function handleDelete(id: string, code: string) {
-    if (!confirm(`Delete coupon "${code}"?`)) return;
+    if (
+      !confirm(`Archive coupon "${code}"? This will disable it for new users.`)
+    )
+      return;
     setDeleting(id);
     try {
       await onMutate("delete_coupon", { id });
-      toast.success("Coupon deleted");
+      toast.success("Coupon archived");
       onRefresh();
     } catch (e: any) {
       toast.error(e.message);
@@ -147,22 +157,40 @@ export function CouponsTab({ coupons, loading, onMutate, onRefresh }: Props) {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-muted-foreground">
-          {coupons.length} coupon{coupons.length !== 1 ? "s" : ""} configured
-        </p>
-        <Button onClick={openCreate} size="sm">
-          <Plus className="mr-2 h-4 w-4" /> New Coupon
-        </Button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <Tabs
+          value={currentFilter}
+          onValueChange={setCurrentFilter}
+          className="w-full sm:w-auto"
+        >
+          <TabsList className="grid w-full grid-cols-3 sm:w-[300px]">
+            <TabsTrigger value="active">Active</TabsTrigger>
+            <TabsTrigger value="disabled">Disabled</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-muted-foreground hidden md:block">
+            {filteredCoupons.length} coupon
+            {filteredCoupons.length !== 1 ? "s" : ""}
+          </p>
+          <Button onClick={openCreate} size="sm">
+            <Plus className="mr-2 h-4 w-4" /> New Coupon
+          </Button>
+        </div>
       </div>
 
       {loading ? (
         <Skeleton className="h-[300px] rounded-xl" />
-      ) : coupons.length === 0 ? (
+      ) : filteredCoupons.length === 0 ? (
         <div className="flex h-48 items-center justify-center rounded-xl border border-dashed">
           <div className="text-center">
             <Tag className="mx-auto h-8 w-8 text-muted-foreground opacity-30 mb-2" />
-            <p className="text-muted-foreground text-sm">No coupons yet.</p>
+            <p className="text-muted-foreground text-sm">
+              {currentFilter === "active"
+                ? "No active coupons."
+                : "No coupons found."}
+            </p>
           </div>
         </div>
       ) : (
@@ -181,7 +209,7 @@ export function CouponsTab({ coupons, loading, onMutate, onRefresh }: Props) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {coupons.map((c) => (
+                {filteredCoupons.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell className="font-mono font-medium">
                       {c.code}
@@ -236,7 +264,7 @@ export function CouponsTab({ coupons, loading, onMutate, onRefresh }: Props) {
                           {deleting === c.id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Archive className="h-3.5 w-3.5" />
                           )}
                         </Button>
                       </div>

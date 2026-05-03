@@ -44,8 +44,14 @@ export default async function CheckoutPage(props: CheckoutPageProps) {
     .from(schema.coupons)
     .where(eq(schema.coupons.status, "active"));
 
+  const now = new Date();
   const availableCoupons = allCoupons.filter((c) => {
-    // Only show if the plan amount meets the minimum order value requirement
+    // 1. Check if the coupon has expired based on date
+    if (c.endTime && now > new Date(c.endTime)) {
+      return false;
+    }
+
+    // 2. Check if the plan amount meets the minimum order value requirement
     if (c.minOrderValue) {
       return parseFloat(c.minOrderValue) <= parseFloat(selectedPlan.amount);
     }
