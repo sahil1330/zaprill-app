@@ -2,6 +2,15 @@
 
 import type React from "react";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
+import {
+  ContactItem,
+  formatProfileText,
+  getProfileIcon,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconWorld,
+} from "./SharedComponents";
 
 /**
  * ExecutiveProTemplate — Refined single-column with serif accents.
@@ -260,7 +269,7 @@ export default function ExecutiveProTemplate({
         fontFamily,
         fontSize,
         lineHeight,
-        ["--resume-padding" as string]: `${page.margin}mm`,
+        ["--resume-padding" as string]: `${page?.margin ?? 20}mm`,
         ["--resume-primary" as string]: theme.primary,
         ["--resume-bg" as string]: theme.background,
         ["--resume-text" as string]: theme.text,
@@ -272,25 +281,43 @@ export default function ExecutiveProTemplate({
         <h1 className="exec-name">{basics.name || "Your Name"}</h1>
         {basics.label && <p className="exec-title">{basics.label}</p>}
         <div className="exec-contact">
-          {basics.email && <span>{basics.email}</span>}
-          {basics.phone && <span>{basics.phone}</span>}
-          {basics.location.city && (
-            <span>
-              {basics.location.city}
-              {basics.location.region ? `, ${basics.location.region}` : ""}
-            </span>
-          )}
-          {basics.url && <span>{basics.url}</span>}
-          {basics.profiles.map((p) => (
-            <span key={p.network}>
-              {p.url || `${p.network}: ${p.username}`}
-            </span>
+          <ContactItem
+            icon={IconMail}
+            text={basics.email}
+            href={`mailto:${basics.email}`}
+          />
+          <ContactItem
+            icon={IconPhone}
+            text={basics.phone}
+            href={`tel:${basics.phone}`}
+          />
+          <ContactItem
+            icon={IconMapPin}
+            text={
+              basics.location.city
+                ? `${basics.location.city}${basics.location.region ? `, ${basics.location.region}` : ""}`
+                : ""
+            }
+          />
+          <ContactItem
+            icon={IconWorld}
+            text={formatProfileText(basics.url, basics.url)}
+            href={basics.url}
+          />
+
+          {(basics.profiles || []).map((p) => (
+            <ContactItem
+              key={p.network}
+              icon={getProfileIcon(p.network)}
+              text={formatProfileText(p.url, p.username || p.network)}
+              href={p.url}
+            />
           ))}
         </div>
       </header>
 
       {/* Sections in user-defined order */}
-      {sectionOrder.map((key) => {
+      {(sectionOrder || []).map((key) => {
         const renderer = sectionRenderers[key];
         return renderer ? renderer() : null;
       })}

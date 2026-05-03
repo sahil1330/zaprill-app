@@ -75,6 +75,7 @@ import {
   trackTabViewed,
 } from "@/lib/analytics";
 import { getAnalysisSummary } from "@/lib/match-engine";
+import { normalizeResumeData } from "@/lib/resume";
 import { categorizeSkill } from "@/lib/skill-extractor";
 import type {
   AnalysisStep,
@@ -176,6 +177,7 @@ function AnalyzePageContent() {
   const idFromUrl = searchParams.get("id");
   const [step, setStep] = useState<AnalysisStep>("parsing");
   const [error, setError] = useState<string | null>(null);
+
   const [resume, setResume] = useState<ParsedResume | null>(null);
   const [jobs, setJobs] = useState<JobMatch[]>([]);
   const [isPro, setIsPro] = useState(false);
@@ -419,7 +421,7 @@ function AnalyzePageContent() {
         .then((data) => {
           if (data.analysis) {
             const analysis = data.analysis;
-            setResume(analysis.resumeRaw);
+            setResume(normalizeResumeData(analysis.resumeRaw));
             setJobs(analysis.jobs || []);
             setSkillGaps(analysis.skillGaps || []);
             setRoadmap(analysis.roadmap || []);
@@ -454,7 +456,8 @@ function AnalyzePageContent() {
       router.replace("/");
       return;
     }
-    const parsed: ParsedResume = JSON.parse(stored);
+    const rawParsed = JSON.parse(stored);
+    const parsed = normalizeResumeData(rawParsed);
 
     // If resume is not yet set up, initialize it
     if (!resume) {
@@ -472,9 +475,9 @@ function AnalyzePageContent() {
         setSearchLoc(matched ? matched.city : cityName);
       }
       // Instead of starting analysis immediately, go to reviewing stage
-      setReviewSkills(parsed.skills);
-      setReviewTitles(parsed.inferredJobTitles);
-      setSelectedTitles(parsed.inferredJobTitles.slice(0, 3));
+      setReviewSkills(parsed.skills || []);
+      setReviewTitles(parsed.inferredJobTitles || []);
+      setSelectedTitles(parsed.inferredJobTitles?.slice(0, 3) || []);
       setExperienceYears(parsed.totalYearsOfExperience || 0);
       setStep("reviewing");
     }

@@ -31,6 +31,12 @@ export const skillPriorityEnum = pgEnum("skill_priority", [
   "low",
 ]);
 
+export const onboardingStatusEnum = pgEnum("onboarding_status", [
+  "not_started",
+  "in_progress",
+  "completed",
+]);
+
 // ─────────────────────────────────────────────────
 // better-auth required tables
 // (must match better-auth's expected column names exactly)
@@ -126,7 +132,13 @@ export const userProfile = pgTable("user_profile", {
     .notNull()
     .unique()
     .references(() => user.id, { onDelete: "cascade" }),
-  resumeRaw: jsonb("resume_raw").notNull(),
+  onboardingStatus: onboardingStatusEnum("onboarding_status")
+    .notNull()
+    .default("not_started"),
+  primaryResumeId: text("primary_resume_id").references(() => resume.id, {
+    onDelete: "set null",
+  }),
+  resumeRaw: jsonb("resume_raw"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

@@ -13,6 +13,7 @@ import {
   Trash2,
   User,
 } from "lucide-react";
+import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -33,21 +34,24 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import useAuth from "@/hooks/useAuth";
-import type { ParsedResume } from "@/types";
+import { normalizeResumeData } from "@/lib/resume";
+import type { ResumeData, ResumeSkillItem } from "@/types/resume";
+import { DEFAULT_RESUME_DATA } from "@/types/resume";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user } = useAuth();
 
-  const [profile, setProfile] = useState<{ resumeRaw: ParsedResume } | null>(
-    null,
-  );
+  const [profile, setProfile] = useState<{
+    resumeData: ResumeData;
+    resumeRaw: any;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   // Form State
   const [name, setName] = useState("");
-  const [resumeData, setResumeData] = useState<ParsedResume | null>(null);
+  const [resumeData, setResumeData] = useState<ResumeData>(DEFAULT_RESUME_DATA);
   const [newSkill, setNewSkill] = useState("");
   const [newRole, setNewRole] = useState("");
 
@@ -60,7 +64,8 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.profile) {
         setProfile(data.profile);
-        setResumeData(data.profile.resumeRaw);
+        const normalized = normalizeResumeData(data.profile.resumeData);
+        setResumeData(normalized || DEFAULT_RESUME_DATA);
       }
     } catch (error) {
       console.error("Failed to fetch profile:", error);
@@ -107,52 +112,92 @@ export default function ProfilePage() {
   };
 
   // Resume Data Handlers
-  const updResume = (updates: Partial<ParsedResume>) => {
-    if (!resumeData) return;
-    setResumeData({ ...resumeData, ...updates });
+  const updResume = (updates: Partial<ResumeData>) => {
+    setResumeData((prev) => ({ ...prev, ...updates }));
+  };
+
+  const updBasics = (updates: Partial<ResumeData["basics"]>) => {
+    setResumeData((prev) => ({
+      ...prev,
+      basics: { ...prev.basics, ...updates },
+    }));
   };
 
   const addSkill = () => {
-    if (!resumeData || !newSkill.trim()) return;
-    const currentSkills = resumeData.skills || [];
-    if (currentSkills.includes(newSkill.trim())) {
+    if (!newSkill.trim()) return;
+    const currentSkills = [...(resumeData.skills || [])];
+    const skillName = newSkill.trim();
+
+    // Check if skill already exists in any group
+    const exists = currentSkills.some((g) =>
+      g.keywords.some((k) => k.toLowerCase() === skillName.toLowerCase()),
+    );
+    if (exists) {
       setNewSkill("");
       return;
     }
-    updResume({ skills: [...currentSkills, newSkill.trim()] });
+
+    // Add to "Top Skills" group or create it
+    const topSkillsGroup = currentSkills.find(
+      (g) => g.name === "Top Skills" || g.name === "General",
+    );
+
+    if (topSkillsGroup) {
+      topSkillsGroup.keywords = [...topSkillsGroup.keywords, skillName];
+      updResume({ skills: currentSkills });
+    } else {
+      const newGroup: ResumeSkillItem = {
+        id: nanoid(),
+        name: "Top Skills",
+        level: "Intermediate",
+        keywords: [skillName],
+        category: "technical",
+      };
+      updResume({ skills: [...currentSkills, newGroup] });
+    }
     setNewSkill("");
   };
 
-  const removeSkill = (skill: string) => {
-    if (!resumeData) return;
-    updResume({ skills: (resumeData.skills || []).filter((s) => s !== skill) });
+  const removeSkill = (groupId: string, keyword: string) => {
+    const currentSkills = (resumeData.skills || [])
+      .map((group) => {
+        if (group.id === groupId) {
+          return {
+            ...group,
+            keywords: group.keywords.filter((k) => k !== keyword),
+          };
+        }
+        return group;
+      })
+      .filter(
+        (group) => group.keywords.length > 0 || group.name !== "Top Skills",
+      ); // Keep empty groups if they are named categories, except temporary ones
+
+    updResume({ skills: currentSkills });
   };
 
   const addSocialProfile = () => {
-    if (!resumeData) return;
-    const current = resumeData.socialProfiles || [];
-    updResume({
-      socialProfiles: [...current, { platform: "Portfolio", url: "" }],
+    const current = resumeData.basics.profiles || [];
+    updBasics({
+      profiles: [...current, { network: "Portfolio", url: "", username: "" }],
     });
   };
 
   const updateSocialProfile = (
     index: number,
-    updates: { platform?: string; url?: string },
+    updates: { network?: string; url?: string; username?: string },
   ) => {
-    if (!resumeData) return;
-    const current = [...(resumeData.socialProfiles || [])];
+    const current = [...(resumeData.basics.profiles || [])];
     if (!current[index]) return;
     current[index] = { ...current[index], ...updates };
-    updResume({ socialProfiles: current });
+    updBasics({ profiles: current });
   };
 
   const removeSocialProfile = (index: number) => {
-    if (!resumeData) return;
-    const current = (resumeData.socialProfiles || []).filter(
+    const current = (resumeData.basics.profiles || []).filter(
       (_, i) => i !== index,
     );
-    updResume({ socialProfiles: current });
+    updBasics({ profiles: current });
   };
 
   const addRole = () => {
@@ -325,8 +370,8 @@ export default function ProfilePage() {
                     </Label>
                     <Input
                       id="phone"
-                      value={resumeData?.phone || ""}
-                      onChange={(e) => updResume({ phone: e.target.value })}
+                      value={resumeData.basics.phone || ""}
+                      onChange={(e) => updBasics({ phone: e.target.value })}
                       placeholder="+91 XXXXX XXXXX"
                       className="h-12 font-semibold text-lg"
                     />
@@ -340,8 +385,15 @@ export default function ProfilePage() {
                     </Label>
                     <Input
                       id="location"
-                      value={resumeData?.location || ""}
-                      onChange={(e) => updResume({ location: e.target.value })}
+                      value={resumeData.basics.location.city || ""}
+                      onChange={(e) =>
+                        updBasics({
+                          location: {
+                            ...resumeData.basics.location,
+                            city: e.target.value,
+                          },
+                        })
+                      }
                       placeholder="City, Country"
                       className="h-12 font-semibold text-lg"
                     />
@@ -366,11 +418,11 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="grid gap-4">
-                    {(resumeData?.socialProfiles || []).map((social, idx) => {
-                      const platform = social.platform.toLowerCase();
-                      const Icon = platform.includes("linkedin")
+                    {(resumeData.basics.profiles || []).map((social, idx) => {
+                      const network = social.network.toLowerCase();
+                      const Icon = network.includes("linkedin")
                         ? IconBrandLinkedin
-                        : platform.includes("github")
+                        : network.includes("github")
                           ? IconBrandGithub
                           : Globe;
 
@@ -381,18 +433,18 @@ export default function ProfilePage() {
                         >
                           <div className="flex-1 grid md:grid-cols-3 gap-4">
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                 Platform
-                              </Label>
+                              </span>
                               <div className="relative">
                                 <div className="absolute left-3 top-1/2 -translate-y-1/2">
                                   <Icon className="h-4 w-4 text-muted-foreground" />
                                 </div>
                                 <Input
-                                  value={social.platform}
+                                  value={social.network}
                                   onChange={(e) =>
                                     updateSocialProfile(idx, {
-                                      platform: e.target.value,
+                                      network: e.target.value,
                                     })
                                   }
                                   placeholder="LinkedIn, GitHub, etc."
@@ -446,8 +498,8 @@ export default function ProfilePage() {
                       );
                     })}
 
-                    {(!resumeData?.socialProfiles ||
-                      resumeData.socialProfiles.length === 0) && (
+                    {(!resumeData.basics.profiles ||
+                      resumeData.basics.profiles.length === 0) && (
                       <div className="text-center py-8 border-2 border-dashed border-border rounded-xl">
                         <p className="text-sm text-muted-foreground font-medium">
                           No social profiles added.
@@ -535,9 +587,9 @@ export default function ProfilePage() {
                           Career Summary
                         </Label>
                         <Textarea
-                          value={resumeData.summary || ""}
+                          value={resumeData.basics.summary || ""}
                           onChange={(e) =>
-                            updResume({ summary: e.target.value })
+                            updBasics({ summary: e.target.value })
                           }
                           className="min-h-[120px] font-medium text-lg leading-relaxed"
                           placeholder="Briefly describe your professional background..."
@@ -625,19 +677,28 @@ export default function ProfilePage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {(resumeData.skills || []).map((skill) => (
-                        <Badge
-                          key={skill}
-                          variant="outline"
-                          className="h-9 px-4 text-sm font-bold border-2 flex items-center gap-2 rounded-lg group hover:border-foreground transition-all"
-                        >
-                          {skill}
-                          <Trash2
-                            className="h-3.5 w-3.5 cursor-pointer text-muted-foreground group-hover:text-red-500 transition-colors"
-                            onClick={() => removeSkill(skill)}
-                          />
-                        </Badge>
-                      ))}
+                      {(resumeData.skills || [])
+                        .flatMap((group) =>
+                          group.keywords.map((skill) => ({
+                            groupId: group.id,
+                            name: skill,
+                          })),
+                        )
+                        .map((skill, idx) => (
+                          <Badge
+                            key={`${skill.groupId}-${skill.name}-${idx}`}
+                            variant="outline"
+                            className="h-9 px-4 text-sm font-bold border-2 flex items-center gap-2 rounded-lg group hover:border-foreground transition-all"
+                          >
+                            {skill.name}
+                            <Trash2
+                              className="h-3.5 w-3.5 cursor-pointer text-muted-foreground group-hover:text-red-500 transition-colors"
+                              onClick={() =>
+                                removeSkill(skill.groupId, skill.name)
+                              }
+                            />
+                          </Badge>
+                        ))}
                     </div>
                     <div className="flex gap-2">
                       <Input
@@ -681,13 +742,18 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={() =>
                         updResume({
-                          experience: [
-                            ...(resumeData.experience || []),
+                          work: [
+                            ...(resumeData.work || []),
                             {
-                              role: "New Position",
+                              id: nanoid(),
+                              position: "New Position",
                               company: "Company",
-                              description: "",
-                              skillsUsed: [],
+                              summary: "",
+                              highlights: [],
+                              startDate: "",
+                              endDate: null,
+                              website: "",
+                              location: "",
                             },
                           ],
                         })
@@ -698,7 +764,7 @@ export default function ProfilePage() {
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {(resumeData.experience || []).map((exp, idx) => (
+                    {(resumeData.work || []).map((exp, idx) => (
                       <div
                         key={idx}
                         className="group relative border-b border-border/50 pb-8 last:border-0 last:pb-0"
@@ -708,9 +774,9 @@ export default function ProfilePage() {
                           size="icon"
                           className="absolute -right-2 top-0 opacity-0 group-hover:opacity-100 text-destructive transition-all"
                           onClick={() => {
-                            const newExp = [...(resumeData.experience || [])];
-                            newExp.splice(idx, 1);
-                            updResume({ experience: newExp });
+                            const newWork = [...(resumeData.work || [])];
+                            newWork.splice(idx, 1);
+                            updResume({ work: newWork });
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -721,13 +787,11 @@ export default function ProfilePage() {
                               Role
                             </Label>
                             <Input
-                              value={exp.role || ""}
+                              value={exp.position || ""}
                               onChange={(e) => {
-                                const newExp = [
-                                  ...(resumeData.experience || []),
-                                ];
-                                newExp[idx].role = e.target.value;
-                                updResume({ experience: newExp });
+                                const newWork = [...(resumeData.work || [])];
+                                newWork[idx].position = e.target.value;
+                                updResume({ work: newWork });
                               }}
                               className="font-bold border-2"
                             />
@@ -739,11 +803,9 @@ export default function ProfilePage() {
                             <Input
                               value={exp.company || ""}
                               onChange={(e) => {
-                                const newExp = [
-                                  ...(resumeData.experience || []),
-                                ];
-                                newExp[idx].company = e.target.value;
-                                updResume({ experience: newExp });
+                                const newWork = [...(resumeData.work || [])];
+                                newWork[idx].company = e.target.value;
+                                updResume({ work: newWork });
                               }}
                               className="font-bold border-2"
                             />
@@ -753,13 +815,14 @@ export default function ProfilePage() {
                               Duration
                             </Label>
                             <Input
-                              value={exp.duration || ""}
+                              value={`${exp.startDate || ""}${exp.endDate ? ` - ${exp.endDate}` : ""}`}
                               onChange={(e) => {
-                                const newExp = [
-                                  ...(resumeData.experience || []),
-                                ];
-                                newExp[idx].duration = e.target.value;
-                                updResume({ experience: newExp });
+                                const [start, end] =
+                                  e.target.value.split(" - ");
+                                const newWork = [...(resumeData.work || [])];
+                                newWork[idx].startDate = start || "";
+                                newWork[idx].endDate = end || null;
+                                updResume({ work: newWork });
                               }}
                               placeholder="e.g. Jan 2020 - Present"
                               className="font-bold border-2"
@@ -771,11 +834,11 @@ export default function ProfilePage() {
                             Description
                           </Label>
                           <Textarea
-                            value={exp.description || ""}
+                            value={exp.summary || ""}
                             onChange={(e) => {
-                              const newExp = [...(resumeData.experience || [])];
-                              newExp[idx].description = e.target.value;
-                              updResume({ experience: newExp });
+                              const newWork = [...(resumeData.work || [])];
+                              newWork[idx].summary = e.target.value;
+                              updResume({ work: newWork });
                             }}
                             className="min-h-[100px] font-medium"
                           />
@@ -804,9 +867,15 @@ export default function ProfilePage() {
                           projects: [
                             ...(resumeData.projects || []),
                             {
+                              id: nanoid(),
                               name: "Project Name",
                               description: "",
-                              technologies: [],
+                              url: "",
+                              githubUrl: "",
+                              highlights: [],
+                              startDate: "",
+                              endDate: null,
+                              keywords: [],
                             },
                           ],
                         })
@@ -876,12 +945,12 @@ export default function ProfilePage() {
                               Technologies (comma separated)
                             </Label>
                             <Input
-                              value={(proj.technologies || []).join(", ")}
+                              value={(proj.keywords || []).join(", ")}
                               onChange={(e) => {
                                 const newProj = [
                                   ...(resumeData.projects || []),
                                 ];
-                                newProj[idx].technologies = e.target.value
+                                newProj[idx].keywords = e.target.value
                                   .split(",")
                                   .map((t) => t.trim());
                                 updResume({ projects: newProj });
@@ -931,7 +1000,17 @@ export default function ProfilePage() {
                         updResume({
                           education: [
                             ...(resumeData.education || []),
-                            { degree: "Degree", institution: "Institution" },
+                            {
+                              id: nanoid(),
+                              studyType: "Degree",
+                              institution: "Institution",
+                              area: "",
+                              url: "",
+                              startDate: "",
+                              endDate: null,
+                              score: "",
+                              courses: [],
+                            },
                           ],
                         })
                       }
@@ -958,18 +1037,18 @@ export default function ProfilePage() {
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                        <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        <div className="grid md:grid-cols-3 gap-4 mb-4">
                           <div className="space-y-2">
                             <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                               Degree / Certificate
                             </Label>
                             <Input
-                              value={edu.degree || ""}
+                              value={edu.studyType || ""}
                               onChange={(e) => {
                                 const newEdu = [
                                   ...(resumeData.education || []),
                                 ];
-                                newEdu[idx].degree = e.target.value;
+                                newEdu[idx].studyType = e.target.value;
                                 updResume({ education: newEdu });
                               }}
                               className="font-bold border-2"
@@ -991,8 +1070,6 @@ export default function ProfilePage() {
                               className="font-bold border-2"
                             />
                           </div>
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                               Field of Study

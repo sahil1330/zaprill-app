@@ -1,9 +1,15 @@
-import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import db from "@/db";
-import { resumeAnalysis, userProfile } from "@/db/schema";
-import { ParsedResume, JobMatch, SkillGap, RoadmapItem } from "@/types";
+import {
+  resumeAnalysis,
+  resume as resumeTable,
+  userProfile,
+} from "@/db/schema";
+import { auth } from "@/lib/auth";
+import type { JobMatch, ParsedResume, RoadmapItem, SkillGap } from "@/types";
 
 export async function POST(req: Request) {
   try {
@@ -87,8 +93,42 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
           },
         });
+
+      // 2. Also update the actual resume table to keep it in sync
+      const profile = await db.query.userProfile.findFirst({
+        where: eq(userProfile.userId, session.user.id),
+      });
+
+      if (profile?.primaryResumeId) {
+        await db
+          .update(resumeTable)
+          .set({
+            data: resume,
+            updatedAt: new Date(),
+          })
+          .where(eq(resumeTable.id, profile.primaryResumeId));
+      } else {
+        // If somehow they don't have a primary resume, create one
+        const newResumeId = nanoid();
+        await db.insert(resumeTable).values({
+          id: newResumeId,
+          userId: session.user.id,
+          title: "Imported Resume",
+          slug: `${session.user.id.slice(0, 8)}-${nanoid(6)}`,
+          data: resume,
+          status: "complete",
+        });
+
+        await db
+          .update(userProfile)
+          .set({ primaryResumeId: newResumeId })
+          .where(eq(userProfile.userId, session.user.id));
+      }
     } catch (profileErr) {
-      console.error("Failed to update user profile during save:", profileErr);
+      console.error(
+        "Failed to update user profile/resume during save:",
+        profileErr,
+      );
       // Don't fail the whole request if profile update fails
     }
 

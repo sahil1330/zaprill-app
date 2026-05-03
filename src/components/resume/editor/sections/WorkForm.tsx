@@ -25,7 +25,7 @@ import type { ResumeWorkItem } from "@/types/resume";
  */
 export default function WorkForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const work = useSelector((s: RootState) => s.resume.data.work);
+  const work = useSelector((s: RootState) => s.resume.data.work || []);
   const resumeId = useSelector((s: RootState) => s.resume.resumeId);
 
   // Track which highlight is currently being enhanced: "itemId-hIdx"

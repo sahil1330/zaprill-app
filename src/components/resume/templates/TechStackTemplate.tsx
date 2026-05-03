@@ -1,6 +1,15 @@
 "use client";
 
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
+import {
+  ContactItem,
+  formatProfileText,
+  getProfileIcon,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconWorld,
+} from "./SharedComponents";
 
 /**
  * TechStackTemplate — Two-column layout with skills sidebar
@@ -39,7 +48,7 @@ export default function TechStackTemplate({
         fontFamily,
         fontSize,
         lineHeight,
-        ["--resume-padding" as string]: `${page.margin}mm`,
+        ["--resume-padding" as string]: `${page?.margin ?? 20}mm`,
         ["--resume-primary" as string]: theme.primary,
         ["--resume-bg" as string]: theme.background,
         ["--resume-text" as string]: theme.text,
@@ -51,19 +60,37 @@ export default function TechStackTemplate({
         <h1 className="resume-name">{basics.name || "Your Name"}</h1>
         {basics.label && <p className="resume-label">{basics.label}</p>}
         <div className="resume-contact">
-          {basics.email && <span>{basics.email}</span>}
-          {basics.phone && <span>{basics.phone}</span>}
-          {basics.location.city && (
-            <span>
-              {basics.location.city}
-              {basics.location.region ? `, ${basics.location.region}` : ""}
-            </span>
-          )}
-          {basics.url && <span>{basics.url}</span>}
-          {basics.profiles.map((p) => (
-            <span key={p.network}>
-              {p.url || `${p.network}: ${p.username}`}
-            </span>
+          <ContactItem
+            icon={IconMail}
+            text={basics.email}
+            href={`mailto:${basics.email}`}
+          />
+          <ContactItem
+            icon={IconPhone}
+            text={basics.phone}
+            href={`tel:${basics.phone}`}
+          />
+          <ContactItem
+            icon={IconMapPin}
+            text={
+              basics.location.city
+                ? `${basics.location.city}${basics.location.region ? `, ${basics.location.region}` : ""}`
+                : ""
+            }
+          />
+          <ContactItem
+            icon={IconWorld}
+            text={formatProfileText(basics.url, basics.url)}
+            href={basics.url}
+          />
+
+          {(basics.profiles || []).map((p) => (
+            <ContactItem
+              key={p.network}
+              icon={getProfileIcon(p.network)}
+              text={formatProfileText(p.url, p.username || p.network)}
+              href={p.url}
+            />
           ))}
         </div>
       </header>
@@ -183,7 +210,7 @@ export default function TechStackTemplate({
         {/* Sidebar (right) */}
         <aside className="ts-sidebar">
           {/* Skills */}
-          {sectionVisibility.skills && skills.length > 0 && (
+          {sectionVisibility.skills && skills?.length > 0 && (
             <section className="resume-section">
               <h2 className="ts-sidebar-title">Skills</h2>
               {skills.map((group) => (

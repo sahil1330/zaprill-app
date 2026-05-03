@@ -21,7 +21,7 @@ import type { ResumeSkillItem } from "@/types/resume";
 
 export default function SkillsForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const skills = useSelector((s: RootState) => s.resume.data.skills);
+  const skills = useSelector((s: RootState) => s.resume.data.skills || []);
   const [newKeywords, setNewKeywords] = useState<Record<string, string>>({});
 
   const addGroup = () => {

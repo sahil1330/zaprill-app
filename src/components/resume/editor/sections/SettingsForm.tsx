@@ -25,6 +25,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
+import { DEFAULT_RESUME_METADATA } from "@/types/resume";
 
 const FONT_OPTIONS = [
   "Inter",
@@ -60,7 +61,13 @@ export default function SettingsForm() {
   const dispatch = useDispatch<AppDispatch>();
   const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
   const metadata = useSelector((s: RootState) => s.resume.metadata);
-  const { theme, typography, page, sectionVisibility, sectionOrder } = metadata;
+  const {
+    theme = DEFAULT_RESUME_METADATA.theme,
+    typography = DEFAULT_RESUME_METADATA.typography,
+    page = DEFAULT_RESUME_METADATA.page,
+    sectionVisibility = DEFAULT_RESUME_METADATA.sectionVisibility,
+    sectionOrder = DEFAULT_RESUME_METADATA.sectionOrder,
+  } = metadata || {};
 
   // Check if user has an active subscription (Pro)
   const [isPro, setIsPro] = useState(false);
@@ -74,7 +81,9 @@ export default function SettingsForm() {
   }, []);
 
   // Filter sectionOrder to only sections that have forms
-  const orderableSections = sectionOrder.filter((key) => key in SECTION_LABELS);
+  const orderableSections = sectionOrder.filter(
+    (key: keyof typeof SECTION_LABELS) => key in SECTION_LABELS,
+  );
 
   const handleSectionDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -91,7 +100,7 @@ export default function SettingsForm() {
   );
 
   const setTemplate = (slug: string) => {
-    dispatch(resumeActions.setTemplateSluq(slug));
+    dispatch(resumeActions.setTemplateSlug(slug));
   };
 
   const setThemeColor = (key: string, value: string) => {

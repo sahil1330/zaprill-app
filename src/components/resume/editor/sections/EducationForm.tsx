@@ -20,7 +20,9 @@ import type { ResumeEducationItem } from "@/types/resume";
 
 export default function EducationForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const education = useSelector((s: RootState) => s.resume.data.education);
+  const education = useSelector(
+    (s: RootState) => s.resume.data.education || [],
+  );
 
   const addItem = () => {
     const item: ResumeEducationItem = {

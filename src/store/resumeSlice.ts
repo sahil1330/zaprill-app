@@ -127,7 +127,7 @@ const resumeSlice = createSlice({
       state.title = action.payload;
       state.isDirty = true;
     },
-    setTemplateSluq(state, action: PayloadAction<string>) {
+    setTemplateSlug(state, action: PayloadAction<string>) {
       state.templateSlug = action.payload;
       state.isDirty = true;
     },

@@ -167,6 +167,16 @@ export default function Navbar({
             />
           ) : user ? (
             <>
+              <Link href="/resumes/primary">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="font-bold text-xs hidden sm:inline-flex"
+                >
+                  Resume Builder
+                </Button>
+              </Link>
+
               <Link href="/history">
                 <Button
                   variant="ghost"
@@ -195,6 +205,12 @@ export default function Navbar({
                       </p>
                     )}
                   </div>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/resumes/primary")}
+                    className="font-semibold cursor-pointer"
+                  >
+                    Resume Builder
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => router.push("/profile")}
                     className="font-semibold cursor-pointer"

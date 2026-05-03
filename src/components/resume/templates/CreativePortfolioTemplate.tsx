@@ -1,6 +1,15 @@
 "use client";
 
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
+import {
+  ContactItem,
+  formatProfileText,
+  getProfileIcon,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconWorld,
+} from "./SharedComponents";
 
 /**
  * CreativePortfolioTemplate — Vibrant, two-column hybrid layout
@@ -48,7 +57,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     work: () =>
-      sectionVisibility.work && work.length > 0 ? (
+      sectionVisibility.work && work?.length > 0 ? (
         <section key="work" className="resume-section">
           <h2 className="creative-section-title">Experience</h2>
           {work.map((item) => (
@@ -78,7 +87,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     education: () =>
-      sectionVisibility.education && education.length > 0 ? (
+      sectionVisibility.education && education?.length > 0 ? (
         <section key="education" className="resume-section">
           <h2 className="creative-section-title">Education</h2>
           {education.map((item) => (
@@ -103,7 +112,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     skills: () =>
-      sectionVisibility.skills && skills.length > 0 ? (
+      sectionVisibility.skills && skills?.length > 0 ? (
         <section key="skills" className="resume-section">
           <h2 className="creative-section-title">Skills</h2>
           <div className="creative-skills-grid">
@@ -124,7 +133,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     projects: () =>
-      sectionVisibility.projects && projects.length > 0 ? (
+      sectionVisibility.projects && projects?.length > 0 ? (
         <section key="projects" className="resume-section">
           <h2 className="creative-section-title">Portfolio</h2>
           <div className="creative-portfolio-grid">
@@ -160,7 +169,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     certifications: () =>
-      sectionVisibility.certifications && certifications.length > 0 ? (
+      sectionVisibility.certifications && certifications?.length > 0 ? (
         <section key="certifications" className="resume-section">
           <h2 className="creative-section-title">Certifications</h2>
           {certifications.map((item) => (
@@ -176,7 +185,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     languages: () =>
-      sectionVisibility.languages && languages.length > 0 ? (
+      sectionVisibility.languages && languages?.length > 0 ? (
         <section key="languages" className="resume-section">
           <h2 className="creative-section-title">Languages</h2>
           <div className="resume-languages-list">
@@ -191,7 +200,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     volunteer: () =>
-      sectionVisibility.volunteer && volunteer.length > 0 ? (
+      sectionVisibility.volunteer && volunteer?.length > 0 ? (
         <section key="volunteer" className="resume-section">
           <h2 className="creative-section-title">Volunteer</h2>
           {volunteer.map((item) => (
@@ -222,7 +231,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     awards: () =>
-      sectionVisibility.awards && awards.length > 0 ? (
+      sectionVisibility.awards && awards?.length > 0 ? (
         <section key="awards" className="resume-section">
           <h2 className="creative-section-title">Awards</h2>
           {awards.map((item) => (
@@ -239,7 +248,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     publications: () =>
-      sectionVisibility.publications && publications.length > 0 ? (
+      sectionVisibility.publications && publications?.length > 0 ? (
         <section key="publications" className="resume-section">
           <h2 className="creative-section-title">Publications</h2>
           {publications.map((item) => (
@@ -256,7 +265,7 @@ export default function CreativePortfolioTemplate({
       ) : null,
 
     references: () =>
-      sectionVisibility.references && references.length > 0 ? (
+      sectionVisibility.references && references?.length > 0 ? (
         <section key="references" className="resume-section">
           <h2 className="creative-section-title">References</h2>
           {references.map((item) => (
@@ -294,21 +303,44 @@ export default function CreativePortfolioTemplate({
           <h1 className="creative-name">{basics.name || "Your Name"}</h1>
           {basics.label && <p className="creative-label">{basics.label}</p>}
           <div className="creative-contact-row">
-            {basics.email && <span>{basics.email}</span>}
-            {basics.phone && <span>{basics.phone}</span>}
-            {basics.location.city && (
-              <span>
-                {basics.location.city}
-                {basics.location.region ? `, ${basics.location.region}` : ""}
-              </span>
-            )}
-            {basics.url && <span>{basics.url}</span>}
+            <ContactItem
+              icon={IconMail}
+              text={basics.email}
+              href={`mailto:${basics.email}`}
+            />
+            <ContactItem
+              icon={IconPhone}
+              text={basics.phone}
+              href={`tel:${basics.phone}`}
+            />
+            <ContactItem
+              icon={IconMapPin}
+              text={
+                basics.location.city
+                  ? `${basics.location.city}${basics.location.region ? `, ${basics.location.region}` : ""}`
+                  : ""
+              }
+            />
+            <ContactItem
+              icon={IconWorld}
+              text={formatProfileText(basics.url, basics.url)}
+              href={basics.url}
+            />
+
+            {(basics.profiles || []).map((p) => (
+              <ContactItem
+                key={p.network}
+                icon={getProfileIcon(p.network)}
+                text={formatProfileText(p.url, p.username || p.network)}
+                href={p.url}
+              />
+            ))}
           </div>
         </div>
       </header>
 
       {/* Render sections in order */}
-      {sectionOrder.map((key) => {
+      {(sectionOrder || []).map((key) => {
         const renderer = sectionRenderers[key];
         return renderer ? <div key={key}>{renderer()}</div> : null;
       })}

@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import db from "@/db";
-import { user, userProfile } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import db from "@/db";
+import { resume, user, userProfile } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { normalizeResumeData } from "@/lib/resume";
 
 export async function GET() {
   try {
@@ -23,7 +24,28 @@ export async function GET() {
       return NextResponse.json({ profile: null });
     }
 
-    return NextResponse.json({ profile });
+    // If we have a primaryResumeId, fetch that resume's data
+    let resumeData = profile.resumeRaw;
+
+    if (profile.primaryResumeId) {
+      const primaryResume = await db.query.resume.findFirst({
+        where: eq(resume.id, profile.primaryResumeId),
+      });
+      if (primaryResume) {
+        resumeData = primaryResume.data;
+      }
+    }
+
+    // Normalize the data to ensure it doesn't crash the frontend
+    const normalizedResume = normalizeResumeData(resumeData);
+
+    return NextResponse.json({
+      profile: {
+        ...profile,
+        resumeData: normalizedResume, // Send the clean normalized object
+        resumeRaw: normalizedResume, // For backward compatibility
+      },
+    });
   } catch (error: any) {
     console.error("Get profile error:", error);
     return NextResponse.json(
@@ -44,7 +66,7 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { name, resumeRaw } = body;
+    const { name, onboardingStatus, primaryResumeId, resumeRaw } = body;
 
     // 1. Update User Table (Name)
     if (name) {
@@ -54,23 +76,53 @@ export async function PATCH(req: Request) {
         .where(eq(user.id, session.user.id));
     }
 
-    // 2. Update User Profile Table (Resume Data)
-    if (resumeRaw) {
+    // 2. Update User Profile Table
+    if (onboardingStatus || primaryResumeId) {
       await db
         .insert(userProfile)
         .values({
           id: crypto.randomUUID(),
           userId: session.user.id,
-          resumeRaw: resumeRaw,
+          onboardingStatus: onboardingStatus || "not_started",
+          primaryResumeId: primaryResumeId || null,
           updatedAt: new Date(),
         })
         .onConflictDoUpdate({
           target: userProfile.userId,
           set: {
-            resumeRaw: resumeRaw,
+            ...(onboardingStatus && { onboardingStatus }),
+            ...(primaryResumeId && { primaryResumeId }),
             updatedAt: new Date(),
           },
         });
+    }
+
+    // 3. Update Resume Table if resumeRaw is provided and we have a primaryResumeId
+    if (resumeRaw) {
+      let targetResumeId = primaryResumeId;
+
+      if (!targetResumeId) {
+        const profile = await db.query.userProfile.findFirst({
+          where: eq(userProfile.userId, session.user.id),
+        });
+        targetResumeId = profile?.primaryResumeId;
+      }
+
+      if (targetResumeId) {
+        await db
+          .update(resume)
+          .set({
+            data: resumeRaw,
+            updatedAt: new Date(),
+          })
+          .where(eq(resume.id, targetResumeId));
+      } else {
+        // Fallback: If no primaryResumeId, update legacy resumeRaw in userProfile
+        await db
+          .update(userProfile)
+          .set({ resumeRaw, updatedAt: new Date() })
+          .where(eq(userProfile.userId, session.user.id));
+      }
     }
 
     return NextResponse.json({ success: true });

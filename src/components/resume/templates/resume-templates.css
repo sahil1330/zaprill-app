@@ -47,6 +47,31 @@
   color: var(--resume-text, #555);
 }
 
+.contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.contact-link:hover {
+  text-decoration: underline;
+  color: var(--resume-primary, #1a1a2e);
+}
+
+.contact-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.contact-text {
+  line-height: 1;
+}
+
 .resume-contact span::before {
   content: "";
 }

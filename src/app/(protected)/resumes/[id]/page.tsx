@@ -48,6 +48,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAutoSave } from "@/hooks/use-auto-save";
+import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
@@ -102,22 +103,29 @@ export default function ResumeEditorPage({
           setLoadError("Resume not found");
           return;
         }
-        const { resume } = await res.json();
+        const { resume: fetchedResume } = await res.json();
+
+        // Normalize both data and metadata before loading into Redux
+        const normalizedData = normalizeResumeData(fetchedResume.data);
+        const normalizedMetadata = normalizeResumeMetadata(
+          fetchedResume.metadata,
+        );
 
         dispatch(
           resumeActions.loadResume({
-            id: resume.id,
-            data: resume.data as ResumeData,
-            metadata: resume.metadata as ResumeMetadata,
-            title: resume.title,
-            templateSlug: resume.templateSlug,
-            industry: resume.industry,
-            targetRole: resume.targetRole,
-            status: resume.status,
-            version: resume.version,
+            id: fetchedResume.id,
+            data: normalizedData,
+            metadata: normalizedMetadata,
+            title: fetchedResume.title,
+            templateSlug: fetchedResume.templateSlug,
+            industry: fetchedResume.industry,
+            targetRole: fetchedResume.targetRole,
+            status: fetchedResume.status,
+            version: fetchedResume.version,
           }),
         );
-      } catch {
+      } catch (err) {
+        console.error("Load resume error:", err);
         setLoadError("Failed to load resume");
       } finally {
         setIsLoadingResume(false);

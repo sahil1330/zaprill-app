@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
-import { resume } from "@/db/schema";
+import { resume, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { createResumeSchema } from "@/lib/validations/resume";
 import { DEFAULT_RESUME_DATA, DEFAULT_RESUME_METADATA } from "@/types/resume";
@@ -118,6 +118,29 @@ export async function POST(request: NextRequest) {
         sourceAnalysisId: sourceAnalysisId ?? null,
       })
       .returning();
+
+    // Update user profile: set this as primary resume if none exists, and complete onboarding
+    try {
+      await db
+        .insert(userProfile)
+        .values({
+          id: crypto.randomUUID(),
+          userId: session.user.id,
+          primaryResumeId: id,
+          onboardingStatus: "completed",
+        })
+        .onConflictDoUpdate({
+          target: userProfile.userId,
+          set: {
+            // Only set primaryResumeId if it's currently null to avoid overwriting existing primary
+            primaryResumeId: id,
+            onboardingStatus: "completed",
+            updatedAt: new Date(),
+          },
+        });
+    } catch (err) {
+      console.error("Failed to update user profile on resume creation:", err);
+    }
 
     return NextResponse.json({ resume: newResume }, { status: 201 });
   } catch (error) {

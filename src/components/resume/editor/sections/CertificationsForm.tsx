@@ -14,7 +14,7 @@ import type { ResumeCertificationItem } from "@/types/resume";
 export default function CertificationsForm() {
   const dispatch = useDispatch<AppDispatch>();
   const certifications = useSelector(
-    (s: RootState) => s.resume.data.certifications,
+    (s: RootState) => s.resume.data.certifications || [],
   );
 
   const addItem = () => {

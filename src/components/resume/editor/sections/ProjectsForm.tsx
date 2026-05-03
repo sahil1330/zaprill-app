@@ -22,7 +22,7 @@ import type { ResumeProjectItem } from "@/types/resume";
 
 export default function ProjectsForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const projects = useSelector((s: RootState) => s.resume.data.projects);
+  const projects = useSelector((s: RootState) => s.resume.data.projects || []);
   const resumeId = useSelector((s: RootState) => s.resume.resumeId);
   const [newKeywords, setNewKeywords] = useState<Record<string, string>>({});
   const [enhancingKey, setEnhancingKey] = useState<string | null>(null);

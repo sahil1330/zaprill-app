@@ -154,6 +154,10 @@ export interface ResumeData {
   publications: ResumePublicationItem[];
   references: ResumeReferenceItem[];
   customSections: ResumeCustomSection[];
+  // Analysis/Onboarding metadata
+  inferredJobTitles?: string[];
+  totalYearsOfExperience?: number;
+  socialProfiles?: { platform: string; url: string }[];
 }
 
 // ─────────────────────────────────────────────────
@@ -360,12 +364,12 @@ export const DEFAULT_RESUME_METADATA: ResumeMetadata = {
     work: true,
     education: true,
     skills: true,
-    projects: false,
-    certifications: false,
-    languages: false,
-    volunteer: false,
-    awards: false,
-    publications: false,
-    references: false,
+    projects: true,
+    certifications: true,
+    languages: true,
+    volunteer: true,
+    awards: true,
+    publications: true,
+    references: true,
   },
 };

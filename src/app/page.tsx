@@ -146,7 +146,7 @@ export default function HomePage() {
               Syncing career profile...
             </div>
           ) : session ? (
-            profile ? (
+            profile?.onboardingStatus === "completed" ? (
               <div className="flex flex-col items-center gap-6 w-full">
                 <Button
                   size="lg"
@@ -155,7 +155,9 @@ export default function HomePage() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   <span className="relative flex items-center gap-3">
-                    Search Jobs for {profile.resumeRaw?.name?.split(" ")[0]}
+                    Search Jobs for{" "}
+                    {profile.resumeRaw?.basics?.name?.split(" ")[0] ||
+                      session.user.name.split(" ")[0]}
                     <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Button>
@@ -166,23 +168,26 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-6 w-full">
-                <Link href="/profile" className="w-full sm:w-auto">
+                <Link href="/onboarding" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full"
+                    className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full group relative overflow-hidden"
                   >
-                    Set Up Career Profile
-                    <ArrowRight className="ml-3 h-6 w-6" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity" />
+                    <span className="relative flex items-center gap-3">
+                      Complete Your Onboarding
+                      <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                    </span>
                   </Button>
                 </Link>
                 <p className="text-sm text-muted-foreground font-bold">
-                  Upload your resume in your profile to start matching.
+                  Just one step away from personalized job matches.
                 </p>
               </div>
             )
           ) : (
             <div className="flex flex-col items-center gap-8 w-full">
-              <Link href="/login" className="w-full sm:w-auto">
+              <Link href="/sign-in" className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full"
