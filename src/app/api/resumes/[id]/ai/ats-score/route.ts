@@ -29,6 +29,30 @@ const AtsResultSchema = z.object({
       section: z.string(),
       issue: z.string(),
       fix: z.string(),
+      action: z
+        .object({
+          type: z.enum([
+            "update_summary",
+            "add_work_highlight",
+            "update_work_highlights",
+            "add_skill_keywords",
+            "update_education",
+            "add_project_highlight",
+            "update_project_highlights",
+            "update_basics",
+            "update_work",
+            "update_project",
+            "update_skill",
+            "no_action_needed",
+          ]),
+          id: z.string().optional(),
+          content: z.string().optional(),
+          value: z.string().optional(),
+          keywords: z.array(z.string()).optional(),
+          highlights: z.array(z.string()).optional(),
+          data: z.record(z.any()).optional(),
+        })
+        .optional(),
     }),
   ),
   sectionScores: z.record(z.number()),
@@ -85,6 +109,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Build resume text for analysis
     const resumeText = buildResumeText(data);
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
 
     const jdContext = jobDescription
       ? `\n\nJob Description to match against:\n${jobDescription}`
@@ -93,41 +121,54 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const llmStart = Date.now();
     const { text, usage } = await generateText({
       model: hackclub(MODEL),
-      prompt: `You are an expert ATS (Applicant Tracking System) analyzer. Analyze the following resume and return a detailed JSON assessment.
+      prompt: `You are an ELITE ATS (Applicant Tracking System) analyzer. Optimize this resume for high-impact professional standards and keyword compatibility.
+Current Date: ${currentDate}
 
-Rules:
-- Score from 0-100 based on ATS compatibility
-- Identify keywords that ARE present and match common ATS filters
-- Identify critical keywords that are MISSING
-- Provide actionable suggestions grouped by section
-- Score each section individually (0-100)
-- Respond ONLY with valid JSON — no markdown, no explanation, no code fences
+STABILITY & GROUND TRUTH RULES:
+1. SOURCE OF TRUTH: The provided JSON resume data is the absolute ground truth. If data exists (e.g., graduation year, GPA, summary), do NOT say it's missing.
+2. NO REVERSALS: If a section has already been improved with high-impact action verbs and metrics, do NOT suggest changing it back or adding minor "filler" tweaks.
+3. CONSISTENCY: Be objective. Do not fluctuate scores for identical content.
+4. DIMINISHING RETURNS: If a section score is 90 or higher, it is "Excellent". Do NOT provide minor nitpicks just to have suggestions.
+5. NO NITPICKING: Your goal is to reach a stable, high-quality profile (90+). Once there, stay consistent.
 
-Resume content:
-${resumeText}
-${jdContext}
+CONTENT RULES:
+1. ACTION VERBS: Use elite, high-impact verbs (e.g., "Spearheaded", "Orchestrated", "Engineered", "Optimized").
+2. METRICS: Every fix for Work or Projects MUST include a quantified result (e.g., "reduced latency by 15%", "saved $50k/year", "scaled to 1M+ users").
+3. GPA: If GPA is missing and likely high, suggest adding it. If already present, don't mention it.
+4. 1-PAGE LIMIT: Elite tech resumes must be 1 page. All suggestions must be extremely concise, punchy, and avoid fluff. Use high-density information patterns: [Action Verb] + [Quantifiable Impact] + [Tool/Tech Used]. No flowery intros or conclusions.
 
-Return ONLY a JSON object with this exact shape:
+JSON Resume Data:
+${resumeText}${jdContext}
+
+ACTION TYPES & SCHEMAS:
+- "update_summary": { "type": "update_summary", "content": "..." }
+- "add_work_highlight": { "type": "add_work_highlight", "id": "...", "content": "..." }
+- "update_work_highlights": { "type": "update_work_highlights", "id": "...", "highlights": ["..."] }
+- "add_skill_keywords": { "type": "add_skill_keywords", "id": "...", "keywords": ["..."] }
+- "update_education": { "type": "update_education", "id": "...", "data": { ... } }
+- "add_project_highlight": { "type": "add_project_highlight", "id": "...", "content": "..." }
+- "update_project_highlights": { "type": "update_project_highlights", "id": "...", "highlights": ["..."] }
+- "update_basics": { "type": "update_basics", "data": { ... } }
+- "update_work": { "type": "update_work", "id": "...", "data": { ... } }
+- "no_action_needed": Use this if a suggestion is purely advice.
+
+Response JSON Format:
 {
-  "score": 85,
-  "keywordMatches": ["JavaScript", "React", "Node.js"],
-  "missingKeywords": ["Docker", "CI/CD", "Kubernetes"],
+  "score": number,
+  "keywordMatches": string[],
+  "missingKeywords": string[],
   "suggestions": [
     {
-      "section": "work",
-      "issue": "Bullet points lack quantified metrics",
-      "fix": "Add specific numbers, percentages, or dollar amounts to at least 3 bullets"
+      "section": string,
+      "issue": string,
+      "fix": string,
+      "action": { type, id?, content?, keywords?, highlights?, data? }
     }
   ],
-  "sectionScores": {
-    "contact": 90,
-    "summary": 75,
-    "work": 80,
-    "education": 85,
-    "skills": 70,
-    "formatting": 90
-  }
-}`,
+  "sectionScores": { "Summary": 0-100, "Experience": 0-100, "Education": 0-100, "Skills": 0-100, "Projects": 0-100, "Formatting": 0-100 }
+}
+
+IMPORTANT: Only provide suggestions for sections with scores below 85. For scores 85-100, only provide a suggestion if there is a CRITICAL missing keyword or a MAJOR impact metric missing.`,
     });
     const latencyMs = Date.now() - llmStart;
 
@@ -149,7 +190,7 @@ Return ONLY a JSON object with this exact shape:
     if (!result.success) {
       console.warn("ATS result schema validation failed:", result.error.issues);
       return NextResponse.json(
-        { error: "Failed to parse ATS analysis" },
+        { error: "Failed to parse ATS analysis", details: result.error.issues },
         { status: 500 },
       );
     }
@@ -183,55 +224,47 @@ Return ONLY a JSON object with this exact shape:
   }
 }
 
-/** Build a text representation of the resume for the LLM */
+/** Build a clean JSON representation for the LLM */
 function buildResumeText(data: ResumeData): string {
-  const lines: string[] = [];
-
-  if (data.basics.name) lines.push(`Name: ${data.basics.name}`);
-  if (data.basics.label) lines.push(`Title: ${data.basics.label}`);
-  if (data.basics.email) lines.push(`Email: ${data.basics.email}`);
-  if (data.basics.summary) lines.push(`\nSummary:\n${data.basics.summary}`);
-
-  if (data.work.length > 0) {
-    lines.push("\nWork Experience:");
-    for (const w of data.work) {
-      lines.push(
-        `- ${w.position} at ${w.company} (${w.startDate} - ${w.endDate ?? "Present"})`,
-      );
-      for (const h of w.highlights) {
-        if (h) lines.push(`  • ${h}`);
-      }
-    }
-  }
-
-  if (data.education.length > 0) {
-    lines.push("\nEducation:");
-    for (const e of data.education) {
-      lines.push(`- ${e.studyType} in ${e.area} at ${e.institution}`);
-    }
-  }
-
-  if (data.skills.length > 0) {
-    lines.push("\nSkills:");
-    for (const s of data.skills) {
-      lines.push(`- ${s.name}: ${s.keywords.join(", ")}`);
-    }
-  }
-
-  if (data.projects.length > 0) {
-    lines.push("\nProjects:");
-    for (const p of data.projects) {
-      lines.push(`- ${p.name}: ${p.description}`);
-      if (p.keywords.length > 0) lines.push(`  Tech: ${p.keywords.join(", ")}`);
-    }
-  }
-
-  if (data.certifications.length > 0) {
-    lines.push("\nCertifications:");
-    for (const c of data.certifications) {
-      lines.push(`- ${c.name} by ${c.issuer}`);
-    }
-  }
-
-  return lines.join("\n");
+  return JSON.stringify(
+    {
+      basics: {
+        name: data.basics.name,
+        label: data.basics.label,
+        summary: data.basics.summary,
+        location: data.basics.location,
+      },
+      work: data.work.map((w) => ({
+        id: w.id,
+        position: w.position,
+        company: w.company,
+        startDate: w.startDate,
+        endDate: w.endDate,
+        highlights: w.highlights,
+      })),
+      skills: data.skills.map((s) => ({
+        id: s.id,
+        name: s.name,
+        keywords: s.keywords,
+      })),
+      projects: data.projects.map((p) => ({
+        id: p.id,
+        name: p.name,
+        startDate: p.startDate,
+        endDate: p.endDate,
+        highlights: p.highlights,
+      })),
+      education: data.education.map((e) => ({
+        id: e.id,
+        institution: e.institution,
+        studyType: e.studyType,
+        area: e.area,
+        startDate: e.startDate,
+        endDate: e.endDate,
+        score: e.score,
+      })),
+    },
+    null,
+    2,
+  );
 }

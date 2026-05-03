@@ -13,7 +13,7 @@ import type { RootState } from "@/store/store";
  */
 export function useAutoSave({
   localDelayMs = 2000,
-  serverDelayMs = 15000,
+  serverDelayMs = 5000,
   onServerSave,
 }: {
   localDelayMs?: number;
