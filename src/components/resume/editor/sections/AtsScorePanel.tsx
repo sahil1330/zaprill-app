@@ -178,6 +178,21 @@ export default function AtsScorePanel() {
           }
           break;
 
+        case "update_work_highlights":
+          if (action.id && (action.highlights || sanitizedData?.highlights)) {
+            const highlights = action.highlights || sanitizedData.highlights;
+            dispatch(
+              resumeActions.updateWorkItem({
+                id: action.id,
+                data: { highlights },
+              }),
+            );
+            applied = true;
+          } else {
+            toast.error("Could not find highlights for work item.");
+          }
+          break;
+
         case "update_project":
         case "update_project_item":
           if (action.id && (action.content || sanitizedData)) {
@@ -191,6 +206,21 @@ export default function AtsScorePanel() {
             applied = true;
           } else {
             toast.error("Could not find the project item to update.");
+          }
+          break;
+
+        case "update_project_highlights":
+          if (action.id && (action.highlights || sanitizedData?.highlights)) {
+            const highlights = action.highlights || sanitizedData.highlights;
+            dispatch(
+              resumeActions.updateProjectItem({
+                id: action.id,
+                data: { highlights },
+              }),
+            );
+            applied = true;
+          } else {
+            toast.error("Could not find highlights for project item.");
           }
           break;
 
