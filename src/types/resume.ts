@@ -345,7 +345,7 @@ export const DEFAULT_RESUME_METADATA: ResumeMetadata = {
     font: { family: "Inter", size: 11 },
     lineHeight: 1.5,
   },
-  page: { format: "a4", margin: 20 },
+  page: { format: "a4", margin: 10 },
   sectionOrder: [
     "summary",
     "work",
