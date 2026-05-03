@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, Variants } from "motion/react";
+import { motion, type Variants } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
@@ -39,12 +39,12 @@ export function WordFadeIn({
     >
       {_words.map((word, i) => (
         <motion.span
-          key={word}
+          key={`${word}-${i}`}
           variants={variants}
           custom={i}
-          className="inline-block"
+          className="inline-block pr-[0.3em]"
         >
-          {word}{" "}
+          {word}
         </motion.span>
       ))}
     </motion.h1>

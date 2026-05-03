@@ -135,6 +135,14 @@
     oklch(0.59 0.23 303 / 0.08);
 }
 
+@utility bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+@utility bg-gradient-accent {
+  background: var(--gradient-accent);
+}
+
 .dark {
   /* Dark mode: deep violet-charcoal, not black, not muddy */
   --background: oklch(0.18 0.03 286);

@@ -134,10 +134,11 @@ export default function OnboardingPage() {
               transition={{ delay: 1.2 }}
             >
               <Button
+                variant="gradient"
                 size="lg"
                 onClick={handleStartOnboarding}
                 disabled={isUpdatingStatus}
-                className="group px-8 h-12 text-base rounded-full bg-[var(--gradient-primary)] hover:opacity-90 shadow-[var(--shadow-glow)] transition-all duration-300"
+                className="group px-8 h-12 text-base rounded-full transition-all duration-300"
               >
                 {isUpdatingStatus ? (
                   <IconLoader2 className="h-5 w-5 animate-spin mr-2" />

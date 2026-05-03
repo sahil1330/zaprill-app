@@ -190,8 +190,9 @@ export default function ResumesPage() {
             <Button
               onClick={handleCreate}
               disabled={isCreating}
+              variant="gradient"
               size="lg"
-              className="gap-2 h-14 px-10 font-black text-lg rounded-full bg-[var(--gradient-primary)] shadow-[var(--shadow-glow)] hover:opacity-90 transition-all"
+              className="gap-2 h-14 px-10 font-black text-lg rounded-full transition-all"
             >
               {isCreating ? (
                 <IconLoader2 className="h-6 w-6 animate-spin" />
