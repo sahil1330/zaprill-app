@@ -48,6 +48,8 @@ export async function GET(request: NextRequest) {
         downloadCount: resume.downloadCount,
         createdAt: resume.createdAt,
         updatedAt: resume.updatedAt,
+        data: resume.data,
+        metadata: resume.metadata,
       })
       .from(resume)
       .where(and(...conditions))
@@ -87,6 +89,17 @@ export async function POST(request: NextRequest) {
 
     const { title, templateSlug, industry, sourceAnalysisId, data, metadata } =
       parsed.data;
+
+    // Check if user already has a resume to enforce "one resume per user"
+    const [existingResume] = await db
+      .select()
+      .from(resume)
+      .where(eq(resume.userId, session.user.id))
+      .limit(1);
+
+    if (existingResume) {
+      return NextResponse.json({ resume: existingResume }, { status: 200 });
+    }
 
     // Generate unique slug
     const slug = nanoid(10);

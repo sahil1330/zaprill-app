@@ -52,10 +52,16 @@ export default function ResumeExportPage({
         // Set document title for the PDF filename
         document.title = `${resume.title} — Resume`;
 
-        // Trigger print dialog after a short delay for rendering
-        setTimeout(() => {
-          window.print();
-        }, 500);
+        // Check if we are in preview mode
+        const isPreview =
+          new URLSearchParams(window.location.search).get("preview") === "true";
+
+        // Trigger print dialog after a short delay for rendering (only if NOT preview)
+        if (!isPreview) {
+          setTimeout(() => {
+            window.print();
+          }, 800);
+        }
       } catch {
         setError("Failed to export resume");
       }

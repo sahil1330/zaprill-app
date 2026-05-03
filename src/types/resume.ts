@@ -303,6 +303,8 @@ export interface ResumeListItem {
   downloadCount: number;
   createdAt: string;
   updatedAt: string;
+  data: ResumeData;
+  metadata: ResumeMetadata;
 }
 
 // ─────────────────────────────────────────────────

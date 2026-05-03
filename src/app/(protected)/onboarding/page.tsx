@@ -78,7 +78,20 @@ export default function OnboardingPage() {
         method: "PATCH",
         body: JSON.stringify({ onboardingStatus: "in_progress" }),
       });
-      router.push("/resumes");
+
+      // Create initial resume
+      const res = await fetch("/api/resumes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "My Professional Resume" }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        router.push(`/resumes/${data.resume.id}`);
+      } else {
+        router.push("/resumes");
+      }
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
