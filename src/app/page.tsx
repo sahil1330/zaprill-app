@@ -153,7 +153,7 @@ export default function HomePage() {
                   className="group relative h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto"
                   onClick={handleUseSavedProfile}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-[var(--gradient-primary)] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   <span className="relative flex items-center gap-3">
                     Search Jobs for{" "}
                     {profile.resumeRaw?.basics?.name?.split(" ")[0] ||
@@ -173,7 +173,7 @@ export default function HomePage() {
                     size="lg"
                     className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full group relative overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-[var(--gradient-primary)] opacity-90 group-hover:opacity-100 transition-opacity" />
                     <span className="relative flex items-center gap-3">
                       Complete Your Onboarding
                       <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
@@ -190,10 +190,13 @@ export default function HomePage() {
               <Link href="/sign-in" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full"
+                  className="h-20 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full relative overflow-hidden group"
                 >
-                  Get Started Now
-                  <ArrowRight className="ml-3 h-6 w-6" />
+                  <div className="absolute inset-0 bg-[var(--gradient-primary)] opacity-100 group-hover:opacity-90 transition-opacity" />
+                  <span className="relative flex items-center gap-3">
+                    Get Started Now
+                    <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                  </span>
                 </Button>
               </Link>
               <div className="flex items-center gap-8 text-muted-foreground font-bold text-xs uppercase tracking-widest opacity-60">

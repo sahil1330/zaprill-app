@@ -87,7 +87,12 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 overflow-hidden relative">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]" />
+      </div>
       <AnimatePresence mode="wait">
         {step === "welcome" && (
           <motion.div
@@ -99,13 +104,13 @@ export default function OnboardingPage() {
           >
             <WordFadeIn
               words="Welcome to Career Intelligence"
-              className="text-4xl md:text-6xl font-bold text-neutral-900 dark:text-white mb-6"
+              className="text-4xl md:text-6xl font-bold text-foreground mb-6"
             />
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="text-neutral-600 dark:text-neutral-400 text-lg mb-10"
+              className="text-muted-foreground text-lg mb-10"
             >
               Let&apos;s get your profile ready to find your dream job and
               bridge your skill gaps.
@@ -119,7 +124,7 @@ export default function OnboardingPage() {
                 size="lg"
                 onClick={handleStartOnboarding}
                 disabled={isUpdatingStatus}
-                className="group px-8 h-12 text-base rounded-full"
+                className="group px-8 h-12 text-base rounded-full bg-[var(--gradient-primary)] hover:opacity-90 shadow-[var(--shadow-glow)] transition-all duration-300"
               >
                 {isUpdatingStatus ? (
                   <IconLoader2 className="h-5 w-5 animate-spin mr-2" />
@@ -143,10 +148,10 @@ export default function OnboardingPage() {
             className="w-full max-w-4xl"
           >
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
                 How would you like to start?
               </h2>
-              <p className="text-neutral-600 dark:text-neutral-400">
+              <p className="text-muted-foreground">
                 We need your professional history to analyze your career path.
               </p>
             </div>
@@ -155,13 +160,13 @@ export default function OnboardingPage() {
               <ChoiceCard
                 title="I have a resume"
                 description="Upload your existing PDF or Word document. We'll parse it instantly."
-                icon={<IconFileText className="h-8 w-8 text-blue-500" />}
+                icon={<IconFileText className="h-8 w-8 text-primary" />}
                 onClick={() => setStep("upload")}
               />
               <ChoiceCard
                 title="I'll build one here"
                 description="Use our AI-powered builder to create a professional resume from scratch."
-                icon={<IconWand className="h-8 w-8 text-purple-500" />}
+                icon={<IconWand className="h-8 w-8 text-primary" />}
                 onClick={handleStartBuilding}
               />
             </div>
@@ -177,17 +182,17 @@ export default function OnboardingPage() {
             className="w-full max-w-2xl"
           >
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
+              <h2 className="text-3xl font-bold text-foreground mb-2">
                 Upload your Resume
               </h2>
-              <p className="text-neutral-600 dark:text-neutral-400">
+              <p className="text-muted-foreground">
                 Supports PDF, DOCX, and TXT (Max 10MB)
               </p>
             </div>
 
             <Card
               className={cn(
-                "p-1 border-2 border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors",
+                "p-1 border-2 border-dashed border-border bg-card transition-colors",
                 isUploading && "opacity-50 pointer-events-none",
               )}
             >
@@ -196,8 +201,8 @@ export default function OnboardingPage() {
 
             {isUploading && (
               <div className="mt-8 flex flex-col items-center gap-4">
-                <IconLoader2 className="h-10 w-10 text-blue-500 animate-spin" />
-                <p className="text-neutral-600 dark:text-neutral-400 font-medium animate-pulse">
+                <IconLoader2 className="h-10 w-10 text-primary animate-spin" />
+                <p className="text-muted-foreground font-medium animate-pulse">
                   Our AI is analyzing your career history...
                 </p>
               </div>
@@ -207,7 +212,7 @@ export default function OnboardingPage() {
               <Button
                 variant="ghost"
                 onClick={() => setStep("choice")}
-                className="mt-6 mx-auto flex items-center text-neutral-500"
+                className="mt-6 mx-auto flex items-center text-muted-foreground hover:text-foreground"
               >
                 Go back
               </Button>
@@ -222,7 +227,7 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center"
           >
-            <div className="h-24 w-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-green-500/20">
+            <div className="h-24 w-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[var(--shadow-glow)]">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -233,13 +238,13 @@ export default function OnboardingPage() {
                   delay: 0.2,
                 }}
               >
-                <IconCheck className="h-12 w-12 text-green-600 dark:text-green-400" />
+                <IconCheck className="h-12 w-12 text-primary" />
               </motion.div>
             </div>
-            <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
               Profile Ready!
             </h2>
-            <p className="text-neutral-600 dark:text-neutral-400 text-lg">
+            <p className="text-muted-foreground text-lg">
               We&apos;ve analyzed your resume. Redirecting you to your career
               insights...
             </p>
@@ -268,16 +273,12 @@ function ChoiceCard({
       onClick={onClick}
       className="text-left"
     >
-      <Card className="h-full p-8 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 group">
-        <div className="mb-6 p-3 w-fit rounded-2xl bg-neutral-50 dark:bg-neutral-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
+      <Card className="h-full p-8 border-border bg-card hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 group">
+        <div className="mb-6 p-3 w-fit rounded-2xl bg-muted group-hover:bg-primary/10 transition-colors">
           {icon}
         </div>
-        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-3">
-          {title}
-        </h3>
-        <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-          {description}
-        </p>
+        <h3 className="text-xl font-bold text-foreground mb-3">{title}</h3>
+        <p className="text-muted-foreground leading-relaxed">{description}</p>
       </Card>
     </motion.button>
   );
