@@ -20,6 +20,8 @@ export type Plan = {
   features: any[]; // { text: string, info: string | null }[]
   isActive: boolean;
   sortOrder: number;
+  isGstEnabled: boolean;
+  gstPercentage: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -49,11 +51,20 @@ export function SettingsContent() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/settings");
+      if (!res.ok) {
+        const errorText = await res.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.error || `Error ${res.status}`);
+        } catch {
+          throw new Error(errorText || `Error ${res.status}`);
+        }
+      }
       const json = await res.json();
-      if (json.error) throw new Error(json.error);
       setPlans(json.plans ?? []);
       setCoupons(json.coupons ?? []);
     } catch (e: any) {
+      console.error("[FETCH_DATA]", e);
       toast.error(e.message || "Failed to load settings");
     } finally {
       setLoading(false);
@@ -71,9 +82,18 @@ export function SettingsContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ _action: action, ...data }),
       });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
-      return json;
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.error || `Error ${res.status}`);
+        } catch {
+          throw new Error(errorText || `Error ${res.status}`);
+        }
+      }
+
+      return res.json();
     },
     [],
   );

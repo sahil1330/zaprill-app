@@ -31,6 +31,8 @@ interface Plan {
   billingCycle: string;
   category: string;
   sortOrder: number;
+  isGstEnabled: boolean;
+  gstPercentage: string | null;
   features: unknown;
 }
 
@@ -163,6 +165,11 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
                         {formatCurrency(p.amount)} / quarter
                       </span>
                     </div>
+                  )}
+                  {p.isGstEnabled && (
+                    <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1.5">
+                      + {p.gstPercentage}% GST
+                    </span>
                   )}
                 </div>
 

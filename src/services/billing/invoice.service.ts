@@ -26,14 +26,17 @@ export interface CreateInvoiceParams {
   currency?: string;
   billingReason: BillingReason;
   couponId?: string;
+  gstPercentage?: number;
 }
 
 export async function createInvoice(
   params: CreateInvoiceParams,
 ): Promise<Invoice> {
+  const taxRate = params.gstPercentage ? params.gstPercentage / 100 : 0;
   const { amountDue, taxAmount, totalAmount } = calculateInvoiceAmounts(
     params.planAmount,
     params.discountAmount,
+    taxRate,
   );
 
   const id = generateId("inv");
@@ -54,6 +57,7 @@ export async function createInvoice(
       couponId: params.couponId,
       discountAmount: params.discountAmount.toFixed(2),
       taxAmount: taxAmount.toFixed(2),
+      gstPercentage: params.gstPercentage?.toString(),
       totalAmount: totalAmount.toFixed(2),
     })
     .returning();

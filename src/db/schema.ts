@@ -272,6 +272,10 @@ export const plan = pgTable("plan", {
   category: text("category").notNull().default("pro"), // e.g. "pro", "max"
   features: jsonb("features").default([]), // { text: string, info: string | null }[] of feature bullets
   isActive: boolean("is_active").notNull().default(true),
+  isGstEnabled: boolean("is_gst_enabled").notNull().default(false),
+  gstPercentage: numeric("gst_percentage", { precision: 5, scale: 2 }).default(
+    "18",
+  ),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -405,6 +409,7 @@ export const invoice = pgTable(
       scale: 2,
     }).default("0"),
     taxAmount: numeric("tax_amount", { precision: 10, scale: 2 }).default("0"),
+    gstPercentage: numeric("gst_percentage", { precision: 5, scale: 2 }),
     totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
     cashfreeOrderId: text("cashfree_order_id"), // used for webhook lookup
     metadata: jsonb("metadata").default({}),

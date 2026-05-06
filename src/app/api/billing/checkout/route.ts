@@ -101,6 +101,9 @@ export async function POST(request: Request) {
       discountAmount,
       billingReason: "subscription_create",
       couponId,
+      gstPercentage: selectedPlan.isGstEnabled
+        ? parseFloat(selectedPlan.gstPercentage ?? "18")
+        : 0,
       // Store planId + billingCycle in metadata for webhook handler
     });
 

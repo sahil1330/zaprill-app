@@ -50,6 +50,8 @@ const EMPTY_FORM = {
   category: "pro" as string,
   features: [] as { text: string; info: string }[],
   isActive: true,
+  isGstEnabled: false,
+  gstPercentage: "18",
   sortOrder: 0,
 };
 
@@ -82,6 +84,8 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
           )
         : [],
       isActive: plan.isActive,
+      isGstEnabled: plan.isGstEnabled,
+      gstPercentage: plan.gstPercentage ?? "18",
       sortOrder: plan.sortOrder,
     });
     setOpen(true);
@@ -178,6 +182,14 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                     <Badge variant="outline" className="capitalize text-xs">
                       {plan.billingCycle}
                     </Badge>
+                    {plan.isGstEnabled && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      >
+                        GST {plan.gstPercentage}%
+                      </Badge>
+                    )}
                     {!plan.isActive && (
                       <Badge variant="secondary" className="text-xs">
                         Inactive
@@ -348,6 +360,30 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 pt-6">
+                <Switch
+                  checked={form.isGstEnabled}
+                  onCheckedChange={(v) =>
+                    setForm((f) => ({ ...f, isGstEnabled: v }))
+                  }
+                />
+                <Label>Enable GST</Label>
+              </div>
+              {form.isGstEnabled && (
+                <div className="space-y-1.5">
+                  <Label>GST Percentage (%)</Label>
+                  <Input
+                    type="number"
+                    value={form.gstPercentage}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, gstPercentage: e.target.value }))
+                    }
+                    placeholder="18"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Sort Order</Label>
                 <Input
@@ -446,7 +482,7 @@ export function PlansTab({ plans, loading, onMutate, onRefresh }: Props) {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3 pt-2">
+            <div className="hidden">
               <Switch
                 checked={form.isActive}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}

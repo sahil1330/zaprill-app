@@ -42,6 +42,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: false,
+    gstPercentage: "0",
     sortOrder: 0,
   },
   {
@@ -81,6 +83,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: true,
+    gstPercentage: "18",
     sortOrder: 1,
   },
   {
@@ -120,6 +124,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: true,
+    gstPercentage: "18",
     sortOrder: 2,
   },
   {
@@ -159,6 +165,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: true,
+    gstPercentage: "18",
     sortOrder: 3,
   },
   {
@@ -198,6 +206,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: true,
+    gstPercentage: "18",
     sortOrder: 4,
   },
   {
@@ -237,6 +247,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: true,
+    gstPercentage: "18",
     sortOrder: 5,
   },
   {
@@ -276,6 +288,8 @@ const plans = [
       },
     ],
     isActive: true,
+    isGstEnabled: true,
+    gstPercentage: "18",
     sortOrder: 6,
   },
 ];
@@ -299,6 +313,8 @@ async function seedPlans() {
           description: p.description,
           features: p.features,
           isActive: p.isActive,
+          isGstEnabled: (p as any).isGstEnabled,
+          gstPercentage: (p as any).gstPercentage,
           sortOrder: p.sortOrder,
           updatedAt: new Date(),
         },

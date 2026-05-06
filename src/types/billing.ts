@@ -30,6 +30,8 @@ export interface Plan {
   billingCycle: BillingCycle;
   features: string[];
   isActive: boolean;
+  isGstEnabled: boolean;
+  gstPercentage: string | null;
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
@@ -97,6 +99,7 @@ export interface Invoice {
   couponId: string | null;
   discountAmount: string;
   taxAmount: string;
+  gstPercentage: string | null;
   totalAmount: string;
   cashfreeOrderId: string | null;
   metadata: Record<string, unknown>;

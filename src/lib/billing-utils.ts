@@ -79,10 +79,11 @@ export function calculateDiscount(
 export function calculateInvoiceAmounts(
   planAmount: number,
   discountAmount: number,
+  taxRate = 0, // default to 0 (no tax)
 ): { amountDue: number; taxAmount: number; totalAmount: number } {
   const amountDue = planAmount;
   const taxableAmount = planAmount - discountAmount;
-  const taxAmount = Math.round(taxableAmount * TAX_RATE * 100) / 100;
+  const taxAmount = Math.round(taxableAmount * taxRate * 100) / 100;
   const totalAmount = Math.round((taxableAmount + taxAmount) * 100) / 100;
   return { amountDue, taxAmount, totalAmount };
 }

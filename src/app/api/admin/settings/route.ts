@@ -12,30 +12,37 @@ async function requireAdmin() {
   return session;
 }
 
-// ─── Plans ───────────────────────────────────────────────────────────────────
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  if (!(await requireAdmin())) {
-    return new NextResponse("Unauthorized", { status: 401 });
+  try {
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [plans, couponsData] = await Promise.all([
+      db.select().from(plan).orderBy(plan.sortOrder),
+      db.select().from(coupons).orderBy(coupons.createdAt),
+    ]);
+
+    return NextResponse.json({ plans, coupons: couponsData });
+  } catch (error: any) {
+    console.error("[SETTINGS_GET]", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  const [plans, couponsData] = await Promise.all([
-    db.select().from(plan).orderBy(plan.sortOrder),
-    db.select().from(coupons).orderBy(coupons.createdAt),
-  ]);
-
-  return NextResponse.json({ plans, coupons: couponsData });
 }
 
 export async function POST(request: Request) {
-  if (!(await requireAdmin())) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
-  const body = await request.json();
-  const { _action, ...data } = body;
-
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { _action, ...data } = body;
+
     if (_action === "create_plan") {
       const newPlan = await db
         .insert(plan)
@@ -51,6 +58,8 @@ export async function POST(request: Request) {
           category: data.category || "pro",
           features: data.features ?? [],
           isActive: data.isActive ?? true,
+          isGstEnabled: data.isGstEnabled ?? false,
+          gstPercentage: data.gstPercentage ?? "18",
           sortOrder: data.sortOrder ?? 0,
         })
         .returning();
@@ -70,6 +79,8 @@ export async function POST(request: Request) {
           category: data.category,
           features: data.features,
           isActive: data.isActive,
+          isGstEnabled: data.isGstEnabled,
+          gstPercentage: data.gstPercentage,
           sortOrder: data.sortOrder,
           updatedAt: new Date(),
         })
