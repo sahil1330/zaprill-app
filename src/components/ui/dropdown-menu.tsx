@@ -15,13 +15,18 @@ function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
 
 function DropdownMenuTrigger({
   children,
+  asChild,
   ...props
-}: MenuPrimitive.Trigger.Props & { asChild?: boolean }) {
-  // Strip asChild — not supported by Base UI. Render children directly inside the trigger.
-  const { asChild: _asChild, ...rest } = props as any;
+}: React.ComponentPropsWithRef<typeof MenuPrimitive.Trigger> & {
+  asChild?: boolean;
+}) {
   return (
-    <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...rest}>
-      {children}
+    <MenuPrimitive.Trigger
+      data-slot="dropdown-menu-trigger"
+      render={asChild ? (children as any) : undefined}
+      {...props}
+    >
+      {!asChild && children}
     </MenuPrimitive.Trigger>
   );
 }
@@ -91,14 +96,13 @@ function DropdownMenuItem({
   inset,
   variant = "default",
   children,
+  asChild,
   ...props
-}: MenuPrimitive.Item.Props & {
+}: React.ComponentPropsWithRef<typeof MenuPrimitive.Item> & {
   inset?: boolean;
   variant?: "default" | "destructive";
   asChild?: boolean;
 }) {
-  // Strip asChild — not supported by Base UI.
-  const { asChild: _asChild, ...rest } = props as any;
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"
@@ -108,9 +112,10 @@ function DropdownMenuItem({
         "group/dropdown-menu-item relative flex cursor-default items-center gap-2.5 rounded-2xl px-3 py-2 text-sm font-medium outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-[inset]:pl-9.5 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive",
         className,
       )}
-      {...rest}
+      render={asChild ? (children as any) : undefined}
+      {...props}
     >
-      {children}
+      {!asChild && children}
     </MenuPrimitive.Item>
   );
 }
@@ -172,9 +177,11 @@ function DropdownMenuCheckboxItem({
   children,
   checked,
   inset,
+  asChild,
   ...props
-}: MenuPrimitive.CheckboxItem.Props & {
+}: React.ComponentPropsWithRef<typeof MenuPrimitive.CheckboxItem> & {
   inset?: boolean;
+  asChild?: boolean;
 }) {
   return (
     <MenuPrimitive.CheckboxItem
@@ -185,6 +192,7 @@ function DropdownMenuCheckboxItem({
         className,
       )}
       checked={checked}
+      render={asChild ? (children as any) : undefined}
       {...props}
     >
       <span
@@ -195,7 +203,7 @@ function DropdownMenuCheckboxItem({
           <CheckIcon />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
-      {children}
+      {!asChild && children}
     </MenuPrimitive.CheckboxItem>
   );
 }
@@ -213,9 +221,11 @@ function DropdownMenuRadioItem({
   className,
   children,
   inset,
+  asChild,
   ...props
-}: MenuPrimitive.RadioItem.Props & {
+}: React.ComponentPropsWithRef<typeof MenuPrimitive.RadioItem> & {
   inset?: boolean;
+  asChild?: boolean;
 }) {
   return (
     <MenuPrimitive.RadioItem
@@ -225,6 +235,7 @@ function DropdownMenuRadioItem({
         "relative flex cursor-default items-center gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm font-medium outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:pl-9.5 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
+      render={asChild ? (children as any) : undefined}
       {...props}
     >
       <span
@@ -235,7 +246,7 @@ function DropdownMenuRadioItem({
           <CheckIcon />
         </MenuPrimitive.RadioItemIndicator>
       </span>
-      {children}
+      {!asChild && children}
     </MenuPrimitive.RadioItem>
   );
 }

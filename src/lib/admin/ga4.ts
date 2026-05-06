@@ -1,5 +1,5 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import { google } from "googleapis";
+import { OAuth2Client } from "google-auth-library";
 
 const propertyId = process.env.GA_PROPERTY_ID;
 const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -14,7 +14,7 @@ async function getGA4Client() {
     throw new Error("Google OAuth credentials missing");
   }
 
-  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  const oauth2Client = new OAuth2Client(clientId, clientSecret);
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 
   const { token } = await oauth2Client.getAccessToken();
