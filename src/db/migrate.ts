@@ -7,16 +7,12 @@
  * issues with Neon. The @neondatabase/serverless driver handles it correctly.
  */
 
-import { neonConfig, Pool } from "@neondatabase/serverless";
+import { neon } from "@neondatabase/serverless";
 import * as dotenv from "dotenv";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { migrate } from "drizzle-orm/neon-serverless/migrator";
+import { drizzle } from "drizzle-orm/neon-http";
+import { migrate } from "drizzle-orm/neon-http/migrator";
 import path from "path";
 import { fileURLToPath } from "url";
-import ws from "ws";
-
-// Set the WebSocket constructor for Node.js
-neonConfig.webSocketConstructor = ws;
 
 dotenv.config({ path: ".env.local" });
 
@@ -30,14 +26,9 @@ const migrationsFolder = path.resolve(__dirname, "migrations");
 
 async function runMigrations() {
   console.log("🚀 Running migrations from:", migrationsFolder);
-
-  // Use Pool for WebSocket connection
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const db = drizzle(pool);
-
+  const sql = neon(process.env.DATABASE_URL!);
+  const db = drizzle(sql);
   await migrate(db, { migrationsFolder });
-
-  await pool.end();
   console.log("✅ Migrations applied successfully!");
   process.exit(0);
 }
