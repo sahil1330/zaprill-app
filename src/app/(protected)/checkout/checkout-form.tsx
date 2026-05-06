@@ -45,7 +45,9 @@ export default function CheckoutForm({
   const [couponError, setCouponError] = useState<string | null>(null);
 
   const planAmount = parseFloat(currentPlan.amount);
-  const taxRate = 0.18; // Keep in sync with backend
+  const taxRate = currentPlan.isGstEnabled
+    ? parseFloat(currentPlan.gstPercentage ?? "18") / 100
+    : 0;
   const taxableAmount = Math.max(0, planAmount - discount);
   const taxAmount = taxableAmount * taxRate;
   const totalAmount = taxableAmount + taxAmount;
@@ -315,10 +317,14 @@ export default function CheckoutForm({
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-4 border-t border-border/50">
-              <p className="text-sm text-muted-foreground">Taxes (18% GST)</p>
-              <p className="text-sm">{formatCurrency(taxAmount)}</p>
-            </div>
+            {currentPlan.isGstEnabled && (
+              <div className="flex justify-between items-center pt-4 border-t border-border/50">
+                <p className="text-sm text-muted-foreground">
+                  Taxes ({currentPlan.gstPercentage}% GST)
+                </p>
+                <p className="text-sm">{formatCurrency(taxAmount)}</p>
+              </div>
+            )}
 
             <div className="flex justify-between items-center pt-4 border-t font-semibold text-lg">
               <p>Total</p>

@@ -5,9 +5,6 @@ import type { BillingCycle } from "@/types/billing";
 // Constants
 // ─────────────────────────────────────────────────
 
-/** GST rate for India (18%). Adjust per your jurisdiction. */
-export const TAX_RATE = 0.18;
-
 // ─────────────────────────────────────────────────
 // ID Generation
 // ─────────────────────────────────────────────────
