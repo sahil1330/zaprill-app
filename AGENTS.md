@@ -42,14 +42,83 @@ Rules:
 
 # Local / Cloud Agent development
 
-- Package manager: **pnpm** with `pnpm-lock.yaml`. Node 22 is the verified runtime.
-- Install: `pnpm install --frozen-lockfile`
-- Dev server: `pnpm dev` (Next.js on port 3000)
-- App env file is **`.env.local`** (gitignored). Required:
-  - `DATABASE_URL` — Neon pooled connection string
-  - `BETTER_AUTH_SECRET` — 32+ character random string
-- `RESEND_API_KEY` must be present so `src/lib/emails/sendMail.ts` can load. Use a real Resend key, or `re_placeholder` if you are not sending mail.
-- Google login needs `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET`. Email/password works with placeholders.
-- Isolated Cloud Agent test user (email verified): `cloud-agent@zaprill.local` / `CloudAgent123`
-- Prefer the Neon **development** branch, not production.
-- `pnpm lint` currently reports many pre-existing Biome findings; there is no unit-test script. E2E lives in `e2e/` (`pnpm test:e2e`).
+This is a **Next.js 16 App Router** app (`next@16.2.1`). Future agents should treat the notes below as operating context, not a second README.
+
+## Canonical commands
+
+Package manager is **pnpm** (`pnpm-lock.yaml`). Runtime is **Node 22**.
+
+| Task | Command | Notes |
+| --- | --- | --- |
+| Install | `pnpm install --frozen-lockfile` | Do not rewrite the lockfile during setup. |
+| Dev server | `pnpm dev` | Next.js on port **3000**. |
+| Lint | `pnpm lint` | Biome (`biome check`). Many pre-existing failures — **not a setup blocker**. |
+| E2E | `pnpm test:e2e` | Lives in `e2e/`. There is no unit-test script. |
+
+Do not treat a red `pnpm lint` as a broken environment.
+
+## Cloud Agent environment (DB-managed)
+
+This repo does **not** use a committed `.cursor/environment.json`. The Cloud Agent environment is **DB-managed** (Cursor dashboard / Environment panel). Editing files in the repo does not change the saved environment; the dashboard config is authoritative.
+
+- Secrets are injected as **process env** from the Environment panel. They are not committed.
+- Next.js, drizzle-kit, and several `src/scripts/*` load **`.env.local`**, not only process env. The environment **start** script should write a gitignored `.env.local` from those injected secrets on each boot.
+- `.gitignore` matches `.env*`. **Never commit** `.env`, `.env.local`, or any `.env*` file.
+- `install` should stay idempotent (deps from the lockfile). `start` should materialize `.env.local` and reconcile runtime. `pnpm dev` belongs in `terminals` (or a start supervisor that then exits), not in `install`.
+
+## Required vs optional secrets
+
+Ask for **these app secrets** if a new Cloud Agent is missing them. Do **not** ask for a demo login instead.
+
+Required (app will not boot or will crash on import without these):
+
+- `DATABASE_URL` — Neon **pooled** connection string
+- `BETTER_AUTH_SECRET` — 32+ character random string
+- `RESEND_API_KEY` — real Resend key, or `re_placeholder` so `src/lib/emails/sendMail.ts` can construct `new Resend(...)` at module load
+
+Optional (feature-gated; email/password auth works without Google):
+
+- `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET`
+- `OPENAI_API_KEY`
+- `ADZUNA_APP_ID` / `ADZUNA_APP_KEY`
+- `CASHFREE_CLIENT_ID` / `CASHFREE_CLIENT_SECRET`
+- `NEXT_PUBLIC_APP_URL` — defaults to `http://localhost:3000` in `src/lib/auth-client.ts`
+
+**Not required:** `DEMO_EMAIL` and `DEMO_PASSWORD`. They are only Playwright fallbacks in `e2e/ux-audit/auth.setup.ts` (hardcoded demo defaults if unset). **Never block environment setup on them.**
+
+Do not put secret **values** (passwords inside `DATABASE_URL`, API keys) in this file or in chat.
+
+## Neon: use the development branch
+
+Prefer the Neon **development** branch, not production. The pooled hostname is:
+
+`ep-fragrant-unit-a1hitczr-pooler.ap-southeast-1.aws.neon.tech`
+
+If `DATABASE_URL` points at a different host, you are probably on the wrong branch.
+
+## Isolated test user (already on that branch)
+
+| Field | Value |
+| --- | --- |
+| Email | `cloud-agent@zaprill.local` |
+| Password | `CloudAgent123` |
+| Email verified | yes |
+| Auth provider | email/password (`credential`) |
+
+Better Auth email/password accounts use `account.provider_id = 'credential'`, **not** `'email'`. The older `src/scripts/create-test-user.ts` update path still filters on `"email"` and will miss this user.
+
+This test user **must** have a `user_profile` row. `src/app/page.tsx` keeps rendering `DashboardSkeleton` forever when `session` is set but `/api/profile` returns no `profile` (`if (session && (!profile || isFetchingProfile))`). Seed `onboarding_status` as `not_started` so the home page reaches the logged-in onboarding CTA instead of an infinite skeleton.
+
+## Hello-world check (after `pnpm dev`)
+
+1. `GET /` — marketing/home renders.
+2. `GET /sign-in` — sign-in page renders.
+3. `POST /api/auth/sign-in/email` with `{ "email": "cloud-agent@zaprill.local", "password": "CloudAgent123", "rememberMe": true }` — session cookie is set.
+
+Then open `/` authenticated and confirm you see the onboarding CTA, not a stuck skeleton.
+
+## Architecture reminders (do not regress)
+
+- Prefer **API routes** over Server Actions for mutations and heavy fetching (see `.agents/ARCHITECTURE.md`).
+- **No emojis** in UI, pages, or rendered copy — Lucide icons only.
+- Before codebase/architecture questions, read `graphify-out/GRAPH_REPORT.md` (and `graphify-out/wiki/index.md` if present). Query the graph instead of grepping first.
