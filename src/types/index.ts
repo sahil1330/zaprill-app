@@ -65,7 +65,8 @@ export type AnalysisStep =
   | "searching"
   | "analyzing"
   | "done"
-  | "error";
+  | "error"
+  | "needs_resume";
 
 export interface AnalysisState {
   step: AnalysisStep;

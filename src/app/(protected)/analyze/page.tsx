@@ -10,7 +10,7 @@ import {
   Filter,
   Info,
   Loader2,
-  Map,
+  Map as MapIcon,
   Plus,
   RefreshCw,
   Target,
@@ -32,6 +32,7 @@ import {
 import { AnalysisError } from "@/components/analyze/analysis-error";
 import { JobFilters } from "@/components/analyze/job-filters";
 import { MemeLoader } from "@/components/analyze/meme-loader";
+import { AnalyzeNeedsResume } from "@/components/analyze/needs-resume";
 import { ParsingProgress } from "@/components/analyze/parsing-progress";
 import { ProfileReview } from "@/components/analyze/profile-review";
 import { ResultsHeader } from "@/components/analyze/results-header";
@@ -95,7 +96,7 @@ type TabId = "jobs" | "gaps" | "roadmap";
 const TABS: { id: TabId; label: string; icon: typeof Briefcase }[] = [
   { id: "jobs", label: "Job Matches", icon: Briefcase },
   { id: "gaps", label: "Skill Gaps", icon: TrendingUp },
-  { id: "roadmap", label: "Learning Roadmap", icon: Map },
+  { id: "roadmap", label: "Learning Roadmap", icon: MapIcon },
 ];
 
 function AnalyzePageContent() {
@@ -357,69 +358,98 @@ function AnalyzePageContent() {
     }
   }, [idFromUrl, user, isFetchingHistory, resume]);
 
+  const hydrateResume = useCallback((rawParsed: unknown) => {
+    const parsed = normalizeResumeData(rawParsed);
+    const extra =
+      rawParsed && typeof rawParsed === "object"
+        ? (rawParsed as ResumeData)
+        : parsed;
+    const rd: ResumeData = {
+      ...parsed,
+      inferredJobTitles:
+        extra.inferredJobTitles || parsed.inferredJobTitles || [],
+      totalYearsOfExperience:
+        extra.totalYearsOfExperience ?? parsed.totalYearsOfExperience ?? 0,
+    };
+    setResume(rd);
+
+    const location = rd.basics.location.city;
+    if (location) {
+      const cityName = extractCityFromLocation(location);
+      const matched = INDIA_CITIES.find(
+        (c) =>
+          c.city.toLowerCase() === cityName.toLowerCase() ||
+          c.aliases.some((a) => a === cityName.toLowerCase()),
+      );
+      setFilterState((prev) => ({
+        ...prev,
+        searchLoc: matched ? matched.city : cityName,
+      }));
+    }
+    setReviewState((prev) => ({
+      ...prev,
+      reviewSkills: flattenResumeSkills(rd),
+      reviewTitles: rd.inferredJobTitles || [],
+      selectedTitles: rd.inferredJobTitles?.slice(0, 3) || [],
+      experienceYears: rd.totalYearsOfExperience || 0,
+      currentSalary: null,
+    }));
+    setStep("reviewing");
+
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        const salary = data?.profile?.currentSalary;
+        if (salary) {
+          setReviewState((prev) => ({ ...prev, currentSalary: salary }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
-    if (idFromUrl || isFetchingHistory || initRef.current) return;
+    if (idFromUrl || isFetchingHistory || initRef.current || resume) return;
 
     const stored = sessionStorage.getItem("ai_job_god_resume");
-    if (!stored) {
-      router.replace("/");
+    if (stored) {
+      initRef.current = true;
+      try {
+        hydrateResume(JSON.parse(stored));
+      } catch {
+        sessionStorage.removeItem("ai_job_god_resume");
+        setStep("needs_resume");
+      }
       return;
     }
-    const rawParsed = JSON.parse(stored);
-    const parsed = normalizeResumeData(rawParsed);
 
-    // If resume is not yet set up, initialize it
-    if (!resume) {
-      initRef.current = true;
-      const rd: ResumeData = {
-        ...parsed,
-        inferredJobTitles:
-          rawParsed.inferredJobTitles || parsed.inferredJobTitles || [],
-        totalYearsOfExperience:
-          rawParsed.totalYearsOfExperience ??
-          parsed.totalYearsOfExperience ??
-          0,
-      };
-      setResume(rd);
+    // No local draft — try the saved primary resume instead of bouncing home.
+    initRef.current = true;
+    let cancelled = false;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        const raw = data?.profile?.resumeRaw || data?.profile?.resumeData;
+        const status = data?.profile?.onboardingStatus;
+        if (raw && flattenResumeSkills(normalizeResumeData(raw)).length > 0) {
+          sessionStorage.setItem("ai_job_god_resume", JSON.stringify(raw));
+          hydrateResume(raw);
+          return;
+        }
+        if (status && status !== "completed") {
+          router.replace("/onboarding");
+          return;
+        }
+        setStep("needs_resume");
+      })
+      .catch(() => {
+        if (!cancelled) setStep("needs_resume");
+      });
 
-      const location = rd.basics.location.city;
-      if (location) {
-        // Extract just the city name (e.g. "Mumbai" from "Mumbai, India")
-        const cityName = extractCityFromLocation(location);
-        // Check if this city is in our known city list (handles aliases)
-        const matched = INDIA_CITIES.find(
-          (c) =>
-            c.city.toLowerCase() === cityName.toLowerCase() ||
-            c.aliases.some((a) => a === cityName.toLowerCase()),
-        );
-        setFilterState((prev) => ({
-          ...prev,
-          searchLoc: matched ? matched.city : cityName,
-        }));
-      }
-      // Instead of starting analysis immediately, go to reviewing stage
-      setReviewState((prev) => ({
-        ...prev,
-        reviewSkills: flattenResumeSkills(rd),
-        reviewTitles: rd.inferredJobTitles || [],
-        selectedTitles: rd.inferredJobTitles?.slice(0, 3) || [],
-        experienceYears: rd.totalYearsOfExperience || 0,
-        currentSalary: null,
-      }));
-      setStep("reviewing");
-
-      // Pre-fill current salary from profile (non-blocking)
-      fetch("/api/profile")
-        .then((r) => r.json())
-        .then((data) => {
-          const salary = data?.profile?.currentSalary;
-          if (salary) {
-            setReviewState((prev) => ({ ...prev, currentSalary: salary }));
-          }
-        })
-        .catch(() => {});
-    }
-  }, [router, runAnalysis, idFromUrl, isFetchingHistory, resume]);
+    return () => {
+      cancelled = true;
+    };
+  }, [router, idFromUrl, isFetchingHistory, resume, hydrateResume]);
 
   useEffect(() => {
     // Only save automatically if we aren't already looking at a history loaded run
@@ -540,12 +570,14 @@ function AnalyzePageContent() {
   const summary = getAnalysisSummary(jobs);
   const isDone = step === "done";
   const isError = step === "error";
-  const isLoading = !isDone && !isError;
 
   return (
     <div className="bg-background font-sans text-foreground selection:bg-foreground selection:text-background">
       <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
-        {(step === "reviewing" || isDone || isError) && (
+        {(step === "reviewing" ||
+          isDone ||
+          isError ||
+          step === "needs_resume") && (
           <PageHeader
             title="Analyze"
             description="Match your resume to jobs, identify skill gaps, and build a learning roadmap."
@@ -580,6 +612,8 @@ function AnalyzePageContent() {
 
         {/* Error state */}
         {isError && <AnalysisError error={error} />}
+
+        {step === "needs_resume" && <AnalyzeNeedsResume />}
 
         {/* Results */}
         {isDone && resume && (

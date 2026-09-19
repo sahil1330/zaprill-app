@@ -9,6 +9,22 @@ import { sendVerificationEmail } from "./emails/verification-email";
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
+function resolveAuthCookieDomain(): string | undefined {
+  if (process.env.VERCEL_ENV === "preview") return undefined;
+
+  const appUrl =
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    "";
+
+  // Only pin the cookie to the production apex when this deploy actually
+  // serves zaprill.com. Test Vercel production URLs must stay host-only.
+  if (appUrl.includes("zaprill.com")) return "zaprill.com";
+  if (process.env.NODE_ENV === "production") return undefined;
+  return "localhost";
+}
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: [
@@ -25,15 +41,19 @@ export const auth = betterAuth({
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000",
   },
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://lvh.me:3000",
+    "http://hq.lvh.me:3000",
+    "https://app.zaprill.com",
+    "https://hq.zaprill.com",
+    "https://*.vercel.app",
+    "https://*.zaprill.com",
+  ],
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
-      domain:
-        process.env.VERCEL_ENV === "preview"
-          ? undefined
-          : process.env.NODE_ENV === "production"
-            ? "zaprill.com"
-            : "localhost",
+      domain: resolveAuthCookieDomain(),
     },
   },
   database: drizzleAdapter(db, {
