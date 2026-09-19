@@ -20,6 +20,10 @@ export const auth = betterAuth({
       "*.vercel.app",
       "*.zaprill.com",
     ],
+    fallback:
+      process.env.BETTER_AUTH_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000",
   },
   advanced: {
     crossSubDomainCookies: {

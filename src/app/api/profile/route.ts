@@ -6,6 +6,7 @@ import { resume, user, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { enrichResumeMetadata } from "@/lib/inference";
 import { normalizeResumeData } from "@/lib/resume";
+import { ensureUserProfile } from "@/lib/user-profile";
 
 export async function GET() {
   try {
@@ -17,9 +18,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const profile = await db.query.userProfile.findFirst({
-      where: eq(userProfile.userId, session.user.id),
-    });
+    const profile = await ensureUserProfile(session.user.id);
 
     if (!profile) {
       return NextResponse.json({ profile: null });
@@ -99,23 +98,22 @@ export async function PATCH(req: Request) {
     }
 
     if (Object.keys(profileUpdates).length > 1) {
-      await db
-        .insert(userProfile)
-        .values({
-          id: crypto.randomUUID(),
-          userId: session.user.id,
-          onboardingStatus: onboardingStatus || "not_started",
-          primaryResumeId: primaryResumeId || null,
-          currentSalary:
-            "currentSalary" in body
-              ? parseInt(String(currentSalary), 10) || null
-              : null,
-          updatedAt: new Date(),
-        })
-        .onConflictDoUpdate({
-          target: userProfile.userId,
-          set: profileUpdates,
-        });
+      await ensureUserProfile(session.user.id, {
+        onboardingStatus: onboardingStatus || undefined,
+        primaryResumeId: primaryResumeId || undefined,
+      });
+      if ("currentSalary" in body) {
+        await db
+          .update(userProfile)
+          .set({
+            currentSalary:
+              currentSalary != null
+                ? parseInt(String(currentSalary), 10) || null
+                : null,
+            updatedAt: new Date(),
+          })
+          .where(eq(userProfile.userId, session.user.id));
+      }
     }
 
     // 3. Update Resume Table if resumeRaw is provided and we have a primaryResumeId

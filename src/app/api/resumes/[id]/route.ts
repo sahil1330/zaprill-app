@@ -5,6 +5,7 @@ import db from "@/db";
 import { resume, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { enrichResumeMetadata } from "@/lib/inference";
+import { ensureUserProfile, resumeHasSubstance } from "@/lib/user-profile";
 import { updateResumeSchema } from "@/lib/validations/resume";
 
 interface RouteParams {
@@ -144,13 +145,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       });
 
       if (profile && profile.primaryResumeId === id) {
-        await db
-          .update(userProfile)
-          .set({
-            resumeRaw: updated.data,
-            updatedAt: new Date(),
-          })
-          .where(eq(userProfile.userId, session.user.id));
+        await ensureUserProfile(session.user.id, {
+          resumeRaw: updated.data,
+          onboardingStatus: resumeHasSubstance(updated.data)
+            ? "completed"
+            : undefined,
+        });
       }
     } catch (syncErr) {
       console.error("Failed to sync resume update to profile:", syncErr);

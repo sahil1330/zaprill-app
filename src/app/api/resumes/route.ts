@@ -3,8 +3,9 @@ import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
-import { resume, userProfile } from "@/db/schema";
+import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { ensureUserProfile, resumeHasSubstance } from "@/lib/user-profile";
 import { createResumeSchema } from "@/lib/validations/resume";
 import { DEFAULT_RESUME_DATA, DEFAULT_RESUME_METADATA } from "@/types/resume";
 
@@ -132,25 +133,16 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // Update user profile: set this as primary resume if none exists, and complete onboarding
+    // Link an empty builder draft as primary if the user has none.
+    // Do NOT mark onboarding completed until the resume has real content —
+    // otherwise new users skip onboarding and land on an empty dashboard.
     try {
-      await db
-        .insert(userProfile)
-        .values({
-          id: crypto.randomUUID(),
-          userId: session.user.id,
-          primaryResumeId: id,
-          onboardingStatus: "completed",
-        })
-        .onConflictDoUpdate({
-          target: userProfile.userId,
-          set: {
-            // Only set primaryResumeId if it's currently null to avoid overwriting existing primary
-            primaryResumeId: id,
-            onboardingStatus: "completed",
-            updatedAt: new Date(),
-          },
-        });
+      await ensureUserProfile(session.user.id, {
+        primaryResumeId: id,
+        onboardingStatus: resumeHasSubstance(resumeData)
+          ? "completed"
+          : "in_progress",
+      });
     } catch (err) {
       console.error("Failed to update user profile on resume creation:", err);
     }

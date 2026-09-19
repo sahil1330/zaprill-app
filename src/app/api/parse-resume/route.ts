@@ -1,7 +1,6 @@
-import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { type FilePart, generateText, Output, type TextPart } from "ai";
-import { and, eq, ne } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import mammoth from "mammoth";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
@@ -12,7 +11,7 @@ import db from "@/db";
 import { resume, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { normalizeResumeData } from "@/lib/resume";
-import { normalizeSkillList } from "@/lib/skill-extractor";
+import { ensureUserProfile } from "@/lib/user-profile";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { ResumeData } from "@/types/resume";
 import { DEFAULT_RESUME_METADATA } from "@/types/resume";
@@ -302,13 +301,25 @@ Be precise and thorough. Do not make up information that isn't in the resume. Us
         url: e.url || "",
         score: e.score || "",
       })),
-      skills: parsed.skills.map((s) => ({
-        id: nanoid(),
-        name: s.name,
-        keywords: s.keywords,
-        level: "Intermediate",
-        category: s.category || "technical",
-      })),
+      skills: parsed.skills.map((s) => {
+        const keywords = (s.keywords || []).filter(
+          (kw) => typeof kw === "string" && kw.trim().length > 0,
+        );
+        // If the model emitted a lone skill as `name` with empty keywords, keep it.
+        const recovered =
+          keywords.length > 0
+            ? keywords
+            : s.name && !/^(skills?|general|technical)$/i.test(s.name)
+              ? [s.name]
+              : [];
+        return {
+          id: nanoid(),
+          name: s.name || "General",
+          keywords: recovered,
+          level: "Intermediate",
+          category: s.category || "technical",
+        };
+      }),
       projects: parsed.projects.map((p) => ({
         ...p,
         id: nanoid(),
@@ -366,11 +377,12 @@ Be precise and thorough. Do not make up information that isn't in the resume. Us
             .set({
               data: finalResumeData,
               title: `Imported Resume (${new Date().toLocaleDateString()})`,
+              status: "complete",
               updatedAt: new Date(),
             })
             .where(eq(resume.id, resumeId));
         } else {
-          // Create new resume
+          // Create new resume — do not delete the user's other builder drafts
           resumeId = nanoid();
           await db.insert(resume).values({
             id: resumeId,
@@ -383,35 +395,24 @@ Be precise and thorough. Do not make up information that isn't in the resume. Us
           });
         }
 
-        // 2. Cleanup: Remove any other resumes this user might have to enforce "one user, one resume"
-        await db
-          .delete(resume)
-          .where(and(eq(resume.userId, userId), ne(resume.id, resumeId)));
-
-        // 3. Link/Update profile
-        await db
-          .insert(userProfile)
-          .values({
-            id: crypto.randomUUID(),
-            userId,
-            resumeRaw: finalResumeData,
-            primaryResumeId: resumeId,
-            onboardingStatus: "completed",
-          })
-          .onConflictDoUpdate({
-            target: userProfile.userId,
-            set: {
-              resumeRaw: finalResumeData,
-              primaryResumeId: resumeId,
-              onboardingStatus: "completed",
-              updatedAt: new Date(),
-            },
-          });
+        await ensureUserProfile(userId, {
+          resumeRaw: finalResumeData,
+          primaryResumeId: resumeId,
+          onboardingStatus: "completed",
+          forcePrimary: true,
+        });
 
         savedResumeId = resumeId;
       }
     } catch (saveErr) {
       console.error("Failed to save user profile and resume:", saveErr);
+      return NextResponse.json(
+        {
+          error:
+            "Resume was parsed but could not be saved. Please try again in a moment.",
+        },
+        { status: 500 },
+      );
     }
 
     const responseData = normalizeResumeData(finalResumeData);

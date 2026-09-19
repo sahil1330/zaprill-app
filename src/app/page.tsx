@@ -1,19 +1,9 @@
 "use client";
 
-import {
-  ArrowRight,
-  ChevronRight,
-  Globe,
-  Loader2,
-  Map,
-  Shield,
-  Target,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Shield, Target, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/app/app-shell";
 import UserDashboard from "@/components/dashboard/UserDashboard";
 import { DashboardSkeleton } from "@/components/loading/PageLoaders";
@@ -28,24 +18,52 @@ export default function HomePage() {
   const router = useRouter();
   const { data: session, isPending: sessionLoading } = useSession();
 
-  const [profile, setProfile] = useState<any>(null);
+  // undefined = not fetched yet. null = fetched, no/empty profile.
+  // Treating "null profile" as still-loading was trapping new users on the skeleton.
+  const [profile, setProfile] = useState<any>(undefined);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
 
   useEffect(() => {
-    if (session?.user) {
-      setIsFetchingProfile(true);
-      fetch("/api/profile")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.profile) {
-            setProfile(data.profile);
-          }
-        })
-        .catch((err) => console.error("Failed to load profile", err))
-        .finally(() => setIsFetchingProfile(false));
-    } else {
-      setProfile(null);
+    if (!session?.user) {
+      setProfile(undefined);
+      setIsFetchingProfile(false);
+      return;
     }
+
+    let cancelled = false;
+    setIsFetchingProfile(true);
+
+    const timeoutId = window.setTimeout(() => {
+      if (!cancelled) {
+        setProfile((current: unknown) =>
+          current === undefined ? null : current,
+        );
+        setIsFetchingProfile(false);
+      }
+    }, 12_000);
+
+    fetch("/api/profile")
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to load profile");
+        }
+        setProfile(data.profile ?? null);
+      })
+      .catch((err) => {
+        console.error("Failed to load profile", err);
+        if (!cancelled) setProfile(null);
+      })
+      .finally(() => {
+        window.clearTimeout(timeoutId);
+        if (!cancelled) setIsFetchingProfile(false);
+      });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [session?.user]);
 
   const handleUseSavedProfile = () => {
@@ -81,9 +99,9 @@ export default function HomePage() {
   }
 
   // 2. Fetching Profile for Logged In User - Show Skeleton
-  // Note: isFetchingProfile starts false and is set true in a useEffect (after render),
-  // so we must also guard on !profile to avoid flashing the onboarding CTA for completed users.
-  if (session && (!profile || isFetchingProfile)) {
+  // Only while the request is in flight or has not resolved. A resolved
+  // `null` profile means the user has not onboarded — do NOT keep spinning.
+  if (session && (isFetchingProfile || profile === undefined)) {
     return (
       <AppShell user={shellUser!}>
         <DashboardSkeleton />

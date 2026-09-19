@@ -85,7 +85,7 @@ import {
   trackTabViewed,
 } from "@/lib/analytics";
 import { getAnalysisSummary } from "@/lib/match-engine";
-import { normalizeResumeData } from "@/lib/resume";
+import { flattenResumeSkills, normalizeResumeData } from "@/lib/resume";
 import { categorizeSkill } from "@/lib/skill-extractor";
 import type { AnalysisStep, JobMatch, RoadmapItem, SkillGap } from "@/types";
 import type { ResumeData } from "@/types/resume";
@@ -400,7 +400,7 @@ function AnalyzePageContent() {
       // Instead of starting analysis immediately, go to reviewing stage
       setReviewState((prev) => ({
         ...prev,
-        reviewSkills: rd.skills?.flatMap((s) => s.keywords || []) || [],
+        reviewSkills: flattenResumeSkills(rd),
         reviewTitles: rd.inferredJobTitles || [],
         selectedTitles: rd.inferredJobTitles?.slice(0, 3) || [],
         experienceYears: rd.totalYearsOfExperience || 0,

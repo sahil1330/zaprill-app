@@ -539,12 +539,18 @@ export function extractSkillsFromText(text: string): string[] {
   const lower = text.toLowerCase();
   const found = new Set<string>();
 
+  // 1-2 letter tokens collide with English ("go", "r", "c", "qa").
+  // Skip them in taxonomy pass 1; pass 2 still picks them up from skill lists.
+  const ambiguousShort = new Set(["r", "c", "go", "qa", "pr"]);
+
   // ── Pass 1: Direct taxonomy matching ──────────────────────────────────────
   for (const skill of Object.keys(SKILLS_TAXONOMY)) {
+    if (skill.length <= 1) continue;
     // Escape regex special chars in skill name
     const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     // Word-boundary aware: don't match "java" inside "javascript" etc.
     const regex = new RegExp(`(?<![a-z0-9])${escaped}(?![a-z0-9])`, "i");
+    if (ambiguousShort.has(skill)) continue;
     if (regex.test(lower)) {
       found.add(skill);
     }

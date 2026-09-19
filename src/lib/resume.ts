@@ -72,59 +72,65 @@ export function normalizeResumeData(raw: any): ResumeData {
   if (Array.isArray(raw.skills)) {
     const groups: Record<string, ResumeSkillItem> = {};
 
+    const addKeyword = (
+      groupName: string,
+      keyword: string,
+      meta?: { id?: string; level?: string; category?: string },
+    ) => {
+      const trimmed = keyword.trim();
+      if (!trimmed) return;
+      if (!groups[groupName]) {
+        groups[groupName] = {
+          id: meta?.id || nanoid(),
+          name: groupName,
+          level: meta?.level || "Intermediate",
+          category: meta?.category || "technical",
+          keywords: [],
+        };
+      }
+      if (!groups[groupName].keywords.includes(trimmed)) {
+        groups[groupName].keywords.push(trimmed);
+      }
+    };
+
     raw.skills.forEach((s: any) => {
       // Case 1: String skill (e.g. "JavaScript")
       if (typeof s === "string") {
-        const groupName = "General";
-        if (!groups[groupName]) {
-          groups[groupName] = {
-            id: nanoid(),
-            name: groupName,
-            level: "Intermediate",
-            category: "technical",
-            keywords: [],
-          };
-        }
-        if (!groups[groupName].keywords.includes(s)) {
-          groups[groupName].keywords.push(s);
-        }
+        addKeyword("General", s);
+        return;
       }
-      // Case 2: Grouped skill object (e.g. { name: "Languages", keywords: ["JS", "TS"] })
-      else if (s && s.keywords && Array.isArray(s.keywords)) {
+
+      const nonemptyKeywords = Array.isArray(s?.keywords)
+        ? s.keywords.filter(
+            (kw: unknown) => typeof kw === "string" && kw.trim().length > 0,
+          )
+        : [];
+
+      // Case 2: Grouped skill object with actual keywords
+      if (s && nonemptyKeywords.length > 0) {
         const groupName = s.name || s.category || "General";
-        if (!groups[groupName]) {
-          groups[groupName] = {
-            id: s.id || nanoid(),
-            name: groupName,
-            level: s.level || "Intermediate",
-            category: s.category || "technical",
-            keywords: [],
-          };
+        for (const kw of nonemptyKeywords) {
+          addKeyword(groupName, kw, {
+            id: s.id,
+            level: s.level,
+            category: s.category,
+          });
         }
-        s.keywords.forEach((kw: string) => {
-          if (
-            typeof kw === "string" &&
-            !groups[groupName].keywords.includes(kw)
-          ) {
-            groups[groupName].keywords.push(kw);
-          }
-        });
+        return;
       }
-      // Case 3: Flat skill object (e.g. { name: "JavaScript", category: "Languages" })
-      else if (s && s.name) {
-        const groupName = s.category || "General";
-        if (!groups[groupName]) {
-          groups[groupName] = {
-            id: nanoid(),
-            name: groupName,
-            level: s.level || "Intermediate",
-            category: "technical",
-            keywords: [],
-          };
-        }
-        if (!groups[groupName].keywords.includes(s.name)) {
-          groups[groupName].keywords.push(s.name);
-        }
+
+      // Case 3: Flat skill / empty group — treat `name` as the skill itself
+      // (LLM parsers often emit { name: "React", keywords: [] })
+      if (s && typeof s.name === "string" && s.name.trim()) {
+        const groupName =
+          typeof s.category === "string" && s.category.trim()
+            ? s.category
+            : "General";
+        addKeyword(groupName, s.name, {
+          id: s.id,
+          level: s.level,
+          category: s.category,
+        });
       }
     });
 
@@ -190,4 +196,71 @@ export function normalizeResumeData(raw: any): ResumeData {
     ),
     customSections: Array.isArray(raw.customSections) ? raw.customSections : [],
   };
+}
+
+const GENERIC_SKILL_GROUP_NAMES = new Set([
+  "skills",
+  "general",
+  "technical",
+  "soft",
+  "other",
+  "language",
+  "languages",
+  "framework",
+  "frameworks",
+  "tools",
+  "tool",
+  "databases",
+  "database",
+  "cloud",
+  "cloud & devops",
+  "cloud and devops",
+  "frontend",
+  "backend",
+  "top skills",
+]);
+
+/**
+ * Flatten grouped resume skills into a de-duplicated list of keywords.
+ * Also recovers skills when the parser stored them as group `name` with
+ * an empty `keywords` array (a common LLM structured-output failure).
+ */
+export function flattenResumeSkills(
+  data: Pick<ResumeData, "skills" | "projects"> | null | undefined,
+): string[] {
+  if (!data) return [];
+
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  const add = (raw: unknown) => {
+    if (typeof raw !== "string") return;
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed.length > 80) return;
+    const key = trimmed.toLowerCase();
+    if (GENERIC_SKILL_GROUP_NAMES.has(key) || seen.has(key)) return;
+    seen.add(key);
+    out.push(trimmed);
+  };
+
+  for (const group of data.skills || []) {
+    const keywords = Array.isArray(group.keywords)
+      ? group.keywords.filter(
+          (kw) => typeof kw === "string" && kw.trim().length > 0,
+        )
+      : [];
+    if (keywords.length > 0) {
+      keywords.forEach(add);
+    } else {
+      add(group.name);
+    }
+  }
+
+  if (out.length === 0) {
+    for (const project of data.projects || []) {
+      (project.keywords || []).forEach(add);
+    }
+  }
+
+  return out;
 }

@@ -51,16 +51,33 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   useEffect(() => {
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (!cancelled) setIsCheckingStatus(false);
+    }, 12_000);
+
     fetch("/api/profile")
-      .then((res) => res.json())
-      .then((data) => {
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
         if (data.profile?.onboardingStatus === "completed") {
           router.replace("/");
-        } else {
-          setIsCheckingStatus(false);
+          return;
         }
+        if (data.profile?.onboardingStatus === "in_progress") {
+          setStep("choice");
+        }
+        setIsCheckingStatus(false);
       })
-      .catch(() => setIsCheckingStatus(false));
+      .catch(() => {
+        if (!cancelled) setIsCheckingStatus(false);
+      })
+      .finally(() => window.clearTimeout(timeoutId));
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [router]);
 
   const handleFileUpload = async (files: File[]) => {
@@ -86,9 +103,11 @@ export default function OnboardingPage() {
       const parsedData = await parseRes.json();
       setResumeData(parsedData);
 
-      const id = parsedData.resumeId as string;
+      const id = parsedData.resumeId as string | undefined;
       if (!id) {
-        throw new Error("Resume was parsed but no ID was returned");
+        throw new Error(
+          "Resume was parsed but could not be saved. Please try uploading again.",
+        );
       }
       setResumeId(id);
 
@@ -119,6 +138,7 @@ export default function OnboardingPage() {
     try {
       await fetch("/api/profile", {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ onboardingStatus: "in_progress" }),
       });
       setStep("choice");
@@ -134,6 +154,7 @@ export default function OnboardingPage() {
     try {
       await fetch("/api/profile", {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ onboardingStatus: "in_progress" }),
       });
 

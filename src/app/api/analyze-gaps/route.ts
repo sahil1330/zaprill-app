@@ -9,6 +9,7 @@ import { resumeAnalysis } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { aggregateSkillGaps, matchJobsToResume } from "@/lib/match-engine";
 import { enhanceRoadmapResource } from "@/lib/reliable-resources";
+import { normalizeSkill } from "@/lib/skill-extractor";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { JobListing, RoadmapItem } from "@/types";
 
@@ -69,6 +70,34 @@ function extractJSON(text: string): string | null {
     }
   }
   return null;
+}
+
+function skillKeysMatch(left: string, right: string): boolean {
+  const a = normalizeSkill(left);
+  const b = normalizeSkill(right);
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
+
+function filterGapsByRelevantNames<
+  T extends { skill: string; priority?: string },
+>(gaps: T[], relevantNames: string[]): T[] {
+  if (gaps.length === 0) return gaps;
+  const names = relevantNames
+    .map((name) => name.trim())
+    .filter((name) => name.length > 0);
+  if (names.length === 0) return gaps;
+
+  const matched = gaps.filter((gap) =>
+    names.some((name) => skillKeysMatch(gap.skill, name)),
+  );
+
+  // If the LLM used different wording, do not drop every gap (production bug).
+  if (matched.length === 0) {
+    const high = gaps.filter((gap) => gap.priority === "high");
+    return high.length > 0 ? high : gaps.slice(0, 8);
+  }
+  return matched;
 }
 
 function arraysMatch(a: string[], b: string[]): boolean {
@@ -178,12 +207,9 @@ export async function POST(request: Request) {
           usedCache = true;
           cachedAnalysisId = match.id;
 
-          // Still need to filter the current skillGaps based on the cached relevant gaps
-          const relevantSkillMap = new Set(
-            roadmap.map((s) => s.skill.toLowerCase().trim()),
-          );
-          filteredGaps = skillGaps.filter((g) =>
-            relevantSkillMap.has(g.skill.toLowerCase().trim()),
+          filteredGaps = filterGapsByRelevantNames(
+            skillGaps,
+            roadmap.map((s) => s.skill),
           );
 
           // Log cache hit — 0 tokens consumed
@@ -289,12 +315,9 @@ RESOURCE URL GUIDELINES:
           roadmap = parsed.data.roadmap as RoadmapItem[];
           advice = parsed.data.advice;
 
-          // Filter the original skillGaps based on the LLM's selected relevant skills
-          const relevantSkillMap = new Set(
-            parsed.data.relevantSkillGaps.map((s) => s.toLowerCase().trim()),
-          );
-          filteredGaps = skillGaps.filter((g) =>
-            relevantSkillMap.has(g.skill.toLowerCase().trim()),
+          filteredGaps = filterGapsByRelevantNames(
+            skillGaps,
+            parsed.data.relevantSkillGaps,
           );
 
           // Post-process roadmap resources for reliability
@@ -313,6 +336,7 @@ RESOURCE URL GUIDELINES:
             "Analysis response schema validation failed:",
             parsed.error.issues,
           );
+          filteredGaps = skillGaps.slice(0, 12);
         }
       } catch (parseErr) {
         console.warn(
@@ -321,7 +345,7 @@ RESOURCE URL GUIDELINES:
           "\nRaw:",
           text.slice(0, 300),
         );
-        // Non-fatal — return empty roadmap rather than crashing
+        filteredGaps = skillGaps.slice(0, 12);
       }
     }
 
