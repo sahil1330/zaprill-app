@@ -39,3 +39,17 @@ Rules:
 - IF graphify-out/wiki/index.md EXISTS, navigate it instead of reading raw files
 - For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+# Local / Cloud Agent development
+
+- Package manager: **pnpm** with `pnpm-lock.yaml`. Node 22 is the verified runtime.
+- Install: `pnpm install --frozen-lockfile`
+- Dev server: `pnpm dev` (Next.js on port 3000)
+- App env file is **`.env.local`** (gitignored). Required:
+  - `DATABASE_URL` — Neon pooled connection string
+  - `BETTER_AUTH_SECRET` — 32+ character random string
+- `RESEND_API_KEY` must be present so `src/lib/emails/sendMail.ts` can load. Use a real Resend key, or `re_placeholder` if you are not sending mail.
+- Google login needs `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET`. Email/password works with placeholders.
+- Isolated Cloud Agent test user (email verified): `cloud-agent@zaprill.local` / `CloudAgent123`
+- Prefer the Neon **development** branch, not production.
+- `pnpm lint` currently reports many pre-existing Biome findings; there is no unit-test script. E2E lives in `e2e/` (`pnpm test:e2e`).
