@@ -2,6 +2,9 @@ ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
 
+minimumReleaseAgeExclude:
+  - tsx@4.23.15
+
 onlyBuiltDependencies:
   - esbuild
   - msw
