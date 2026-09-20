@@ -1,0 +1,12 @@
+---
+description: Mandatory GitHub Project v2 workflow — issues, board Status, sahil1330 gh login
+alwaysApply: true
+---
+
+Follow [.agents/GITHUB_PROJECT.md](../../.agents/GITHUB_PROJECT.md) for all task tracking.
+
+- File issues on `zaprillcom-cpu/zaprill-app`, not only this test repo.
+- Board: https://github.com/users/zaprillcom-cpu/projects/1/views/1
+- Set the project **Status** field (`Todo` / `In progress` / `Done`). Title prefixes are not enough.
+- Use `gh` as **sahil1330**. Never `gh auth logout`.
+- GitHub MCP can create issues; it cannot move board Status.
