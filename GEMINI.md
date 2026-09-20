@@ -1,6 +1,6 @@
 ## GitHub project tracking
 
-Follow [.agents/GITHUB_PROJECT.md](.agents/GITHUB_PROJECT.md): issues on `zaprillcom-cpu/zaprill-app`, board Status via `gh` as `sahil1330`, never log out.
+Follow [.agents/GITHUB_PROJECT.md](.agents/GITHUB_PROJECT.md): issues on `zaprillcom-cpu/zaprill-app`, board Status via `gh` as `sahil1330`, never log out. After every fix: burn-in and harvest new defects onto the board.
 
 ## graphify
 
