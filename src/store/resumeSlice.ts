@@ -1,4 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  asRichText,
+  clampStringList,
+  clampTailoredPayload,
+  clampText,
+  RESUME_LIMITS,
+} from "@/lib/resume/sanitize";
 import type {
   ResumeAwardItem,
   ResumeBasics,
@@ -149,7 +156,7 @@ const resumeSlice = createSlice({
 
     // ── Bulk AI Apply ─────────────────────────────
     applyTailoredData(state, action: PayloadAction<TailoredPayload>) {
-      const p = action.payload;
+      const p = clampTailoredPayload(action.payload);
       if (p.summary !== undefined) {
         state.data.basics.summary = p.summary;
       }
@@ -196,7 +203,14 @@ const resumeSlice = createSlice({
 
     // ── Basics ────────────────────────────────────
     setBasics(state, action: PayloadAction<Partial<ResumeBasics>>) {
-      state.data.basics = { ...state.data.basics, ...action.payload };
+      const next = { ...action.payload };
+      if (next.name !== undefined) {
+        next.name = clampText(next.name, RESUME_LIMITS.name);
+      }
+      if (next.summary !== undefined) {
+        next.summary = asRichText(next.summary);
+      }
+      state.data.basics = { ...state.data.basics, ...next };
       state.isDirty = true;
     },
 
@@ -211,9 +225,20 @@ const resumeSlice = createSlice({
     ) {
       const idx = state.data.work.findIndex((w) => w.id === action.payload.id);
       if (idx !== -1) {
+        const patch = { ...action.payload.data };
+        if (patch.highlights) {
+          patch.highlights = clampStringList(
+            patch.highlights,
+            RESUME_LIMITS.highlight,
+            RESUME_LIMITS.workHighlights,
+          );
+        }
+        if (patch.summary !== undefined) {
+          patch.summary = clampText(patch.summary, RESUME_LIMITS.summary);
+        }
         state.data.work[idx] = {
           ...state.data.work[idx],
-          ...action.payload.data,
+          ...patch,
         };
         state.isDirty = true;
       }
@@ -224,9 +249,11 @@ const resumeSlice = createSlice({
     ) {
       const idx = state.data.work.findIndex((w) => w.id === action.payload.id);
       if (idx !== -1) {
+        const current = state.data.work[idx].highlights || [];
+        if (current.length >= RESUME_LIMITS.workHighlights) return;
         state.data.work[idx].highlights = [
-          ...(state.data.work[idx].highlights || []),
-          action.payload.highlight,
+          ...current,
+          clampText(action.payload.highlight, RESUME_LIMITS.highlight),
         ];
         state.isDirty = true;
       }
@@ -325,8 +352,9 @@ const resumeSlice = createSlice({
       );
       if (idx !== -1) {
         const existing = state.data.skills[idx].keywords || [];
-        state.data.skills[idx].keywords = Array.from(
-          new Set([...existing, ...action.payload.keywords]),
+        state.data.skills[idx].keywords = clampStringList(
+          [...existing, ...action.payload.keywords],
+          RESUME_LIMITS.keyword,
         );
         state.isDirty = true;
       }
@@ -369,9 +397,23 @@ const resumeSlice = createSlice({
         (p) => p.id === action.payload.id,
       );
       if (idx !== -1) {
+        const patch = { ...action.payload.data };
+        if (patch.highlights) {
+          patch.highlights = clampStringList(
+            patch.highlights,
+            RESUME_LIMITS.highlight,
+            RESUME_LIMITS.projectHighlights,
+          );
+        }
+        if (patch.keywords) {
+          patch.keywords = clampStringList(
+            patch.keywords,
+            RESUME_LIMITS.keyword,
+          );
+        }
         state.data.projects[idx] = {
           ...state.data.projects[idx],
-          ...action.payload.data,
+          ...patch,
         };
         state.isDirty = true;
       }
@@ -384,9 +426,11 @@ const resumeSlice = createSlice({
         (p) => p.id === action.payload.id,
       );
       if (idx !== -1) {
+        const current = state.data.projects[idx].highlights || [];
+        if (current.length >= RESUME_LIMITS.projectHighlights) return;
         state.data.projects[idx].highlights = [
-          ...(state.data.projects[idx].highlights || []),
-          action.payload.highlight,
+          ...current,
+          clampText(action.payload.highlight, RESUME_LIMITS.highlight),
         ];
         state.isDirty = true;
       }

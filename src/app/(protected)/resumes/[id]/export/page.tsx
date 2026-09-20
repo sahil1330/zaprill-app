@@ -107,9 +107,13 @@ export default function ResumeExportPage({
 
   const TemplateComponent =
     TEMPLATE_COMPONENTS[resumeData.templateSlug] ?? MinimalistTemplate;
+  const pageFormat =
+    resumeData.metadata?.page?.format === "letter" ? "letter" : "A4";
+  const pageMargin = resumeData.metadata?.page?.margin ?? 12;
 
   return (
     <div className="resume-export-page">
+      <style>{`@page { size: ${pageFormat}; margin: ${pageMargin}mm; }`}</style>
       <TemplateComponent
         data={resumeData.data}
         metadata={resumeData.metadata}

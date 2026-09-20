@@ -5,6 +5,7 @@ import { Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 import type { z } from "zod";
 import RichTextEditor from "@/components/resume/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
@@ -240,9 +241,12 @@ export default function BasicsForm({ serverErrors }: { serverErrors?: any }) {
                 if (res.ok) {
                   const { summary } = await res.json();
                   setValue("summary", summary, { shouldValidate: true });
+                  toast.success("Summary generated");
+                } else {
+                  toast.error("Couldn't generate a summary. Try again.");
                 }
               } catch {
-                // Silently fail
+                toast.error("Couldn't generate a summary. Try again.");
               } finally {
                 setIsGenerating(false);
               }

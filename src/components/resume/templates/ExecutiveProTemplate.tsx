@@ -496,6 +496,7 @@ export default function ExecutiveProTemplate({
   return (
     <div
       className="resume-page executive-pro-template"
+      data-page-format={page?.format ?? "a4"}
       style={{
         fontFamily,
         fontSize,

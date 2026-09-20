@@ -60,6 +60,7 @@ export default function ModernSplitTemplate({
   return (
     <div
       className="resume-page modern-split-template"
+      data-page-format={page?.format ?? "a4"}
       style={{
         fontFamily,
         fontSize,

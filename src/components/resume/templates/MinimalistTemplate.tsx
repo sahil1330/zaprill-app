@@ -418,6 +418,7 @@ export default function MinimalistTemplate({
   return (
     <div
       className="resume-page minimalist-template"
+      data-page-format={page?.format ?? "a4"}
       style={{
         fontFamily,
         fontSize,

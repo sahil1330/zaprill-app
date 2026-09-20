@@ -3,6 +3,7 @@
 import { ArrowRight, CheckCircle2, Loader2, Search, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -116,6 +117,7 @@ export default function TailorDialog() {
     }
 
     dispatch(resumeActions.applyTailoredData(payload));
+    toast.success("Selected changes applied");
 
     // Reset and close
     setOpen(false);

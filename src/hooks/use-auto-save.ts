@@ -26,6 +26,9 @@ export function useAutoSave({
   const data = useSelector((s: RootState) => s.resume.data);
   const metadata = useSelector((s: RootState) => s.resume.metadata);
   const title = useSelector((s: RootState) => s.resume.title);
+  const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
+  const industry = useSelector((s: RootState) => s.resume.industry);
+  const version = useSelector((s: RootState) => s.resume.version);
 
   const localTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const serverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -34,12 +37,20 @@ export function useAutoSave({
   const saveToLocal = useCallback(() => {
     if (!resumeId) return;
     try {
-      const snapshot = JSON.stringify({ data, metadata, title, resumeId });
+      const snapshot = JSON.stringify({
+        data,
+        metadata,
+        title,
+        resumeId,
+        templateSlug,
+        industry,
+        version,
+      });
       localStorage.setItem(`resume_draft_${resumeId}`, snapshot);
     } catch {
       // localStorage full or unavailable — ignore
     }
-  }, [data, metadata, title, resumeId]);
+  }, [data, metadata, title, resumeId, templateSlug, industry, version]);
 
   // Debounced local save
   useEffect(() => {

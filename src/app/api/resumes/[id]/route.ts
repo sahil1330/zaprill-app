@@ -5,6 +5,7 @@ import db from "@/db";
 import { resume, userProfile } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { enrichResumeMetadata } from "@/lib/inference";
+import { clampResumeData } from "@/lib/resume/sanitize";
 import { ensureUserProfile, resumeHasSubstance } from "@/lib/user-profile";
 import { updateResumeSchema } from "@/lib/validations/resume";
 
@@ -60,6 +61,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
     const body = await request.json();
+    if (body?.data && typeof body.data === "object") {
+      body.data = clampResumeData(body.data);
+    }
     const parsed = updateResumeSchema.safeParse(body);
 
     if (!parsed.success) {

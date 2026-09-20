@@ -1,0 +1,137 @@
+import { expect, test } from "@playwright/test";
+import {
+  ensureResume,
+  patchResume,
+  type ResumeRecord,
+  resetResumeToBaseline,
+  VALID_BASELINE_DATA,
+  VALID_BASELINE_METADATA,
+} from "./helpers/resume-api";
+import {
+  addWorkExperience,
+  navigateToSection,
+  openResumeEditor,
+  waitForAutoSave,
+  waitForEditorReady,
+} from "./helpers/resume-editor";
+
+test.describe("Resume builder — production hardening", () => {
+  test.describe.configure({ mode: "serial" });
+
+  let resume: ResumeRecord;
+
+  test.beforeEach(async ({ request }) => {
+    resume = await ensureResume(request);
+    resume = await resetResumeToBaseline(request, resume);
+  });
+
+  test("auto-save does not fail when a blank experience row is added", async ({
+    page,
+  }) => {
+    await openResumeEditor(page, resume.id);
+    await addWorkExperience(page);
+    await waitForAutoSave(page);
+    await expect(page.getByRole("alertdialog")).toBeHidden();
+    await expect(page.getByText("Unsaved")).toBeHidden({ timeout: 10_000 });
+  });
+
+  test("API clamps oversized skill keywords instead of 400", async ({
+    request,
+  }) => {
+    const longKeyword = "K".repeat(80);
+    const res = await patchResume(request, resume.id, {
+      version: resume.version,
+      data: {
+        ...VALID_BASELINE_DATA,
+        skills: [
+          {
+            id: "skill-clamp-1",
+            name: "Languages",
+            level: "Expert",
+            keywords: [longKeyword, "TypeScript"],
+            category: "technical",
+          },
+        ],
+      },
+    });
+
+    expect(res.ok()).toBeTruthy();
+    const { resume: saved } = await res.json();
+    expect(saved.data.skills[0].keywords[0]).toHaveLength(50);
+    expect(saved.data.skills[0].keywords).toContain("TypeScript");
+  });
+
+  test("Tech Stack pills show level once per group, not on every chip", async ({
+    page,
+    request,
+  }) => {
+    const patched = await patchResume(request, resume.id, {
+      version: resume.version,
+      templateSlug: "tech-stack",
+      data: {
+        ...VALID_BASELINE_DATA,
+        skills: [
+          {
+            id: "skill-pills-1",
+            name: "Frontend",
+            level: "Expert",
+            keywords: ["React", "TypeScript", "Next.js"],
+            category: "technical",
+          },
+        ],
+      },
+      metadata: {
+        ...VALID_BASELINE_METADATA,
+        sectionVisibility: {
+          ...VALID_BASELINE_METADATA.sectionVisibility,
+          skills: true,
+        },
+      },
+    });
+    expect(patched.ok()).toBeTruthy();
+
+    await openResumeEditor(page, resume.id);
+    const preview = page.locator(".resume-preview-paper");
+    await expect(preview).toBeVisible();
+    await expect(preview.getByText("Frontend")).toBeVisible();
+    await expect(preview.locator(".ts-skill-level")).toHaveText("Expert");
+    await expect(preview.locator(".ts-tag")).toHaveCount(3);
+    await expect(preview.locator(".ts-tag").first()).toHaveText("React");
+    await expect(preview.locator(".ts-tag").filter({ hasText: "Expert" })).toHaveCount(
+      0,
+    );
+  });
+
+  test("preview shows a page-count badge", async ({ page }) => {
+    await openResumeEditor(page, resume.id);
+    await expect(page.getByText("1 page")).toBeVisible();
+  });
+
+  test("Design and ATS Score nav controls open the matching sheets", async ({
+    page,
+  }) => {
+    await openResumeEditor(page, resume.id);
+
+    await page.getByRole("button", { name: "Design", exact: true }).click();
+    await expect(page.getByText("Resume Settings")).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await page.getByRole("button", { name: "ATS Score", exact: true }).click();
+    await expect(
+      page.getByText("Score your resume against a job description"),
+    ).toBeVisible();
+  });
+
+  test("skill keywords longer than 50 characters are rejected in the form", async ({
+    page,
+  }) => {
+    await openResumeEditor(page, resume.id);
+    await navigateToSection(page, "Skills");
+    await page.getByRole("button", { name: /Add Skill Group/i }).click();
+    await page.getByPlaceholder("Frontend Development").fill("Frontend");
+
+    const skillInput = page.getByPlaceholder("Type a skill and press Enter");
+    await expect(skillInput).toHaveAttribute("maxlength", "50");
+    await expect(page.getByText(/Max 50 characters per skill/i)).toBeVisible();
+  });
+});

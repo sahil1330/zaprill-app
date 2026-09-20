@@ -61,6 +61,7 @@ export default function TechStackTemplate({
   return (
     <div
       className="resume-page tech-stack-template"
+      data-page-format={page?.format ?? "a4"}
       style={{
         fontFamily,
         fontSize,
@@ -107,9 +108,9 @@ export default function TechStackTemplate({
             href={basics.url}
           />
 
-          {(basics.profiles || []).map((p) => (
+          {(basics.profiles || []).map((p, i) => (
             <ContactItem
-              key={p.network}
+              key={`${p.network}-${p.username || i}`}
               icon={getProfileIcon(p.network)}
               text={formatProfileText(p.url, p.username || p.network)}
               href={p.url}
@@ -231,12 +232,9 @@ export default function TechStackTemplate({
                     </ul>
                   )}
                   {item.keywords && (item.keywords || []).length > 0 && (
-                    <div className="ts-tech-tags mt-2 flex flex-wrap gap-1.5">
-                      {(item.keywords || []).map((kw) => (
-                        <span
-                          key={kw}
-                          className="rounded-sm border border-[var(--resume-primary)]/20 px-2 py-0.5 font-medium text-[10px] text-[var(--resume-text)] opacity-90"
-                        >
+                    <div className="ts-tech-tags mt-2">
+                      {(item.keywords || []).map((kw, i) => (
+                        <span key={`${item.id}-kw-${i}`} className="ts-tag">
                           {kw}
                         </span>
                       ))}
@@ -349,12 +347,16 @@ export default function TechStackTemplate({
               <h2 className="ts-sidebar-title">Skills</h2>
               {(skills || []).map((group) => (
                 <div key={group.id} className="ts-skill-block">
-                  <h4 className="ts-skill-category">{group.name}</h4>
+                  <h4 className="ts-skill-category">
+                    <span>{group.name}</span>
+                    {group.level ? (
+                      <span className="ts-skill-level">{group.level}</span>
+                    ) : null}
+                  </h4>
                   <div className="ts-skill-tags">
-                    {(group.keywords || []).map((kw) => (
-                      <span key={kw} className="ts-tag">
+                    {(group.keywords || []).map((kw, i) => (
+                      <span key={`${group.id}-${kw}-${i}`} className="ts-tag">
                         {kw}
-                        {group.level ? ` (${group.level})` : ""}
                       </span>
                     ))}
                   </div>
