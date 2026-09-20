@@ -55,6 +55,7 @@ test.describe("Resume builder — production hardening", () => {
   }) => {
     await openResumeEditor(page, resume.id);
     await fillBasicsName(page, "Retry User");
+    await expect(page.getByPlaceholder("John Doe")).toHaveValue("Retry User");
     await expect(page.getByText("Unsaved")).toBeVisible();
 
     const latest = await getResume(request, resume.id);
@@ -66,10 +67,30 @@ test.describe("Resume builder — production hardening", () => {
     expect(bump.ok()).toBeTruthy();
     const { resume: bumped } = await bump.json();
 
+    const patchStatuses: number[] = [];
+    page.on("response", (resp) => {
+      if (
+        /\/api\/resumes\/[^/]+$/.test(resp.url()) &&
+        resp.request().method() === "PATCH"
+      ) {
+        patchStatuses.push(resp.status());
+      }
+    });
+
+    const savedOk = page.waitForResponse(
+      (resp) =>
+        /\/api\/resumes\/[^/]+$/.test(resp.url()) &&
+        resp.request().method() === "PATCH" &&
+        resp.status() === 200,
+      { timeout: 20_000 },
+    );
     await clickSave(page);
+    expect((await savedOk).ok()).toBeTruthy();
     await waitForSaveComplete(page);
     await expect(page.getByText(/Someone else updated/i)).toBeHidden();
     await expect(page.getByText(/Couldn't sync this tab/i)).toBeHidden();
+    expect(patchStatuses).toContain(409);
+    expect(patchStatuses).toContain(200);
 
     const saved = await getResume(request, resume.id);
     expect(saved?.data.basics.name).toBe("Retry User");

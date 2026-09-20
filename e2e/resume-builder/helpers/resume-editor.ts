@@ -51,8 +51,14 @@ export async function triggerServerSave(page: Page) {
 }
 
 export async function waitForSaveComplete(page: Page) {
-  // Saved state shows a check icon near the title (no "Unsaved" label)
-  await expect(page.getByText("Unsaved")).toBeHidden({ timeout: 20_000 });
+  // "Unsaved" is replaced by a spinner as soon as save starts — wait until
+  // the Save button is idle (disabled because clean) and the spinner is gone.
+  const saveBtn = page.getByRole("button", { name: "Save", exact: true });
+  await expect(page.locator("header .animate-spin")).toHaveCount(0, {
+    timeout: 20_000,
+  });
+  await expect(page.getByText("Unsaved")).toBeHidden({ timeout: 5_000 });
+  await expect(saveBtn).toBeDisabled({ timeout: 5_000 });
 }
 
 export async function waitForAutoSave(page: Page) {
