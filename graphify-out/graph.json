@@ -6391,7 +6391,7 @@
       "file_type": "code",
       "norm_label": "architectsession()",
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L197"
+      "source_location": "L200"
     },
     {
       "id": "src_components_resume_editor_resumearchitectchat_issnapshot",
@@ -6439,7 +6439,7 @@
       "file_type": "code",
       "norm_label": "resumearchitectchat()",
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L425"
+      "source_location": "L431"
     },
     {
       "id": "src_components_resume_editor_resumearchitectchat_userinitials",
@@ -33334,7 +33334,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L239",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
@@ -33346,7 +33346,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L290",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -33370,7 +33370,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L128",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -91837,7 +91837,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L197",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -91870,7 +91870,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/resume/editor/ResumeArchitectChat.tsx",
-      "source_location": "L425",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -108087,5 +108087,5 @@
       ]
     }
   ],
-  "built_at_commit": "05082ccc4944ac9c9fe8accfafd20baca7c48728"
+  "built_at_commit": "a39058440aec6d05c8b24664e949c6fa58b0567c"
 }

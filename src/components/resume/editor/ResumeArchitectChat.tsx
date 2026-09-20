@@ -118,21 +118,18 @@ function MessageParts({
   return (
     <div
       className={cn(
-        "flex w-full min-w-0 gap-2.5",
-        isUser ? "flex-row-reverse" : "flex-row",
+        "grid w-full min-w-0 max-w-full items-start gap-2",
+        isUser
+          ? "grid-cols-[minmax(0,1fr)_auto]"
+          : "grid-cols-[auto_minmax(0,1fr)]",
       )}
     >
-      {isUser ? (
-        <Avatar size="sm" className="mt-0.5 shrink-0">
-          {userImage ? <AvatarImage src={userImage} alt="" /> : null}
-          <AvatarFallback>{userInitials(userName, userEmail)}</AvatarFallback>
-        </Avatar>
-      ) : (
+      {isUser ? null : (
         <AgentMark className="mt-0.5 size-7 shrink-0 rounded-md" />
       )}
       <div
         className={cn(
-          "min-w-0 flex-1 space-y-1.5 overflow-hidden",
+          "min-w-0 max-w-full space-y-1.5 overflow-hidden",
           isUser && "flex flex-col items-end",
         )}
       >
@@ -142,7 +139,7 @@ function MessageParts({
               return (
                 <div
                   key={`${message.id}-text-${index}`}
-                  className="w-fit max-w-full whitespace-pre-wrap break-words rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-left text-primary-foreground text-sm leading-relaxed"
+                  className="max-w-full whitespace-pre-wrap break-words rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-left text-primary-foreground text-sm leading-relaxed"
                 >
                   {part.text}
                 </div>
@@ -190,6 +187,12 @@ function MessageParts({
           return null;
         })}
       </div>
+      {isUser ? (
+        <Avatar size="sm" className="mt-0.5 shrink-0">
+          {userImage ? <AvatarImage src={userImage} alt="" /> : null}
+          <AvatarFallback>{userInitials(userName, userEmail)}</AvatarFallback>
+        </Avatar>
+      ) : null}
     </div>
   );
 }
@@ -320,11 +323,14 @@ function ArchitectSession({
             </div>
 
             <StickToBottom
-              className="relative h-[min(42vh,24rem)] min-h-0 overflow-hidden"
+              className="relative h-[min(42vh,24rem)] min-h-0 w-full min-w-0 overflow-hidden"
               resize="smooth"
               initial="smooth"
             >
-              <StickToBottom.Content className="flex flex-col gap-4 overflow-x-hidden px-3 py-3">
+              <StickToBottom.Content
+                className="flex w-full min-w-0 max-w-full flex-col gap-4 px-3 py-3"
+                scrollClassName="overflow-x-hidden overscroll-contain"
+              >
                 {messages.length === 0 ? (
                   <p className="px-1 py-6 text-center text-muted-foreground text-sm">
                     Describe the role you want, or say what to change. The

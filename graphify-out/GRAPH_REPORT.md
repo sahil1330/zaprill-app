@@ -1,7 +1,7 @@
 # Graph Report - workspace  (2026-09-20)
 
 ## Corpus Check
-- 367 files · ~241,629 words
+- 367 files · ~241,642 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 14 file(s) not represented in the graph (top: (none) 4, .woff2 3, .mdc 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `05082ccc`
+- Built from commit: `a3905844`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -707,7 +707,7 @@ Nodes (6): Project Architecture Rules (AGENTS.md), CLAUDE.md â†’ AGENTS.md 
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `react` connect `react` to `cn`, `next`, `SkillsForm.tsx`, `button.tsx`, `analytics.ts`, `analyze/page.tsx`, `sidebar.tsx`, `types/resume.ts`, `package.json`, `sheet.tsx`, `input-group.tsx`, `draft-recovery.ts`, `admin-header.tsx`, `ResumeArchitectChat.tsx`, `history/page.tsx`, `onboarding/page.tsx`, `lucide-react`, `data-table.tsx`, `invoice-email.ts`, `profile/page.tsx`, `(auth)/layout.tsx`, `[id]/page.tsx`, `sign-in/page.tsx`, `(protected)/billing/page.tsx`, `app/layout.tsx`, `app-shell.tsx`, `user-actions-client.tsx`, `ClientProvider.tsx`, `chart.tsx`, `RichTextEditor.tsx`, `hq/referrals/page.tsx`?**
-  _High betweenness centrality (0.141) - this node is a cross-community bridge._
+  _High betweenness centrality (0.137) - this node is a cross-community bridge._
 - **Why does `next` connect `next` to `referral.service.ts`, `button.tsx`, `analytics.ts`, `analyze/page.tsx`, `sidebar.tsx`, `schema.ts`, `app-settings.ts`, `invoices/route.ts`, `parse-resume/route.ts`, `types/resume.ts`, `package.json`, `invoice.service.ts`, `admin-header.tsx`, `draft-recovery.ts`, `history/page.tsx`, `checkout/route.ts`, `ResumeScanResults.tsx`, `architect.service.ts`, `onboarding/page.tsx`, `lucide-react`, `Root Layout`, `profile/page.tsx`, `(auth)/layout.tsx`, `[id]/page.tsx`, `sign-in/page.tsx`, `(protected)/billing/page.tsx`, `analyze-gaps/route.ts`, `ats-score/route.ts`, `app/layout.tsx`, `app-shell.tsx`, `search-jobs/route.ts`, `billing.ts`, `ClientProvider.tsx`, `proxy.ts`, `actions.ts`, `tailor/route.ts`, `analytics/route.ts`?**
   _High betweenness centrality (0.122) - this node is a cross-community bridge._
 - **Why does `Project Architecture Rules (AGENTS.md)` connect `Project Architecture Rules (AGENTS.md)` to `(auth)/layout.tsx`?**
