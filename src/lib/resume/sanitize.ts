@@ -182,8 +182,6 @@ export function clampResumeData(data: ResumeData): ResumeData {
     ...data,
     basics: {
       ...data.basics,
-      name: clampText(data.basics?.name, RESUME_LIMITS.name),
-      label: clampText(data.basics?.label, RESUME_LIMITS.label),
       phone: clampText(data.basics?.phone, RESUME_LIMITS.phone),
       summary: clampText(data.basics?.summary, RESUME_LIMITS.summary),
     },

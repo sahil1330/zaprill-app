@@ -204,9 +204,6 @@ const resumeSlice = createSlice({
     // ── Basics ────────────────────────────────────
     setBasics(state, action: PayloadAction<Partial<ResumeBasics>>) {
       const next = { ...action.payload };
-      if (next.name !== undefined) {
-        next.name = clampText(next.name, RESUME_LIMITS.name);
-      }
       if (next.summary !== undefined) {
         next.summary = asRichText(next.summary);
       }
