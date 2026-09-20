@@ -145,35 +145,36 @@ export function isBlankReferenceItem(
 }
 
 /**
- * Drop never-started rows so auto-save does not 400 on "Add Experience"
- * with empty company/position. Partially filled rows are kept so Zod can
- * still surface real validation errors on manual save.
+ * Drop never-started AND incomplete rows so auto-save does not 400 while
+ * the user is still filling required fields (e.g. Position typed, Company
+ * empty). Partially complete rows stay in Redux; the next save after they
+ * finish the required fields persists them. Manual save still validates.
  */
 export function stripBlankResumeItems(data: ResumeData): ResumeData {
   return {
     ...data,
-    work: (data.work || []).filter((item) => !isBlankWorkItem(item)),
-    education: (data.education || []).filter(
-      (item) => !isBlankEducationItem(item),
+    work: (data.work || []).filter(
+      (item) => !isBlank(item.company) && !isBlank(item.position),
     ),
-    skills: (data.skills || []).filter((item) => !isBlankSkillItem(item)),
-    projects: (data.projects || []).filter((item) => !isBlankProjectItem(item)),
+    education: (data.education || []).filter(
+      (item) => !isBlank(item.institution),
+    ),
+    skills: (data.skills || []).filter((item) => !isBlank(item.name)),
+    projects: (data.projects || []).filter((item) => !isBlank(item.name)),
     certifications: (data.certifications || []).filter(
-      (item) => !isBlankCertificationItem(item),
+      (item) => !isBlank(item.name),
     ),
     languages: (data.languages || []).filter(
-      (item) => !isBlankLanguageItem(item),
+      (item) => !isBlank(item.language),
     ),
     volunteer: (data.volunteer || []).filter(
-      (item) => !isBlankVolunteerItem(item),
+      (item) => !isBlank(item.organization),
     ),
-    awards: (data.awards || []).filter((item) => !isBlankAwardItem(item)),
+    awards: (data.awards || []).filter((item) => !isBlank(item.title)),
     publications: (data.publications || []).filter(
-      (item) => !isBlankPublicationItem(item),
+      (item) => !isBlank(item.name),
     ),
-    references: (data.references || []).filter(
-      (item) => !isBlankReferenceItem(item),
-    ),
+    references: (data.references || []).filter((item) => !isBlank(item.name)),
   };
 }
 

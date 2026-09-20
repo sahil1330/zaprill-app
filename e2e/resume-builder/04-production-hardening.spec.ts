@@ -9,6 +9,7 @@ import {
 } from "./helpers/resume-api";
 import {
   addWorkExperience,
+  fillWorkPosition,
   navigateToSection,
   openResumeEditor,
   waitForAutoSave,
@@ -33,6 +34,16 @@ test.describe("Resume builder — production hardening", () => {
     await waitForAutoSave(page);
     await expect(page.getByRole("alertdialog")).toBeHidden();
     await expect(page.getByText("Unsaved")).toBeHidden({ timeout: 10_000 });
+  });
+
+  test("auto-save ignores incomplete experience (position without company)", async ({
+    page,
+  }) => {
+    await openResumeEditor(page, resume.id);
+    await addWorkExperience(page);
+    await fillWorkPosition(page, 0, "Engineer", "");
+    await waitForAutoSave(page);
+    await expect(page.getByRole("alertdialog")).toBeHidden();
   });
 
   test("API clamps oversized skill keywords instead of 400", async ({
