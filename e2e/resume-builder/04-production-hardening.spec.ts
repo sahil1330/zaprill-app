@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   ensureResume,
+  getResume,
   patchResume,
   type ResumeRecord,
   resetResumeToBaseline,
@@ -9,11 +10,13 @@ import {
 } from "./helpers/resume-api";
 import {
   addWorkExperience,
+  clickSave,
+  fillBasicsName,
   fillWorkPosition,
   navigateToSection,
   openResumeEditor,
   waitForAutoSave,
-  waitForEditorReady,
+  waitForSaveComplete,
 } from "./helpers/resume-editor";
 
 test.describe("Resume builder — production hardening", () => {
@@ -44,6 +47,33 @@ test.describe("Resume builder — production hardening", () => {
     await fillWorkPosition(page, 0, "Engineer", "");
     await waitForAutoSave(page);
     await expect(page.getByRole("alertdialog")).toBeHidden();
+  });
+
+  test("save retries after another session bumps version", async ({
+    page,
+    request,
+  }) => {
+    await openResumeEditor(page, resume.id);
+    await fillBasicsName(page, "Retry User");
+    await expect(page.getByText("Unsaved")).toBeVisible();
+
+    const latest = await getResume(request, resume.id);
+    if (!latest) throw new Error("Resume disappeared");
+    const bump = await patchResume(request, latest.id, {
+      version: latest.version,
+      title: latest.title,
+    });
+    expect(bump.ok()).toBeTruthy();
+    const { resume: bumped } = await bump.json();
+
+    await clickSave(page);
+    await waitForSaveComplete(page);
+    await expect(page.getByText(/Someone else updated/i)).toBeHidden();
+    await expect(page.getByText(/Couldn't sync this tab/i)).toBeHidden();
+
+    const saved = await getResume(request, resume.id);
+    expect(saved?.data.basics.name).toBe("Retry User");
+    expect(saved?.version).toBeGreaterThan(bumped.version);
   });
 
   test("API clamps oversized skill keywords instead of 400", async ({
@@ -108,9 +138,9 @@ test.describe("Resume builder — production hardening", () => {
     await expect(preview.locator(".ts-skill-level")).toHaveText("Expert");
     await expect(preview.locator(".ts-tag")).toHaveCount(3);
     await expect(preview.locator(".ts-tag").first()).toHaveText("React");
-    await expect(preview.locator(".ts-tag").filter({ hasText: "Expert" })).toHaveCount(
-      0,
-    );
+    await expect(
+      preview.locator(".ts-tag").filter({ hasText: "Expert" }),
+    ).toHaveCount(0);
   });
 
   test("preview shows a page-count badge", async ({ page }) => {

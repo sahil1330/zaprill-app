@@ -60,16 +60,17 @@ export async function waitForAutoSave(page: Page) {
     .waitForResponse(
       (resp) =>
         /\/api\/resumes\/[^/]+$/.test(resp.url()) &&
-        resp.request().method() === "PATCH",
+        resp.request().method() === "PATCH" &&
+        resp.status() === 200,
       { timeout: 20_000 },
     )
     .catch(() => null);
 
-  // Server auto-save debounce is 5s
+  // Server auto-save debounce is 5s; 409 retries issue a later 200
   await page.waitForTimeout(6_500);
   const response = await patchResponse;
 
-  if (response && response.status() === 200) {
+  if (response) {
     await expect(page.getByText("Unsaved")).toBeHidden({ timeout: 5_000 });
     return;
   }

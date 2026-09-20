@@ -72,6 +72,7 @@ import { useAutoSave } from "@/hooks/use-auto-save";
 import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
 import { loadResumeDraft } from "@/lib/resume/draft-recovery";
 import { prepareResumeDataForSave } from "@/lib/resume/sanitize";
+import { patchResumeWithVersionRetry } from "@/lib/resume/save-with-retry";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import type { ResumeMetadata } from "@/types/resume";
@@ -230,18 +231,17 @@ export default function ResumeEditorPage({
         const payloadData = prepareResumeDataForSave(data, {
           stripBlankItems: options.stripBlankItems ?? false,
         });
-        const res = await fetch(`/api/resumes/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const res = await patchResumeWithVersionRetry({
+          resumeId: id,
+          version,
+          body: {
             title: resumeTitle,
             data: payloadData,
             metadata,
             templateSlug,
             industry,
             status,
-            version,
-          }),
+          },
         });
         if (res.ok) {
           const { resume } = await res.json();
@@ -302,7 +302,7 @@ export default function ResumeEditorPage({
           dispatch(resumeActions.markSaveFailed());
         } else if (res.status === 409) {
           toast.error(
-            "Someone else updated this resume. Refresh to get the latest version.",
+            "Couldn't sync this tab. Refresh to keep your latest edits.",
           );
           dispatch(resumeActions.markSaveFailed());
         } else {
