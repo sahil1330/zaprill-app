@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@source "../../node_modules/streamdown/dist/*.js";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -98,8 +99,8 @@
   --ring: oklch(0.606 0.266 303.9);
 
   /* Achievement — amber gold */
-  --achievement: oklch(0.80 0.16 65);
-  --achievement-foreground: oklch(0.20 0.04 55);
+  --achievement: oklch(0.8 0.16 65);
+  --achievement-foreground: oklch(0.2 0.04 55);
   --achievement-muted: oklch(0.96 0.06 75);
 
   /* Semantic score tokens */
@@ -108,14 +109,14 @@
   --score-mid: oklch(0.91 0.07 220);
   --score-mid-fg: oklch(0.42 0.12 220);
   --score-low: oklch(0.94 0.08 75);
-  --score-low-fg: oklch(0.50 0.14 65);
+  --score-low-fg: oklch(0.5 0.14 65);
   --score-critical: oklch(0.94 0.06 20);
   --score-critical-fg: oklch(0.52 0.18 22);
 
   /* Charts */
   --chart-1: oklch(0.606 0.266 303.9);
-  --chart-2: oklch(0.70 0.20 330);
-  --chart-3: oklch(0.80 0.16 65);
+  --chart-2: oklch(0.7 0.2 330);
+  --chart-3: oklch(0.8 0.16 65);
   --chart-4: oklch(0.55 0.18 240);
   --chart-5: oklch(0.72 0.14 145);
 
@@ -138,7 +139,7 @@
   --gradient-primary: linear-gradient(
     135deg,
     oklch(0.65 0.27 303.9),
-    oklch(0.50 0.24 280)
+    oklch(0.5 0.24 280)
   );
   --gradient-accent: linear-gradient(
     135deg,
@@ -207,7 +208,7 @@
   --score-low: oklch(0.28 0.07 70);
   --score-low-fg: oklch(0.82 0.15 65);
   --score-critical: oklch(0.26 0.06 22);
-  --score-critical-fg: oklch(0.80 0.18 22);
+  --score-critical-fg: oklch(0.8 0.18 22);
 
   /* Charts */
   --chart-1: oklch(0.714 0.203 305.5);
@@ -229,13 +230,13 @@
   /* Surface layers */
   --surface-1: oklch(0.179 0.006 286);
   --surface-2: oklch(0.21 0.006 286);
-  --surface-3: oklch(0.24 0.010 303);
+  --surface-3: oklch(0.24 0.01 303);
 
   /* Gradients */
   --gradient-primary: linear-gradient(
     135deg,
     oklch(0.75 0.22 303.9),
-    oklch(0.58 0.20 280)
+    oklch(0.58 0.2 280)
   );
   --gradient-accent: linear-gradient(
     135deg,

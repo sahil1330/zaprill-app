@@ -3,7 +3,9 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart } from "ai";
 import {
+  ArrowDown,
   ArrowUp,
+  Check,
   ChevronDown,
   Loader2,
   PenLine,
@@ -13,7 +15,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Streamdown } from "streamdown";
-import { StickToBottom } from "use-stick-to-bottom";
+import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { ResumeArchitectUIMessage } from "@/lib/agents/resume-architect";
@@ -23,12 +25,20 @@ import type { ResumeArchitectSnapshot } from "@/services/resume/architect.servic
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 
-const TOOL_LABELS: Record<string, string> = {
+const TOOL_PENDING: Record<string, string> = {
   getResume: "Reading resume",
   updateProfile: "Updating profile",
   upsertEntry: "Updating section",
   removeEntry: "Removing entry",
   setDesign: "Updating design",
+};
+
+const TOOL_DONE: Record<string, string> = {
+  getResume: "Read resume",
+  updateProfile: "Updated profile",
+  upsertEntry: "Updated section",
+  removeEntry: "Removed entry",
+  setDesign: "Updated design",
 };
 
 function isSnapshot(value: unknown): value is ResumeArchitectSnapshot {
@@ -63,29 +73,78 @@ function AgentMark({ className }: { className?: string }) {
   );
 }
 
+function Markdown({
+  children,
+  streaming,
+  className,
+}: {
+  children: string;
+  streaming?: boolean;
+  className?: string;
+}) {
+  return (
+    <Streamdown
+      className={className}
+      isAnimating={Boolean(streaming)}
+      mode={streaming ? "streaming" : "static"}
+    >
+      {children}
+    </Streamdown>
+  );
+}
+
 function ReasoningBlock({
   text,
   streaming,
 }: {
   text: string;
-  streaming?: boolean;
+  streaming: boolean;
 }) {
   const [open, setOpen] = useState(streaming);
+  const startedAt = useRef<number | null>(streaming ? Date.now() : null);
+  const wasStreaming = useRef(streaming);
+  const [durationSec, setDurationSec] = useState<number | null>(null);
+
   useEffect(() => {
-    if (streaming) setOpen(true);
+    if (streaming) {
+      setOpen(true);
+      if (startedAt.current == null) startedAt.current = Date.now();
+      wasStreaming.current = true;
+      return;
+    }
+    if (wasStreaming.current) {
+      if (startedAt.current != null) {
+        setDurationSec(
+          Math.max(1, Math.round((Date.now() - startedAt.current) / 1000)),
+        );
+      }
+      setOpen(false);
+    }
+    wasStreaming.current = false;
   }, [streaming]);
 
   if (!text && !streaming) return null;
 
+  const label = streaming
+    ? "Thinking"
+    : durationSec
+      ? `Thought for ${durationSec}s`
+      : "Thought";
+
   return (
-    <div className="mb-2">
+    <div className="w-full min-w-0">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide"
+        aria-expanded={open}
+        className="flex items-center gap-1.5 font-medium text-[11px] text-muted-foreground tracking-wide"
       >
-        <Loader2 className={cn("size-3", streaming && "animate-spin")} />
-        Thinking
+        {streaming ? (
+          <Loader2 className="size-3 animate-spin" aria-hidden />
+        ) : (
+          <Check className="size-3" aria-hidden />
+        )}
+        {label}
         <ChevronDown
           className={cn(
             "size-3 transition-transform",
@@ -94,26 +153,73 @@ function ReasoningBlock({
         />
       </button>
       {open && text ? (
-        <pre className="mt-1.5 max-h-32 overflow-y-auto whitespace-pre-wrap border-border/70 border-l pl-2.5 text-[11px] text-muted-foreground leading-relaxed">
-          {text}
-        </pre>
+        <div className="mt-1.5 max-h-32 overflow-y-auto border-border/70 border-l pl-2.5 text-[11px] text-muted-foreground leading-relaxed [&_p:first-child]:mt-0 [&_p]:my-1">
+          <Markdown streaming={streaming}>{text}</Markdown>
+        </div>
       ) : null}
     </div>
   );
 }
 
+function ScrollToLatest() {
+  const { isAtBottom, scrollToBottom } = useStickToBottomContext();
+  if (isAtBottom) return null;
+
+  return (
+    <Button
+      type="button"
+      size="icon"
+      variant="secondary"
+      className="-translate-x-1/2 absolute bottom-3 left-1/2 z-10 size-8 rounded-full border border-border shadow-md"
+      onClick={() => {
+        void scrollToBottom();
+      }}
+      aria-label="Jump to latest message"
+    >
+      <ArrowDown className="size-4" />
+    </Button>
+  );
+}
+
+function StickOnSend({ active }: { active: boolean }) {
+  const { scrollToBottom } = useStickToBottomContext();
+  const wasActive = useRef(active);
+
+  useEffect(() => {
+    if (active && !wasActive.current) {
+      void scrollToBottom();
+    }
+    wasActive.current = active;
+  }, [active, scrollToBottom]);
+
+  return null;
+}
+
 function MessageParts({
   message,
+  isLastMessage,
+  isStreaming,
   userName,
   userImage,
   userEmail,
 }: {
   message: ResumeArchitectUIMessage;
+  isLastMessage: boolean;
+  isStreaming: boolean;
   userName?: string | null;
   userImage?: string | null;
   userEmail?: string | null;
 }) {
   const isUser = message.role === "user";
+  const lastPart = message.parts.at(-1);
+  const reasoningParts = message.parts.filter(
+    (part) => part.type === "reasoning",
+  );
+  const reasoningText = reasoningParts.map((part) => part.text).join("\n\n");
+  const isReasoningStreaming =
+    isLastMessage && isStreaming && lastPart?.type === "reasoning";
+  const isTextStreaming =
+    isLastMessage && isStreaming && lastPart?.type === "text";
 
   return (
     <div
@@ -133,7 +239,15 @@ function MessageParts({
           isUser && "flex flex-col items-end",
         )}
       >
+        {!isUser && (reasoningText || isReasoningStreaming) ? (
+          <ReasoningBlock
+            text={reasoningText}
+            streaming={isReasoningStreaming}
+          />
+        ) : null}
         {message.parts.map((part, index) => {
+          if (part.type === "reasoning") return null;
+
           if (part.type === "text") {
             if (isUser) {
               return (
@@ -145,40 +259,42 @@ function MessageParts({
                 </div>
               );
             }
+            const streamingThisPart =
+              isTextStreaming && index === message.parts.length - 1;
             return (
               <div
                 key={`${message.id}-text-${index}`}
                 className="max-w-full overflow-hidden text-foreground text-sm leading-relaxed [&_p:first-child]:mt-0 [&_p]:my-1.5 [&_pre]:max-w-full [&_pre]:overflow-x-auto"
               >
-                <Streamdown>{part.text}</Streamdown>
+                <Markdown streaming={streamingThisPart}>{part.text}</Markdown>
               </div>
-            );
-          }
-
-          if (part.type === "reasoning") {
-            return (
-              <ReasoningBlock
-                key={`${message.id}-reason-${index}`}
-                text={part.text}
-                streaming={part.state === "streaming"}
-              />
             );
           }
 
           if (isToolUIPart(part)) {
             const toolName = part.type.replace("tool-", "");
-            const label = TOOL_LABELS[toolName] ?? toolName;
             const pending =
               part.state === "input-streaming" ||
               part.state === "input-available";
             const failed = part.state === "output-error";
+            const done = part.state === "output-available";
+            const label = pending
+              ? (TOOL_PENDING[toolName] ?? toolName)
+              : done
+                ? (TOOL_DONE[toolName] ?? toolName)
+                : failed
+                  ? `Could not complete: ${TOOL_PENDING[toolName] ?? toolName}`
+                  : (TOOL_PENDING[toolName] ?? toolName);
             return (
               <div
                 key={`${message.id}-tool-${index}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2 py-0.5 font-medium text-[11px] text-muted-foreground"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2 py-0.5 font-medium text-[11px] text-muted-foreground"
               >
-                {pending ? <Loader2 className="size-3 animate-spin" /> : null}
-                {failed ? "Could not complete: " : null}
+                {pending ? (
+                  <Loader2 className="size-3 animate-spin" aria-hidden />
+                ) : done ? (
+                  <Check className="size-3" aria-hidden />
+                ) : null}
                 {label}
               </div>
             );
@@ -233,6 +349,7 @@ function ArchitectSession({
     });
 
   const busy = status === "submitted" || status === "streaming";
+  const isStreaming = status === "streaming";
 
   useEffect(() => {
     for (const message of messages) {
@@ -329,7 +446,7 @@ function ArchitectSession({
             >
               <StickToBottom.Content
                 className="flex w-full min-w-0 max-w-full flex-col gap-4 px-3 py-3"
-                scrollClassName="overflow-x-hidden overscroll-contain"
+                scrollClassName="overflow-x-hidden overflow-y-auto overscroll-contain"
               >
                 {messages.length === 0 ? (
                   <p className="px-1 py-6 text-center text-muted-foreground text-sm">
@@ -337,10 +454,12 @@ function ArchitectSession({
                     preview updates as the architect writes.
                   </p>
                 ) : (
-                  messages.map((message) => (
+                  messages.map((message, index) => (
                     <MessageParts
                       key={message.id}
                       message={message}
+                      isLastMessage={index === messages.length - 1}
+                      isStreaming={isStreaming}
                       userName={user?.name}
                       userImage={user?.image}
                       userEmail={user?.email}
@@ -368,6 +487,8 @@ function ArchitectSession({
                   </div>
                 ) : null}
               </StickToBottom.Content>
+              <StickOnSend active={busy} />
+              <ScrollToLatest />
             </StickToBottom>
           </div>
         ) : null}
