@@ -195,14 +195,10 @@ export default function CreativePortfolioTemplate({
                     </span>
                   )}
                 </h3>
-                <ul className="space-y-1">
+                <ul className="creative-skill-tags list-none space-y-0 p-0">
                   {(group.keywords || []).map((skill, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center gap-2 text-muted-foreground text-sm"
-                    >
-                      <span className="h-1 w-1 rounded-full bg-primary/30" />
-                      {skill}
+                    <li key={`${group.id}-${i}`}>
+                      <span className="creative-tag">{skill}</span>
                     </li>
                   ))}
                 </ul>
@@ -507,6 +503,7 @@ export default function CreativePortfolioTemplate({
   return (
     <div
       className="resume-page creative-portfolio-template"
+      data-page-format={page?.format ?? "a4"}
       style={{
         fontFamily,
         fontSize,

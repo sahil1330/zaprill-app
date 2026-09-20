@@ -15,8 +15,10 @@ import {
   Heart,
   Languages,
   Loader2,
+  Palette,
   Save,
   Search,
+  Shield,
   SlidersHorizontal,
   Trophy,
   User,
@@ -69,9 +71,11 @@ import {
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
 import { loadResumeDraft } from "@/lib/resume/draft-recovery";
+import { prepareResumeDataForSave } from "@/lib/resume/sanitize";
+import { patchResumeWithVersionRetry } from "@/lib/resume/save-with-retry";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
-import type { ResumeData, ResumeMetadata } from "@/types/resume";
+import type { ResumeMetadata } from "@/types/resume";
 import "@/components/resume/templates/resume-templates.css";
 
 // ─── Section Navigation Items (content-only — no tools mixed in) ─────────────────────
@@ -87,6 +91,11 @@ const SECTIONS = [
   { key: "awards", label: "Awards", icon: Trophy },
   { key: "publications", label: "Publications", icon: BookOpen },
   { key: "references", label: "References", icon: UserCheck },
+] as const;
+
+const TOOLS = [
+  { key: "settings", label: "Design", icon: Palette },
+  { key: "ats-score", label: "ATS Score", icon: Shield },
 ] as const;
 
 export default function ResumeEditorPage({
@@ -131,11 +140,11 @@ export default function ResumeEditorPage({
           data: normalizeResumeData(draft.data),
           metadata: normalizeResumeMetadata(draft.metadata),
           title: draft.title,
-          templateSlug: "minimalist",
-          industry: "technology",
+          templateSlug: draft.templateSlug ?? "minimalist",
+          industry: draft.industry ?? "technology",
           targetRole: "",
           status: "draft",
-          version: 1,
+          version: draft.version ?? 1,
         }),
       );
       setLoadError(null);
@@ -215,111 +224,116 @@ export default function ResumeEditorPage({
   }, [id, dispatch, applyDraftRecovery]);
 
   // ─── Server save function ───────────────────────
-  const handleServerSave = useCallback(async () => {
-    dispatch(resumeActions.markSaving());
-    try {
-      const res = await fetch(`/api/resumes/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: resumeTitle,
-          data,
-          metadata,
-          templateSlug,
-          industry,
-          status,
+  const handleServerSave = useCallback(
+    async (options: { stripBlankItems?: boolean } = {}) => {
+      dispatch(resumeActions.markSaving());
+      try {
+        const payloadData = prepareResumeDataForSave(data, {
+          stripBlankItems: options.stripBlankItems ?? false,
+        });
+        const res = await patchResumeWithVersionRetry({
+          resumeId: id,
           version,
-        }),
-      });
-      if (res.ok) {
-        const { resume } = await res.json();
-        dispatch(resumeActions.markSaved({ version: resume.version }));
-        setValidationErrors(null);
-      } else if (res.status === 400) {
-        const result = await res.json();
+          body: {
+            title: resumeTitle,
+            data: payloadData,
+            metadata,
+            templateSlug,
+            industry,
+            status,
+          },
+        });
+        if (res.ok) {
+          const { resume } = await res.json();
+          dispatch(resumeActions.markSaved({ version: resume.version }));
+          setValidationErrors(null);
+        } else if (res.status === 400) {
+          const result = await res.json();
 
-        // Build a flat error map by section
-        const errorsBySection: Record<string, Record<string, string[]>> = {};
+          // Build a flat error map by section
+          const errorsBySection: Record<string, Record<string, string[]>> = {};
 
-        if (result.issues && Array.isArray(result.issues)) {
-          result.issues.forEach((issue: any) => {
-            const path = issue.path; // e.g. ["data", "basics", "profiles", 0, "url"]
-            if (
-              (path[0] === "data" || path[0] === "metadata") &&
-              path.length >= 2
-            ) {
-              const root = path[0];
-              const section = root === "metadata" ? "settings" : path[1];
-
-              // Determine the relative path for RHF
-              // Forms like WorkForm expect "work.0.website"
-              // BasicsForm expects "profiles.0.url"
-              // SettingsForm expects "template"
-              let relativePath;
-              if (root === "metadata") {
-                relativePath = path.slice(1).join(".");
-              } else if (
-                [
-                  "work",
-                  "education",
-                  "skills",
-                  "projects",
-                  "certifications",
-                  "languages",
-                  "volunteer",
-                  "awards",
-                  "publications",
-                  "references",
-                ].includes(section)
+          if (result.issues && Array.isArray(result.issues)) {
+            result.issues.forEach((issue: any) => {
+              const path = issue.path; // e.g. ["data", "basics", "profiles", 0, "url"]
+              if (
+                (path[0] === "data" || path[0] === "metadata") &&
+                path.length >= 2
               ) {
-                relativePath = path.slice(1).join(".");
-              } else {
-                relativePath = path.slice(2).join(".");
+                const root = path[0];
+                const section = root === "metadata" ? "settings" : path[1];
+
+                // Determine the relative path for RHF
+                // Forms like WorkForm expect "work.0.website"
+                // BasicsForm expects "profiles.0.url"
+                // SettingsForm expects "template"
+                let relativePath;
+                if (root === "metadata") {
+                  relativePath = path.slice(1).join(".");
+                } else if (
+                  [
+                    "work",
+                    "education",
+                    "skills",
+                    "projects",
+                    "certifications",
+                    "languages",
+                    "volunteer",
+                    "awards",
+                    "publications",
+                    "references",
+                  ].includes(section)
+                ) {
+                  relativePath = path.slice(1).join(".");
+                } else {
+                  relativePath = path.slice(2).join(".");
+                }
+
+                if (!errorsBySection[section]) errorsBySection[section] = {};
+                if (!errorsBySection[section][relativePath])
+                  errorsBySection[section][relativePath] = [];
+                errorsBySection[section][relativePath].push(issue.message);
               }
+            });
+          }
 
-              if (!errorsBySection[section]) errorsBySection[section] = {};
-              if (!errorsBySection[section][relativePath])
-                errorsBySection[section][relativePath] = [];
-              errorsBySection[section][relativePath].push(issue.message);
-            }
-          });
+          setValidationErrors(errorsBySection);
+          setShowErrorDialog(true);
+          dispatch(resumeActions.markSaveFailed());
+        } else if (res.status === 409) {
+          toast.error(
+            "Couldn't sync this tab. Refresh to keep your latest edits.",
+          );
+          dispatch(resumeActions.markSaveFailed());
+        } else {
+          toast.error(
+            "Couldn't save your changes. They're backed up locally — try again shortly.",
+          );
+          dispatch(resumeActions.markSaveFailed());
         }
-
-        setValidationErrors(errorsBySection);
-        setShowErrorDialog(true);
-        dispatch(resumeActions.markSaveFailed());
-      } else if (res.status === 409) {
+      } catch {
         toast.error(
-          "Someone else updated this resume. Refresh to get the latest version.",
-        );
-        dispatch(resumeActions.markSaveFailed());
-      } else {
-        toast.error(
-          "Couldn't save your changes. They're backed up locally — try again shortly.",
+          "Couldn't reach the server. Your edits are saved locally on this device.",
         );
         dispatch(resumeActions.markSaveFailed());
       }
-    } catch {
-      toast.error(
-        "Couldn't reach the server. Your edits are saved locally on this device.",
-      );
-      dispatch(resumeActions.markSaveFailed());
-    }
-  }, [
-    id,
-    resumeTitle,
-    data,
-    metadata,
-    templateSlug,
-    industry,
-    status,
-    version,
-    dispatch,
-  ]);
+    },
+    [
+      id,
+      resumeTitle,
+      data,
+      metadata,
+      templateSlug,
+      industry,
+      status,
+      version,
+      dispatch,
+    ],
+  );
 
   // ─── Auto-save ──────────────────────────────────
   const { isDirty, isSaving } = useAutoSave({
-    onServerSave: handleServerSave,
+    onServerSave: () => handleServerSave({ stripBlankItems: true }),
   });
 
   // ─── Manual save ────────────────────────────────
@@ -607,6 +621,21 @@ export default function ResumeEditorPage({
                 )}
               </button>
             ))}
+            <div className="mx-2 my-2 hidden border-border border-t lg:block" />
+            {TOOLS.map(({ key, label, icon: Icon }) => (
+              <button
+                type="button"
+                key={key}
+                onClick={() => {
+                  if (key === "settings") setSettingsOpen(true);
+                  if (key === "ats-score") setAtsOpen(true);
+                }}
+                className="relative flex w-full items-center gap-3 px-2.5 py-2.5 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted/50 hover:text-foreground lg:px-3"
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="hidden truncate lg:inline">{label}</span>
+              </button>
+            ))}
           </ScrollArea>
         </nav>
 
@@ -702,7 +731,22 @@ export default function ResumeEditorPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowErrorDialog(false)}>
+            <AlertDialogAction
+              onClick={() => {
+                const firstSection = validationErrors
+                  ? Object.keys(validationErrors)[0]
+                  : null;
+                if (
+                  firstSection &&
+                  SECTIONS.some((s) => s.key === firstSection)
+                ) {
+                  dispatch(resumeActions.setActiveSection(firstSection));
+                } else if (firstSection === "settings") {
+                  setSettingsOpen(true);
+                }
+                setShowErrorDialog(false);
+              }}
+            >
               Got it, I'll fix it
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -6,6 +6,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { stripEmoji } from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { ResumeData } from "@/types/resume";
 
@@ -57,7 +58,7 @@ Rules:
 - Be genuinely funny — use sarcasm, exaggeration, and witty observations
 - Reference specific things from their actual resume (don't be generic)
 - After each roast point, sneak in actually useful advice disguised as more roasting
-- Use emojis liberally 🔥💀😭
+- Do not use emoji or emoticons
 - Start with a savage opening line about the overall resume
 - Cover: their job title, experience descriptions, skills section, formatting choices, and any gaps or red flags
 - End with a backhanded compliment ("But seriously though...")
@@ -82,7 +83,7 @@ ${resumeText}`,
       success: true,
     });
 
-    return NextResponse.json({ roast: text.trim() });
+    return NextResponse.json({ roast: stripEmoji(text.trim()) });
   } catch (error) {
     console.error("Resume roast error:", error);
     return NextResponse.json(

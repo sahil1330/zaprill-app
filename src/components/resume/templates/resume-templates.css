@@ -4,15 +4,20 @@
  * Each template can extend with its own class.
  * ───────────────────────────────────────────────── */
 
-/* Page container — simulates A4/Letter paper */
+/* Page container — A4 by default, letter via data-page-format */
 .resume-page {
   width: 100%;
-  max-width: 210mm; /* A4 width */
+  max-width: 210mm;
   margin: 0 auto;
   padding: var(--resume-padding, 24px 28px);
   background: var(--resume-bg, #ffffff);
   color: var(--resume-text, #333333);
   box-sizing: border-box;
+}
+
+.resume-page[data-page-format="letter"],
+.resume-preview-paper[data-page-format="letter"] .resume-page {
+  max-width: 216mm;
 }
 
 /* ─── Minimalist Template ─────────────────────── */
@@ -197,7 +202,11 @@
 /* ─── Print styles ────────────────────────────── */
 @page {
   size: A4;
-  margin: 15mm !important;
+  margin: 12mm;
+}
+
+@page letter {
+  size: letter;
 }
 
 @media print {
@@ -218,8 +227,12 @@
     margin: 0 auto !important;
     background: white !important;
     overflow: visible !important;
-    display: block !important; /* Fix flexbox page-break issues */
+    display: block !important;
     position: static !important;
+  }
+
+  .resume-page[data-page-format="letter"] {
+    width: 216mm !important;
   }
 
   /* Allow sections and entries to break more naturally to fill space */
@@ -269,11 +282,19 @@
   }
 
   .ts-columns,
-  .modern-split-body,
   .resume-skills-grid,
   .creative-portfolio-grid,
   .creative-skills-grid {
     display: block !important;
+  }
+
+  .modern-split-body {
+    display: block !important;
+  }
+
+  .tech-stack-template .ts-columns {
+    display: flex !important;
+    gap: 16px !important;
   }
 
   .ts-sidebar,
@@ -284,6 +305,14 @@
     border-top: 1.5px solid var(--resume-primary) !important;
     padding: 1rem 0 0 0 !important;
     margin-top: 1rem !important;
+  }
+
+  .tech-stack-template .ts-sidebar {
+    width: 34% !important;
+    border-left: 1.5px solid var(--resume-primary) !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+    padding: 0 0 0 12px !important;
   }
 }
 
@@ -306,6 +335,12 @@
   width: 100%;
   max-width: 210mm;
   min-height: 297mm;
+  position: relative;
+}
+
+.resume-preview-paper[data-page-format="letter"] {
+  max-width: 216mm;
+  min-height: 279mm;
 }
 
 /* ─── Tech Stack Template ─────────────────────── */
@@ -344,7 +379,7 @@
 }
 
 .ts-sidebar {
-  width: 180px;
+  width: 200px;
   flex-shrink: 0;
   border-left: 1.5px solid var(--resume-primary, #1a1a2e);
   padding-left: 16px;
@@ -370,6 +405,18 @@
   font-weight: 700;
   color: var(--resume-text, #222);
   margin: 0 0 4px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.ts-skill-level {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--resume-text, #555);
+  opacity: 0.75;
+  white-space: nowrap;
 }
 
 .ts-skill-tags,
@@ -380,13 +427,18 @@
 }
 
 .ts-tag {
-  font-size: 0.72em;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: var(--resume-primary, #1a1a2e);
+  display: inline-block;
+  max-width: 100%;
+  font-size: 0.7em;
+  line-height: 1.35;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--resume-primary, #1a1a2e) 88%, white);
   color: var(--resume-bg, #fff);
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ts-edu-block,
@@ -431,12 +483,8 @@
 }
 
 @media print {
-  .ts-columns {
+  .tech-stack-template .ts-columns {
     gap: 16px;
-  }
-
-  .ts-sidebar {
-    width: 160px;
   }
 }
 
@@ -729,12 +777,17 @@
 
 .creative-tag {
   display: inline-block;
+  max-width: 100%;
   padding: 2px 8px;
   font-size: 0.78em;
   font-weight: 500;
+  line-height: 1.35;
   border-radius: 999px;
   background: color-mix(in srgb, var(--resume-accent, #4a6cf7) 12%, transparent);
   color: var(--resume-accent, #4a6cf7);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .creative-portfolio-grid {
@@ -831,7 +884,10 @@
     color-mix(in srgb, var(--resume-primary, #2563eb) 15%, transparent);
   border-radius: 6px;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .modern-split-template .ms-lang-item {

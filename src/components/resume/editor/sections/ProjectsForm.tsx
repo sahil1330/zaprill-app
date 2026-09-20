@@ -11,6 +11,7 @@ import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 import { z } from "zod";
 import SortableItem from "@/components/resume/editor/SortableItem";
 import { Badge } from "@/components/ui/badge";
@@ -160,9 +161,12 @@ export default function ProjectsForm({ serverErrors }: { serverErrors?: any }) {
         setValue(`projects.${projIndex}.highlights`, currentHighlights, {
           shouldValidate: true,
         });
+        toast.success("Bullet rewritten");
+      } else {
+        toast.error("Couldn't rewrite that bullet. Try again.");
       }
     } catch {
-      // Silently fail
+      toast.error("Couldn't rewrite that bullet. Try again.");
     } finally {
       setEnhancingKey(null);
     }

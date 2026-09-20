@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RESUME_LIMITS } from "@/lib/resume/sanitize";
 import { skillItemSchema } from "@/lib/validations/resume";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
@@ -120,6 +121,13 @@ export default function SkillsForm({ serverErrors }: { serverErrors?: any }) {
     const groupId = fields[idx].id;
     const kw = (newKeywords[groupId] ?? "").trim();
     if (!kw) return;
+    if (kw.length > RESUME_LIMITS.keyword) {
+      setError(`skills.${idx}.keywords` as any, {
+        type: "max",
+        message: `Each skill must be ${RESUME_LIMITS.keyword} characters or fewer`,
+      });
+      return;
+    }
     const currentKeywords = watch(`skills.${idx}.keywords`) || [];
     if (!currentKeywords.includes(kw)) {
       setValue(`skills.${idx}.keywords`, [...currentKeywords, kw], {
@@ -317,6 +325,7 @@ export default function SkillsForm({ serverErrors }: { serverErrors?: any }) {
                           }
                         }}
                         placeholder="Type a skill and press Enter"
+                        maxLength={RESUME_LIMITS.keyword}
                         className="h-9 text-sm"
                       />
                       <Button
@@ -329,6 +338,10 @@ export default function SkillsForm({ serverErrors }: { serverErrors?: any }) {
                         Add
                       </Button>
                     </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Press Enter to add. Max {RESUME_LIMITS.keyword} characters
+                      per skill.
+                    </p>
                     <FieldError
                       errors={[(errors.skills?.[idx] as any)?.keywords]}
                     />

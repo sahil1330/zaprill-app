@@ -5,6 +5,9 @@ export interface ResumeDraftSnapshot {
   data: ResumeData;
   metadata: ResumeMetadata;
   title: string;
+  templateSlug?: string;
+  industry?: string;
+  version?: number;
 }
 
 const DRAFT_KEY_PREFIX = "resume_draft_";

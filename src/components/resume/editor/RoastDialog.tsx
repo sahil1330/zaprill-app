@@ -3,6 +3,7 @@
 import { Flame, Loader2, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -38,11 +39,11 @@ export default function RoastDialog() {
       if (res.ok) {
         const data = await res.json();
         setRoast(data.roast);
+      } else {
+        toast.error("Couldn't roast your resume right now. Try again.");
       }
     } catch {
-      setRoast(
-        "Couldn't roast your resume right now. Even the AI was speechless. 💀",
-      );
+      toast.error("Couldn't roast your resume right now. Try again.");
     } finally {
       setIsRoasting(false);
     }
@@ -66,20 +67,20 @@ export default function RoastDialog() {
         <SheetHeader className="border-border border-b p-6 pb-4">
           <SheetTitle className="flex items-center gap-2 text-lg">
             <Flame className="h-5 w-5 text-orange-500" />
-            Resume Roast 🔥
+            Resume Roast
           </SheetTitle>
           <SheetDescription>
-            Brutally honest (but funny) AI feedback on your resume
+            Brutally honest (but useful) AI feedback on your resume
           </SheetDescription>
         </SheetHeader>
 
         <ScrollArea className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
           {!roast && !isRoasting && (
             <div className="flex flex-col items-center justify-center space-y-4 py-16 text-center">
-              <div className="text-5xl">🔥</div>
+              <Flame className="h-12 w-12 text-orange-500" />
               <p className="max-w-xs text-muted-foreground text-sm">
-                Ready to get roasted? Click below and the AI will give you
-                brutally honest feedback — with a side of comedy.
+                Ready to get roasted? The AI will give you brutally honest
+                feedback — with a side of comedy.
               </p>
               <Button
                 onClick={handleRoast}
@@ -96,7 +97,7 @@ export default function RoastDialog() {
             <div className="flex flex-col items-center justify-center space-y-4 py-16">
               <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
               <p className="animate-pulse text-muted-foreground text-sm">
-                Preparing the burn... 🔥
+                Preparing the roast...
               </p>
             </div>
           )}

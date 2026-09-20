@@ -6,6 +6,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { asRichText } from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { ResumeData } from "@/types/resume";
 
@@ -110,7 +111,7 @@ ${data.basics.label ? `Current title: ${data.basics.label}` : ""}`,
       success: true,
     });
 
-    return NextResponse.json({ summary: text.trim() });
+    return NextResponse.json({ summary: asRichText(text.trim()) });
   } catch (error) {
     console.error("Generate summary error:", error);
     return NextResponse.json(

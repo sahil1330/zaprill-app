@@ -75,11 +75,14 @@ export default function AtsScorePanel() {
       if (res.ok) {
         const data = await res.json();
         setResult(data);
+        toast.success("ATS analysis complete");
       } else {
         setError("Analysis failed. Please try again.");
+        toast.error("ATS analysis failed. Try again.");
       }
     } catch {
       setError("Network error. Please try again.");
+      toast.error("ATS analysis failed. Check your connection.");
     } finally {
       setIsAnalyzing(false);
       setAppliedFixes(new Set());

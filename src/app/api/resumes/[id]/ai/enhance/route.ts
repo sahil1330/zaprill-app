@@ -7,6 +7,7 @@ import { z } from "zod";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { clampText, RESUME_LIMITS } from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
 
 export const maxDuration = 30;
@@ -96,7 +97,10 @@ ${bullet}`,
     });
 
     // Strip any wrapping quotes the model might add
-    const enhanced = text.trim().replace(/^["']|["']$/g, "");
+    const enhanced = clampText(
+      text.trim().replace(/^["']|["']$/g, ""),
+      RESUME_LIMITS.highlight,
+    );
 
     return NextResponse.json({ enhanced });
   } catch (error) {

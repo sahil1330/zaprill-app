@@ -7,6 +7,7 @@ import { z } from "zod";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { clampTailoredPayload } from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { ResumeData } from "@/types/resume";
 
@@ -154,7 +155,7 @@ Return ONLY valid JSON in this exact shape:
       );
     }
 
-    return NextResponse.json(tailoredData);
+    return NextResponse.json(clampTailoredPayload(tailoredData));
   } catch (error) {
     console.error("Job tailoring error:", error);
     return NextResponse.json(
