@@ -1,3 +1,7 @@
+## GitHub project tracking
+
+Follow [.agents/GITHUB_PROJECT.md](.agents/GITHUB_PROJECT.md): issues on `zaprillcom-cpu/zaprill-app`, board Status via `gh` as `sahil1330`, never log out.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.

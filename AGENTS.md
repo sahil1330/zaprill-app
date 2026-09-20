@@ -19,6 +19,15 @@ Follow the guidelines in [.agents/ARCHITECTURE.md](.agents/ARCHITECTURE.md).
 - **No emojis** in any UI component, page, or text content. This is a professional product. Use Lucide icons instead.
 - Do not use emoji literals (`🎉`), HTML entities (`&#x1F4CA;`), or Unicode escapes (`\u{1F4CA}`) in JSX or rendered strings.
 
+# GitHub project tracking
+
+All bugs, todos, and in-progress work go on the Zaprill Project v2 board. Follow **[.agents/GITHUB_PROJECT.md](.agents/GITHUB_PROJECT.md)** in every session:
+
+- File issues on `zaprillcom-cpu/zaprill-app` (not only this test repo).
+- Set the board **Status** field (`Todo` / `In progress` / `Done`). A `[Todo]` title prefix is not enough.
+- Use `gh` as **sahil1330**. Never `gh auth logout`.
+- GitHub MCP can create issues; it cannot move Project v2 Status.
+
 # Knowledge Graph
 
 A pre-built knowledge graph of this codebase lives at `graphify-out/graph.json` — 1695 nodes (every function, component, API route, DB table, type) and 4575 edges mapping their relationships.
