@@ -1,1398 +1,2174 @@
 {
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\drizzle.config.ts": {
-    "mtime": 1775300542.4625323,
-    "hash": "826ffbefa5281e71a02c847433c80ce1"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\next-env.d.ts": {
-    "mtime": 1782646537.1514232,
-    "hash": "d0f8375ae1199dc7acd3977fc33b78b8"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\next.config.ts": {
-    "mtime": 1777705688.058421,
-    "hash": "3ae7e441b7039215192e33287be261f5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\postcss.config.mjs": {
-    "mtime": 1763960215.865483,
-    "hash": "239f3ebf717465dc636818a1a619398d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\playwright.config.ts": {
-    "mtime": 1782647459.8294961,
-    "hash": "e8da77977d3bf46d951703506eaea83e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\resume-builder\\01-core-flows.spec.ts": {
-    "mtime": 1782647900.8559408,
-    "hash": "f7f42a14e57bd52505530c3f77f674c2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\resume-builder\\02-validation-edge-cases.spec.ts": {
-    "mtime": 1782648702.048961,
-    "hash": "3fdcca43583c9e7aaebd1597e84f477a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\resume-builder\\03-editor-behavior.spec.ts": {
-    "mtime": 1782648072.0662827,
-    "hash": "19f7536eef2b1c96f56959e72d57b2b6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\resume-builder\\helpers\\resume-api.ts": {
-    "mtime": 1782647670.0121796,
-    "hash": "a692bb25f275927eae301142556d7c44"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\resume-builder\\helpers\\resume-editor.ts": {
-    "mtime": 1782648223.1684196,
-    "hash": "6cead84df8b6b3abdf522a138bde8960"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\01-guest-experience.spec.ts": {
-    "mtime": 1782588325.9749348,
-    "hash": "8444b3dfd10a0a9beb2f3363f02cff48"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\02-authenticated-journeys.spec.ts": {
-    "mtime": 1782588340.9527965,
-    "hash": "f7327abd530f68f6b1d7f62baab62da8"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\03-mobile-navigation.spec.ts": {
-    "mtime": 1782588341.3410978,
-    "hash": "9af0802710ebae838614c9fe1e3b67b3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\03-navigation-ia.spec.ts": {
-    "mtime": 1782588824.766153,
-    "hash": "f995682cb0c2d3821f11508267107290"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\auth.setup.ts": {
-    "mtime": 1782585617.5953956,
-    "hash": "8ee6aa1b01bd77da56010c6d9b75a641"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\generate-report.ts": {
-    "mtime": 1782584742.7955902,
-    "hash": "cd68d386ee10b1474e22899c80548c1e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\helpers\\audit.ts": {
-    "mtime": 1782587310.7255423,
-    "hash": "5816d024c43ad7ed354368c7af76e774"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts": {
-    "mtime": 1782588850.1141384,
-    "hash": "78a84192ad950fc843609603be9bd77e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\helpers\\stabilize-page.ts": {
-    "mtime": 1782588493.234708,
-    "hash": "8f073fa3e60019946f9a7a437fc1e500"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\scratch\\test-neon.ts": {
-    "mtime": 1778084812.9063144,
-    "hash": "d28481021011bd5b2e2f80cd17e319f7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\proxy.ts": {
-    "mtime": 1777212988.4328654,
-    "hash": "a7580ba71cf09add96c69e3a5eaa0117"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\error.tsx": {
-    "mtime": 1778957207.1763535,
-    "hash": "d810b753ff76040d5dd94edcaaff4457"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\layout.tsx": {
-    "mtime": 1782582487.9545264,
-    "hash": "ec18e2f7480f28fbbd7ab86c4316aeda"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\loading.tsx": {
-    "mtime": 1778957207.900036,
-    "hash": "2c13c33068919666c0081928657ad470"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\not-found.tsx": {
-    "mtime": 1778958587.0237267,
-    "hash": "e2a198cf943886c0d8211e72a286652e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\page.tsx": {
-    "mtime": 1782587274.0705676,
-    "hash": "4d358bc47b49566139da84ed750d6c1b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(auth)\\layout.tsx": {
-    "mtime": 1777212979.1803837,
-    "hash": "36c861eb8b91c246d362b773f76c8e1f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(auth)\\forgot-password\\page.tsx": {
-    "mtime": 1778957206.1264236,
-    "hash": "2a1020a9728ef733d6b30323cd58e41b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(auth)\\reset-password\\page.tsx": {
-    "mtime": 1778957206.1004224,
-    "hash": "e662e7625107eb9bae00dffbd4611db5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(auth)\\sign-in\\page.tsx": {
-    "mtime": 1782588781.412763,
-    "hash": "ffe9bb2ffe91129ccc5b9700142285b5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(auth)\\sign-up\\page.tsx": {
-    "mtime": 1782588781.413762,
-    "hash": "9b142ca63e0e2e63da4cbc5d3b29a0eb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\layout.tsx": {
-    "mtime": 1782646982.8486748,
-    "hash": "b9a5cee7492f99fc8795a997ac460a09"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\loading.tsx": {
-    "mtime": 1782587273.9975588,
-    "hash": "40d7860534dacb9dc74be388ec110f64"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\analyze\\page.tsx": {
-    "mtime": 1782587274.1390882,
-    "hash": "86f7f0649f16c05d6c42e6afbf1c038c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\billing\\page.tsx": {
-    "mtime": 1782646848.674358,
-    "hash": "0075e94863de0171877a086275a851cd"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\billing\\_components\\billing-client-shell.tsx": {
-    "mtime": 1778354608.080296,
-    "hash": "16747c2d9ca47b67d1074d4f84337041"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\billing\\_components\\billing-invoice-table.tsx": {
-    "mtime": 1778958587.0237267,
-    "hash": "f9f7aa144c8b226afa52f9a86f4c4f51"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\billing\\_components\\renewal-reminder.tsx": {
-    "mtime": 1782590664.4947696,
-    "hash": "1bc6ff4baebedcbbb5ad554df9f43e11"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\checkout\\checkout-form.tsx": {
-    "mtime": 1778957206.6202047,
-    "hash": "70a12e351c1b88d3a68a1b9ed27e2969"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\checkout\\page.tsx": {
-    "mtime": 1778957206.1414223,
-    "hash": "be97d0d266878998360ce2ad81799ccf"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\history\\page.tsx": {
-    "mtime": 1782587274.0165596,
-    "hash": "259afbf9d3f4beb9bc899c9bd0551e95"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\jobs\\page.tsx": {
-    "mtime": 1782586102.138502,
-    "hash": "9a49e895d49bd35f62694fa88500d4a5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\onboarding\\page.tsx": {
-    "mtime": 1778957206.4431527,
-    "hash": "5f6d35a201a81fb572532fc26c5f8db4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\payment\\status\\page.tsx": {
-    "mtime": 1782582487.903996,
-    "hash": "42f14d52d591e3eda99eae82c24765f5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\profile\\page.tsx": {
-    "mtime": 1782587274.0900893,
-    "hash": "5883d200e6f5be097720eecc64f8e186"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\referrals\\page.tsx": {
-    "mtime": 1782587274.0910876,
-    "hash": "4156a03a41ff6632f0921af3c2390f29"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\resumes\\loading.tsx": {
-    "mtime": 1778957206.638206,
-    "hash": "13d17eb37f8904ba3e103e72746bbfce"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\resumes\\page.tsx": {
-    "mtime": 1782587274.077569,
-    "hash": "343c2898919144d59d0a919890ac5a3e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\resumes\\primary\\page.tsx": {
-    "mtime": 1778957206.6767282,
-    "hash": "c0cd28403d1a4c33ee921e35965cd9fe"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\resumes\\[id]\\page.tsx": {
-    "mtime": 1782648871.755554,
-    "hash": "3f988f6f5fb4c0572b9740e7f82a5d01"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\(protected)\\resumes\\[id]\\export\\page.tsx": {
-    "mtime": 1778957206.6262047,
-    "hash": "c68956e75fe8bc47f00f19535cbf60b5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\actions\\auth.ts": {
-    "mtime": 1778957206.680729,
-    "hash": "a7dfb1cc7a74f667d8107e57426e07d6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\analytics\\route.ts": {
-    "mtime": 1777705688.0757947,
-    "hash": "a23b9085a0192d38b1643c2c245f3fda"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\audit\\route.ts": {
-    "mtime": 1777705688.0877676,
-    "hash": "1efb9f43e1e7eb49ba284e8dc7eb0a0c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\db\\route.ts": {
-    "mtime": 1777705688.0907695,
-    "hash": "de37fbd5adda789b4688e45ae7aab5d2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\emails\\route.ts": {
-    "mtime": 1777705688.0907695,
-    "hash": "2fafb2a4107062498969e6962a64ee51"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\referrals\\route.ts": {
-    "mtime": 1778354608.132526,
-    "hash": "cc722a5a08e5c4d1686170883932aa17"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\resources\\route.ts": {
-    "mtime": 1778335736.61545,
-    "hash": "afdd65ff7cc0e4d997a83195a92bdf50"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\settings\\route.ts": {
-    "mtime": 1778354608.108514,
-    "hash": "245a526c95374adddf0df16e68843679"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\stats\\route.ts": {
-    "mtime": 1778418313.2989333,
-    "hash": "02e267b4c1d0ffff1cbfa8e7dda90c30"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\stats\\growth\\route.ts": {
-    "mtime": 1777705688.0907695,
-    "hash": "50d30afc4fa0423fdd6375d15b062ccd"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\stats\\overview\\route.ts": {
-    "mtime": 1778418294.0407286,
-    "hash": "d326f0b0bda2152bd31f0118f429386a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\admin\\users\\route.ts": {
-    "mtime": 1778942868.405656,
-    "hash": "bba04068a51ac750e24ed79220ad74c2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\analysis-history\\route.ts": {
-    "mtime": 1778957206.8172567,
-    "hash": "efd1040ea5ab9889b5e22ab7d2f32c93"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\analysis-history\\[id]\\route.ts": {
-    "mtime": 1782590664.6278162,
-    "hash": "caf8cd3e3e0e8acad4f87ff40a2ee824"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\analyze-gaps\\route.ts": {
-    "mtime": 1782590664.634817,
-    "hash": "b8ba1a78c9c15d710d5462c8c6900819"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\auth\\[...all]\\route.ts": {
-    "mtime": 1778957206.8622644,
-    "hash": "0c0cddf4693c86dc21f3dc733a5b8e5d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\checkout\\route.ts": {
-    "mtime": 1782590603.641762,
-    "hash": "f8bdf1d79c84efd6b27a06355137d0c3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\coupons\\validate\\route.ts": {
-    "mtime": 1777705688.0952888,
-    "hash": "517a30cb1481c119c92a2085303fd5a8"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\invoices\\route.ts": {
-    "mtime": 1777705688.0952888,
-    "hash": "4279be90fac93903564ac6870b42055f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\invoices\\[invoiceId]\\pdf\\route.ts": {
-    "mtime": 1778329040.0281832,
-    "hash": "b2b60c0dcd838dedf4fc57d87ce2ccd7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\payment-status\\route.ts": {
-    "mtime": 1778959860.11329,
-    "hash": "d949acfd7040860d02c77a352af7dce1"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\plans\\route.ts": {
-    "mtime": 1778957206.9167802,
-    "hash": "8f17b217c731f921a9026e64da32f8d2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\retry\\route.ts": {
-    "mtime": 1777705688.0980074,
-    "hash": "5a2c2c238ebf3b224a653d936f4182cd"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\subscription\\route.ts": {
-    "mtime": 1782646849.8571749,
-    "hash": "c6d327edd744f71706e2e0a35f740f80"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\billing\\webhook\\route.ts": {
-    "mtime": 1777705688.099007,
-    "hash": "1879f503630e0f95e3b753c4cf09cc41"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\career-insights\\route.ts": {
-    "mtime": 1778334015.8246605,
-    "hash": "6ff56b280754767c57b2c0aaf3e0fbd6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\job-titles\\route.ts": {
-    "mtime": 1778324115.2785096,
-    "hash": "7b7ae025aae3379ea5058e32413bbcdd"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\parse-resume\\route.ts": {
-    "mtime": 1782587227.4071949,
-    "hash": "22cbf5c5238baf59862ade15366b69c6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\profile\\route.ts": {
-    "mtime": 1779020438.3586433,
-    "hash": "99dbabf230b5926dd48bd60a1cbf2116"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\r\\route.ts": {
-    "mtime": 1778335736.6159573,
-    "hash": "aa917b9a594edf18a22a5dee3a4c8925"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\referrals\\route.ts": {
-    "mtime": 1778354608.0973332,
-    "hash": "007c084782a546a0adf177e745f88d37"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\referrals\\claim\\route.ts": {
-    "mtime": 1778354608.0878239,
-    "hash": "6eb09a35f9406ed6f5a45dd6de7a5f4d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\referrals\\validate\\route.ts": {
-    "mtime": 1778353160.228795,
-    "hash": "47d85f17868259990fd20644d879534d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\route.ts": {
-    "mtime": 1778957207.117827,
-    "hash": "f4b768b3c907a85984b7208287210f2b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\route.ts": {
-    "mtime": 1777827240.0093524,
-    "hash": "c7bf6bb63b0cd228676011fbf975ae8c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\ai\\ats-score\\route.ts": {
-    "mtime": 1782582487.9319954,
-    "hash": "513cafa6c8d2aacc38b436349a590455"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\ai\\enhance\\route.ts": {
-    "mtime": 1782582487.9349983,
-    "hash": "52e706ad578af0d68e299386bb810ed4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\ai\\roast\\route.ts": {
-    "mtime": 1782582487.94101,
-    "hash": "dae95b50d97f801dc7f2140ae71d3696"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\ai\\summary\\route.ts": {
-    "mtime": 1782582487.948009,
-    "hash": "f6ab6377fc312f83bb4b64e310c9a7ac"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\ai\\tailor\\route.ts": {
-    "mtime": 1782582487.9505165,
-    "hash": "64a9e9132f681b799b05556978ee0935"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\duplicate\\route.ts": {
-    "mtime": 1778957207.0483022,
-    "hash": "34f9a529c636f68f73944445fb0d28a7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\export\\route.ts": {
-    "mtime": 1778957207.0553045,
-    "hash": "8c6b176557f0da48c097993d7a96f2eb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\versions\\route.ts": {
-    "mtime": 1778957207.0998292,
-    "hash": "3893d73d9d442b98c2440fdfe7272e50"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\resumes\\[id]\\versions\\[versionId]\\restore\\route.ts": {
-    "mtime": 1778957207.0978277,
-    "hash": "0c936d15ad73f610624d8ecfda6cd38a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\save-analysis\\route.ts": {
-    "mtime": 1778939820.4049878,
-    "hash": "058ace6ae6ebb8c425a8f03228086573"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\save-job\\route.ts": {
-    "mtime": 1778334015.8541517,
-    "hash": "84a502c10e253c3c5ee157397adc4753"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\search-jobs\\route.ts": {
-    "mtime": 1782590250.771845,
-    "hash": "73f54541e6e649f7aef55506e9c1bb6c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\track-visit\\route.ts": {
-    "mtime": 1778334015.8311958,
-    "hash": "0e88bb096e3bc3c7f32a7c3c772f3e76"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\user-jobs\\route.ts": {
-    "mtime": 1778334015.9084432,
-    "hash": "63d2bd7e505e2fa9a1c99bdec3089fbb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\api\\webhooks\\resend\\route.ts": {
-    "mtime": 1777705688.110281,
-    "hash": "d00d3f3c4e1d317d12387c7e905ba663"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\layout.tsx": {
-    "mtime": 1778957207.535944,
-    "hash": "3749a5516cb6c712202fdf1ad504adec"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\loading.tsx": {
-    "mtime": 1778957207.5489438,
-    "hash": "a5ae63fc475eb4a254fb5ce8ea5abbbd"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\page.tsx": {
-    "mtime": 1778957207.5854692,
-    "hash": "60eac956b08ccd85a6a4658c81e2c2c6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\analytics\\page.tsx": {
-    "mtime": 1778957207.2643602,
-    "hash": "c101247f604f1facd6bdec8ba3021d13"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\analytics\\_components\\analytics-content.tsx": {
-    "mtime": 1778957207.4849448,
-    "hash": "d3b6706ebfeef0e9ef6507cc1ccea354"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\audit\\page.tsx": {
-    "mtime": 1778957207.2573514,
-    "hash": "85afc85c0030f9da21aeca1581492b2a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\audit\\_components\\audit-list.tsx": {
-    "mtime": 1778957207.3619006,
-    "hash": "0180398ad70420b13af87a4f2be7658b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\billing\\page.tsx": {
-    "mtime": 1778957207.274876,
-    "hash": "4f222b71581580d44b49583dc04812f3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\billing\\_components\\billing-content.tsx": {
-    "mtime": 1778957207.5904686,
-    "hash": "8c08cd796ea56862402a9b01dde46d7d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\coupons\\page.tsx": {
-    "mtime": 1778957207.3298783,
-    "hash": "2afe6418f59f95521f9ffd6f43c2c3e3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\coupons\\_components\\coupons-content.tsx": {
-    "mtime": 1778957207.8075154,
-    "hash": "184ecfa54020c5b5fb5df1b3c009e1b2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\database\\page.tsx": {
-    "mtime": 1778958587.0307267,
-    "hash": "47323de4c61ec472b8b328e55b9d1326"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\emails\\page.tsx": {
-    "mtime": 1778957207.5319445,
-    "hash": "17c4ed975dd0c616c6fd1bb6ed7384c2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\emails\\_components\\emails-content.tsx": {
-    "mtime": 1778957207.6414711,
-    "hash": "5e92e3a9dbf043e72f9c673f719df615"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\plans\\page.tsx": {
-    "mtime": 1778957207.5814688,
-    "hash": "19539e521ef253ee8f3c7d03c78517a6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\plans\\_components\\plans-content.tsx": {
-    "mtime": 1778957208.072567,
-    "hash": "aab17bb2b93d65dc1c502ac79e0fb5ce"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\referrals\\page.tsx": {
-    "mtime": 1778957209.170355,
-    "hash": "505d39903881388d2032ae91be78f11d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\resources\\page.tsx": {
-    "mtime": 1778957207.6264699,
-    "hash": "92230fe46ef4b9e9cc8147a89745efc6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\resources\\_components\\resources-content.tsx": {
-    "mtime": 1778957207.9200351,
-    "hash": "5ee0b57b72e009ccd7e866b8843ca8df"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\settings\\page.tsx": {
-    "mtime": 1778957207.7369905,
-    "hash": "398aa8a16b6cb8a2d019391d8a4c3605"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\settings\\_components\\auth-config-tab.tsx": {
-    "mtime": 1782587995.8635595,
-    "hash": "905a20b0e168bf49dd5291390ec92491"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\settings\\_components\\company-tab.tsx": {
-    "mtime": 1778957207.73299,
-    "hash": "601489825e39cc802496abab32b12640"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\settings\\_components\\settings-content.tsx": {
-    "mtime": 1778940776.4605587,
-    "hash": "9fdd42b86e153f8f141e3deeb8f9b7c3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\actions.ts": {
-    "mtime": 1777705688.1428413,
-    "hash": "c5bf974029aa0d8a7309a8d04e0c1bd3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\page.tsx": {
-    "mtime": 1778957207.8585129,
-    "hash": "e34667f8b4ee209e29c17003577441df"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\server-actions.ts": {
-    "mtime": 1777705688.1428413,
-    "hash": "61d4b5796357109d15cee4f5d3672dbc"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\user-row-actions.tsx": {
-    "mtime": 1778957207.8790357,
-    "hash": "8b1ef5ffd931ec5f7db7ff599175b57b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\[userId]\\page.tsx": {
-    "mtime": 1778957207.9130352,
-    "hash": "6af41577dec6fde763a1239ed0cf5916"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\[userId]\\user-actions-client.tsx": {
-    "mtime": 1778957207.753991,
-    "hash": "472f092199d10b263a0a64b812b811b6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\users\\_components\\users-table.tsx": {
-    "mtime": 1778959919.313512,
-    "hash": "f51f399b55e60e1d6691401914e3f1be"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\_components\\growth-chart.tsx": {
-    "mtime": 1778957207.2103534,
-    "hash": "6a1c84f974b63a812f851719a27922eb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\_components\\recent-logs.tsx": {
-    "mtime": 1778957207.2283523,
-    "hash": "4fac3ed9fd8fcb8030a3230b75f9a620"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\_components\\stats-cards.tsx": {
-    "mtime": 1778957207.2303529,
-    "hash": "a66f842e7db73ec5d7624e5ab74a226f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\hq\\_types\\index.ts": {
-    "mtime": 1778942719.290616,
-    "hash": "fba263bc7246b0a324e4b361248c41ff"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ErrorBoundary.tsx": {
-    "mtime": 1778957207.959046,
-    "hash": "7a68554b3919953e026b0a2c7c59ffcb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\JobCard.tsx": {
-    "mtime": 1782582487.9665272,
-    "hash": "423025799be712cfdecff00306e6e569"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\JobTitleAutocomplete.tsx": {
-    "mtime": 1778957208.5191834,
-    "hash": "ee79abc363036f8cc10c2161a64c9e3d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\LearningRoadmap.tsx": {
-    "mtime": 1782582487.974525,
-    "hash": "b2016ec58328b84fee8f583cda0135b7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\LocationCombobox.tsx": {
-    "mtime": 1778957208.362141,
-    "hash": "f53d0442e2bd5c78629c4a707273ccdc"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\LockedJobCard.tsx": {
-    "mtime": 1778957208.4296572,
-    "hash": "46b3bcccb32aec59e8844760d2a118a1"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\MatchRing.tsx": {
-    "mtime": 1778957208.3101337,
-    "hash": "f46f4fe1ed7fe8ee81819ac896c0ee91"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\Navbar.tsx": {
-    "mtime": 1782647162.7871146,
-    "hash": "c259b969ca1af2a383b8789bf149d8e6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\PricingPlans.tsx": {
-    "mtime": 1778957208.8637693,
-    "hash": "aaae3eb3405f709557879c9b969b4f74"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ResumeUploader.tsx": {
-    "mtime": 1778957208.4516575,
-    "hash": "395afb65c029b94fb5238fd644fc2d09"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\SkillBadge.tsx": {
-    "mtime": 1776007838.8009474,
-    "hash": "cf165f65d4613327eab569ccd7b9f04b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\SkillGapPanel.tsx": {
-    "mtime": 1782582487.9805255,
-    "hash": "072ea212219e1a5fec434bca3c1be4be"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\theme-provider.tsx": {
-    "mtime": 1778957210.565726,
-    "hash": "f0637989b236542db6c88c8e300c1952"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\theme-toggle.tsx": {
-    "mtime": 1778957210.5992465,
-    "hash": "fa0996cd4cfbb3f403e3b32cabb02ba4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\user-avatar.tsx": {
-    "mtime": 1782647162.7740898,
-    "hash": "9f75cc0f7633ff290f68e759bbd04a44"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\admin\\admin-header.tsx": {
-    "mtime": 1778958587.0237267,
-    "hash": "9809d033c2179135ba2021af40d5caf7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\admin\\admin-sidebar.tsx": {
-    "mtime": 1778957208.5371833,
-    "hash": "210dc80d89393752837a6ce7ae96d778"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\admin\\data-table.tsx": {
-    "mtime": 1778959919.3145084,
-    "hash": "603d30319f55531580d00d553edd190e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\admin\\overview-chart.tsx": {
-    "mtime": 1778957208.5531845,
-    "hash": "2bc93625666cf08f2638936fb5f2efb8"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analytics\\AnalyticsProvider.tsx": {
-    "mtime": 1778957208.5621934,
-    "hash": "aa6899ba6b163d116461216bb5807a52"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\analysis-error.tsx": {
-    "mtime": 1778957208.5787098,
-    "hash": "9d465c33fef64771a21721b9c32fe83d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\job-filters.tsx": {
-    "mtime": 1778957208.8727715,
-    "hash": "8efa8c84c7e03d4b010e4aaddc4de7a5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\meme-loader.tsx": {
-    "mtime": 1778957208.6782362,
-    "hash": "15aee3a75d87a1a5ec4ce602b7ac67a9"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\parsing-progress.tsx": {
-    "mtime": 1778957208.923288,
-    "hash": "19cc22f2c895b9826dd93dff225acbd5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\profile-review.tsx": {
-    "mtime": 1778957209.206889,
-    "hash": "6b8d728551b4f86c8ce78fedc4436e66"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\results-header.tsx": {
-    "mtime": 1778957208.8537626,
-    "hash": "732afb0632a7eb1aac7d01494a541ed6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\stat-card.tsx": {
-    "mtime": 1778957208.86477,
-    "hash": "c354cb99f7e7d409e93e6772cadb83b4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\analyze\\types.ts": {
-    "mtime": 1778939425.5400064,
-    "hash": "e55a2cbf7c235cf6f92aa92eb988e3b3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\app\\app-header.tsx": {
-    "mtime": 1782647162.771095,
-    "hash": "a03e97a99fff608a73dc322a55d9c788"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\app\\app-shell.tsx": {
-    "mtime": 1782587274.0820866,
-    "hash": "d128045d1a38c6c0a4c2ce364b01f4c4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\app\\mobile-bottom-nav.tsx": {
-    "mtime": 1782586046.7147515,
-    "hash": "336638b626cb4e1e8da4f1be8f214173"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\app\\page-header.tsx": {
-    "mtime": 1782587274.0335593,
-    "hash": "64e4d970218e7fe56232d7fc0c65a42f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\app\\user-sidebar.tsx": {
-    "mtime": 1782589684.8318374,
-    "hash": "69aced6d717ffb15594fc9833e358cd7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\auth\\google-sign-in-button.tsx": {
-    "mtime": 1782588308.7683773,
-    "hash": "c1e79c65e3b10b802684e562c71a9be5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\auth\\InAppBrowserWarning.tsx": {
-    "mtime": 1782582975.4473493,
-    "hash": "e288dd531c40af31aeccb7278d54273c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\billing\\ReferralPanel.tsx": {
-    "mtime": 1778957209.37042,
-    "hash": "55483fdd1ef14a912b2582f4698b3eff"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\dashboard\\UserDashboard.tsx": {
-    "mtime": 1782647221.6276417,
-    "hash": "87c11b47c4a8324efd074fbe1e3a0861"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\icons\\google-svg.tsx": {
-    "mtime": 1776007838.8024516,
-    "hash": "ec772e2b926269b3c1707691785d670c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\loading\\PageLoaders.tsx": {
-    "mtime": 1778957209.006816,
-    "hash": "f2dec1d6237e352dd75486039e35af2d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\pdf\\InvoicePdf.tsx": {
-    "mtime": 1778329040.0707593,
-    "hash": "777ce71562c24019e7237bc5521180b0"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\AtsIcon.tsx": {
-    "mtime": 1782648755.0883453,
-    "hash": "050c3b691ef4923fe6274978941cd413"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\AtsScoreCta.tsx": {
-    "mtime": 1782648877.5415218,
-    "hash": "f7cc0ccb1e0cf83a5d1aab996ac3ff90"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\PreviewPanel.tsx": {
-    "mtime": 1778957209.001817,
-    "hash": "27535d21eb80c95449e828d567cd98f3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\RichTextEditor.tsx": {
-    "mtime": 1778957209.040818,
-    "hash": "8d9722594bb7ae4f37608311d9d6d1d0"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\RoastDialog.tsx": {
-    "mtime": 1778957209.076344,
-    "hash": "8e5e6661827f6975eb7275937ae2f7e4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\SortableItem.tsx": {
-    "mtime": 1778957209.051816,
-    "hash": "c14aeb76324ec6f5b68bc94b62de2a46"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\TailorDialog.tsx": {
-    "mtime": 1778957209.6995125,
-    "hash": "d05807ef7e3a6cd6a9a4b85917ce26f7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\AtsScorePanel.tsx": {
-    "mtime": 1782582487.9865277,
-    "hash": "3903c44022acb9f0db51f049b1a7da26"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\AwardsForm.tsx": {
-    "mtime": 1778957209.3759358,
-    "hash": "a7a1f480d7688f4147d6761edd43902d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\BasicsForm.tsx": {
-    "mtime": 1778957209.8220425,
-    "hash": "d4e5860b336458e0ec5c9091b0ea4e15"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\CertificationsForm.tsx": {
-    "mtime": 1778957209.5969875,
-    "hash": "ff2e7ba22e3e98b54ab2dcd28f5e30fb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\EducationForm.tsx": {
-    "mtime": 1778957210.0140939,
-    "hash": "a85d27e0500e0ccb3172de320a5fac73"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\LanguagesForm.tsx": {
-    "mtime": 1778957209.6925137,
-    "hash": "4a97a0320150ed4b2f99f8671ec8d02d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\ProjectsForm.tsx": {
-    "mtime": 1779034185.0142033,
-    "hash": "846cdfa66f70ba9bfdef711a8f8832c7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\PublicationsForm.tsx": {
-    "mtime": 1778957209.8935697,
-    "hash": "47ff261eea6b60ed52e9ad72284559ff"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\ReferencesForm.tsx": {
-    "mtime": 1778957209.8720508,
-    "hash": "0886866706fdb920f4ab1600a3646c32"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\SettingsForm.tsx": {
-    "mtime": 1782647726.4112039,
-    "hash": "91b32710e3f3fc910b1a30932d8c7169"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\SkillsForm.tsx": {
-    "mtime": 1778957967.8006437,
-    "hash": "d7a950bd56edd4e2a368404b31a09b40"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\VolunteerForm.tsx": {
-    "mtime": 1778957210.3921952,
-    "hash": "179bc907b80f3a0657fa40596031200c"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\editor\\sections\\WorkForm.tsx": {
-    "mtime": 1778957210.3276663,
-    "hash": "0f30baa6cca56ae0249add1f13ec0fc9"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\scanner\\ResumeScannerLoader.tsx": {
-    "mtime": 1778957211.0523448,
-    "hash": "61d88a4421f3b94764ab837072931264"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\scanner\\ResumeScanResults.tsx": {
-    "mtime": 1779034185.0142033,
-    "hash": "569f358c87457a2c9571632c4ef6c140"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\CreativePortfolioTemplate.tsx": {
-    "mtime": 1779545413.0042908,
-    "hash": "ceed0adfcb49240cef4658361f8c40c5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\ExecutiveProTemplate.tsx": {
-    "mtime": 1781448102.7561874,
-    "hash": "cb0fe6e937b08689fc40d155fac21649"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\MinimalistTemplate.tsx": {
-    "mtime": 1779545397.230925,
-    "hash": "48cf795281ac00e21f0f625ef026cc95"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\ModernSplitTemplate.tsx": {
-    "mtime": 1781448102.897234,
-    "hash": "3664009c6f5eb2c487014e3028e77203"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\registry.ts": {
-    "mtime": 1778957210.5247166,
-    "hash": "c058975e88dc20d504a6510aeea62eb6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\SharedComponents.tsx": {
-    "mtime": 1779020488.8150227,
-    "hash": "d47399f0443de201470d8817bf45e7e8"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\resume\\templates\\TechStackTemplate.tsx": {
-    "mtime": 1779545560.503604,
-    "hash": "07168ac59c08baa1da877d918d10fb63"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\alert-dialog.tsx": {
-    "mtime": 1778957210.6262467,
-    "hash": "6dab4a0c58a3279059025eb6db468fd2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\avatar.tsx": {
-    "mtime": 1778957210.6572459,
-    "hash": "961713767e283b40bdaeb2df7db9c842"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\badge.tsx": {
-    "mtime": 1778957210.666256,
-    "hash": "ab2ee64d0887af3fa20bfe9c760a6242"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\breadcrumb.tsx": {
-    "mtime": 1778957210.666256,
-    "hash": "21fd7b135610aefe7c4ee3428b87d251"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\button.tsx": {
-    "mtime": 1778958587.0237267,
-    "hash": "7f5604d7898cf988094f77f784af22ff"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\card.tsx": {
-    "mtime": 1778957210.6052454,
-    "hash": "db23f8649eac8e7e8cd7c0cd72f9c99f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\chart.tsx": {
-    "mtime": 1778958587.0237267,
-    "hash": "cd6642883f2dc05c8a7449e04996b09f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\checkbox.tsx": {
-    "mtime": 1778957210.4672012,
-    "hash": "c6003f23130238f0e3e2aa79f54d1d62"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\command.tsx": {
-    "mtime": 1778957210.4191947,
-    "hash": "effc77fccac8f4de5e3333fadd2d9137"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\dialog.tsx": {
-    "mtime": 1778957210.349666,
-    "hash": "4b01fb89023b433d3765db759eca5f24"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\dropdown-menu.tsx": {
-    "mtime": 1778958587.0307267,
-    "hash": "43784bc7abd0969f56fd95c1fe29e0fc"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\field.tsx": {
-    "mtime": 1778957210.1991422,
-    "hash": "b1a18323ac9333cf4a43125585e84c56"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\file-upload.tsx": {
-    "mtime": 1778958718.3340063,
-    "hash": "f520996c94b3a045f5a463cd15353a43"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\input-group.tsx": {
-    "mtime": 1778957209.8885684,
-    "hash": "a9f182790379eb7aae8349922ca56f41"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\input.tsx": {
-    "mtime": 1778957209.7970438,
-    "hash": "c9695ce15e2cdaa201585206a61ebfa4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\label.tsx": {
-    "mtime": 1778957209.7830408,
-    "hash": "18b39c30e8957c4db235471116309384"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\pagination.tsx": {
-    "mtime": 1777705688.1974175,
-    "hash": "93cada23312768a1769f4bd29b53f86d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\popover.tsx": {
-    "mtime": 1778957209.704515,
-    "hash": "871011c3ac79c70179e071e94da37112"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\progress.tsx": {
-    "mtime": 1778957209.6915145,
-    "hash": "181328182f08fcb1ff3d74b0e0e33170"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\scroll-area.tsx": {
-    "mtime": 1778957209.621989,
-    "hash": "7b2cf44d2ee5a10738d4b916de0248e5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\select.tsx": {
-    "mtime": 1778957209.532462,
-    "hash": "161ee19c41a2a4313299ebe6a3aff589"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\separator.tsx": {
-    "mtime": 1777205659.9607284,
-    "hash": "e8ef94f701bb63a3f95866d5a4329bfd"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\sheet.tsx": {
-    "mtime": 1778958718.3370073,
-    "hash": "cfc146cd0d269754299c4fe92f76b435"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\sidebar.tsx": {
-    "mtime": 1778958718.3710074,
-    "hash": "a16c2881ff6a67e5c124f3aead81f418"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\skeleton.tsx": {
-    "mtime": 1777205659.9885204,
-    "hash": "667a0a0105e50af6020e529a05e4fd91"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\slider.tsx": {
-    "mtime": 1778957208.708235,
-    "hash": "4bd44644737aae2b13b975a2f2b2b71a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\sonner.tsx": {
-    "mtime": 1776498895.2751727,
-    "hash": "5c5f6c3f357229cd7080cd22ef5d53da"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\switch.tsx": {
-    "mtime": 1778957208.5621934,
-    "hash": "ac2d011a89081dfd99b8b716c841bacf"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\table.tsx": {
-    "mtime": 1778958587.0307267,
-    "hash": "a06953281e0edeb2eb476aeaa5a888c1"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\tabs.tsx": {
-    "mtime": 1778957208.4296572,
-    "hash": "caf0b58cf90e04453656bac511da0700"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\textarea.tsx": {
-    "mtime": 1778957208.398657,
-    "hash": "9f19cc8b37476119bc41e04222a1469a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\tooltip.tsx": {
-    "mtime": 1778957208.3896568,
-    "hash": "2904c64d723c7aea889482d302eb6748"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\components\\ui\\word-fade-in.tsx": {
-    "mtime": 1778958587.0237267,
-    "hash": "b1f596eaf5504912547e3c25e42b4589"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\index.ts": {
-    "mtime": 1775300381.1224813,
-    "hash": "31e9cb8587351dffe0a23994208e868d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrate.ts": {
-    "mtime": 1778085092.9441159,
-    "hash": "da83d778b644c84d3de7cb5a590a70f5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\pool.ts": {
-    "mtime": 1777705688.2489502,
-    "hash": "67e847673ab586e4f5464554fd795bfc"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\schema.ts": {
-    "mtime": 1779543371.2737641,
-    "hash": "c7d96452bf802e8dcffcedd7b6f0fa17"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0000_real_husk.sql": {
-    "mtime": 1775301140.9779942,
-    "hash": "e2b6b79f5b41cc97c2241b8887933f85"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0001_skinny_aaron_stack.sql": {
-    "mtime": 1775302321.263453,
-    "hash": "f7f2207c8ce996fbb8a86f38f786d4b3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0002_glamorous_harry_osborn.sql": {
-    "mtime": 1775306488.285161,
-    "hash": "c1983ea55471636d3130dec51b09a70f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0003_calm_northstar.sql": {
-    "mtime": 1775911886.0169444,
-    "hash": "82630ebce052c2a0b8720aab9caaf6d4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0004_living_mephistopheles.sql": {
-    "mtime": 1777055955.709411,
-    "hash": "50f4b93be7a2522d12731e03d85ca438"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0005_absent_madelyne_pryor.sql": {
-    "mtime": 1777055955.7104106,
-    "hash": "000a39dd64359e6212b059d16e4e0bce"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0006_stiff_midnight.sql": {
-    "mtime": 1777055955.7104106,
-    "hash": "e519bac040d222495651e15f39faa64f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0007_cooing_scrambler.sql": {
-    "mtime": 1777132817.8547726,
-    "hash": "b65a1258235d6ed261b0023699f09d76"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0008_hot_the_santerians.sql": {
-    "mtime": 1777812555.5634513,
-    "hash": "6a8b7e841abf885ba0c7fdc0c9b20f5e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0009_tiresome_rictor.sql": {
-    "mtime": 1777812555.5644512,
-    "hash": "a096afc60ebebb54fdcadbcf5468ff9f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0010_icy_silverclaw.sql": {
-    "mtime": 1778084016.2381337,
-    "hash": "f3e5e6ca2afa4cc3fc3117c0e66a21e6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0011_swift_korvac.sql": {
-    "mtime": 1778320681.5868998,
-    "hash": "d3140a5932b25eed2a92d8426d3cadc7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\db\\migrations\\0012_outstanding_red_wolf.sql": {
-    "mtime": 1778352822.3936844,
-    "hash": "1e99a44b5dfd16fcad69a2c4bfc1d55d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\hooks\\use-auto-save.ts": {
-    "mtime": 1778957207.318878,
-    "hash": "c1c86598b025c31d141ec15d17578d67"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\hooks\\use-mobile.ts": {
-    "mtime": 1777705688.2677255,
-    "hash": "21f0293b823c5298aa735fc013840cff"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\hooks\\useAnalytics.ts": {
-    "mtime": 1778957207.2908778,
-    "hash": "4fe9d9c38bed596943697ff8767fedd7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\hooks\\useAuth.ts": {
-    "mtime": 1778957207.2798786,
-    "hash": "75bf71464419ead8bb5e85d2449fca20"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\hooks\\useInAppBrowser.ts": {
-    "mtime": 1782582905.2535937,
-    "hash": "d976e67793c49e6c2d0b388578b40081"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\hooks\\useReferralClaim.ts": {
-    "mtime": 1778354608.1385274,
-    "hash": "8e3318d174f0c5ddeb566ad248542541"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\analytics.ts": {
-    "mtime": 1782587999.0568278,
-    "hash": "c48eba18088260d18ac39cb735e50917"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\app-nav.ts": {
-    "mtime": 1782586036.125314,
-    "hash": "bd50b6b94d3ffc0f70fec738d72602a3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\app-settings.ts": {
-    "mtime": 1778354608.1465735,
-    "hash": "bec446f3a6f378cd67fa91005d2e0808"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\auth-client.ts": {
-    "mtime": 1778957207.0393019,
-    "hash": "91f677da3a2aa96bb52f3c83fc1805b4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\auth.ts": {
-    "mtime": 1782587991.9887834,
-    "hash": "4dc06fac9facaf160848487edc4c15b2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\billing-utils.ts": {
-    "mtime": 1782590572.63755,
-    "hash": "bd975b4e03b2620d8e678df071e3ebda"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\cashfree.ts": {
-    "mtime": 1777705688.2875364,
-    "hash": "ef4b53a68f7c812d5321d2d5cd3ab388"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\hackClubClient.ts": {
-    "mtime": 1776007838.8194604,
-    "hash": "68020332f0c37569ec9b52af362b4499"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\inference.ts": {
-    "mtime": 1778418913.0805736,
-    "hash": "f888ce0d9d42ecf71a227a6d8b387382"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\job-titles.ts": {
-    "mtime": 1778319865.9806466,
-    "hash": "bb353988d1e5835909f83787d9ad40a4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\match-engine.ts": {
-    "mtime": 1774717652.112501,
-    "hash": "df71e79559f24dd52b182624aa784365"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\reliable-resources.ts": {
-    "mtime": 1778335736.6159573,
-    "hash": "70fd848de5327220a0ca9ff39b298733"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\resume.ts": {
-    "mtime": 1779020421.1669548,
-    "hash": "deca7345d5368c35903d3bab09739cb6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\skill-extractor.ts": {
-    "mtime": 1778433960.1918826,
-    "hash": "179de7b6393f1fc0cf4db402d0a7efe7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\title-normalizer.ts": {
-    "mtime": 1778324115.2925196,
-    "hash": "348efd20de5454fcd75489df12f95ad7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\utils.ts": {
-    "mtime": 1779020596.3250854,
-    "hash": "01f78cc52fec0f11ba03301123600dc7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\admin\\audit.ts": {
-    "mtime": 1777705688.272256,
-    "hash": "f4e7913e0f9cc99f8c57b43bcc26b7f0"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\admin\\csv-export.ts": {
-    "mtime": 1777705688.2740188,
-    "hash": "75376f297e9876b180cea20891181706"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\admin\\ga4.ts": {
-    "mtime": 1778085758.2180827,
-    "hash": "2d5696e4b7687f9421aecf9972084950"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\emails\\invoice-email.ts": {
-    "mtime": 1778330023.9186199,
-    "hash": "6c2e6b7fb6cc5dbfbfe5124d96c6ff13"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\emails\\otp-email.ts": {
-    "mtime": 1777705688.285537,
-    "hash": "9c218eb8f9207cc834346ba2e9002202"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\emails\\referral-emails.ts": {
-    "mtime": 1778354608.1740336,
-    "hash": "8dc02a166986f2ddd60a57030b4f2521"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\emails\\sendMail.ts": {
-    "mtime": 1778330023.9169528,
-    "hash": "ddf024c8cd7cfc5549972754380005c9"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\emails\\subscription-emails.ts": {
-    "mtime": 1777705688.2895393,
-    "hash": "71b96605a704853deddfb5d91445ea2a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\emails\\verification-email.ts": {
-    "mtime": 1778957206.8322554,
-    "hash": "4dcb7a5f093ca0048cb5d639ff6d9252"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\lib\\validations\\resume.ts": {
-    "mtime": 1782582487.9895277,
-    "hash": "29556f11e2fc0940d0c3f2584fcd0852"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\providers\\ClientProvider.tsx": {
-    "mtime": 1778354608.1616051,
-    "hash": "e89c1aeb696be5681420935a128fce57"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\providers\\Providers.tsx": {
-    "mtime": 1778333934.2566676,
-    "hash": "30d5709ca9cc622074a956b841bc998d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\scripts\\create-test-user.ts": {
-    "mtime": 1776613351.840208,
-    "hash": "d55c8c50520d2907e4542ff241b3ef90"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\scripts\\seed-job-titles.ts": {
-    "mtime": 1778324221.299448,
-    "hash": "d415b64295dbabe7f39387bd7493c6a9"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\scripts\\seed-plans.ts": {
-    "mtime": 1777995600.6970055,
-    "hash": "255b262d7b9e49656400730ab45d50c0"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\scripts\\test-resend.js": {
-    "mtime": 1776007838.8602364,
-    "hash": "4ce64979d7a83e27e210592884ad5faa"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\scripts\\test-result.js": {
-    "mtime": 1777140952.8207703,
-    "hash": "336cd596b2e6d94805d71f42dd07db73"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\ai\\usage.service.ts": {
-    "mtime": 1782582487.9925258,
-    "hash": "22d43e78188ff6ad8309f62fe7bb055f"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\billing\\coupon.service.ts": {
-    "mtime": 1778326562.0156076,
-    "hash": "18b5e4e5b34e4ff4967cf08cc9b84ffa"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\billing\\invoice.service.ts": {
-    "mtime": 1778959386.7805555,
-    "hash": "4a4361f3c96308776a3e77ca1ea350a6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\billing\\payment.service.ts": {
-    "mtime": 1777705688.1000056,
-    "hash": "97392bc59fb90ccdf863925f03175ed5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\billing\\referral.service.ts": {
-    "mtime": 1778354608.2205107,
-    "hash": "f3c0f561d60fe6462d6f4bf85f7d4305"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\billing\\subscription.service.ts": {
-    "mtime": 1782646835.6624794,
-    "hash": "e58e34737f5c5bed35ca507df528ed2d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\services\\billing\\webhook.service.ts": {
-    "mtime": 1778959860.11129,
-    "hash": "8a48d8393b26784d47a0af00a3eb2901"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\store\\authSlice.ts": {
-    "mtime": 1778957206.1234243,
-    "hash": "eead857856d654e4685e9a1ee48f157b"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\store\\resumeSlice.ts": {
-    "mtime": 1779544630.0760608,
-    "hash": "3a65bee3c305cf404817073cccf1bcb4"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\store\\store.ts": {
-    "mtime": 1778957206.0709064,
-    "hash": "dd4d5260345664274f698e3ee16ef816"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\types\\auth.ts": {
-    "mtime": 1778957206.0558984,
-    "hash": "13ee0700b79bfc69624908628831f93d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\types\\billing.ts": {
-    "mtime": 1778354608.1060083,
-    "hash": "68bdc275f0d9cfe59c317784e2668ba1"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\types\\index.ts": {
-    "mtime": 1778944028.3838246,
-    "hash": "03707e2d671a1cf3173ef1116f6509d5"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\types\\resume.ts": {
-    "mtime": 1779034185.016222,
-    "hash": "21d465aadf9371d1f5d1d784225dcbb6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\AGENTS.md": {
-    "mtime": 1779035190.5390048,
-    "hash": "93a99ece7edba1941df1a361a359c3fb"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\CLAUDE.md": {
-    "mtime": 1774681295.155127,
-    "hash": "5c27369b226fcf2be8a6cfe52224e767"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\deepseek-resume-builder-plan.md": {
-    "mtime": 1779034210.3816073,
-    "hash": "9421404c33cc1fcdbf244cdba27d4479"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\diff.txt": {
-    "mtime": 1775203271.4693353,
-    "hash": "5febb5e472620505bab1bc9e6f0112a2"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\GEMINI.md": {
-    "mtime": 1779035243.1066215,
-    "hash": "747e73a5e1af4b72c0d65c9169c23199"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\git-status.txt": {
-    "mtime": 1775203245.1974094,
-    "hash": "699b64abc50166f916bb1c81ba582ac3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\pnpm-workspace.yaml": {
-    "mtime": 1777207393.713192,
-    "hash": "c8cad96e7e00f2a472e0f31b704ca320"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\README.md": {
-    "mtime": 1763960215.8542745,
-    "hash": "f15aaa42d5d299d091b1171097ea56ad"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\RESUME_BUILDER_PLAN.md": {
-    "mtime": 1779034210.3800435,
-    "hash": "8186362cbcfc51362aea5fe14204511d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\UX_AUDIT_REPORT.md": {
-    "mtime": 1782585721.4078503,
-    "hash": "28f772c288a4e819f5c1a35565605e3a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\playwright-report\\index.html": {
-    "mtime": 1782648680.640322,
-    "hash": "89a9c8527de884f1a1d59dc40e0e1267"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-01-guest-landing.png": {
-    "mtime": 1782585680.1385353,
-    "hash": "c668f144c63cf1cbaf551a236ee725f3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-02-sign-in.png": {
-    "mtime": 1782585681.4776201,
-    "hash": "b0a60c112a9a9443e06a6941aab9e881"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-03-sign-up.png": {
-    "mtime": 1782585682.4838233,
-    "hash": "e1674f701c26b693448bcbfcf634ff94"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-04-dashboard.png": {
-    "mtime": 1782585686.4575038,
-    "hash": "55ed30b6bbd8aff39277c93959cc6062"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-analyze.png": {
-    "mtime": 1782585689.5498657,
-    "hash": "6c7f310b195d25b9a6f87cc167a806c7"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-billing.png": {
-    "mtime": 1782585696.5328379,
-    "hash": "07429db22d63d1eb5d2b509a785cacfc"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-dashboard.png": {
-    "mtime": 1782585687.7832327,
-    "hash": "3389757de7e2377cb09a25f8a255a8f6"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-history.png": {
-    "mtime": 1782585693.237637,
-    "hash": "e96069dcbdf058fbee10aa445971f810"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-jobs.png": {
-    "mtime": 1782585690.7449808,
-    "hash": "847597c43ed98f9d30db028a3f3b7873"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-profile.png": {
-    "mtime": 1782585694.4416792,
-    "hash": "862799e377f5e6ecfcd9f68c4f2d3073"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-referrals.png": {
-    "mtime": 1782585697.6887848,
-    "hash": "5c9ff30db41bbca3a93f8b7f959e3437"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-05-resumes.png": {
-    "mtime": 1782585692.0661068,
-    "hash": "4134e45fcfb98990d72c5d3ccdebae21"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-07-user-menu-open.png": {
-    "mtime": 1782585707.7109635,
-    "hash": "a4ab3ffac62a3b6dc0213947d638ba46"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-08-nav-desktop.png": {
-    "mtime": 1782585709.394846,
-    "hash": "f0719a4db41f3675e319cf4b674d4a09"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-09-history-page.png": {
-    "mtime": 1782585710.3715792,
-    "hash": "17c8e70c1a60b070369ea214bfee3c93"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\desktop-10-duplicate-nav.png": {
-    "mtime": 1782585712.9177537,
-    "hash": "fa97fb7b3ed830f21120d49c3cfe3e23"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\mobile-11-mobile-dashboard.png": {
-    "mtime": 1782585717.8380184,
-    "hash": "ac64a8ca7140264c435aa8afe6f29c50"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\ux-audit\\report\\screenshots\\mobile-12-mobile-user-menu.png": {
-    "mtime": 1782585718.6029828,
-    "hash": "e7d2dd8b5c2a7fc96015aa7cf50d9562"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts-snapshots\\sign-in-card-dark-visual-win32.png": {
-    "mtime": 1782588516.196286,
-    "hash": "2fc48314668e1648e474f3d28bd1524a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts-snapshots\\sign-in-card-light-visual-win32.png": {
-    "mtime": 1782588522.8527305,
-    "hash": "89167cf1aeb61292c45a846b4d1b1409"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts-snapshots\\sign-in-card-mobile-dark-visual-win32.png": {
-    "mtime": 1782588526.6044176,
-    "hash": "f8fd76508bc830a3f955bdcf6c172346"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts-snapshots\\sign-in-google-button-dark-visual-win32.png": {
-    "mtime": 1782588519.4387333,
-    "hash": "fa3b700126d6b0f957e3f0615c7af30a"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts-snapshots\\sign-in-google-button-light-visual-win32.png": {
-    "mtime": 1782588524.5388665,
-    "hash": "6a87a39b9336a3c72c3b52c305d9b200"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\e2e\\visual\\auth-pages.spec.ts-snapshots\\sign-up-card-dark-visual-win32.png": {
-    "mtime": 1782588521.4145558,
-    "hash": "20fdf523c0e9af9da4cf6a5eb598c36d"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\public\\file.svg": {
-    "mtime": 1763960215.866483,
-    "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\public\\globe.svg": {
-    "mtime": 1763960215.8675225,
-    "hash": "2aaafa6a49b6563925fe440891e32717"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\public\\logo.png": {
-    "mtime": 1776507820.449315,
-    "hash": "5e1bf54a50eff662296ab57ee420f413"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\public\\next.svg": {
-    "mtime": 1763960215.868487,
-    "hash": "8e061864f388b47f33a1c3780831193e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\public\\vercel.svg": {
-    "mtime": 1763960215.8695204,
-    "hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\public\\window.svg": {
-    "mtime": 1763960215.8714838,
-    "hash": "a2760511c65806022ad20adf74370ff3"
-  },
-  "C:\\Users\\sahil\\OneDrive\\Documents\\Web Development\\AI Job analyzer\\ai-job-god\\src\\app\\apple-icon.png": {
-    "mtime": 1777207393.7647233,
-    "hash": "5e1bf54a50eff662296ab57ee420f413"
+  ".gemini/settings.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958831,
+    "ast_hash": "5a47f313b8af677371f9daa5d0dbe758",
+    "semantic_hash": ""
+  },
+  ".githooks/pre-commit": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958835,
+    "ast_hash": "de91b8e0b57396e2f3035f3f2726b41c",
+    "semantic_hash": ""
+  },
+  ".opencode/opencode.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588366,
+    "ast_hash": "cfd7de5f46afea212f72b331d9771301",
+    "semantic_hash": ""
+  },
+  ".opencode/plugins/graphify.js": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588373,
+    "ast_hash": "be1746a10b51388635ff4e97b3e91a50",
+    "semantic_hash": ""
+  },
+  "biome.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958838,
+    "ast_hash": "9427581272f35add7de534a9b792e70f",
+    "semantic_hash": ""
+  },
+  "components.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588387,
+    "ast_hash": "ebab6fdbd56ead58c7ae7340c54ac5ed",
+    "semantic_hash": ""
+  },
+  "drizzle.config.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588401,
+    "ast_hash": "826ffbefa5281e71a02c847433c80ce1",
+    "semantic_hash": ""
+  },
+  "e2e/package.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588406,
+    "ast_hash": "caab5a600e53fbec31430d4599793b8f",
+    "semantic_hash": ""
+  },
+  "e2e/playwright.config.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958841,
+    "ast_hash": "e8da77977d3bf46d951703506eaea83e",
+    "semantic_hash": ""
+  },
+  "e2e/resume-builder/01-core-flows.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958842,
+    "ast_hash": "aa23c5aa751087cf0cd0c1c677c97d90",
+    "semantic_hash": ""
+  },
+  "e2e/resume-builder/02-validation-edge-cases.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588425,
+    "ast_hash": "3709f79b77966d41daf70119a9082d46",
+    "semantic_hash": ""
+  },
+  "e2e/resume-builder/03-editor-behavior.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588435,
+    "ast_hash": "1760e0f9640ce0725a2a03abffe5895a",
+    "semantic_hash": ""
+  },
+  "e2e/resume-builder/04-production-hardening.spec.ts": {
+    "mtime": 1789887624.5927172,
+    "seen": 1789888442.9588442,
+    "ast_hash": "da32a9b3f31caf33312f90aacca66f58",
+    "semantic_hash": ""
+  },
+  "e2e/resume-builder/helpers/resume-api.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588447,
+    "ast_hash": "5fd63447e71b1b564d7e8cde68ff282d",
+    "semantic_hash": ""
+  },
+  "e2e/resume-builder/helpers/resume-editor.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588454,
+    "ast_hash": "6e800997ce13a1b21ded46f2e48d6062",
+    "semantic_hash": ""
+  },
+  "e2e/tsconfig.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958846,
+    "ast_hash": "019fbeac943916385b078e54f80beea1",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/01-guest-experience.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588468,
+    "ast_hash": "8444b3dfd10a0a9beb2f3363f02cff48",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/02-authenticated-journeys.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588475,
+    "ast_hash": "f7327abd530f68f6b1d7f62baab62da8",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/03-mobile-navigation.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958848,
+    "ast_hash": "9af0802710ebae838614c9fe1e3b67b3",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/03-navigation-ia.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588485,
+    "ast_hash": "f995682cb0c2d3821f11508267107290",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/auth.setup.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588494,
+    "ast_hash": "8ee6aa1b01bd77da56010c6d9b75a641",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/generate-report.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588504,
+    "ast_hash": "cd68d386ee10b1474e22899c80548c1e",
+    "semantic_hash": ""
+  },
+  "e2e/ux-audit/helpers/audit.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958851,
+    "ast_hash": "5816d024c43ad7ed354368c7af76e774",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588516,
+    "ast_hash": "78a84192ad950fc843609603be9bd77e",
+    "semantic_hash": ""
+  },
+  "e2e/visual/helpers/stabilize-page.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958852,
+    "ast_hash": "8f073fa3e60019946f9a7a437fc1e500",
+    "semantic_hash": ""
+  },
+  "next.config.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588528,
+    "ast_hash": "3ae7e441b7039215192e33287be261f5",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588537,
+    "ast_hash": "ac61dd467ca24ebd9548d991898cf8bd",
+    "semantic_hash": ""
+  },
+  "postcss.config.mjs": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588544,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "scratch/test-neon.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588552,
+    "ast_hash": "d28481021011bd5b2e2f80cd17e319f7",
+    "semantic_hash": ""
+  },
+  "skills-lock.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588559,
+    "ast_hash": "07202859e4d702c3562096f51690f6c7",
+    "semantic_hash": ""
+  },
+  "src/app/(auth)/forgot-password/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588563,
+    "ast_hash": "2a1020a9728ef733d6b30323cd58e41b",
+    "semantic_hash": ""
+  },
+  "src/app/(auth)/layout.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958857,
+    "ast_hash": "36c861eb8b91c246d362b773f76c8e1f",
+    "semantic_hash": ""
+  },
+  "src/app/(auth)/reset-password/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588578,
+    "ast_hash": "e662e7625107eb9bae00dffbd4611db5",
+    "semantic_hash": ""
+  },
+  "src/app/(auth)/sign-in/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588583,
+    "ast_hash": "ffe9bb2ffe91129ccc5b9700142285b5",
+    "semantic_hash": ""
+  },
+  "src/app/(auth)/sign-up/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958859,
+    "ast_hash": "9b142ca63e0e2e63da4cbc5d3b29a0eb",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/analyze/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588594,
+    "ast_hash": "b02ba91d7c9118f394da2af9a31e8bf1",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/billing/_components/billing-client-shell.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588604,
+    "ast_hash": "16747c2d9ca47b67d1074d4f84337041",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/billing/_components/billing-invoice-table.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588609,
+    "ast_hash": "f9f7aa144c8b226afa52f9a86f4c4f51",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/billing/_components/renewal-reminder.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588614,
+    "ast_hash": "1bc6ff4baebedcbbb5ad554df9f43e11",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/billing/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958862,
+    "ast_hash": "0075e94863de0171877a086275a851cd",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/checkout/checkout-form.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588625,
+    "ast_hash": "70a12e351c1b88d3a68a1b9ed27e2969",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/checkout/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958863,
+    "ast_hash": "be97d0d266878998360ce2ad81799ccf",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/history/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588637,
+    "ast_hash": "e9d3cd8799c7235f36c0b0e7e37125fb",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/jobs/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588656,
+    "ast_hash": "9a49e895d49bd35f62694fa88500d4a5",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/layout.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588661,
+    "ast_hash": "b9a5cee7492f99fc8795a997ac460a09",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/loading.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588668,
+    "ast_hash": "40d7860534dacb9dc74be388ec110f64",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/onboarding/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588675,
+    "ast_hash": "bdf3e55d037dcae24681bb972a430ea8",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/payment/status/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588683,
+    "ast_hash": "0685ca17865e815ebb9314a245c5f30e",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/profile/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958869,
+    "ast_hash": "5883d200e6f5be097720eecc64f8e186",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/referrals/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588695,
+    "ast_hash": "4156a03a41ff6632f0921af3c2390f29",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/resumes/[id]/error.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588702,
+    "ast_hash": "5eeae45e6344f35210f28c6d20a31151",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/resumes/[id]/export/page.tsx": {
+    "mtime": 1789886074.4478927,
+    "seen": 1789888442.958871,
+    "ast_hash": "c5e74a99928cbc443cce36031bafa354",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/resumes/[id]/page.tsx": {
+    "mtime": 1789886147.3594806,
+    "seen": 1789888442.9588716,
+    "ast_hash": "465c9116e50fe7f875a93b7d59833056",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/resumes/loading.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958872,
+    "ast_hash": "13d17eb37f8904ba3e103e72746bbfce",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/resumes/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588728,
+    "ast_hash": "343c2898919144d59d0a919890ac5a3e",
+    "semantic_hash": ""
+  },
+  "src/app/(protected)/resumes/primary/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588733,
+    "ast_hash": "c0cd28403d1a4c33ee921e35965cd9fe",
+    "semantic_hash": ""
+  },
+  "src/app/actions/auth.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588737,
+    "ast_hash": "a7dfb1cc7a74f667d8107e57426e07d6",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/analytics/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588747,
+    "ast_hash": "a23b9085a0192d38b1643c2c245f3fda",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/audit/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588752,
+    "ast_hash": "1efb9f43e1e7eb49ba284e8dc7eb0a0c",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/db/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588757,
+    "ast_hash": "de37fbd5adda789b4688e45ae7aab5d2",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/emails/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588764,
+    "ast_hash": "2fafb2a4107062498969e6962a64ee51",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/referrals/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958877,
+    "ast_hash": "cc722a5a08e5c4d1686170883932aa17",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/resources/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588778,
+    "ast_hash": "afdd65ff7cc0e4d997a83195a92bdf50",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/settings/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588785,
+    "ast_hash": "245a526c95374adddf0df16e68843679",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/stats/growth/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588792,
+    "ast_hash": "50d30afc4fa0423fdd6375d15b062ccd",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/stats/overview/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588797,
+    "ast_hash": "d326f0b0bda2152bd31f0118f429386a",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/stats/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588804,
+    "ast_hash": "02e267b4c1d0ffff1cbfa8e7dda90c30",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/users/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588811,
+    "ast_hash": "bba04068a51ac750e24ed79220ad74c2",
+    "semantic_hash": ""
+  },
+  "src/app/api/analysis-history/[id]/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588819,
+    "ast_hash": "caf8cd3e3e0e8acad4f87ff40a2ee824",
+    "semantic_hash": ""
+  },
+  "src/app/api/analysis-history/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588826,
+    "ast_hash": "efd1040ea5ab9889b5e22ab7d2f32c93",
+    "semantic_hash": ""
+  },
+  "src/app/api/analyze-gaps/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958883,
+    "ast_hash": "42178125fca9d75c19f2eb590ea26b83",
+    "semantic_hash": ""
+  },
+  "src/app/api/auth/[...all]/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588835,
+    "ast_hash": "0c0cddf4693c86dc21f3dc733a5b8e5d",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/checkout/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588842,
+    "ast_hash": "f8bdf1d79c84efd6b27a06355137d0c3",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/coupons/validate/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958885,
+    "ast_hash": "517a30cb1481c119c92a2085303fd5a8",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/invoices/[invoiceId]/pdf/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588854,
+    "ast_hash": "b2b60c0dcd838dedf4fc57d87ce2ccd7",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/invoices/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588861,
+    "ast_hash": "4279be90fac93903564ac6870b42055f",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/payment-status/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588869,
+    "ast_hash": "d949acfd7040860d02c77a352af7dce1",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/plans/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588873,
+    "ast_hash": "8f17b217c731f921a9026e64da32f8d2",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/retry/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588883,
+    "ast_hash": "5a2c2c238ebf3b224a653d936f4182cd",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/subscription/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588888,
+    "ast_hash": "c6d327edd744f71706e2e0a35f740f80",
+    "semantic_hash": ""
+  },
+  "src/app/api/billing/webhook/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588895,
+    "ast_hash": "1879f503630e0f95e3b753c4cf09cc41",
+    "semantic_hash": ""
+  },
+  "src/app/api/career-insights/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.95889,
+    "ast_hash": "393a23d9ee24c1feee0088cf97527763",
+    "semantic_hash": ""
+  },
+  "src/app/api/job-titles/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588904,
+    "ast_hash": "7b7ae025aae3379ea5058e32413bbcdd",
+    "semantic_hash": ""
+  },
+  "src/app/api/parse-resume/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588912,
+    "ast_hash": "64b3444ce5bf92c4a1115d9c3fd29c4f",
+    "semantic_hash": ""
+  },
+  "src/app/api/profile/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958892,
+    "ast_hash": "573e676ebc6fcb9f11fd64833924264b",
+    "semantic_hash": ""
+  },
+  "src/app/api/r/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588926,
+    "ast_hash": "aa917b9a594edf18a22a5dee3a4c8925",
+    "semantic_hash": ""
+  },
+  "src/app/api/referrals/claim/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588938,
+    "ast_hash": "6eb09a35f9406ed6f5a45dd6de7a5f4d",
+    "semantic_hash": ""
+  },
+  "src/app/api/referrals/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588945,
+    "ast_hash": "007c084782a546a0adf177e745f88d37",
+    "semantic_hash": ""
+  },
+  "src/app/api/referrals/validate/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588952,
+    "ast_hash": "47d85f17868259990fd20644d879534d",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/ai/ats-score/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588957,
+    "ast_hash": "cb10d005ada9ed9e36b02ea37841c849",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/ai/enhance/route.ts": {
+    "mtime": 1789886140.6795175,
+    "seen": 1789888442.9588962,
+    "ast_hash": "2ab816ad5e60bbde461fb6978eb9689c",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/ai/roast/route.ts": {
+    "mtime": 1789886140.6835175,
+    "seen": 1789888442.9588969,
+    "ast_hash": "8adcd06200e04b2b7a18b06e388b0f53",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/ai/summary/route.ts": {
+    "mtime": 1789886140.6875174,
+    "seen": 1789888442.9588974,
+    "ast_hash": "4bc61c8f4ec95fb7f33437b26f13b2ae",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/ai/tailor/route.ts": {
+    "mtime": 1789886140.6915174,
+    "seen": 1789888442.9588978,
+    "ast_hash": "3a33af69080a6fee8791af2e65bf8bd1",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/duplicate/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588988,
+    "ast_hash": "34f9a529c636f68f73944445fb0d28a7",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/export/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9588993,
+    "ast_hash": "8c6b176557f0da48c097993d7a96f2eb",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/route.ts": {
+    "mtime": 1789886140.7035172,
+    "seen": 1789888442.9588997,
+    "ast_hash": "8cad5d9770da69671dd28af78a4ed76b",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/versions/[versionId]/restore/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589005,
+    "ast_hash": "0c936d15ad73f610624d8ecfda6cd38a",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/[id]/versions/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958901,
+    "ast_hash": "3893d73d9d442b98c2440fdfe7272e50",
+    "semantic_hash": ""
+  },
+  "src/app/api/resumes/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589016,
+    "ast_hash": "ac4fb354ef4dde9141b884e1d3267acb",
+    "semantic_hash": ""
+  },
+  "src/app/api/save-analysis/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589024,
+    "ast_hash": "058ace6ae6ebb8c425a8f03228086573",
+    "semantic_hash": ""
+  },
+  "src/app/api/save-job/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589028,
+    "ast_hash": "84a502c10e253c3c5ee157397adc4753",
+    "semantic_hash": ""
+  },
+  "src/app/api/search-jobs/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589033,
+    "ast_hash": "73f54541e6e649f7aef55506e9c1bb6c",
+    "semantic_hash": ""
+  },
+  "src/app/api/track-visit/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589038,
+    "ast_hash": "0e88bb096e3bc3c7f32a7c3c772f3e76",
+    "semantic_hash": ""
+  },
+  "src/app/api/user-jobs/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589045,
+    "ast_hash": "63d2bd7e505e2fa9a1c99bdec3089fbb",
+    "semantic_hash": ""
+  },
+  "src/app/api/webhooks/resend/route.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589055,
+    "ast_hash": "d00d3f3c4e1d317d12387c7e905ba663",
+    "semantic_hash": ""
+  },
+  "src/app/error.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958906,
+    "ast_hash": "d810b753ff76040d5dd94edcaaff4457",
+    "semantic_hash": ""
+  },
+  "src/app/hq/_components/growth-chart.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958907,
+    "ast_hash": "6a1c84f974b63a812f851719a27922eb",
+    "semantic_hash": ""
+  },
+  "src/app/hq/_components/recent-logs.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589076,
+    "ast_hash": "4fac3ed9fd8fcb8030a3230b75f9a620",
+    "semantic_hash": ""
+  },
+  "src/app/hq/_components/stats-cards.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958908,
+    "ast_hash": "a66f842e7db73ec5d7624e5ab74a226f",
+    "semantic_hash": ""
+  },
+  "src/app/hq/_types/index.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958909,
+    "ast_hash": "fba263bc7246b0a324e4b361248c41ff",
+    "semantic_hash": ""
+  },
+  "src/app/hq/analytics/_components/analytics-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589095,
+    "ast_hash": "d3b6706ebfeef0e9ef6507cc1ccea354",
+    "semantic_hash": ""
+  },
+  "src/app/hq/analytics/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589102,
+    "ast_hash": "c101247f604f1facd6bdec8ba3021d13",
+    "semantic_hash": ""
+  },
+  "src/app/hq/audit/_components/audit-list.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589107,
+    "ast_hash": "0180398ad70420b13af87a4f2be7658b",
+    "semantic_hash": ""
+  },
+  "src/app/hq/audit/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589112,
+    "ast_hash": "85afc85c0030f9da21aeca1581492b2a",
+    "semantic_hash": ""
+  },
+  "src/app/hq/billing/_components/billing-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958912,
+    "ast_hash": "8c08cd796ea56862402a9b01dde46d7d",
+    "semantic_hash": ""
+  },
+  "src/app/hq/billing/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589126,
+    "ast_hash": "4f222b71581580d44b49583dc04812f3",
+    "semantic_hash": ""
+  },
+  "src/app/hq/coupons/_components/coupons-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589136,
+    "ast_hash": "184ecfa54020c5b5fb5df1b3c009e1b2",
+    "semantic_hash": ""
+  },
+  "src/app/hq/coupons/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958914,
+    "ast_hash": "2afe6418f59f95521f9ffd6f43c2c3e3",
+    "semantic_hash": ""
+  },
+  "src/app/hq/database/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589148,
+    "ast_hash": "47323de4c61ec472b8b328e55b9d1326",
+    "semantic_hash": ""
+  },
+  "src/app/hq/emails/_components/emails-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589155,
+    "ast_hash": "5e92e3a9dbf043e72f9c673f719df615",
+    "semantic_hash": ""
+  },
+  "src/app/hq/emails/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589162,
+    "ast_hash": "17c4ed975dd0c616c6fd1bb6ed7384c2",
+    "semantic_hash": ""
+  },
+  "src/app/hq/layout.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589167,
+    "ast_hash": "3749a5516cb6c712202fdf1ad504adec",
+    "semantic_hash": ""
+  },
+  "src/app/hq/loading.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589171,
+    "ast_hash": "a5ae63fc475eb4a254fb5ce8ea5abbbd",
+    "semantic_hash": ""
+  },
+  "src/app/hq/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589179,
+    "ast_hash": "60eac956b08ccd85a6a4658c81e2c2c6",
+    "semantic_hash": ""
+  },
+  "src/app/hq/plans/_components/plans-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589183,
+    "ast_hash": "aab17bb2b93d65dc1c502ac79e0fb5ce",
+    "semantic_hash": ""
+  },
+  "src/app/hq/plans/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589193,
+    "ast_hash": "19539e521ef253ee8f3c7d03c78517a6",
+    "semantic_hash": ""
+  },
+  "src/app/hq/referrals/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589198,
+    "ast_hash": "505d39903881388d2032ae91be78f11d",
+    "semantic_hash": ""
+  },
+  "src/app/hq/resources/_components/resources-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589202,
+    "ast_hash": "5ee0b57b72e009ccd7e866b8843ca8df",
+    "semantic_hash": ""
+  },
+  "src/app/hq/resources/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958921,
+    "ast_hash": "92230fe46ef4b9e9cc8147a89745efc6",
+    "semantic_hash": ""
+  },
+  "src/app/hq/settings/_components/auth-config-tab.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589214,
+    "ast_hash": "905a20b0e168bf49dd5291390ec92491",
+    "semantic_hash": ""
+  },
+  "src/app/hq/settings/_components/company-tab.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958922,
+    "ast_hash": "601489825e39cc802496abab32b12640",
+    "semantic_hash": ""
+  },
+  "src/app/hq/settings/_components/settings-content.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589229,
+    "ast_hash": "9fdd42b86e153f8f141e3deeb8f9b7c3",
+    "semantic_hash": ""
+  },
+  "src/app/hq/settings/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589233,
+    "ast_hash": "398aa8a16b6cb8a2d019391d8a4c3605",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/[userId]/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958924,
+    "ast_hash": "6af41577dec6fde763a1239ed0cf5916",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/[userId]/user-actions-client.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589248,
+    "ast_hash": "472f092199d10b263a0a64b812b811b6",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/_components/users-table.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589252,
+    "ast_hash": "f51f399b55e60e1d6691401914e3f1be",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/actions.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589257,
+    "ast_hash": "c5bf974029aa0d8a7309a8d04e0c1bd3",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589264,
+    "ast_hash": "e34667f8b4ee209e29c17003577441df",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/server-actions.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589272,
+    "ast_hash": "61d4b5796357109d15cee4f5d3672dbc",
+    "semantic_hash": ""
+  },
+  "src/app/hq/users/user-row-actions.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589276,
+    "ast_hash": "8b1ef5ffd931ec5f7db7ff599175b57b",
+    "semantic_hash": ""
+  },
+  "src/app/layout.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589283,
+    "ast_hash": "0f9f14c8904ca963463fee980e1aa8c7",
+    "semantic_hash": ""
+  },
+  "src/app/loading.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589288,
+    "ast_hash": "2c13c33068919666c0081928657ad470",
+    "semantic_hash": ""
+  },
+  "src/app/not-found.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589298,
+    "ast_hash": "e2a198cf943886c0d8211e72a286652e",
+    "semantic_hash": ""
+  },
+  "src/app/page.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589303,
+    "ast_hash": "e94c072cd9790fee578556bb6f1adf9b",
+    "semantic_hash": ""
+  },
+  "src/components/ErrorBoundary.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958931,
+    "ast_hash": "a456b618b48937e278d53fd8a03b6635",
+    "semantic_hash": ""
+  },
+  "src/components/JobCard.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589314,
+    "ast_hash": "9178a49752417760976a0e820a44e7ed",
+    "semantic_hash": ""
+  },
+  "src/components/JobTitleAutocomplete.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589322,
+    "ast_hash": "ee79abc363036f8cc10c2161a64c9e3d",
+    "semantic_hash": ""
+  },
+  "src/components/LearningRoadmap.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589326,
+    "ast_hash": "403360143f0cff14e796369d4eaea211",
+    "semantic_hash": ""
+  },
+  "src/components/LocationCombobox.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589334,
+    "ast_hash": "f53d0442e2bd5c78629c4a707273ccdc",
+    "semantic_hash": ""
+  },
+  "src/components/LockedJobCard.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589338,
+    "ast_hash": "46b3bcccb32aec59e8844760d2a118a1",
+    "semantic_hash": ""
+  },
+  "src/components/MatchRing.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589345,
+    "ast_hash": "f46f4fe1ed7fe8ee81819ac896c0ee91",
+    "semantic_hash": ""
+  },
+  "src/components/Navbar.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589353,
+    "ast_hash": "c259b969ca1af2a383b8789bf149d8e6",
+    "semantic_hash": ""
+  },
+  "src/components/PricingPlans.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589357,
+    "ast_hash": "aaae3eb3405f709557879c9b969b4f74",
+    "semantic_hash": ""
+  },
+  "src/components/ResumeUploader.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589362,
+    "ast_hash": "395afb65c029b94fb5238fd644fc2d09",
+    "semantic_hash": ""
+  },
+  "src/components/SkillBadge.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589372,
+    "ast_hash": "cf165f65d4613327eab569ccd7b9f04b",
+    "semantic_hash": ""
+  },
+  "src/components/SkillGapPanel.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589376,
+    "ast_hash": "dcd11975c2423bed29490376f379ce1b",
+    "semantic_hash": ""
+  },
+  "src/components/admin/admin-header.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589381,
+    "ast_hash": "9809d033c2179135ba2021af40d5caf7",
+    "semantic_hash": ""
+  },
+  "src/components/admin/admin-sidebar.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589386,
+    "ast_hash": "210dc80d89393752837a6ce7ae96d778",
+    "semantic_hash": ""
+  },
+  "src/components/admin/data-table.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589393,
+    "ast_hash": "603d30319f55531580d00d553edd190e",
+    "semantic_hash": ""
+  },
+  "src/components/admin/overview-chart.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589398,
+    "ast_hash": "2bc93625666cf08f2638936fb5f2efb8",
+    "semantic_hash": ""
+  },
+  "src/components/analytics/AnalyticsProvider.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589407,
+    "ast_hash": "aa6899ba6b163d116461216bb5807a52",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/analysis-error.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589412,
+    "ast_hash": "9d465c33fef64771a21721b9c32fe83d",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/job-filters.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589417,
+    "ast_hash": "8efa8c84c7e03d4b010e4aaddc4de7a5",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/meme-loader.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589424,
+    "ast_hash": "15aee3a75d87a1a5ec4ce602b7ac67a9",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/needs-resume.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958943,
+    "ast_hash": "b567e541ed744dfb2338b6d1ec0e037e",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/parsing-progress.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589438,
+    "ast_hash": "19cc22f2c895b9826dd93dff225acbd5",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/profile-review.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589443,
+    "ast_hash": "2e63c358ea27c89f4e1df3c60bf14842",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/results-header.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589448,
+    "ast_hash": "732afb0632a7eb1aac7d01494a541ed6",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/stat-card.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589455,
+    "ast_hash": "c354cb99f7e7d409e93e6772cadb83b4",
+    "semantic_hash": ""
+  },
+  "src/components/analyze/types.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958946,
+    "ast_hash": "1ed084a304085b969e294d2b29581a03",
+    "semantic_hash": ""
+  },
+  "src/components/app/app-header.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589477,
+    "ast_hash": "a03e97a99fff608a73dc322a55d9c788",
+    "semantic_hash": ""
+  },
+  "src/components/app/app-shell.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589481,
+    "ast_hash": "d128045d1a38c6c0a4c2ce364b01f4c4",
+    "semantic_hash": ""
+  },
+  "src/components/app/mobile-bottom-nav.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589486,
+    "ast_hash": "336638b626cb4e1e8da4f1be8f214173",
+    "semantic_hash": ""
+  },
+  "src/components/app/page-header.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589493,
+    "ast_hash": "64e4d970218e7fe56232d7fc0c65a42f",
+    "semantic_hash": ""
+  },
+  "src/components/app/user-sidebar.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589498,
+    "ast_hash": "2167b821e1648e03b191262b29e478be",
+    "semantic_hash": ""
+  },
+  "src/components/auth/InAppBrowserWarning.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589503,
+    "ast_hash": "e288dd531c40af31aeccb7278d54273c",
+    "semantic_hash": ""
+  },
+  "src/components/auth/google-sign-in-button.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589512,
+    "ast_hash": "c1e79c65e3b10b802684e562c71a9be5",
+    "semantic_hash": ""
+  },
+  "src/components/billing/ReferralPanel.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589517,
+    "ast_hash": "55483fdd1ef14a912b2582f4698b3eff",
+    "semantic_hash": ""
+  },
+  "src/components/career/SalaryIntelligenceCard.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589522,
+    "ast_hash": "d4d435c6931699a0a09446872fffa829",
+    "semantic_hash": ""
+  },
+  "src/components/dashboard/UserDashboard.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958953,
+    "ast_hash": "9a8e72a95807eecc95ee388e06cc7f28",
+    "semantic_hash": ""
+  },
+  "src/components/icons/google-svg.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589534,
+    "ast_hash": "ec772e2b926269b3c1707691785d670c",
+    "semantic_hash": ""
+  },
+  "src/components/loading/PageLoaders.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958954,
+    "ast_hash": "f2dec1d6237e352dd75486039e35af2d",
+    "semantic_hash": ""
+  },
+  "src/components/pdf/InvoicePdf.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589548,
+    "ast_hash": "777ce71562c24019e7237bc5521180b0",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/AtsIcon.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589558,
+    "ast_hash": "cecb2d2a2d0a431c59e3b3683487b444",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/AtsScoreCta.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589562,
+    "ast_hash": "85b762c00fdcdafe6c70c16a9d4b0c46",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/PreviewPanel.tsx": {
+    "mtime": 1789886087.3318365,
+    "seen": 1789888442.958957,
+    "ast_hash": "d8872088dbdfeba9706ee4fab2ccc1ac",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/ResumeEditorErrorFallback.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958958,
+    "ast_hash": "f4b62cb16535785f5113d71d6fbbd482",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/RichTextEditor.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589584,
+    "ast_hash": "8d9722594bb7ae4f37608311d9d6d1d0",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/RoastDialog.tsx": {
+    "mtime": 1789886063.3719325,
+    "seen": 1789888442.9589589,
+    "ast_hash": "7d91f4243ef304282104511a4898e604",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/SortableItem.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589596,
+    "ast_hash": "c14aeb76324ec6f5b68bc94b62de2a46",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/TailorDialog.tsx": {
+    "mtime": 1789886075.3438892,
+    "seen": 1789888442.95896,
+    "ast_hash": "37bfc1a4f1230535183f65511c85cd7d",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/AtsScorePanel.tsx": {
+    "mtime": 1789886074.4518926,
+    "seen": 1789888442.9589605,
+    "ast_hash": "501a71bbe77727db0446279ffc92158c",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/AwardsForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589612,
+    "ast_hash": "a7a1f480d7688f4147d6761edd43902d",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/BasicsForm.tsx": {
+    "mtime": 1789886061.9919374,
+    "seen": 1789888442.958962,
+    "ast_hash": "dbae756841455806c012983bbfdd7c6d",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/CertificationsForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589624,
+    "ast_hash": "ff2e7ba22e3e98b54ab2dcd28f5e30fb",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/EducationForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958963,
+    "ast_hash": "a85d27e0500e0ccb3172de320a5fac73",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/LanguagesForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589636,
+    "ast_hash": "4a97a0320150ed4b2f99f8671ec8d02d",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/ProjectsForm.tsx": {
+    "mtime": 1789886061.615939,
+    "seen": 1789888442.958964,
+    "ast_hash": "a0eaceedd16cbb12f367b585b1f87971",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/PublicationsForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589648,
+    "ast_hash": "47ff261eea6b60ed52e9ad72284559ff",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/ReferencesForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589653,
+    "ast_hash": "0886866706fdb920f4ab1600a3646c32",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/SettingsForm.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958966,
+    "ast_hash": "91b32710e3f3fc910b1a30932d8c7169",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/SkillsForm.tsx": {
+    "mtime": 1789886051.6159751,
+    "seen": 1789888442.9589665,
+    "ast_hash": "d0b9a465e176fcd9be78191d2433f4cd",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/VolunteerForm.tsx": {
+    "mtime": 1789886061.9919374,
+    "seen": 1789888442.9589672,
+    "ast_hash": "3fda6862f392f13fcb5e70da0253f506",
+    "semantic_hash": ""
+  },
+  "src/components/resume/editor/sections/WorkForm.tsx": {
+    "mtime": 1789886052.1039734,
+    "seen": 1789888442.958968,
+    "ast_hash": "2877e023c1907ffb4d05001aecea634a",
+    "semantic_hash": ""
+  },
+  "src/components/resume/scanner/ResumeScanResults.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589684,
+    "ast_hash": "569f358c87457a2c9571632c4ef6c140",
+    "semantic_hash": ""
+  },
+  "src/components/resume/scanner/ResumeScannerLoader.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958969,
+    "ast_hash": "61d88a4421f3b94764ab837072931264",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/CreativePortfolioTemplate.tsx": {
+    "mtime": 1789885975.0842621,
+    "seen": 1789888442.9589696,
+    "ast_hash": "82ea262c4ca0d00dfbdef53c442ca565",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/ExecutiveProTemplate.tsx": {
+    "mtime": 1789885975.0722623,
+    "seen": 1789888442.9589703,
+    "ast_hash": "a3474449679ca1a17683f5719d180154",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/MinimalistTemplate.tsx": {
+    "mtime": 1789885975.0722623,
+    "seen": 1789888442.9589708,
+    "ast_hash": "de920b1b472ecd13a9401f350dead954",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/ModernSplitTemplate.tsx": {
+    "mtime": 1789885975.0762622,
+    "seen": 1789888442.9589715,
+    "ast_hash": "8dc54c24f454335ebef874a4a89b4c05",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/SharedComponents.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589722,
+    "ast_hash": "d47399f0443de201470d8817bf45e7e8",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/TechStackTemplate.tsx": {
+    "mtime": 1789885963.8923066,
+    "seen": 1789888442.9589727,
+    "ast_hash": "7ae220ec92aab739f805f696dcf207cf",
+    "semantic_hash": ""
+  },
+  "src/components/resume/templates/registry.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589734,
+    "ast_hash": "c058975e88dc20d504a6510aeea62eb6",
+    "semantic_hash": ""
+  },
+  "src/components/theme-provider.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958974,
+    "ast_hash": "f0637989b236542db6c88c8e300c1952",
+    "semantic_hash": ""
+  },
+  "src/components/theme-toggle.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589744,
+    "ast_hash": "fa0996cd4cfbb3f403e3b32cabb02ba4",
+    "semantic_hash": ""
+  },
+  "src/components/ui/alert-dialog.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958975,
+    "ast_hash": "6dab4a0c58a3279059025eb6db468fd2",
+    "semantic_hash": ""
+  },
+  "src/components/ui/avatar.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589758,
+    "ast_hash": "961713767e283b40bdaeb2df7db9c842",
+    "semantic_hash": ""
+  },
+  "src/components/ui/badge.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589763,
+    "ast_hash": "ab2ee64d0887af3fa20bfe9c760a6242",
+    "semantic_hash": ""
+  },
+  "src/components/ui/breadcrumb.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589767,
+    "ast_hash": "21fd7b135610aefe7c4ee3428b87d251",
+    "semantic_hash": ""
+  },
+  "src/components/ui/button.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589775,
+    "ast_hash": "7f5604d7898cf988094f77f784af22ff",
+    "semantic_hash": ""
+  },
+  "src/components/ui/card.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958978,
+    "ast_hash": "db23f8649eac8e7e8cd7c0cd72f9c99f",
+    "semantic_hash": ""
+  },
+  "src/components/ui/chart.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958979,
+    "ast_hash": "cd6642883f2dc05c8a7449e04996b09f",
+    "semantic_hash": ""
+  },
+  "src/components/ui/checkbox.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589794,
+    "ast_hash": "c6003f23130238f0e3e2aa79f54d1d62",
+    "semantic_hash": ""
+  },
+  "src/components/ui/command.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589798,
+    "ast_hash": "effc77fccac8f4de5e3333fadd2d9137",
+    "semantic_hash": ""
+  },
+  "src/components/ui/dialog.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589806,
+    "ast_hash": "4b01fb89023b433d3765db759eca5f24",
+    "semantic_hash": ""
+  },
+  "src/components/ui/dropdown-menu.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958981,
+    "ast_hash": "43784bc7abd0969f56fd95c1fe29e0fc",
+    "semantic_hash": ""
+  },
+  "src/components/ui/field.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589815,
+    "ast_hash": "b1a18323ac9333cf4a43125585e84c56",
+    "semantic_hash": ""
+  },
+  "src/components/ui/file-upload.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589822,
+    "ast_hash": "f520996c94b3a045f5a463cd15353a43",
+    "semantic_hash": ""
+  },
+  "src/components/ui/input-group.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958983,
+    "ast_hash": "a9f182790379eb7aae8349922ca56f41",
+    "semantic_hash": ""
+  },
+  "src/components/ui/input.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589834,
+    "ast_hash": "c9695ce15e2cdaa201585206a61ebfa4",
+    "semantic_hash": ""
+  },
+  "src/components/ui/label.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958984,
+    "ast_hash": "18b39c30e8957c4db235471116309384",
+    "semantic_hash": ""
+  },
+  "src/components/ui/pagination.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589846,
+    "ast_hash": "93cada23312768a1769f4bd29b53f86d",
+    "semantic_hash": ""
+  },
+  "src/components/ui/password-input.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589853,
+    "ast_hash": "54eb37ac255b51d69d419755c7672c86",
+    "semantic_hash": ""
+  },
+  "src/components/ui/popover.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958986,
+    "ast_hash": "871011c3ac79c70179e071e94da37112",
+    "semantic_hash": ""
+  },
+  "src/components/ui/progress.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589865,
+    "ast_hash": "181328182f08fcb1ff3d74b0e0e33170",
+    "semantic_hash": ""
+  },
+  "src/components/ui/scroll-area.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958987,
+    "ast_hash": "7b2cf44d2ee5a10738d4b916de0248e5",
+    "semantic_hash": ""
+  },
+  "src/components/ui/select.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589877,
+    "ast_hash": "161ee19c41a2a4313299ebe6a3aff589",
+    "semantic_hash": ""
+  },
+  "src/components/ui/separator.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589882,
+    "ast_hash": "e8ef94f701bb63a3f95866d5a4329bfd",
+    "semantic_hash": ""
+  },
+  "src/components/ui/sheet.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958989,
+    "ast_hash": "cfc146cd0d269754299c4fe92f76b435",
+    "semantic_hash": ""
+  },
+  "src/components/ui/sidebar.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589896,
+    "ast_hash": "a16c2881ff6a67e5c124f3aead81f418",
+    "semantic_hash": ""
+  },
+  "src/components/ui/skeleton.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.95899,
+    "ast_hash": "667a0a0105e50af6020e529a05e4fd91",
+    "semantic_hash": ""
+  },
+  "src/components/ui/slider.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589906,
+    "ast_hash": "4bd44644737aae2b13b975a2f2b2b71a",
+    "semantic_hash": ""
+  },
+  "src/components/ui/sonner.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589913,
+    "ast_hash": "5c5f6c3f357229cd7080cd22ef5d53da",
+    "semantic_hash": ""
+  },
+  "src/components/ui/switch.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589918,
+    "ast_hash": "ac2d011a89081dfd99b8b716c841bacf",
+    "semantic_hash": ""
+  },
+  "src/components/ui/table.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589925,
+    "ast_hash": "a06953281e0edeb2eb476aeaa5a888c1",
+    "semantic_hash": ""
+  },
+  "src/components/ui/tabs.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589932,
+    "ast_hash": "caf0b58cf90e04453656bac511da0700",
+    "semantic_hash": ""
+  },
+  "src/components/ui/textarea.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589937,
+    "ast_hash": "9f19cc8b37476119bc41e04222a1469a",
+    "semantic_hash": ""
+  },
+  "src/components/ui/tooltip.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589944,
+    "ast_hash": "2904c64d723c7aea889482d302eb6748",
+    "semantic_hash": ""
+  },
+  "src/components/ui/word-fade-in.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589949,
+    "ast_hash": "b1f596eaf5504912547e3c25e42b4589",
+    "semantic_hash": ""
+  },
+  "src/components/user-avatar.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589958,
+    "ast_hash": "9f75cc0f7633ff290f68e759bbd04a44",
+    "semantic_hash": ""
+  },
+  "src/db/index.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589965,
+    "ast_hash": "31e9cb8587351dffe0a23994208e868d",
+    "semantic_hash": ""
+  },
+  "src/db/migrate.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958997,
+    "ast_hash": "da83d778b644c84d3de7cb5a590a70f5",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0000_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589975,
+    "ast_hash": "32c927e2b14c57f4214d471eb4919924",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0001_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.958998,
+    "ast_hash": "64f8b2e1f090d4b604e0a482fc2d1afa",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0002_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589987,
+    "ast_hash": "227b41d3d242890ad298699ab3361566",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0003_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589994,
+    "ast_hash": "ac19f71ac5ef122a9fbdc04c11e82537",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0004_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9589999,
+    "ast_hash": "ea732e6d1f65e4699260eba2f1030a2e",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0005_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590003,
+    "ast_hash": "1c7127661b69fa878dd4498f2b7d2d37",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0006_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959001,
+    "ast_hash": "b52745f96a9145924fb851a75ea9c167",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0007_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590015,
+    "ast_hash": "70d3ee61970c1021fa2c28bbdec89d1a",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0008_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590023,
+    "ast_hash": "794eef25c6d10096928bf7a70020f4cc",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0009_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959003,
+    "ast_hash": "4ff50d884b1ceba4e01a6d35d48f244c",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0010_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590034,
+    "ast_hash": "00c7fb7226a723e32da2d8805360de93",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0011_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959004,
+    "ast_hash": "6b68c91c549e9c17bb9ef0134b1875f6",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/0012_snapshot.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590044,
+    "ast_hash": "138a447d6e8a9d27873d2a93a650a131",
+    "semantic_hash": ""
+  },
+  "src/db/migrations/meta/_journal.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959005,
+    "ast_hash": "da18bd6d5e733ea8a1f3a3ce6b76b5e8",
+    "semantic_hash": ""
+  },
+  "src/db/pool.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959006,
+    "ast_hash": "67e847673ab586e4f5464554fd795bfc",
+    "semantic_hash": ""
+  },
+  "src/db/schema.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590065,
+    "ast_hash": "44a653a19846fb789733a490988bdc96",
+    "semantic_hash": ""
+  },
+  "src/hooks/use-auto-save.ts": {
+    "mtime": 1789886010.0761282,
+    "seen": 1789888442.959007,
+    "ast_hash": "9f96bd9608bcefb6d97de99f39fb1319",
+    "semantic_hash": ""
+  },
+  "src/hooks/use-mobile.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590077,
+    "ast_hash": "21f0293b823c5298aa735fc013840cff",
+    "semantic_hash": ""
+  },
+  "src/hooks/useAnalytics.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590085,
+    "ast_hash": "4fe9d9c38bed596943697ff8767fedd7",
+    "semantic_hash": ""
+  },
+  "src/hooks/useAuth.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959009,
+    "ast_hash": "75bf71464419ead8bb5e85d2449fca20",
+    "semantic_hash": ""
+  },
+  "src/hooks/useInAppBrowser.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.95901,
+    "ast_hash": "d976e67793c49e6c2d0b388578b40081",
+    "semantic_hash": ""
+  },
+  "src/hooks/useReferralClaim.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590104,
+    "ast_hash": "8e3318d174f0c5ddeb566ad248542541",
+    "semantic_hash": ""
+  },
+  "src/lib/admin/audit.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590108,
+    "ast_hash": "f4e7913e0f9cc99f8c57b43bcc26b7f0",
+    "semantic_hash": ""
+  },
+  "src/lib/admin/csv-export.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590116,
+    "ast_hash": "75376f297e9876b180cea20891181706",
+    "semantic_hash": ""
+  },
+  "src/lib/admin/ga4.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590123,
+    "ast_hash": "2d5696e4b7687f9421aecf9972084950",
+    "semantic_hash": ""
+  },
+  "src/lib/analytics.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590127,
+    "ast_hash": "c48eba18088260d18ac39cb735e50917",
+    "semantic_hash": ""
+  },
+  "src/lib/app-nav.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590135,
+    "ast_hash": "ce70423165f811b69eac47045b9953dd",
+    "semantic_hash": ""
+  },
+  "src/lib/app-settings.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590142,
+    "ast_hash": "bec446f3a6f378cd67fa91005d2e0808",
+    "semantic_hash": ""
+  },
+  "src/lib/auth-client.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590147,
+    "ast_hash": "91f677da3a2aa96bb52f3c83fc1805b4",
+    "semantic_hash": ""
+  },
+  "src/lib/auth.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590151,
+    "ast_hash": "6b1a61cd4b31add9fcce79f08b1c4d16",
+    "semantic_hash": ""
+  },
+  "src/lib/billing-utils.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590158,
+    "ast_hash": "bd975b4e03b2620d8e678df071e3ebda",
+    "semantic_hash": ""
+  },
+  "src/lib/cashfree.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590166,
+    "ast_hash": "ef4b53a68f7c812d5321d2d5cd3ab388",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/invoice-email.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590173,
+    "ast_hash": "6c2e6b7fb6cc5dbfbfe5124d96c6ff13",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/otp-email.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590178,
+    "ast_hash": "9c218eb8f9207cc834346ba2e9002202",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/referral-emails.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590182,
+    "ast_hash": "8dc02a166986f2ddd60a57030b4f2521",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/reset-password.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590187,
+    "ast_hash": "513b6aa2629f14b784ae074c6b1dd1f6",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/sendMail.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590194,
+    "ast_hash": "ddf024c8cd7cfc5549972754380005c9",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/subscription-emails.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590201,
+    "ast_hash": "71b96605a704853deddfb5d91445ea2a",
+    "semantic_hash": ""
+  },
+  "src/lib/emails/verification-email.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590206,
+    "ast_hash": "4dcb7a5f093ca0048cb5d639ff6d9252",
+    "semantic_hash": ""
+  },
+  "src/lib/hackClubClient.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959021,
+    "ast_hash": "68020332f0c37569ec9b52af362b4499",
+    "semantic_hash": ""
+  },
+  "src/lib/inference.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590218,
+    "ast_hash": "f888ce0d9d42ecf71a227a6d8b387382",
+    "semantic_hash": ""
+  },
+  "src/lib/job-titles.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590223,
+    "ast_hash": "bb353988d1e5835909f83787d9ad40a4",
+    "semantic_hash": ""
+  },
+  "src/lib/match-engine.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590228,
+    "ast_hash": "df71e79559f24dd52b182624aa784365",
+    "semantic_hash": ""
+  },
+  "src/lib/reliable-resources.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590237,
+    "ast_hash": "70fd848de5327220a0ca9ff39b298733",
+    "semantic_hash": ""
+  },
+  "src/lib/resume.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590242,
+    "ast_hash": "5708ea18742e7eb42ceb4974f30591e3",
+    "semantic_hash": ""
+  },
+  "src/lib/resume/draft-recovery.ts": {
+    "mtime": 1789886009.1921315,
+    "seen": 1789888442.9590247,
+    "ast_hash": "417c03250933dcb4db3971961ffdb07e",
+    "semantic_hash": ""
+  },
+  "src/lib/resume/sanitize.ts": {
+    "mtime": 1789887611.7687707,
+    "seen": 1789888442.9590254,
+    "ast_hash": "232030d672f89c452988b864541e66bf",
+    "semantic_hash": ""
+  },
+  "src/lib/skill-extractor.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590259,
+    "ast_hash": "a0891512809684fa1b6f533dec06d37e",
+    "semantic_hash": ""
+  },
+  "src/lib/title-normalizer.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590266,
+    "ast_hash": "348efd20de5454fcd75489df12f95ad7",
+    "semantic_hash": ""
+  },
+  "src/lib/user-profile.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590273,
+    "ast_hash": "3a51334b4c67f77eeff1e06f3e46fd56",
+    "semantic_hash": ""
+  },
+  "src/lib/utils.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590278,
+    "ast_hash": "01f78cc52fec0f11ba03301123600dc7",
+    "semantic_hash": ""
+  },
+  "src/lib/validations/resume.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590285,
+    "ast_hash": "d4c0e225a7385273af0fd84741c52943",
+    "semantic_hash": ""
+  },
+  "src/providers/ClientProvider.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959029,
+    "ast_hash": "e89c1aeb696be5681420935a128fce57",
+    "semantic_hash": ""
+  },
+  "src/providers/Providers.tsx": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590294,
+    "ast_hash": "30d5709ca9cc622074a956b841bc998d",
+    "semantic_hash": ""
+  },
+  "src/proxy.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590304,
+    "ast_hash": "a7580ba71cf09add96c69e3a5eaa0117",
+    "semantic_hash": ""
+  },
+  "src/scripts/create-test-user.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590309,
+    "ast_hash": "d55c8c50520d2907e4542ff241b3ef90",
+    "semantic_hash": ""
+  },
+  "src/scripts/get-refresh-token.js": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590313,
+    "ast_hash": "35906b3eaa86cbf7631373bb44b06495",
+    "semantic_hash": ""
+  },
+  "src/scripts/seed-job-titles.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959032,
+    "ast_hash": "d415b64295dbabe7f39387bd7493c6a9",
+    "semantic_hash": ""
+  },
+  "src/scripts/seed-plans.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590325,
+    "ast_hash": "255b262d7b9e49656400730ab45d50c0",
+    "semantic_hash": ""
+  },
+  "src/scripts/test-resend.js": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959033,
+    "ast_hash": "4ce64979d7a83e27e210592884ad5faa",
+    "semantic_hash": ""
+  },
+  "src/scripts/test-result.js": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959034,
+    "ast_hash": "336cd596b2e6d94805d71f42dd07db73",
+    "semantic_hash": ""
+  },
+  "src/services/ai/usage.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590344,
+    "ast_hash": "a5f8eb7050971fa97bd0a56afe6f4f80",
+    "semantic_hash": ""
+  },
+  "src/services/billing/coupon.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959035,
+    "ast_hash": "18b5e4e5b34e4ff4967cf08cc9b84ffa",
+    "semantic_hash": ""
+  },
+  "src/services/billing/invoice.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590356,
+    "ast_hash": "4a4361f3c96308776a3e77ca1ea350a6",
+    "semantic_hash": ""
+  },
+  "src/services/billing/payment.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959036,
+    "ast_hash": "97392bc59fb90ccdf863925f03175ed5",
+    "semantic_hash": ""
+  },
+  "src/services/billing/referral.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590366,
+    "ast_hash": "f3c0f561d60fe6462d6f4bf85f7d4305",
+    "semantic_hash": ""
+  },
+  "src/services/billing/subscription.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590375,
+    "ast_hash": "e58e34737f5c5bed35ca507df528ed2d",
+    "semantic_hash": ""
+  },
+  "src/services/billing/webhook.service.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959038,
+    "ast_hash": "8a48d8393b26784d47a0af00a3eb2901",
+    "semantic_hash": ""
+  },
+  "src/store/authSlice.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590387,
+    "ast_hash": "eead857856d654e4685e9a1ee48f157b",
+    "semantic_hash": ""
+  },
+  "src/store/resumeSlice.ts": {
+    "mtime": 1789886641.7892668,
+    "seen": 1789888442.9590392,
+    "ast_hash": "b2c554646638e081a71f8baa688dfc5d",
+    "semantic_hash": ""
+  },
+  "src/store/store.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590397,
+    "ast_hash": "dd4d5260345664274f698e3ee16ef816",
+    "semantic_hash": ""
+  },
+  "src/types/auth.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590402,
+    "ast_hash": "13ee0700b79bfc69624908628831f93d",
+    "semantic_hash": ""
+  },
+  "src/types/billing.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959041,
+    "ast_hash": "68bdc275f0d9cfe59c317784e2668ba1",
+    "semantic_hash": ""
+  },
+  "src/types/index.ts": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590416,
+    "ast_hash": "ca244ee764552d464a12e2535f19c2e4",
+    "semantic_hash": ""
+  },
+  "src/types/resume.ts": {
+    "mtime": 1789885926.4444633,
+    "seen": 1789888442.959042,
+    "ast_hash": "339c3092974ffe28e1c4093437dd73e2",
+    "semantic_hash": ""
+  },
+  "tsconfig.json": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590428,
+    "ast_hash": "b40fab942b2aadb3474b2d375e23eb07",
+    "semantic_hash": ""
+  },
+  ".agents/ARCHITECTURE.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590433,
+    "ast_hash": "c384234106777ca4a8fcdcfd6855c301",
+    "semantic_hash": ""
+  },
+  ".agents/GITHUB_PROJECT.md": {
+    "mtime": 1789885822.2410429,
+    "seen": 1789888442.9590437,
+    "ast_hash": "9815811e7b70739407e9576de26c384a",
+    "semantic_hash": ""
+  },
+  ".agents/rules/github-project.md": {
+    "mtime": 1789885822.2410429,
+    "seen": 1789888442.9590447,
+    "ast_hash": "76d23f1076f5103bdccb9c96eaad0b5b",
+    "semantic_hash": ""
+  },
+  ".agents/rules/graphify.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590452,
+    "ast_hash": "1926e27ae34f71eff4de2777e41d52be",
+    "semantic_hash": ""
+  },
+  ".agents/skills/frontend-design/LICENSE.txt": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590456,
+    "ast_hash": "2ee41112a44fe7014dce33e26468ba93",
+    "semantic_hash": ""
+  },
+  ".agents/skills/frontend-design/SKILL.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590464,
+    "ast_hash": "31c633612585bf2dd4e6d1103afc9f33",
+    "semantic_hash": ""
+  },
+  ".agents/skills/graphify/SKILL.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590468,
+    "ast_hash": "aac1e1f2b53b4749c4e64116e015e089",
+    "semantic_hash": ""
+  },
+  ".agents/skills/neon-postgres/SKILL.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590478,
+    "ast_hash": "a44ca64556295057619f99e9aab8d51e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/ui-ux-pro-max/SKILL.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590483,
+    "ast_hash": "333e886d9c027730a6a24b4f34fba801",
+    "semantic_hash": ""
+  },
+  ".agents/workflows/graphify.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590487,
+    "ast_hash": "afa1ffc01aa56ac681c7335686f44767",
+    "semantic_hash": ""
+  },
+  ".claude/skills/neon-postgres/SKILL.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590495,
+    "ast_hash": "a44ca64556295057619f99e9aab8d51e",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1789885822.2410429,
+    "seen": 1789888442.95905,
+    "ast_hash": "68827ef7b381dd4fce9a7040efc3d9e9",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590504,
+    "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
+    "semantic_hash": ""
+  },
+  "GEMINI.md": {
+    "mtime": 1789885822.2410429,
+    "seen": 1789888442.9590528,
+    "ast_hash": "b705b3988d26a0a48ff21c8ee37afac4",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590533,
+    "ast_hash": "f15aaa42d5d299d091b1171097ea56ad",
+    "semantic_hash": ""
+  },
+  "RESUME_BUILDER_PLAN.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959054,
+    "ast_hash": "026e55b2abcf703f17e1b282031d1e27",
+    "semantic_hash": ""
+  },
+  "deepseek-resume-builder-plan.md": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590547,
+    "ast_hash": "982a3dab0e531aab16748a1d9a855371",
+    "semantic_hash": ""
+  },
+  "diff.txt": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590554,
+    "ast_hash": "17482812d2b9db685047ee16ccf25c71",
+    "semantic_hash": ""
+  },
+  "git-status.txt": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959056,
+    "ast_hash": "699b64abc50166f916bb1c81ba582ac3",
+    "semantic_hash": ""
+  },
+  "pnpm-workspace.yaml": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590564,
+    "ast_hash": "002dc9f875a307e5cc73996d380766d4",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts-snapshots/sign-in-card-dark-visual-win32.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959057,
+    "ast_hash": "2fc48314668e1648e474f3d28bd1524a",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts-snapshots/sign-in-card-light-visual-win32.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590578,
+    "ast_hash": "89167cf1aeb61292c45a846b4d1b1409",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts-snapshots/sign-in-card-mobile-dark-visual-win32.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590585,
+    "ast_hash": "f8fd76508bc830a3f955bdcf6c172346",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts-snapshots/sign-in-google-button-dark-visual-win32.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959059,
+    "ast_hash": "fa3b700126d6b0f957e3f0615c7af30a",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts-snapshots/sign-in-google-button-light-visual-win32.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590597,
+    "ast_hash": "6a87a39b9336a3c72c3b52c305d9b200",
+    "semantic_hash": ""
+  },
+  "e2e/visual/auth-pages.spec.ts-snapshots/sign-up-card-dark-visual-win32.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590602,
+    "ast_hash": "20fdf523c0e9af9da4cf6a5eb598c36d",
+    "semantic_hash": ""
+  },
+  "public/file.svg": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.959061,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "public/globe.svg": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590616,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "public/logo.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590623,
+    "ast_hash": "5e1bf54a50eff662296ab57ee420f413",
+    "semantic_hash": ""
+  },
+  "public/next.svg": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590628,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "public/vercel.svg": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590633,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "public/window.svg": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590638,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "src/app/apple-icon.png": {
+    "mtime": 1789883504.0,
+    "seen": 1789888442.9590645,
+    "ast_hash": "5e1bf54a50eff662296ab57ee420f413",
+    "semantic_hash": ""
   }
 }
