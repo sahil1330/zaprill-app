@@ -33,6 +33,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import AtsIcon from "@/components/resume/editor/AtsIcon";
 import { AtsScoreStickyBar } from "@/components/resume/editor/AtsScoreCta";
 import PreviewPanel from "@/components/resume/editor/PreviewPanel";
+import ResumeArchitectChat from "@/components/resume/editor/ResumeArchitectChat";
 import { ResumeEditorErrorFallback } from "@/components/resume/editor/ResumeEditorErrorFallback";
 import RoastDialog from "@/components/resume/editor/RoastDialog";
 import AtsScorePanel from "@/components/resume/editor/sections/AtsScorePanel";
@@ -75,7 +76,7 @@ import { prepareResumeDataForSave } from "@/lib/resume/sanitize";
 import { patchResumeWithVersionRetry } from "@/lib/resume/save-with-retry";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
-import type { ResumeMetadata } from "@/types/resume";
+import type { ResumeData, ResumeMetadata } from "@/types/resume";
 import "@/components/resume/templates/resume-templates.css";
 
 // ─── Section Navigation Items (content-only — no tools mixed in) ─────────────────────
@@ -178,8 +179,8 @@ export default function ResumeEditorPage({
         }
         const { resume: fetchedResume } = await res.json();
 
-        let normalizedData;
-        let normalizedMetadata;
+        let normalizedData: ResumeData;
+        let normalizedMetadata: ResumeMetadata;
         try {
           normalizedData = normalizeResumeData(fetchedResume.data);
           normalizedMetadata = normalizeResumeMetadata(fetchedResume.metadata);
@@ -267,7 +268,7 @@ export default function ResumeEditorPage({
                 // Forms like WorkForm expect "work.0.website"
                 // BasicsForm expects "profiles.0.url"
                 // SettingsForm expects "template"
-                let relativePath;
+                let relativePath: string;
                 if (root === "metadata") {
                   relativePath = path.slice(1).join(".");
                 } else if (
@@ -473,7 +474,7 @@ export default function ResumeEditorPage({
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
+    <div className="relative flex h-screen flex-col overflow-hidden bg-background text-foreground">
       {/* ─── Top Bar ──────────────────────────────── */}
       <header className="z-20 flex h-14 shrink-0 items-center justify-between border-border border-b bg-background/95 px-4 backdrop-blur-sm">
         {/* Left: navigation + title */}
@@ -599,7 +600,7 @@ export default function ResumeEditorPage({
       </header>
 
       {/* ─── Three-panel Layout ────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden pb-20">
         {/* Left: Section Navigation (content sections only) */}
         <nav className="flex w-12 shrink-0 flex-col border-border border-r bg-muted/20 lg:w-44">
           <ScrollArea className="flex-1 py-2">
@@ -718,10 +719,10 @@ export default function ResumeEditorPage({
                           {sectionLabel}
                         </p>
                         <ul className="list-inside list-disc space-y-1 text-muted-foreground text-xs">
-                          {Object.values(errors as any)
+                          {Object.values(errors as Record<string, string[]>)
                             .flat()
-                            .map((msg: any, i) => (
-                              <li key={i}>{msg}</li>
+                            .map((msg) => (
+                              <li key={`${section}-${msg}`}>{msg}</li>
                             ))}
                         </ul>
                       </div>
@@ -786,6 +787,15 @@ export default function ResumeEditorPage({
           </div>
         </SheetContent>
       </Sheet>
+
+      <ResumeArchitectChat
+        resumeId={id}
+        onFlushPendingSave={
+          isDirty
+            ? () => handleServerSave({ stripBlankItems: false })
+            : undefined
+        }
+      />
 
       {/* Settings Sheet — triggered from gear icon in top bar */}
       <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>

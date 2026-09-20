@@ -730,6 +730,34 @@ const resumeSlice = createSlice({
       state.data = action.payload;
       state.isDirty = true;
     },
+
+    /**
+     * Hydrate editor state from a Resume Architect tool result.
+     * The agent already persisted the row, so this is not a local dirty edit.
+     */
+    applyAgentSnapshot(
+      state,
+      action: PayloadAction<{
+        data: ResumeData;
+        metadata: ResumeMetadata;
+        templateSlug: string;
+        title: string;
+        targetRole: string | null;
+        version: number;
+      }>,
+    ) {
+      const p = action.payload;
+      if (p.version < state.version) return;
+      state.data = p.data;
+      state.metadata = p.metadata;
+      state.templateSlug = p.templateSlug;
+      state.title = p.title;
+      state.targetRole = p.targetRole ?? "";
+      state.version = p.version;
+      state.isDirty = false;
+      state.isSaving = false;
+      state.lastSavedAt = new Date().toISOString();
+    },
   },
 });
 

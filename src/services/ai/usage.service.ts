@@ -120,7 +120,8 @@ export interface LogUsageParams {
     | "generate_summary"
     | "tailor_resume"
     | "ats_scan"
-    | "resume_roast";
+    | "resume_roast"
+    | "resume_chat";
   /**
    * The exact model identifier string used when constructing the SDK call,
    * e.g. `openai("gpt-5-mini")` → pass `"gpt-5-mini"`.
