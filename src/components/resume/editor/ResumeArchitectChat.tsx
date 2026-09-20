@@ -117,20 +117,23 @@ function MessageParts({
 
   return (
     <div
-      className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}
+      className={cn(
+        "flex w-full min-w-0 gap-2.5",
+        isUser ? "flex-row-reverse" : "flex-row",
+      )}
     >
       {isUser ? (
-        <Avatar size="sm" className="mt-0.5">
+        <Avatar size="sm" className="mt-0.5 shrink-0">
           {userImage ? <AvatarImage src={userImage} alt="" /> : null}
           <AvatarFallback>{userInitials(userName, userEmail)}</AvatarFallback>
         </Avatar>
       ) : (
-        <AgentMark className="mt-0.5 size-7 rounded-md" />
+        <AgentMark className="mt-0.5 size-7 shrink-0 rounded-md" />
       )}
       <div
         className={cn(
-          "min-w-0 max-w-[85%] space-y-1.5",
-          isUser && "text-right",
+          "min-w-0 flex-1 space-y-1.5 overflow-hidden",
+          isUser && "flex flex-col items-end",
         )}
       >
         {message.parts.map((part, index) => {
@@ -139,7 +142,7 @@ function MessageParts({
               return (
                 <div
                   key={`${message.id}-text-${index}`}
-                  className="inline-block rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-left text-primary-foreground text-sm leading-relaxed"
+                  className="w-fit max-w-full whitespace-pre-wrap break-words rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-left text-primary-foreground text-sm leading-relaxed"
                 >
                   {part.text}
                 </div>
@@ -148,7 +151,7 @@ function MessageParts({
             return (
               <div
                 key={`${message.id}-text-${index}`}
-                className="text-foreground text-sm leading-relaxed [&_p:first-child]:mt-0 [&_p]:my-1.5"
+                className="max-w-full overflow-hidden text-foreground text-sm leading-relaxed [&_p:first-child]:mt-0 [&_p]:my-1.5 [&_pre]:max-w-full [&_pre]:overflow-x-auto"
               >
                 <Streamdown>{part.text}</Streamdown>
               </div>
@@ -285,13 +288,12 @@ function ArchitectSession({
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-4 sm:px-6">
       <div
         className={cn(
-          "pointer-events-auto flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-border bg-background/95 shadow-[0_-12px_40px_-18px_oklch(0.141_0.005_286_/_0.28)] backdrop-blur-md",
-          "before:absolute before:inset-x-6 before:top-0 before:h-0.5 before:rounded-full before:bg-primary before:content-['']",
-          "relative",
+          "pointer-events-auto relative isolate flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background/95 shadow-[0_-18px_48px_-20px_oklch(0.141_0.005_286_/_0.38)] backdrop-blur-md",
+          "before:absolute before:inset-x-8 before:top-0 before:z-10 before:h-0.5 before:rounded-full before:bg-primary before:content-['']",
         )}
       >
         {open ? (
-          <div className="flex max-h-[min(52vh,28rem)] min-h-0 flex-col">
+          <div className="flex max-h-[min(56vh,32rem)] min-h-0 flex-col overflow-hidden">
             <div className="flex items-center justify-between gap-3 border-border/80 border-b px-3 py-2.5">
               <div className="flex min-w-0 items-center gap-2.5">
                 <AgentMark />
@@ -318,11 +320,11 @@ function ArchitectSession({
             </div>
 
             <StickToBottom
-              className="h-[min(40vh,22rem)] overflow-hidden"
+              className="relative h-[min(42vh,24rem)] min-h-0 overflow-hidden"
               resize="smooth"
               initial="smooth"
             >
-              <StickToBottom.Content className="flex flex-col gap-4 px-3 py-3">
+              <StickToBottom.Content className="flex flex-col gap-4 overflow-x-hidden px-3 py-3">
                 {messages.length === 0 ? (
                   <p className="px-1 py-6 text-center text-muted-foreground text-sm">
                     Describe the role you want, or say what to change. The
@@ -365,7 +367,7 @@ function ArchitectSession({
         ) : null}
 
         <form
-          className="flex items-end gap-2 px-2.5 py-2"
+          className="flex items-end gap-2 border-border/70 border-t px-2.5 py-2"
           onSubmit={(event) => {
             event.preventDefault();
             void submit();
@@ -390,7 +392,7 @@ function ArchitectSession({
             }}
             placeholder="Tell the architect what to add or change"
             disabled={busy && input.length === 0}
-            className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-1 py-2 text-sm outline-none placeholder:text-muted-foreground"
+            className="max-h-28 min-h-10 flex-1 resize-none rounded-xl bg-muted/40 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           {busy ? (
             <Button

@@ -312,9 +312,9 @@
     "semantic_hash": ""
   },
   "src/app/(protected)/resumes/[id]/page.tsx": {
-    "mtime": 1789914602.2071106,
-    "seen": 1789914789.5553493,
-    "ast_hash": "bd7024520877aa7f972d44c3fba3113c",
+    "mtime": 1789914819.829975,
+    "seen": 1789915636.6377006,
+    "ast_hash": "638239d7c065c6e75a73181b20ada5b8",
     "semantic_hash": ""
   },
   "src/app/(protected)/resumes/loading.tsx": {
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "src/components/resume/editor/ResumeArchitectChat.tsx": {
-    "mtime": 1789914619.3230214,
-    "seen": 1789914789.5554419,
-    "ast_hash": "595f185e142c549dddcd26d5c497ea02",
+    "mtime": 1789915628.0052912,
+    "seen": 1789915636.6402855,
+    "ast_hash": "c59c62735d65dd9f973455f39d32c909",
     "semantic_hash": ""
   },
   "src/lib/agents/resume-architect-tools.ts": {
