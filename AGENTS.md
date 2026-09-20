@@ -27,6 +27,7 @@ All bugs, todos, and in-progress work go on the Zaprill Project v2 board. Follow
 - Set the board **Status** field (`Todo` / `In progress` / `Done`). A `[Todo]` title prefix is not enough.
 - Use `gh` as **sahil1330**. Never `gh auth logout`.
 - GitHub MCP can create issues; it cannot move Project v2 Status.
+- After every implementation: burn-in, harvest new defects onto the board, do not mark Done without that loop.
 
 # Knowledge Graph
 

@@ -2,6 +2,8 @@
 
 Every agent session that files bugs, tracks work, or finishes a fix MUST follow this. Title prefixes and issue comments are not a substitute for board Status.
 
+**After every implementation, burn-in that change and harvest new defects onto this same board.** Do not skip that loop. Do not mark Done without it.
+
 ## Where work lives
 
 | What | Where |
@@ -30,8 +32,8 @@ Note the Status option spelling: **`In progress`** (lowercase p).
 ### When to set which Status
 
 - **Todo** — found, not started this session.
-- **In progress** — you started implementing, investigating, or burn-in. Do not leave active work in Todo.
-- **Done** — shipped **and** verified (or explicitly closed as not planned). Core logic fixes that still need a production/Vercel check stay **In progress**.
+- **In progress** — you started implementing, investigating, or burn-in. Do not leave active work in Todo. New defects found in burn-in start here if you are fixing them now, otherwise Todo.
+- **Done** — shipped **and** burn-in on that change passed (or explicitly closed as not planned). Core logic fixes that still need a production/Vercel check stay **In progress**.
 
 Also set Priority when you create or pick up a card (P0 user-blocking, P1 logic/auth, P2 polish).
 
@@ -97,9 +99,46 @@ Do not commit the PAT, put it in `.env*`, or echo it back in chat, commits, issu
      --single-select-option-id 47fc9ee4   # In progress
    ```
 
-5. **While you work**, keep the card **In progress**. Comment burn-in / commit SHAs on the issue.
-6. **When finished**, set **Done** (and close the issue if nothing remains). Do not leave shipped work in Todo.
-7. **Code** may be pushed to `sahil1330/zaprill-app` `main` (test Vercel). Say so on the issue. Do not imply it is on `app.zaprill.com` unless it is.
+5. **While you work**, keep the card **In progress**.
+6. **After each implementation, burn-in and harvest** (required; see below). Comment results and commit SHAs on the issue.
+7. **When finished**, set **Done** only after burn-in for that change passed (and close the issue if nothing remains). Do not leave shipped work in Todo.
+8. **Code** may be pushed to `sahil1330/zaprill-app` `main` (test Vercel). Say so on the issue. Do not imply it is on `app.zaprill.com` unless it is.
+
+## Burn-in and defect harvesting (required)
+
+This is part of the GitHub project method, not optional QA. The product owner’s standing instruction: after each implementation, run burn-in, harvest defects onto the board, and keep using the app.
+
+### Burn-in (after every fix, before moving on)
+
+Use the changed flow yourself. Prefer the running app (Playwright, API with session cookies, or browser) over “the code looks right.”
+
+Minimum per change:
+
+1. Exercise the **happy path** you just shipped (e.g. new user Home, onboarding upload, Analyze, builder save).
+2. Exercise the **edge that used to fail** (the original bug).
+3. If the change touches resumes or jobs, run **both**:
+   - demo PDF upload (`Sahil_Mane_Resume_v4` or equivalent in the session uploads), and
+   - resume builder (blank draft must not complete onboarding; saved content may).
+4. If the change touches auth/onboarding, hit **new user** and **completed user** (no CTA flash, no infinite skeleton).
+5. Comment the issue with pass/fail, what you ran, and the commit SHA. Keep the card **In progress** until that comment exists.
+
+Local Next + the injected Neon DB is valid burn-in for this test repo. A checklist card for the **test Vercel** deploy is still required when user-facing logic shipped (`sahil1330/zaprill-app` `main`, not `app.zaprill.com` unless said).
+
+Do **not** set Status to **Done** if you only compiled or linted.
+
+### Defect harvesting (during and after burn-in)
+
+Anything new you hit while using the app is a board item. Do not swallow it in a comment on the parent issue.
+
+1. File a **new issue** on `zaprillcom-cpu/zaprill-app` (repro, impact, acceptance).
+2. Confirm it landed on project #1.
+3. Set Status: **In progress** if you start fixing it in this session; **Todo** if you must park it.
+4. Set Priority (P0 user-blocking, P1 logic, P2 polish).
+5. After you patch it, **burn-in that patch too** (this section repeats). Harvest again if the new run surfaces another bug.
+
+Example from this project: fixing skill-gap loss, then job search burn-in produced fake skills `r` and `go` from English prose → new issue → In progress → fix → re-run search/gaps until those tokens were gone.
+
+Harvested defects stay visible on the board. Do not only mention them in a Google Doc or chat.
 
 ## Commands cheat sheet
 
@@ -128,6 +167,7 @@ gh project item-edit --id ITEM_ID --project-id PVT_kwHOEGyeI84BkCCb \
 - Using Cursor `gh` / `cursor[bot]` → GraphQL `Could not resolve to a ProjectV2 with the number 1`. Switch to `sahil1330`.
 - Logging out after a PAT was provided → the next agent cannot move cards. **Do not log out.**
 - Tracking only in this test repo → the owner will not see it on the product board.
+- Shipping without burn-in, or burying a new bug in a parent-issue comment → **process bug**. File a card, set Status, burn-in the patch.
 
 ## Related product repos
 

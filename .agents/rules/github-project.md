@@ -14,3 +14,4 @@ Hard rules:
 - Cursor `gh` defaults to `cursor[bot]` and cannot see the board. Use account `sahil1330`.
 - Never run `gh auth logout`. If a PAT is provided, persist it with `gh auth login --with-token` and leave it logged in.
 - GitHub MCP can create issues; it cannot set Project v2 Status. Use `gh project item-edit` for Status.
+- After every implementation: burn-in the change and harvest new defects as their own board cards (see GITHUB_PROJECT.md). Do not set Done without burn-in.
