@@ -170,7 +170,7 @@ function ScrollToLatest() {
       type="button"
       size="icon"
       variant="secondary"
-      className="-translate-x-1/2 absolute bottom-3 left-1/2 z-10 size-8 rounded-full border border-border shadow-md"
+      className="-translate-x-1/2 absolute bottom-2 left-1/2 z-20 size-9 rounded-full border border-border bg-background shadow-[0_8px_24px_-8px_oklch(0.141_0.005_286_/_0.45)]"
       onClick={() => {
         void scrollToBottom();
       }}
