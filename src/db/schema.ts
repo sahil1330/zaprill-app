@@ -635,6 +635,30 @@ export const resumeAtsAnalysis = pgTable(
   (t) => [index("resume_ats_analysis_resume_id_idx").on(t.resumeId)],
 );
 
+/**
+ * One architect chat thread per resume. Messages are stored in the
+ * AI SDK UIMessage format so useChat can restore the thread.
+ */
+export const resumeChat = pgTable(
+  "resume_chat",
+  {
+    id: text("id").primaryKey(),
+    resumeId: text("resume_id")
+      .notNull()
+      .references(() => resume.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    messages: jsonb("messages").notNull().default([]),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("resume_chat_resume_id_uidx").on(t.resumeId),
+    index("resume_chat_user_id_idx").on(t.userId),
+  ],
+);
+
 // ─────────────────────────────────────────────────
 // AI Usage Intelligence
 // ─────────────────────────────────────────────────
@@ -647,6 +671,7 @@ export const aiActionEnum = pgEnum("ai_action", [
   "tailor_resume",
   "ats_scan",
   "resume_roast",
+  "resume_chat",
 ]);
 
 /**

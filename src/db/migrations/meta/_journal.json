@@ -99,6 +99,13 @@
       "when": 1782736080000,
       "tag": "0013_salary_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789900000000,
+      "tag": "0014_resume_architect_chat",
+      "breakpoints": true
     }
   ]
 }
