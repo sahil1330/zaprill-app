@@ -573,7 +573,13 @@ function AnalyzePageContent() {
 
   return (
     <div className="bg-background font-sans text-foreground selection:bg-foreground selection:text-background">
-      <div className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
+      <div
+        className={`mx-auto w-full max-w-7xl flex-1 px-6 ${
+          step === "parsing" || step === "searching" || step === "analyzing"
+            ? "py-3"
+            : "py-5"
+        }`}
+      >
         {(step === "reviewing" ||
           isDone ||
           isError ||
@@ -827,7 +833,7 @@ export default function AnalyzePage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-background px-6 py-8">
+        <div className="bg-background px-6 py-3">
           <AnalyzeSkeleton />
         </div>
       }

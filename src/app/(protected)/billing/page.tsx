@@ -95,7 +95,7 @@ export default async function BillingPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-8 py-10">
+    <div className="container mx-auto max-w-4xl space-y-6 py-6">
       <PageHeader
         title="Billing"
         description="Manage your plan and view invoices."

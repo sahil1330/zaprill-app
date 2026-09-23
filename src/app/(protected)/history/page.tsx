@@ -69,7 +69,7 @@ export default function CareerInsightsPage() {
 
   if (isPending || isLoading) {
     return (
-      <div className="flex items-center justify-center gap-3 py-24">
+      <div className="flex items-center justify-center gap-3 py-10">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="font-bold text-lg tracking-tight">
           Loading insights...
@@ -85,7 +85,7 @@ export default function CareerInsightsPage() {
   };
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-6 py-10">
+    <main className="mx-auto w-full max-w-7xl px-6 py-6">
       <PageHeader
         title="Career Insights"
         description="Your salary position, skill gaps, and growth roadmap."

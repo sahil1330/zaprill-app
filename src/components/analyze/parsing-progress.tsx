@@ -16,9 +16,9 @@ export function ParsingProgress({ step, resume }: ParsingProgressProps) {
   const skills = resume?.skills.flatMap((s) => s.keywords) || [];
 
   return (
-    <div className="fade-in mx-auto w-full max-w-5xl animate-in space-y-10 duration-700">
+    <div className="fade-in mx-auto w-full max-w-5xl animate-in space-y-6 duration-700">
       {/* Top Status Banner */}
-      <div className="flex flex-col items-center gap-6 rounded-3xl border border-primary/20 bg-primary/5 p-8 shadow-sm md:flex-row">
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-sm md:flex-row">
         <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
           <Zap className="-top-2 -right-2 absolute h-5 w-5 fill-current text-primary" />
