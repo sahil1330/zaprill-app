@@ -19,7 +19,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end",
+        "mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end",
         className,
       )}
     >

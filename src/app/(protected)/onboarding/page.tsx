@@ -186,7 +186,12 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background p-4">
+    <div
+      className={cn(
+        "relative flex min-h-dvh flex-col items-center overflow-x-hidden bg-background px-4",
+        step === "scanning" ? "justify-start py-4" : "justify-center py-6",
+      )}
+    >
       {/* Decorative background elements */}
       <div className="-z-10 pointer-events-none absolute top-0 left-0 h-full w-full overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-primary/5 blur-[120px]" />

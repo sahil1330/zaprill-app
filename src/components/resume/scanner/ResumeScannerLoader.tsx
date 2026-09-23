@@ -62,7 +62,7 @@ function ResumeDocumentSkeleton() {
       {/* Paper texture top */}
       <div className="h-1 bg-linear-to-b from-muted/50 to-transparent" />
 
-      <div className="space-y-4 px-6 py-6">
+      <div className="space-y-3 px-5 py-4">
         {/* Name + title header */}
         <div className="space-y-2 text-center">
           <div className="mx-auto h-4 w-3/5 rounded bg-muted/60" />
@@ -192,9 +192,9 @@ export default function ResumeScannerLoader({ file }: { file?: File | null }) {
   const activePhase = SCAN_PHASES[phase];
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8 md:py-12">
+    <div className="mx-auto w-full max-w-xl px-2 py-1">
       {/* Document scan area */}
-      <div className="relative mb-10">
+      <div className="relative mb-4">
         {/* Glow behind the document */}
         <motion.div
           className="absolute inset-0 rounded-2xl bg-primary/5 blur-3xl"
@@ -214,8 +214,7 @@ export default function ResumeScannerLoader({ file }: { file?: File | null }) {
               <div className="mx-auto w-full max-w-95 bg-white">
                 <iframe
                   src={documentUrl}
-                  className="w-full border-0"
-                  style={{ height: 500 }}
+                  className="h-[min(36vh,280px)] w-full border-0"
                   title="Resume preview"
                 />
               </div>
@@ -266,12 +265,12 @@ export default function ResumeScannerLoader({ file }: { file?: File | null }) {
       </div>
 
       {/* Title */}
-      <h2 className="mb-8 text-center font-black text-2xl text-foreground tracking-tight">
+      <h2 className="mb-3 text-center font-black text-foreground text-xl tracking-tight">
         Scanning Your Resume
       </h2>
 
       {/* Progress bar */}
-      <div className="mb-6">
+      <div className="mb-3">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <motion.div
             className="h-full rounded-full bg-linear-to-r from-primary/60 via-primary to-primary/60"
@@ -300,7 +299,7 @@ export default function ResumeScannerLoader({ file }: { file?: File | null }) {
       </div>
 
       {/* Current message */}
-      <div className="mb-6 flex min-h-10 items-center justify-center">
+      <div className="mb-3 flex min-h-8 items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.p
             key={`${phase}-${msgIndex}`}
@@ -316,7 +315,7 @@ export default function ResumeScannerLoader({ file }: { file?: File | null }) {
       </div>
 
       {/* Fun fact */}
-      <div className="mb-8">
+      <div className="mb-3">
         <AnimatePresence mode="wait">
           <motion.div
             key={funFact}

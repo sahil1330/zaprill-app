@@ -27,8 +27,8 @@ export function MemeLoader({ step }: { step: AnalysisStep }) {
   );
 
   return (
-    <div className="fade-in slide-in-from-bottom-8 mx-auto flex max-w-2xl animate-in flex-col items-center py-20 text-center duration-1000">
-      <div className="group relative mb-12 aspect-video w-full overflow-hidden rounded-3xl border-4 border-foreground/10 shadow-2xl">
+    <div className="fade-in slide-in-from-bottom-8 mx-auto flex max-w-xl animate-in flex-col items-center py-2 text-center duration-1000">
+      <div className="group relative mb-5 aspect-video w-full overflow-hidden rounded-2xl border-4 border-foreground/10 shadow-2xl">
         <img
           src={JOB_MEMES[memeIdx]}
           alt="Job Meme"
@@ -45,7 +45,7 @@ export function MemeLoader({ step }: { step: AnalysisStep }) {
         </div>
       </div>
 
-      <h3 className="mb-4 font-black text-3xl text-foreground tracking-tight">
+      <h3 className="mb-2 font-black text-2xl text-foreground tracking-tight">
         {JOB_MESSAGES[msgIdx]}
       </h3>
       <p className="mx-auto max-w-md font-semibold text-lg text-muted-foreground leading-relaxed">
@@ -53,7 +53,7 @@ export function MemeLoader({ step }: { step: AnalysisStep }) {
         Sit tight, this won't take long!
       </p>
 
-      <div className="mt-12 flex gap-4">
+      <div className="mt-5 flex gap-4">
         <div
           className={`h-1.5 w-16 rounded-full ${step === "searching" ? "animate-pulse bg-foreground" : "bg-muted"}`}
         />

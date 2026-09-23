@@ -169,7 +169,7 @@ export default function MyJobsPage() {
 
   if (isPending || (session && loading)) {
     return (
-      <div className="flex items-center justify-center py-24">
+      <div className="flex items-center justify-center py-10">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -181,7 +181,7 @@ export default function MyJobsPage() {
 
   return (
     <>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <PageHeader
           title="My Jobs"
           description="Track your application history and bookmarked opportunities."
