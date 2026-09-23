@@ -114,7 +114,6 @@ function AnalyzePageContent() {
   const [advice, setAdvice] = useState<string>("");
   const [analysisId, setAnalysisId] = useState<string | null>(null);
 
-  const initRef = useRef(false);
   const savingRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState<TabId>("jobs");
@@ -408,23 +407,27 @@ function AnalyzePageContent() {
   }, []);
 
   useEffect(() => {
-    if (idFromUrl || isFetchingHistory || initRef.current || resume) return;
+    if (idFromUrl || isFetchingHistory || resume) return;
+
+    // Do not lock this with a ref. React Strict Mode runs the effect, cancels
+    // it, then runs it again. A ref set on the first run blocks the second,
+    // and the cancelled fetch never applies — the page stays on the loader.
+    let cancelled = false;
 
     const stored = sessionStorage.getItem("ai_job_god_resume");
     if (stored) {
-      initRef.current = true;
       try {
         hydrateResume(JSON.parse(stored));
       } catch {
         sessionStorage.removeItem("ai_job_god_resume");
-        setStep("needs_resume");
+        if (!cancelled) setStep("needs_resume");
       }
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
 
     // No local draft — try the saved primary resume instead of bouncing home.
-    initRef.current = true;
-    let cancelled = false;
     fetch("/api/profile")
       .then((r) => r.json())
       .then((data) => {
