@@ -5,6 +5,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { generateResumeSlug } from "@/lib/resume/slug";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -36,7 +37,10 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     // Create the duplicate
     const newId = nanoid();
-    const newSlug = nanoid(10);
+    const data = original.data as { basics?: { name?: string } } | null;
+    const newSlug = generateResumeSlug(
+      data?.basics?.name || `Copy of ${original.title}`,
+    );
 
     const [duplicated] = await db
       .insert(resume)
