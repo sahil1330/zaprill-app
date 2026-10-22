@@ -7,16 +7,27 @@ import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
 import { insertResumeSnapshot } from "@/lib/resume/insert-snapshot";
 import { clampResumeData } from "@/lib/resume/sanitize";
 import { snapshotIdentity } from "@/lib/resume/version-snapshot";
+import type { ProfileHint } from "@/lib/resume-knowledge";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
 
 export type ResumeArchitectContext = {
   resumeId: string;
   userId: string;
   versioned?: boolean;
+  /** Cited rules for this person's field, stage, and region. */
+  guidance?: string;
+  profile?: ProfileHint | null;
   onUsage?: (usage: {
     inputTokens?: number;
     outputTokens?: number;
     totalTokens?: number;
+  }) => void;
+  onToolUsage?: (usage: {
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+    success?: boolean;
+    metadata?: Record<string, unknown>;
   }) => void;
 };
 
