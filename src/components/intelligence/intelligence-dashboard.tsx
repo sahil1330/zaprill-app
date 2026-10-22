@@ -8,12 +8,12 @@ import {
   Radar,
   RefreshCw,
   Target,
-  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app/page-header";
+import { IntelligenceInsights } from "@/components/intelligence/intelligence-insights";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +28,7 @@ import type {
   CareerSkillLevel,
 } from "@/types/career-profile";
 import { VERIFIED_SKILL_LABEL } from "@/types/career-profile";
+import type { IntelligenceReport } from "@/types/intelligence";
 
 const SEGMENTS: { id: CareerSegment; label: string }[] = [
   { id: "student", label: "Student" },
@@ -61,8 +62,21 @@ const SENIORITY_LABEL: Record<string, string> = {
   unspecified: "Level open",
 };
 
+async function readReport(response: Response): Promise<IntelligenceReport> {
+  const body = (await response.json().catch(() => ({}))) as {
+    report?: IntelligenceReport;
+    error?: string;
+  };
+  if (!response.ok || !body.report) {
+    throw new Error(body.error || "Could not load market insights");
+  }
+  return body.report;
+}
+
 export function IntelligenceDashboard() {
   const [profile, setProfile] = useState<CareerProfileView | null>(null);
+  const [report, setReport] = useState<IntelligenceReport | null>(null);
+  const [reportError, setReportError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -70,10 +84,24 @@ export function IntelligenceDashboard() {
     null,
   );
 
+  const refreshReport = useCallback(async () => {
+    try {
+      const response = await fetch("/api/intelligence");
+      setReport(await readReport(response));
+      setReportError(null);
+    } catch (err) {
+      setReportError(
+        err instanceof Error ? err.message : "Could not load market insights",
+      );
+    }
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
+      // Profile first. The first visit materializes the career file once,
+      // and the report then reads that row instead of deriving it again.
       const response = await fetch("/api/career-profile");
       const body = (await response.json().catch(() => ({}))) as {
         profile?: CareerProfileView;
@@ -83,6 +111,16 @@ export function IntelligenceDashboard() {
         throw new Error(body.error || "Could not load your career file");
       }
       setProfile(body.profile);
+      try {
+        const reportResponse = await fetch("/api/intelligence");
+        setReport(await readReport(reportResponse));
+        setReportError(null);
+      } catch (err) {
+        setReport(null);
+        setReportError(
+          err instanceof Error ? err.message : "Could not load market insights",
+        );
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not load your career file",
@@ -112,6 +150,7 @@ export function IntelligenceDashboard() {
         throw new Error(body.error || "Could not sync from your resume");
       }
       setProfile(body.profile);
+      await refreshReport();
       toast.success("Career file updated from your resume");
     } catch (err) {
       toast.error(
@@ -139,6 +178,7 @@ export function IntelligenceDashboard() {
         throw new Error(body.error || "Could not update your path");
       }
       setProfile(body.profile);
+      await refreshReport();
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Could not update your path",
@@ -167,7 +207,7 @@ export function IntelligenceDashboard() {
     return (
       <main className="mx-auto w-full max-w-7xl px-6 py-10">
         <PageHeader
-          eyebrow="Career file"
+          eyebrow="Dashboard"
           title="Intelligence"
           description="Your career file could not be loaded."
         />
@@ -199,9 +239,9 @@ export function IntelligenceDashboard() {
   return (
     <main className="mx-auto w-full max-w-7xl space-y-8 px-6 py-10">
       <PageHeader
-        eyebrow="Career file"
+        eyebrow="Dashboard"
         title="Intelligence"
-        description="The profile Resume Builder and Skill Coach share: who you are, what you can do, and what you want next."
+        description="Score, market, and the next step for your target roles. The career file those numbers come from sits below."
         actions={
           <Button
             variant="outline"
@@ -214,7 +254,23 @@ export function IntelligenceDashboard() {
         }
       />
 
-      <section className="space-y-3">
+      {report ? (
+        <IntelligenceInsights report={report} />
+      ) : (
+        <Card className="rounded-2xl border-border/70">
+          <CardContent className="space-y-4 py-8">
+            <p className="font-medium text-muted-foreground">
+              {reportError || "Market insights could not be loaded."}
+            </p>
+            <Button onClick={() => void refreshReport()} variant="outline">
+              Try again
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <section id="path" className="scroll-mt-24 space-y-3">
+        <h2 className="font-bold text-lg">Career file</h2>
         <div className="flex flex-wrap gap-2">
           {SEGMENTS.map((segment) => {
             const selected = profile.segment === segment.id;
@@ -271,7 +327,10 @@ export function IntelligenceDashboard() {
         key={`${profile.updatedAt}-${payPeriod}`}
         profile={profile}
         period={payPeriod}
-        onSaved={setProfile}
+        onSaved={(next) => {
+          setProfile(next);
+          void refreshReport();
+        }}
       />
 
       {emptyFile ? (
@@ -399,15 +458,6 @@ export function IntelligenceDashboard() {
           }))}
         />
       </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <ScorePanel intelligence={profile.intelligence} />
-        <GapsPanel intelligence={profile.intelligence} />
-        <LaterPanel icon={Wallet} title="Role feed">
-          Open roles matched to your targets will show up here from public ATS
-          boards: Greenhouse, Lever, and Ashby.
-        </LaterPanel>
-      </div>
     </main>
   );
 }
@@ -533,7 +583,7 @@ function PayEditor({
   };
 
   return (
-    <Card className="rounded-2xl border-border/70">
+    <Card id="pay" className="scroll-mt-24 rounded-2xl border-border/70">
       <CardHeader>
         <CardTitle className="font-bold text-base">Pay</CardTitle>
       </CardHeader>
@@ -635,76 +685,6 @@ function MoneyField({
   );
 }
 
-function ScorePanel({
-  intelligence,
-}: {
-  intelligence: CareerProfileView["intelligence"];
-}) {
-  return (
-    <section className="rounded-2xl border border-border/70 bg-card p-5">
-      <div className="mb-2 flex items-center gap-2 font-bold text-muted-foreground text-xs uppercase tracking-widest">
-        <Radar className="h-3.5 w-3.5" />
-        Career score
-      </div>
-      <p className="font-black font-heading text-4xl tabular-nums tracking-tight">
-        {intelligence.careerScore == null
-          ? "Not scored"
-          : intelligence.careerScore}
-      </p>
-      <p className="mt-2 font-medium text-muted-foreground text-sm leading-relaxed">
-        {intelligence.careerScore == null
-          ? `A score appears after a resume analysis. Completeness is ${intelligence.completeness}.`
-          : `Readiness ${intelligence.readiness} · completeness ${intelligence.completeness}.`}
-      </p>
-      {intelligence.basis === "all_jobs" ? (
-        <p className="mt-2 font-medium text-muted-foreground text-sm leading-relaxed">
-          No analysis jobs matched your target titles, so this uses every job
-          from the latest analysis.
-        </p>
-      ) : null}
-    </section>
-  );
-}
-
-function GapsPanel({
-  intelligence,
-}: {
-  intelligence: CareerProfileView["intelligence"];
-}) {
-  return (
-    <section className="rounded-2xl border border-border/70 bg-card p-5">
-      <div className="mb-2 flex items-center gap-2 font-bold text-muted-foreground text-xs uppercase tracking-widest">
-        <Target className="h-3.5 w-3.5" />
-        Skill gaps
-      </div>
-      {intelligence.basis === "none" ? (
-        <p className="font-medium text-muted-foreground text-sm">
-          Gaps appear after a resume analysis, from the skills those jobs ask
-          for.
-        </p>
-      ) : intelligence.skillGaps.length === 0 ? (
-        <p className="font-medium text-muted-foreground text-sm">
-          No missing skills in the jobs used for this score.
-        </p>
-      ) : (
-        <ul className="max-h-48 space-y-2 overflow-auto">
-          {intelligence.skillGaps.slice(0, 8).map((gap) => (
-            <li
-              key={gap.skill}
-              className="flex items-center justify-between gap-3 text-sm"
-            >
-              <span className="font-semibold">{gap.skill}</span>
-              <span className="font-medium text-muted-foreground text-xs uppercase tracking-widest">
-                {gap.priority}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
 function RecordList({
   icon: Icon,
   title,
@@ -746,28 +726,6 @@ function RecordList({
         )}
       </CardContent>
     </Card>
-  );
-}
-
-function LaterPanel({
-  icon: Icon,
-  title,
-  children,
-}: {
-  icon: typeof Radar;
-  title: string;
-  children: string;
-}) {
-  return (
-    <section className="rounded-2xl border border-border border-dashed bg-muted/20 p-5">
-      <div className="mb-2 flex items-center gap-2 font-bold text-muted-foreground text-xs uppercase tracking-widest">
-        <Icon className="h-3.5 w-3.5" />
-        {title}
-      </div>
-      <p className="font-medium text-foreground/80 text-sm leading-relaxed">
-        {children}
-      </p>
-    </section>
   );
 }
 
