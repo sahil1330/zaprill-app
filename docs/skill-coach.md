@@ -7,7 +7,7 @@ Depends on: Dashboard career profile (`docs/career-profile.md`, not in tree yet)
 
 **Do not start phase 1 code until `docs/career-profile.md` is merged.** Phase 1 (saved plans, no model calls, interim keys) is approved. The first implementation task is to check assumptions A–F against that file. Where the contract disagrees with an assumption, the contract wins and this doc is updated before any migration.
 
-Skill Coach is the retention and paid loop for Zaprill's career-intelligence pivot. For each skill gap between a user's career profile and their target roles, it gives a learning plan, an AI tutor, practice tasks, progress, and later a mock interview. The free tier keeps the plan. Interactive coaching and mock interviews are paid.
+Skill Coach is the retention and paid loop for Zaprill's career-intelligence pivot. For each technical skill gap between a user's career profile and a technical target role, it gives a learning plan, an AI tutor, graded practice, progress, and a mock interview. The free tier keeps the full plan and a small taste of the tutor, one graded test a week, and one mock a month. Every paid plan includes the same coaching, with higher limits. Mock interviews are part of the subscription, not a separate purchase.
 
 This document does not define a profile schema and does not change `user`, `user_profile`, `resume`, or `resume_analysis`. Skills are referenced by the profile contract.
 
@@ -37,7 +37,7 @@ Known constraint, not fixed here: `GET /api/r` increments `learning_resources.cl
 
 ## 2. Product shape
 
-One **program** per user and target role. One **plan** per skill gap inside that program. A plan has an outline (why, time, modules, resources), a tutor, practice tasks, and progress. Mock interviews are a later session type, noted in phase 4, not designed here.
+One **program** per user and technical target role. One **plan** per technical skill gap inside that program. A plan has an outline (why, time, modules, resources), a tutor, graded practice, and progress. A passing graded test reports a verified skill through the career profile contract (section 4.9). Mock interviews are included in the subscription at the monthly limit in `COACH_LIMITS`. The mock session itself ships later; the packaging is decided.
 
 ```mermaid
 flowchart LR
@@ -60,8 +60,8 @@ Persona changes tone and which cached outline is copied. It is read from the pro
 | Gap source | The Dashboard / match engine list for their target role. | The same list. Foundational skills they already have are the engine's job to omit. |
 | Time | 45–90 minute sittings around college. | Short sittings around a job. Tutor examples use transfer from current work. |
 | Success | Can explain the skill and finish a small task a fresher interviewer would ask. | Can show the skill on a problem shaped like the new role. |
-| Free hook | The full outline and curated free resources for one active program. | Same. The roadmap on Analyze becomes a plan they can come back to. |
-| Paid moment | Tutor cap, graded practice, and later mocks. | Higher caps in the same config. |
+| Free hook | Full outlines and resources, 1 program, 10 tutor messages a day, 1 graded test a week, 1 mock a month. | Same limits. The roadmap on Analyze becomes a plan they can come back to. |
+| Paid | Any paid plan raises those limits. Pro and Max both include the tutor, graded practice, and mocks. | Higher tier, higher caps in `COACH_LIMITS`. The ceiling is ₹200 or ₹600. |
 
 Both journeys start from an authenticated user who already has a gap list. Today that list is `resume_analysis.skill_gaps` written by analyze-gaps. After the profile contract lands, Coach reads the gap view that contract names. Coach does not compute a second list.
 
@@ -71,12 +71,13 @@ Both journeys start from an authenticated user who already has a gap list. Today
 2. She opens Skill Coach. She sees one program for that role, the engine's `advice`, and a plan per gap (for example React, SQL, DSA), in the engine's priority order.
 3. The React plan shows why, an estimated time, and a short module list. Phase 1 copies that from the engine's roadmap item. Phase 2 may replace it from the shared outline cache for `(react, student)`.
 4. She marks a module started. That is progress on the plan, not a claim on her profile.
-5. She asks the tutor one question. The daily turn cap and the monthly INR ceiling both apply. The tutor stays on this plan.
-6. She can read a practice task. Grading counts against the graded-practice limit in `COACH_LIMITS`.
-7. If her profile gaps change, plans reconcile for her the same way they do for a paying user (section 4.8).
-8. Progress shows not started, in progress, practiced, or demonstrated for that plan only.
+5. She asks the tutor in Hindi or Hinglish. The reply matches that language and keeps terms like "React" and "state" in English. Ten messages a day on the free tier, and the ₹40 monthly ceiling, both apply.
+6. She takes one graded practice test in the week. A pass marks the plan demonstrated and sends a verified-skill signal through the profile contract. The signal is what a recruiter can see later. The chat transcript is not.
+7. She can start one mock interview in the month. That session counts against `mockInterviewsPerMonth` and the same ₹40 ceiling. It does not verify a skill.
+8. If her profile gaps change, plans reconcile for her the same way they do for a paying user (section 4.8).
+9. Progress shows not started, in progress, practiced, or demonstrated for that plan only.
 
-Empty states: no gap list yet → send her to onboarding / Analyze. Zero gaps → a short "you match these roles" state and no tutor.
+Empty states: no gap list yet → send her to onboarding / Analyze. Zero technical gaps → a short "you match these roles" state and no tutor. A non-tech target role, or a gap list that is only soft skills → v1 does not open a program (section 3, decision F).
 
 ### 2.2 Professional journey
 
@@ -84,16 +85,16 @@ Empty states: no gap list yet → send her to onboarding / Analyze. Zero gaps �
 2. His program is tied to the target title he picked (profile review currently caps selected titles at 3; **Assumption B**).
 3. Persona is whatever the profile says he is on this request. Tutor examples stay in the professional voice while that read is `professional`.
 4. `user_profile.current_salary` is not an input. Coach does not add a salary column.
-5. He can hold more programs only when `COACH_LIMITS` for his tier says so.
-6. A profile or gap-list change reconciles his plans. Progress for a `skill_key` that is still present is kept. This is not a Max-only refresh.
-7. Mock interviews are phase 4 and are not part of this journey yet.
+5. On any paid plan he gets the tutor, graded practice, and mocks. A higher tier raises the caps. It does not unlock a different product.
+6. A profile or gap-list change reconciles his plans. Progress for a `skill_key` that is still present is kept. This is every tier, not Max-only.
+7. His mock interviews are included in the subscription, up to `mockInterviewsPerMonth` for his tier. They are not a one-off INR purchase.
 
 ### 2.3 Shared rules
 
 - Authenticated routes only (`auth.api.getSession`). Every row is scoped by `user_id`.
 - API routes under `src/app/api/coach/...`. No Server Actions. Client components fetch those routes. Business logic in `src/services/coach/`.
-- The tutor never writes the career profile, resume, subscription, or `learning_resources`.
-- English UI. Tutor language is an open question (section 9).
+- Tutor tools do not write the career profile, resume, subscription, or `learning_resources`. A passed graded test is the one write, and it goes through the profile contract (section 4.9). Coach does not insert into profile tables.
+- UI chrome stays English. The tutor replies in the language of the latest user message (section 5.7).
 - No emoji in UI copy.
 - Saved plans stay readable when the kill switch is off and when a cap is hit. The paywall is the next model call, not the outline.
 
@@ -125,11 +126,11 @@ If the merged contract already defines `skillKey`, phase 1 uses that and does no
 
 **Assumption C — one gap source.** A gap is a skill key the Dashboard / match engine says is missing for a target role. Coach consumes that list. Coach does not call `aggregateSkillGaps`, does not re-parse resumes, and does not keep a second gap algorithm. Interim read, only if the contract has no gap view yet: the latest `resume_analysis.skill_gaps` and `roadmap` that the engine already stored.
 
-**Assumption D — proficiency.** The profile may later have a level. Coach progress (`not_started | in_progress | practiced | demonstrated`) stays inside Coach. It is not written back unless the head and the profile owner agree (question 2).
+**Assumption D — local progress vs verified skill.** Coach progress (`not_started | in_progress | practiced | demonstrated`) is local. A passed graded practice test also emits a verified-skill signal through the career profile contract (section 4.9). That signal is the recruiter-visible fact. Coach does not own the column. Confirm the method name when `docs/career-profile.md` is checked.
 
 **Assumption E — persona.** The profile says whether the user is a student/fresher or a working professional, or it exposes enough experience that a reader can derive it. Derivation if the contract has no flag: zero full-time roles → `student`, otherwise `professional`. Coach reads this on each request through one adapter. It is not stored on `coach_program`, `coach_plan`, or `coach_progress`. The outline cache key uses the value from that read.
 
-**Assumption F — no soft-skill syllabus in v1.** Same exclusion as analyze-gaps. If the profile adds soft skills, Coach ignores them until we explicitly allow the category.
+**Decision F — v1 is technical only.** Soft skills and non-tech roles are out of v1. Coach keeps gaps whose category is `language`, `framework`, `database`, `cloud`, or `tool`. It drops `soft` and `other`. A target role with no remaining technical gaps does not get a program. The empty state says v1 covers technical skills for technical roles. This matches the analyze-gaps exclusion of Communication, Agile, Scrum, and Teamwork, and it does not grow a non-tech syllabus later in v1.
 
 ### 3.1 Interim keys
 
@@ -228,9 +229,9 @@ One row per plan. `skill_key` is not copied here. Callers that need the skill jo
 | `tasks_attempted` | integer default 0 | |
 | `tasks_passed` | integer default 0 | |
 | `last_session_at` | timestamp nullable | |
-| `mastery_score` | integer nullable | 0–100. Null until a graded attempt exists. Not a profile field. |
+| `mastery_score` | integer nullable | 0–100. Null until a graded attempt exists. Local only. |
 
-`demonstrated` means the latest graded attempt passed a threshold (proposed 70). It does not update the career profile.
+`demonstrated` means the latest graded practice attempt scored at least 70. That pass is what triggers the profile signal in section 4.9. A mock interview does not set `demonstrated`.
 
 ### 4.4 `coach_outline_cache`
 
@@ -248,7 +249,7 @@ Primary key `(skill_key, persona)`.
 
 A hit copies `outline` onto that user's plan and logs `coach_plan` with `cacheHit: true` and zero tokens. A miss is one `generateText`, Zod-parsed, then inserted. The cached why is persona-level, not a biography. Personalized role guidance stays on `coach_program.advice`.
 
-Do not key the cache by user, role, or salary. Two students missing React share one outline.
+Do not key the cache by user, role, salary, or language. Two students missing React share one English outline. The tutor speaks the user's language in the session. It does not store a translated copy of the outline.
 
 ### 4.5 `coach_session`, tasks, attempts
 
@@ -273,11 +274,12 @@ Quota and spend source of truth. `ai_usage_log` is the audit trail. Do not gate 
 | `period_start` | date | UTC day, ISO week start, or UTC month start. |
 | `tutor_turns` | integer default 0 | Day rows. |
 | `practice_grades` | integer default 0 | Week rows. |
+| `mock_sessions` | integer default 0 | Month rows. Same row as spend. |
 | `spend_paise` | integer default 0 | Month rows. Reserved, then reconciled to actual. |
 
 Primary key `(user_id, period_kind, period_start)`.
 
-Turn allow: `UPDATE ... SET tutor_turns = tutor_turns + 1 WHERE tutor_turns < $cap RETURNING`. Zero rows means the cap was hit. Same pattern for grades. Spend reservation is in section 5.4.
+Turn allow: `UPDATE ... SET tutor_turns = tutor_turns + 1 WHERE tutor_turns < $cap RETURNING`. Zero rows means the cap was hit. Same pattern for weekly grades and monthly mock sessions. Spend reservation is in section 5.5.
 
 ### 4.7 What we will not store
 
@@ -286,19 +288,51 @@ Turn allow: `UPDATE ... SET tutor_turns = tutor_turns + 1 WHERE tutor_turns < $c
 - A skills table, a role table, or a copy of the profile.
 - Raw resume text on coach rows.
 - Subscription prices or `plan.features` as limits.
+- A verified-skill table. The profile contract stores that signal.
 
 ### 4.8 Gap refresh
 
 Runs for every tier whenever the gap source changes. Not a scheduled Max job.
 
-1. Read the new gap list from the Dashboard / match engine (assumption C).
-2. If `gap_fingerprint` is unchanged, stop.
+1. Read the new gap list from the Dashboard / match engine (assumption C). Drop `soft` and `other`. If nothing technical remains, archive the program instead of inventing a non-tech plan.
+2. If `gap_fingerprint` is unchanged, stop. The fingerprint is the technical keys only.
 3. `skill_key` still present → keep the plan and its progress row. Update priority and `gap_evidence`.
 4. `skill_key` gone → set the plan `archived`. Leave the progress row attached.
 5. New `skill_key` → insert a plan. Phase 1 copies the engine roadmap item or writes a shell. Phase 2 copies `coach_outline_cache` for `(skill_key, persona)` when a row exists, otherwise the shell. Refresh itself does not call the model.
 6. Store the new fingerprint.
 
-Phase 1 includes this path. It makes no AI calls.
+Phase 1 includes this path. It makes no AI calls. Archiving a plan does not delete a verified-skill signal already accepted by the profile.
+
+### 4.9 Verified skill signal
+
+Founder decision: a passed coach test becomes a verified-skill signal written back through the career profile contract. Dashboard owns the table and any later recruiter UI. Coach owns the attempt and the local `demonstrated` flag.
+
+A pass is a graded practice attempt with `score >= 70`. Tutor chat and mock interviews do not qualify. A mock is practice for a role, not proof of one skill.
+
+After the attempt row is stored, Coach calls the profile contract. Proposed method, to confirm when `docs/career-profile.md` is reviewed with the Dashboard owner:
+
+```ts
+// Implemented by Dashboard. Coach does not create the table.
+type RecordVerifiedSkillInput = {
+  userId: string;
+  skillKey: string;
+  displayName: string;
+  source: "coach_practice";
+  attemptId: string;
+  score: number; // 0–100
+  passedAt: string; // ISO
+  recruiterLabel: "Verified on Zaprill";
+};
+```
+
+Recruiter-visible later means this payload is enough for a badge on the profile: which skill, when, the score, and a stable English label. It has no transcript, rubric text, salary, or chat. `skillKey` is the same id the profile already uses, so the badge joins the skill instead of a free-text tag.
+
+Call rules:
+
+- Idempotent on `attemptId`.
+- Coach sends every pass. Dashboard keeps the higher score for that `skillKey` if it wants a single badge. That rule lives on their side.
+- The call is synchronous after the grade is saved. If it fails, `demonstrated` stays set and Coach retries the same payload. Coach does not keep a second verified-skill table as a fallback source of truth.
+- If the contract has no method when grading ships, grading and `demonstrated` still ship. The write waits on Dashboard. Do not add a column to `user_profile` from this feature.
 
 ## 5. AI tutor
 
@@ -332,7 +366,7 @@ Streaming follows the architect route: `createAgentUIStreamResponse`, `smoothStr
 | `getProgress` | The progress row for this plan. |
 | `setModuleStatus` | `not_started` → `in_progress` only. Cannot set `demonstrated`. |
 
-The tutor must not invent employers, dates, degrees, or metrics. Resource URLs come from the stored outline or the catalog. If neither has a link, name the resource and stop. Do not emit a new URL.
+The tutor must not invent employers, dates, degrees, or metrics. Resource URLs come from the stored outline or the catalog. If neither has a link, name the resource and stop. Do not emit a new URL. `setModuleStatus` cannot set `demonstrated`. Only a passing grade does that, and only the profile contract records the verified skill.
 
 ### 5.3 Calls that spend money
 
@@ -381,7 +415,9 @@ Summary call: 4,000 input + 500 output = **$0.002**.
 
 A 20-turn session with a summary at turns 16 and 20 is `20 * 0.00515 + 2 * 0.002` = **$0.107**. At the planning rate of ₹95 / USD that is about **₹10.2**. The earlier $0.0018 figure counted one short completion and ignored steps, reasoning, and summaries.
 
-Hot turn at the step cap, each step 4,000 input and 1,200 output: `6 * (0.001 + 0.0024)` = **$0.0204**, about **₹1.94**. Eight of those in a day are about **₹15.5**. The ceiling exists for this case.
+Hot turn at the step cap, each step 4,000 input and 1,200 output: `6 * (0.001 + 0.0024)` = **$0.0204**, about **₹1.94**.
+
+The approved free ceiling is ₹40, and the free tutor cap is 10 messages a day. An expected turn is about ₹0.49 (`0.00515 * 95`), so 10 messages are about **₹4.9** and the ceiling covers about eight such days. Ten hot turns are about **₹19.4**, so the ceiling covers about two of those days. One monthly mock taster also draws from the same ₹40. Devanagari and other Indian scripts often use more tokens per sentence than the English example, so the ceiling binds sooner on those sessions. The ceiling is the money backstop. It is not raised to fit every free message.
 
 `logAiUsage` today cannot see reasoning. Phase 2 adds `reasoning_tokens` (integer, default 0) on `ai_usage_log` and passes it into the cost helper. `metadata` also carries `{ programId, planId, sessionId, skillKey, turnIndex, stepIndex, kind, tier }`. `tier` is `free | pro | max`.
 
@@ -390,13 +426,13 @@ Hot turn at the step cap, each step 4,000 input and 1,200 output: `6 * (0.001 + 
 Order on every model call:
 
 1. **Kill switch.** `app_settings` key `coach_enabled`, same helper style as `referral_enabled`. Missing or any value other than `true` blocks the call with 503 `{ error: "COACH_DISABLED" }`. Saved-plan reads ignore the switch. Phase 2 sets the key to `true` at launch. Ops sets `false` to stop every coach model call without a deploy.
-2. **Turn or grade cap** from `COACH_LIMITS`, atomic increment.
+2. **Turn, grade, or mock cap** from `COACH_LIMITS`, atomic increment.
 3. **Spend reservation.** Add `turnReservePaise` (or the smaller grade/outline reserve) to the UTC-month `spend_paise` only if `spend_paise + reserve <= monthlySpendCeilingPaise`. Otherwise 403 `{ error: "COACH_LIMIT", capability: "spend" }` and refund the quota increment from step 2.
 4. Model call.
 5. **Reconcile.** Replace the reservation with actual paise (`round(usd * usdInr * 100)`). If actual is higher than the reserve, add the difference even when that passes the ceiling, and block later calls. Tokens are already bought.
 6. Log the row, including failures.
 
-`usdInr` is a config constant (proposed 95), not a live FX feed. The ceiling is in INR because that is what we can compare to a month of product use. It is not derived from `plan.amount`.
+`usdInr` is a config constant (95), not a live FX feed. The ceilings ₹40 / ₹200 / ₹600 per month are approved starting values. They are not derived from `plan.amount`.
 
 **Refund quota when the model output fails to parse** (Zod / schema / empty JSON), and when the call throws before usage exists:
 
@@ -413,10 +449,33 @@ Order on every model call:
 | `coach_plan` | Outline cache miss, and cache-hit rows with zero tokens. |
 | `coach_tutor` | Each tutor step, and each summary call. |
 | `coach_practice` | Task generation and each grade. |
+| `coach_mock` | Added when mock sessions ship. The monthly cap is already in `COACH_LIMITS`. |
 
-`coach_mock` is not added until phase 4.
+Mock sessions use the same kill switch, ceiling, per-step logging, and parse-failure refund. They do not set `demonstrated` and they do not call `recordVerifiedSkill`.
 
 `ALTER TYPE ai_action ADD VALUE` ships in its own migration. Code writes the new values only after that migration is applied. Quota and `spend_paise` updates are awaited. `logAiUsage` stays fire-and-forget.
+
+### 5.7 Language
+
+The tutor replies in the language of the latest user message. That includes English, Hinglish, Hindi, and other Indian languages. UI chrome, buttons, and the shared outline stay English.
+
+Prompt rules:
+
+- Match the user's mix. A Hinglish question gets a Hinglish answer, not formal Hindi and not a switch to English.
+- Keep technical terms in English where that is how the industry says them: library and product names, APIs, SQL keywords, error strings, and skill display names such as React, Kafka, or Docker.
+- Code stays code. Do not translate identifiers.
+- If the user changes language, follow the new message. Do not keep answering in the previous one.
+- The rolling summary is in the language of the span it compresses. The next reply still follows the latest user message.
+
+Grading uses the same rules. The rubric scores the skill, not English fluency. Feedback is in the language of the answer. A correct explanation in Hindi passes at the same 70 threshold as the same explanation in English.
+
+Eval implications for phase 2:
+
+- Fixtures for one task in English, Hindi, Hinglish, and one more Indian language (Tamil unless the profile tells us otherwise). Equivalent content should score within 10 points.
+- A check that technical names are not translated ("React" stays "React").
+- A check that the model does not refuse, apologize for the language, or flip to English when the user wrote Hindi or Hinglish.
+- Outline cache stays one English row per `(skill_key, persona)`. Language is not a cache key. Adding one would multiply generation cost and split the shared plan.
+- Token ceilings are unchanged. Indian scripts can cost more tokens per sentence, so the INR ceiling binds earlier. That is accepted.
 
 ## 6. Limits
 
@@ -430,37 +489,49 @@ export const COACH_LIMITS = {
   turnReservePaise: 250,
   gradeReservePaise: 50,
   outlineReservePaise: 50,
+  // One mock session, reserved up front. Reconciled to actual steps.
+  mockReservePaise: 800,
+  passScore: 70,
   tiers: {
+    // Founder: freemium taste on every interactive surface.
     free: {
       activePrograms: 1,
-      tutorTurnsPerDay: 8,
-      gradedPracticePerWeek: 0,
+      tutorTurnsPerDay: 10,
+      gradedPracticePerWeek: 1,
+      mockInterviewsPerMonth: 1,
       monthlySpendCeilingInr: 40,
     },
+    // Every paid plan includes tutor, graded practice, and mocks.
+    // Interactive caps are 4× free. Ceiling is the approved ₹200.
     pro: {
       activePrograms: 3,
       tutorTurnsPerDay: 40,
-      gradedPracticePerWeek: 1,
+      gradedPracticePerWeek: 4,
+      mockInterviewsPerMonth: 4,
       monthlySpendCeilingInr: 200,
     },
+    // 8× free on messages, grades, and mocks. Ceiling is the approved ₹600.
     max: {
       activePrograms: 5,
       tutorTurnsPerDay: 80,
-      gradedPracticePerWeek: 4,
+      gradedPracticePerWeek: 8,
+      mockInterviewsPerMonth: 8,
       monthlySpendCeilingInr: 600,
     },
   },
 } as const;
 ```
 
-These numbers are proposals (question 1). At the expected 3-step turn, a free user who takes all 8 turns spends about ₹3.9 that day, so a ₹40 ceiling is roughly ten heavy days. A hot 6-step day is about ₹15.5, so the same ceiling is about two and a half days. That is the backstop the turn cap does not provide.
+Founder-approved: free shape above, coaching on every paid plan, mocks inside the subscription, and the three ceilings. Pro and Max interactive caps are the scale-up from that free shape (4× and 8×). Programs stay 1 / 3 / 5. Change them in this file, not in plan copy.
+
+Coaching means the AI tutor and graded practice. Both exist on `free`, `pro`, and `max`. Paid tiers get higher limits, not a separate product. There is no one-off mock purchase.
 
 Tier selection:
 
 - No granting subscription → `free`.
 - Granting subscription, `plan.category === "pro"` → `pro`.
 - `max` → `max`.
-- Unknown category with a granting subscription → `pro`, and log it.
+- Unknown category with a granting subscription → `pro`, and log it. That tier still includes the tutor, graded practice, and mocks.
 
 Plans inside a program: every current gap, on every tier. Gap refresh: every tier (section 4.8). Outline reads: every tier. Job apply-link hiding on Analyze stays as it is and is not a coach limit.
 
@@ -481,7 +552,7 @@ Approved with the changes in this revision. Implementation is blocked on the mer
 Allowed to start only after that contract check.
 
 - Tables: `coach_program`, `coach_plan`, `coach_progress`. No cache, no session, no agent, no `ai_action` values.
-- Build plans from the engine gap list. `skill_key` is the contract key, or the section 3.1 fallback when the contract has none.
+- Build plans from the engine gap list, technical categories only (decision F). `skill_key` is the contract key, or the section 3.1 fallback when the contract has none.
 - Outline from the engine roadmap item, or a shell. Zero `generateText`.
 - Gap refresh (section 4.8) for every tier.
 - Persona is read from the profile adapter for display copy only. It is not stored.
@@ -495,17 +566,19 @@ Done when a user can reload and see the same plans, mark a module in progress, s
 - Tables: `coach_session`, `coach_task`, `coach_attempt`, `coach_period_usage`, `coach_outline_cache`.
 - Enum values `coach_plan`, `coach_tutor`, `coach_practice`. `reasoning_tokens` on `ai_usage_log`.
 - Agent, tools, per-step logging, summary calls, shared outline cache, kill switch, INR ceiling, quota refund on parse failure.
-- Limits only from `COACH_LIMITS`.
+- Limits only from `COACH_LIMITS`, including the free taste (10 messages, 1 grade, 1 mock) and coaching on every paid tier.
+- Language rules in section 5.7, including the four-language grade fixtures.
+- Verified-skill call (section 4.9) when Dashboard has published the method.
 
-Done when a free user cannot take a ninth tutor turn, a parse failure returns that turn to the quota and still records real token cost, a second user missing the same skill and persona does not call the model for the outline, `coach_enabled = false` blocks model routes and leaves plans readable, and a user over the monthly ceiling gets `COACH_LIMIT` / `spend`.
+Done when a free user cannot send an 11th tutor message in a day, a second graded test in the same week returns `COACH_LIMIT`, a pass sets `demonstrated` and calls the profile signal when that method exists, a parse failure returns the quota and still records real token cost, a second user missing the same skill and persona does not call the model for the outline, `coach_enabled = false` blocks model routes and leaves plans readable, and a user over the monthly ceiling gets `COACH_LIMIT` / `spend`. A Hindi or Hinglish answer that is right on the skill still passes.
 
 ### Later
 
-Phase 3, not specified here: prefer `learning_resources` over any URL the model once stored; set `mastery_score` and `demonstrated` only from passed attempts; parameterize the `/api/r` counter before Coach sends more traffic through it.
+Phase 3, not specified here: prefer `learning_resources` over any URL the model once stored; parameterize the `/api/r` counter before Coach sends more traffic through it.
 
-Phase 4, not specified here: mock interview as its own session kind and `coach_mock` action, with caps added to `COACH_LIMITS` at that time. The lesson tutor does not become the interviewer.
+Phase 4, not specified here beyond packaging: mock interview as its own session kind and `coach_mock` action. Limits are already in `COACH_LIMITS` (free 1/month, then 4 and 8). Included in the subscription on every tier. The lesson tutor does not become the interviewer, and a mock does not verify a skill.
 
-Out of scope: human expert review, a content CMS, replacing job search, and any write into the career profile.
+Out of scope: human expert review, a content CMS, replacing job search, soft skills, non-tech roles, and any direct write to profile tables.
 
 ## 8. Non-goals
 
@@ -517,25 +590,38 @@ Out of scope: human expert review, a content CMS, replacing job search, and any 
 - Deriving limits or the INR ceiling from current plan copy or prices.
 - Letting the model invent course URLs.
 - Hiding a free user's saved plan.
-- A new Cashfree plan or credit pack in phases 1 and 2.
+- A new Cashfree plan, a mock-interview add-on, or a credit pack.
+- Soft skills and non-tech roles in v1.
+- Owning the verified-skill column.
 
-## 9. Decisions from review
+## 9. Decisions
+
+From engineering review:
 
 - Phase 1 may use interim keys, and only after A–F are checked against the merged `docs/career-profile.md`.
 - Dashboard / match engine is the only gap source.
 - Persona is read from the profile. It is not stored.
 - `coach_progress` does not duplicate `skill_key`.
-- Outline cache key is `(skill_key, persona)`, shared across users.
+- Outline cache key is `(skill_key, persona)`, shared across users. English only.
 - Gap refresh on a profile or gap-list change runs for every tier.
 - All tier numbers live in `COACH_LIMITS`, separate from plan copy.
 - Quota increments refund when model output fails to parse. Actual provider spend does not.
-- Monthly per-user spend ceiling is in INR. `coach_enabled` is the global kill switch.
+- `coach_enabled` is the global kill switch.
+
+From the founder:
+
+- The tutor and graded practice are on every paid plan. Higher tiers get higher limits.
+- Mock interviews are inside the subscription, with `mockInterviewsPerMonth` per tier. Not a one-off purchase.
+- Free tier: full saved plans and resources, 1 active program, 10 tutor messages a day, 1 graded practice test a week, 1 mock interview a month. Paid tiers scale from there in `COACH_LIMITS`.
+- Spend ceilings ₹40 / ₹200 / ₹600 per month are the approved starting values.
+- The tutor is multilingual, as in section 5.7. UI chrome stays English.
+- A passed graded test (score ≥ 70) is a verified-skill signal written through the career profile contract. Dashboard owns the table. The payload is shaped so a recruiter can see it later.
+- Soft skills and non-tech roles are out of v1.
 
 ## 10. Open questions
 
-1. **Config numbers.** Are the tier caps, `monthlySpendCeilingInr` (40 / 200 / 600), `usdInr` 95, and the paise reserves in section 6 the ones to ship? They are proposals.
-2. **Write-back.** When a plan reaches `demonstrated`, does Dashboard want an event, or does proficiency stay entirely on their side?
-3. **Persona shape.** Will the contract have an explicit student vs professional flag? Assumption E is the derivation if it does not. Confirm at the A–F check.
-4. **Tutor language.** English only, or Hinglish replies when the user writes that way? UI chrome stays English either way.
-5. **Multiple targets.** Profile review allows 3 titles. Is one active program the free unit, or one program with three roles inside it?
-6. **Placement deadline.** Should a student program store a target date, or is that profile data we only display?
+1. **Persona shape.** Will the contract have an explicit student vs professional flag? Assumption E is the derivation if it does not. Confirm at the A–F check.
+2. **Verified-skill method.** Is `recordVerifiedSkill` in section 4.9 the signature Dashboard will implement, and does a higher later score replace the badge?
+3. **Multiple targets.** Profile review allows 3 titles. Is one active program the free unit, or one program with three roles inside it?
+4. **Placement deadline.** Should a student program store a target date, or is that profile data we only display?
+5. **Paid multiples.** Pro is 4× and Max is 8× the free message, grade, and mock caps, with programs at 1 / 3 / 5. Say if those multiples should change. The ceilings stay 40 / 200 / 600.
