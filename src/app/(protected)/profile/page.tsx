@@ -243,7 +243,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
+      <div className="flex items-center justify-center py-10">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
@@ -251,7 +251,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-5xl px-6 py-10">
+      <div className="mx-auto w-full max-w-5xl px-6 py-6">
         <PageHeader
           title="Profile"
           description="Manage your account and professional data."

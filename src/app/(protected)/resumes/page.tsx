@@ -150,7 +150,7 @@ export default function ResumesPage() {
     TEMPLATE_REGISTRY.find((t) => t.slug === slug)?.name ?? slug;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-6xl px-6 py-6">
       <PageHeader
         title="Resumes"
         description="Upload, edit, and export your professional resume."
@@ -158,7 +158,7 @@ export default function ResumesPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-10">
           <IconLoader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}

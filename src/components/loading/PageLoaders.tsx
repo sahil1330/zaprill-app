@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-12 px-6 py-12">
+    <div className="mx-auto w-full max-w-6xl space-y-8 px-6 py-6">
       {/* Header Skeleton */}
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="space-y-4">
@@ -71,7 +71,7 @@ export function DashboardSkeleton() {
 
 export function AnalyzeSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8 px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-6 py-5">
       {/* Header */}
       <div className="flex flex-col items-start gap-8 border-border border-b pb-10 md:flex-row">
         <Skeleton className="h-32 w-32 shrink-0 rounded-3xl" />

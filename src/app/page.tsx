@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Shield, Target, Zap } from "lucide-react";
+import { ArrowRight, Loader2, Shield, Target, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -88,12 +88,14 @@ export default function HomePage() {
   // 1. Initial Auth Loading - Show Skeleton
   if (sessionLoading) {
     return (
-      <main className="relative flex min-h-screen flex-col overflow-hidden bg-background">
-        <div className="pointer-events-none absolute inset-0 z-0 opacity-50 dark:opacity-20">
+      <main className="relative flex h-dvh flex-col overflow-hidden bg-background">
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-50 dark:opacity-20">
           <GridPattern />
         </div>
         <Navbar sticky={true} user={undefined} sessionLoading={true} />
-        <DashboardSkeleton />
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
       </main>
     );
   }
@@ -122,8 +124,8 @@ export default function HomePage() {
   if (session) {
     return (
       <AppShell user={shellUser!}>
-        <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center px-6 py-16 text-center md:py-24">
-          <div className="fade-in slide-in-from-bottom-4 mb-8 animate-in duration-700">
+        <section className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center px-6 py-8 text-center">
+          <div className="fade-in slide-in-from-bottom-4 mb-4 animate-in duration-700">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 font-bold text-primary text-xs uppercase tracking-[0.2em]">
               <Zap className="h-3 w-3 fill-current" />
               AI-Powered Career Intelligence
@@ -132,10 +134,10 @@ export default function HomePage() {
 
           <WordFadeIn
             words="Find the job you actually deserve."
-            className="mb-8 max-w-5xl font-black font-heading text-5xl text-foreground leading-[0.9] tracking-tighter md:text-7xl"
+            className="mb-4 max-w-4xl font-black font-heading text-4xl text-foreground leading-[0.95] tracking-tighter md:text-6xl md:leading-[0.95]"
           />
 
-          <p className="fade-in slide-in-from-bottom-6 mb-12 max-w-2xl animate-in font-medium text-lg text-muted-foreground leading-relaxed delay-200 duration-1000 md:text-xl">
+          <p className="fade-in slide-in-from-bottom-6 mb-6 max-w-xl animate-in font-medium text-base text-muted-foreground leading-relaxed delay-200 duration-1000 md:text-lg">
             Complete onboarding to unlock personalized job matches and resume
             analysis.
           </p>
@@ -143,7 +145,7 @@ export default function HomePage() {
           <Link href="/onboarding" className="w-full sm:w-auto">
             <Button
               size="lg"
-              className="group relative h-16 w-full overflow-hidden rounded-2xl px-10 font-black text-lg shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] sm:h-20 sm:px-12 sm:text-xl"
+              className="group relative h-12 w-full overflow-hidden rounded-2xl px-8 font-black text-base shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] sm:h-14 sm:px-10"
             >
               <div className="absolute inset-0 bg-(--gradient-primary) opacity-90 transition-opacity group-hover:opacity-100" />
               <span className="relative flex items-center gap-3">
@@ -157,19 +159,20 @@ export default function HomePage() {
     );
   }
 
-  // 5. Guest View
+  // 5. Guest View — one screen. The navbar stays in document flow so the
+  // hero and footer share the viewport instead of scrolling past large pads.
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-background">
+    <main className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-background">
       {/* Background Grid Pattern */}
-      <div className="mask-[linear-gradient(to_bottom,white,transparent)] pointer-events-none absolute inset-0 z-0 opacity-50 dark:opacity-20">
+      <div className="mask-[linear-gradient(to_bottom,white,transparent)] pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-50 dark:opacity-20">
         <GridPattern />
       </div>
 
-      <Navbar sticky={false} user={null} sessionLoading={false} />
+      <Navbar sticky={true} user={null} sessionLoading={false} />
 
       {/* Hero Section */}
-      <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center px-6 pt-40 pb-32 text-center">
-        <div className="fade-in slide-in-from-bottom-4 mb-8 animate-in duration-700">
+      <section className="relative z-10 mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-4 text-center">
+        <div className="fade-in slide-in-from-bottom-4 mb-4 animate-in duration-700">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 font-bold text-primary text-xs uppercase tracking-[0.2em]">
             <Zap className="h-3 w-3 fill-current" />
             AI-Powered Career Intelligence
@@ -178,31 +181,31 @@ export default function HomePage() {
 
         <WordFadeIn
           words="Find the job you actually deserve."
-          className="mb-8 max-w-5xl font-black font-heading text-6xl text-foreground leading-[0.9] tracking-tighter md:text-8xl"
+          className="mb-4 max-w-4xl font-black font-heading text-4xl text-foreground leading-[0.95] tracking-tighter sm:text-5xl md:text-6xl md:leading-[0.95]"
         />
 
-        <p className="fade-in slide-in-from-bottom-6 mb-12 max-w-2xl animate-in font-medium text-muted-foreground text-xl leading-relaxed delay-200 duration-1000 md:text-2xl">
+        <p className="fade-in slide-in-from-bottom-6 mb-6 max-w-xl animate-in font-medium text-base text-muted-foreground leading-relaxed delay-200 duration-1000 md:text-lg">
           We decode your professional DNA to match you with roles where you'll
           actually thrive. No more keyword guessing, just pure data-driven
           career growth.
         </p>
 
         {/* Primary Action Area */}
-        <div className="fade-in slide-in-from-bottom-8 flex w-full max-w-2xl animate-in flex-col items-center delay-500 duration-1000">
-          <div className="flex w-full flex-col items-center gap-8">
+        <div className="fade-in slide-in-from-bottom-8 flex w-full max-w-xl animate-in flex-col items-center delay-500 duration-1000">
+          <div className="flex w-full flex-col items-center gap-4">
             <Link href="/sign-in" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="group relative h-20 w-full overflow-hidden rounded-2xl px-12 font-black text-xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="group relative h-12 w-full overflow-hidden rounded-2xl px-8 font-black text-base shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] sm:h-14 sm:px-10"
               >
                 <div className="absolute inset-0 bg-(--gradient-primary) opacity-100 transition-opacity group-hover:opacity-90" />
                 <span className="relative flex items-center gap-3">
                   Get Started Now
-                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </span>
               </Button>
             </Link>
-            <div className="flex items-center gap-8 font-bold text-muted-foreground text-xs uppercase tracking-widest opacity-60">
+            <div className="flex items-center gap-6 font-bold text-muted-foreground text-xs uppercase tracking-widest opacity-60">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 100% Private
@@ -216,8 +219,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="relative z-10 border-border border-t bg-background py-12">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
+      <footer className="relative z-10 shrink-0 border-border border-t bg-background py-3">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 sm:flex-row">
           <div className="font-medium text-muted-foreground text-sm">
             Made by <span className="text-primary italic">Team Zaprill</span>
           </div>
