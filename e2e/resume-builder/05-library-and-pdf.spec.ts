@@ -31,7 +31,9 @@ test.describe("resume library and pdf", () => {
     ).toBeVisible();
 
     const alphaCard = page.locator(`[data-resume-id="${alpha.id}"]`);
-    await alphaCard.getByRole("button", { name: `Actions for ${alphaTitle}` }).click();
+    await alphaCard
+      .getByRole("button", { name: `Actions for ${alphaTitle}` })
+      .click();
     await page.getByRole("menuitem", { name: "Duplicate" }).click();
     await expect(
       page.getByRole("heading", { name: `Copy of ${alphaTitle}`, exact: true }),
@@ -39,7 +41,9 @@ test.describe("resume library and pdf", () => {
 
     page.once("dialog", (dialog) => dialog.accept());
     const betaCard = page.locator(`[data-resume-id="${beta.id}"]`);
-    await betaCard.getByRole("button", { name: `Actions for ${betaTitle}` }).click();
+    await betaCard
+      .getByRole("button", { name: `Actions for ${betaTitle}` })
+      .click();
     await page.getByRole("menuitem", { name: "Delete" }).click();
     await expect(
       page.getByRole("heading", { name: betaTitle, exact: true }),
@@ -49,9 +53,9 @@ test.describe("resume library and pdf", () => {
     ).toBeVisible();
 
     const listed = await request.get("/api/resumes");
-    const titles = ((await listed.json()).resumes as Array<{ title: string }>).map(
-      (item) => item.title,
-    );
+    const titles = (
+      (await listed.json()).resumes as Array<{ title: string }>
+    ).map((item) => item.title);
     expect(titles).toContain(alphaTitle);
     expect(titles).toContain(`Copy of ${alphaTitle}`);
     expect(titles).not.toContain(betaTitle);
@@ -81,6 +85,8 @@ test.describe("resume library and pdf", () => {
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
 
     const afterDownload = await request.get(`/api/resumes/${alpha.id}`);
-    expect((await afterDownload.json()).resume.downloadCount).toBeGreaterThan(0);
+    expect((await afterDownload.json()).resume.downloadCount).toBeGreaterThan(
+      0,
+    );
   });
 });

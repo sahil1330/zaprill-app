@@ -30,7 +30,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/billing-utils";
-import type { Invoice } from "@/types/billing";
+
+type Invoice = {
+  id: string;
+  amountDue: string;
+  amountPaid: string | null;
+  currency: string;
+  status: string;
+  billingReason: string;
+  dueDate: Date | null;
+  paidAt: Date | null;
+  discountAmount: string | null;
+  taxAmount: string | null;
+  gstPercentage: string | null;
+  totalAmount: string;
+  metadata: unknown;
+  createdAt: Date;
+};
 
 // ─────────────────────────────────────────────────
 // Helpers
@@ -85,8 +101,8 @@ function InvoiceModal({
 
   const inv = invoice;
   const subtotal = parseFloat(inv.amountDue);
-  const discount = parseFloat(inv.discountAmount);
-  const tax = parseFloat(inv.taxAmount);
+  const discount = parseFloat(inv.discountAmount ?? "");
+  const tax = parseFloat(inv.taxAmount ?? "");
   const total = parseFloat(inv.totalAmount);
   const gstPct = inv.gstPercentage ? parseFloat(inv.gstPercentage) : 0;
   const hasDiscount = discount > 0;

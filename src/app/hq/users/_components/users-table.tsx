@@ -191,8 +191,8 @@ function TableSkeleton() {
   return (
     <div className="space-y-3">
       <Skeleton className="h-10 w-full" />
-      {Array.from({ length: 8 }).map((_, i) => (
-        <Skeleton key={i} className="h-14 w-full" />
+      {["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"].map((slot) => (
+        <Skeleton key={slot} className="h-14 w-full" />
       ))}
     </div>
   );

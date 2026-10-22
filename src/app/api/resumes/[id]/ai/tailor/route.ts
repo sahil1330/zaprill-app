@@ -8,7 +8,10 @@ import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { normalizeResumeData } from "@/lib/resume";
-import { clampTailoredPayload } from "@/lib/resume/sanitize";
+import {
+  clampTailoredPayload,
+  type TailoredPayloadInput,
+} from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
 
 export const maxDuration = 60;
@@ -145,9 +148,9 @@ Return ONLY valid JSON in this exact shape:
 
     // Parse result
     const jsonStr = extractJSON(text) ?? text;
-    let tailoredData;
+    let tailoredData: TailoredPayloadInput;
     try {
-      tailoredData = JSON.parse(jsonStr);
+      tailoredData = JSON.parse(jsonStr) as TailoredPayloadInput;
     } catch {
       return NextResponse.json(
         { error: "Failed to parse AI response" },

@@ -146,12 +146,14 @@ interface LocationComboboxProps {
   value: string;
   onChange: (city: string) => void;
   disabled?: boolean;
+  id?: string;
 }
 
 export function LocationCombobox({
   value,
   onChange,
   disabled,
+  id,
 }: LocationComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -164,6 +166,7 @@ export function LocationCombobox({
       <PopoverTrigger
         render={
           <Button
+            id={id}
             variant="outline"
             role="combobox"
             aria-expanded={open}

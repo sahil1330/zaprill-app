@@ -1,7 +1,7 @@
-// biome-ignore-all lint/security/noDangerouslySetInnerHtml: template rendering rich-text HTML
 "use client";
 
 import { IconBrandGithub } from "@tabler/icons-react";
+import { HtmlContent } from "@/components/html-content";
 import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
@@ -128,12 +128,7 @@ export default function TechStackTemplate({
           {sectionVisibility?.summary && basics?.summary && (
             <section className="resume-section">
               <h2 className="resume-section-title">Summary</h2>
-              <div
-                className="resume-text"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeResumeHtml(basics.summary),
-                }}
-              />
+              html={sanitizeResumeHtml(basics.summary)}
             </section>
           )}
 
@@ -168,11 +163,9 @@ export default function TechStackTemplate({
                     </span>
                   </div>
                   {item.summary && (
-                    <div
+                    <HtmlContent
                       className="resume-text mb-2"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeResumeHtml(item.summary),
-                      }}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
@@ -315,11 +308,9 @@ export default function TechStackTemplate({
                     )}
                   </div>
                   {item.description && (
-                    <div
+                    <HtmlContent
                       className="resume-text mb-2"
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeResumeHtml(item.description),
-                      }}
+                      html={sanitizeResumeHtml(item.description)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (

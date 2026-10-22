@@ -29,9 +29,9 @@ type AuditLog = {
 function AuditSkeleton() {
   return (
     <div className="space-y-8">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {["s1", "s2", "s3", "s4", "s5", "s6"].map((slot) => (
         <div
-          key={i}
+          key={slot}
           className="flex items-start gap-4 border-b pb-8 last:border-0 last:pb-0"
         >
           <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
