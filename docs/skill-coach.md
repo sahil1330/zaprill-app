@@ -5,7 +5,7 @@ Owner: Skill Coach.
 Reviewer: engineering head.
 Depends on: that career-profile branch merging. It is not on this branch.
 
-**Do not start phase 1 code until `cursor/career-profile-41f4` is merged.** The first Coach migration is `0018`. `0015` is the career profile, `0016` is the resume builder, and `0017` is the resume builder share-password drop. Do not take those numbers.
+**Do not start phase 1 code until `cursor/career-profile-41f4` is merged.** The first Coach migration is `0018`. `0015` is the resume builder (`resume_version` template columns), `0016` is the career profile, and `0017` is the resume share-password drop. Do not take those numbers.
 
 Skill Coach is the retention and paid loop for Zaprill's career-intelligence pivot. For each technical skill gap between a user's career profile and a technical target role, it gives a learning plan, an AI tutor, graded practice, progress, and a mock interview. The free tier keeps the full plan and a small taste of the tutor, one graded test a week, and one mock a month. Every paid plan includes the same coaching, with higher limits. Mock interviews are part of the subscription, not a separate purchase.
 
