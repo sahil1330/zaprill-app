@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "biome check",
     "typecheck": "tsc --noEmit",
+    "test:unit": "tsx --test src/lib/career/derive.test.ts",
     "format": "biome format --write",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

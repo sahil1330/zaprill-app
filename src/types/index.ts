@@ -77,3 +77,14 @@ export interface AnalysisState {
   roadmap?: RoadmapItem[];
   topMissingSkills?: string[];
 }
+
+export type {
+  CareerAcademicRecord,
+  CareerExperienceRecord,
+  CareerFieldSources,
+  CareerProfileView,
+  CareerSegment,
+  CareerSkillRecord,
+  CareerTargetRoleRecord,
+  SkillEvidence,
+} from "./career-profile";
