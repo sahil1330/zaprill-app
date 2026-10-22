@@ -33,6 +33,7 @@ AI calls use OpenAI `gpt-5-mini` via `@ai-sdk/openai`. Set `OPENAI_API_KEY` in `
 | `pnpm lint` | Biome |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm db:migrate` | Apply Drizzle migrations |
+| `pnpm db:backfill-log` | Dry-run a migration-log backfill (see `src/db/migrations/README.md`) |
 | `pnpm db:seed-plans` | Seed Free and Pro plans |
 | `pnpm db:studio` | Drizzle Studio |
 | `pnpm test:e2e` | Playwright (app must already be running) |
