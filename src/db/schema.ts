@@ -606,6 +606,11 @@ export const resumeVersion = pgTable(
     version: integer("version").notNull(),
     data: jsonb("data").notNull(),
     metadata: jsonb("metadata").notNull(),
+    // Identity captured with the snapshot. Null on rows written before these
+    // columns existed; restore then leaves the live template, title, and industry.
+    templateSlug: text("template_slug"),
+    title: text("title"),
+    industry: text("industry"),
     changeDescription: text("change_description"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

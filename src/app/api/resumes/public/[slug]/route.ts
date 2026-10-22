@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
@@ -28,7 +28,6 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         data: resume.data,
         metadata: resume.metadata,
         updatedAt: resume.updatedAt,
-        viewCount: resume.viewCount,
       })
       .from(resume)
       .where(and(eq(resume.slug, slug), eq(resume.isPublic, true)))
@@ -40,7 +39,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     await db
       .update(resume)
-      .set({ viewCount: (found.viewCount ?? 0) + 1 })
+      .set({ viewCount: sql`${resume.viewCount} + 1` })
       .where(eq(resume.id, found.id));
 
     return NextResponse.json({

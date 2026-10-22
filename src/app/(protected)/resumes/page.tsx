@@ -36,11 +36,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  DEFAULT_RESUME_DATA,
-  DEFAULT_RESUME_METADATA,
-  type ResumeListItem,
-} from "@/types/resume";
+import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import type { ResumeListItem } from "@/types/resume";
 import "@/components/resume/templates/resume-templates.css";
 
 const TEMPLATE_COMPONENTS: Record<string, any> = {
@@ -55,10 +52,8 @@ function ResumeThumbnail({ resume }: { resume: ResumeListItem }) {
   const TemplateComponent =
     TEMPLATE_COMPONENTS[resume.templateSlug] ?? MinimalistTemplate;
 
-  // Safety check: ensure data and metadata are present
-  // Even if they are null in the DB, we pass fallbacks to the template
-  const resumeData = resume.data || DEFAULT_RESUME_DATA;
-  const resumeMetadata = resume.metadata || DEFAULT_RESUME_METADATA;
+  const resumeData = normalizeResumeData(resume.data);
+  const resumeMetadata = normalizeResumeMetadata(resume.metadata);
 
   return (
     <div className="relative h-[452px] w-[320px] overflow-hidden rounded-md border border-border/10 bg-white shadow-2xl transition-all duration-500 group-hover:shadow-primary/20">

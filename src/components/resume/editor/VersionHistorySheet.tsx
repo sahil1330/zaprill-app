@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import ResumeDocument from "@/components/resume/templates/ResumeDocument";
+import { getTemplateMeta } from "@/components/resume/templates/registry";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -32,6 +33,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import type { ResumeFlushResult } from "@/lib/resume/save-with-retry";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
@@ -41,6 +43,9 @@ type VersionRow = {
   version: number;
   data: unknown;
   metadata: unknown;
+  templateSlug?: string | null;
+  title?: string | null;
+  industry?: string | null;
   changeDescription: string | null;
   createdAt: string;
 };
@@ -53,8 +58,10 @@ function versionLabel(row: VersionRow): string {
 
 export default function VersionHistorySheet({
   resumeId,
+  onFlushPendingSave,
 }: {
   resumeId: string;
+  onFlushPendingSave?: () => Promise<ResumeFlushResult>;
 }) {
   const dispatch = useDispatch<AppDispatch>();
   const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
@@ -88,6 +95,13 @@ export default function VersionHistorySheet({
   async function saveSnapshot() {
     setSavingSnapshot(true);
     try {
+      if (onFlushPendingSave) {
+        const flushed = await onFlushPendingSave();
+        if (!flushed.ok) {
+          toast.error("Save the resume before taking a snapshot.");
+          return;
+        }
+      }
       const res = await fetch(`/api/resumes/${resumeId}/versions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -171,7 +185,7 @@ export default function VersionHistorySheet({
       <Button
         variant="ghost"
         size="sm"
-        className="hidden gap-1.5 sm:inline-flex"
+        className="gap-1.5"
         onClick={() => {
           setOpen(true);
           void loadVersions();
@@ -227,6 +241,9 @@ export default function VersionHistorySheet({
                     <p className="font-medium text-sm">{versionLabel(row)}</p>
                     <p className="mt-1 text-muted-foreground text-xs">
                       Version {row.version}
+                      {row.templateSlug
+                        ? ` · ${getTemplateMeta(row.templateSlug)?.name ?? row.templateSlug}`
+                        : ""}
                       {" · "}
                       {formatDistanceToNow(new Date(row.createdAt), {
                         addSuffix: true,
@@ -281,7 +298,7 @@ export default function VersionHistorySheet({
               <ResumeDocument
                 data={previewData.data}
                 metadata={previewData.metadata}
-                templateSlug={templateSlug}
+                templateSlug={preview?.templateSlug || templateSlug}
               />
             </div>
           ) : null}

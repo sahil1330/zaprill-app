@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import type {
   ResumeData,
@@ -66,6 +67,7 @@ export function normalizeResumeData(raw: any): ResumeData {
         }))
       : [],
   };
+  basics.summary = sanitizeResumeHtml(basics.summary);
 
   // 1. Normalize Skills to Grouped ResumeSkillItem[]
   let normalizedSkills: ResumeSkillItem[] = [];
@@ -148,6 +150,7 @@ export function normalizeResumeData(raw: any): ResumeData {
     ...w,
     id: w.id || nanoid(),
     website: ensureHttps(w.website),
+    summary: sanitizeResumeHtml(w.summary),
     highlights: Array.isArray(w.highlights) ? w.highlights : [],
   }));
 
@@ -186,15 +189,36 @@ export function normalizeResumeData(raw: any): ResumeData {
       : []
     ).map((c: any) => ({ ...c, url: ensureHttps(c.url) })),
     languages: Array.isArray(raw.languages) ? raw.languages : [],
-    awards: Array.isArray(raw.awards) ? raw.awards : [],
+    awards: (Array.isArray(raw.awards) ? raw.awards : []).map((award: any) => ({
+      ...award,
+      summary: sanitizeResumeHtml(award?.summary),
+    })),
     publications: (Array.isArray(raw.publications) ? raw.publications : []).map(
-      (p: any) => ({ ...p, url: ensureHttps(p.url) }),
+      (p: any) => ({
+        ...p,
+        url: ensureHttps(p.url),
+        summary: sanitizeResumeHtml(p?.summary),
+      }),
     ),
     references: Array.isArray(raw.references) ? raw.references : [],
     volunteer: (Array.isArray(raw.volunteer) ? raw.volunteer : []).map(
-      (v: any) => ({ ...v, url: ensureHttps(v.url) }),
+      (v: any) => ({
+        ...v,
+        url: ensureHttps(v.url),
+        summary: sanitizeResumeHtml(v?.summary),
+      }),
     ),
-    customSections: Array.isArray(raw.customSections) ? raw.customSections : [],
+    customSections: Array.isArray(raw.customSections)
+      ? raw.customSections.map((section: any) => ({
+          ...section,
+          items: Array.isArray(section?.items)
+            ? section.items.map((item: any) => ({
+                ...item,
+                description: sanitizeResumeHtml(item?.description),
+              }))
+            : [],
+        }))
+      : [],
   };
 }
 

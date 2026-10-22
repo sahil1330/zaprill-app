@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { generateResumeSlug } from "@/lib/resume/slug";
+import { generateResumeSlug, isUniqueViolation } from "@/lib/resume/slug";
 import { ensureUserProfile, resumeHasSubstance } from "@/lib/user-profile";
 import { createResumeSchema } from "@/lib/validations/resume";
 import { DEFAULT_RESUME_DATA, DEFAULT_RESUME_METADATA } from "@/types/resume";
@@ -103,7 +103,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ resume: existingResume }, { status: 200 });
     }
 
-    const slug = generateResumeSlug(title ?? session.user.name);
     const id = nanoid();
 
     // If importing from analysis, we'll use the provided data or defaults
@@ -118,20 +117,37 @@ export async function POST(request: NextRequest) {
       resumeData.basics.email = session.user.email;
     }
 
-    const [newResume] = await db
-      .insert(resume)
-      .values({
-        id,
-        userId: session.user.id,
-        title: title ?? "Untitled Resume",
-        slug,
-        templateSlug: templateSlug ?? "minimalist",
-        industry: industry ?? "technology",
-        data: resumeData,
-        metadata: resumeMetadata,
-        sourceAnalysisId: sourceAnalysisId ?? null,
-      })
-      .returning();
+    let newResume: typeof resume.$inferSelect | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const slug = generateResumeSlug(title ?? session.user.name);
+        const [created] = await db
+          .insert(resume)
+          .values({
+            id,
+            userId: session.user.id,
+            title: title ?? "Untitled Resume",
+            slug,
+            templateSlug: templateSlug ?? "minimalist",
+            industry: industry ?? "technology",
+            data: resumeData,
+            metadata: resumeMetadata,
+            sourceAnalysisId: sourceAnalysisId ?? null,
+          })
+          .returning();
+        newResume = created;
+        break;
+      } catch (error) {
+        if (!isUniqueViolation(error) || attempt === 2) throw error;
+      }
+    }
+
+    if (!newResume) {
+      return NextResponse.json(
+        { error: "Failed to create resume" },
+        { status: 500 },
+      );
+    }
 
     // Link an empty builder draft as primary if the user has none.
     // Do NOT mark onboarding completed until the resume has real content —

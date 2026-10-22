@@ -5,6 +5,9 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume, resumeVersion } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { isUniqueViolation } from "@/lib/resume/slug";
+import { snapshotIdentity } from "@/lib/resume/version-snapshot";
+import { createVersionSchema } from "@/lib/validations/resume";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -62,7 +65,19 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const { changeDescription } = await request.json();
+    let payload: unknown;
+    try {
+      payload = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    const parsed = createVersionSchema.safeParse(payload);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
 
     // 1. Fetch current resume data
     const [current] = await db
@@ -75,6 +90,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
+    const identity = snapshotIdentity(current);
+
     // 2. Insert new version
     const newVersion = await db
       .insert(resumeVersion)
@@ -84,7 +101,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         version: current.version,
         data: current.data as any,
         metadata: current.metadata as any,
-        changeDescription: changeDescription || "Manual snapshot",
+        templateSlug: identity.templateSlug,
+        title: identity.title,
+        industry: identity.industry,
+        changeDescription: parsed.data.changeDescription || "Manual snapshot",
       })
       .returning();
 
@@ -111,22 +131,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ version: newVersion[0] });
   } catch (error) {
-    const code =
-      error && typeof error === "object" && "code" in error
-        ? String((error as { code?: string }).code)
-        : "";
-    const causeCode =
-      error &&
-      typeof error === "object" &&
-      "cause" in error &&
-      (error as { cause?: { code?: string } }).cause?.code
-        ? String((error as { cause?: { code?: string } }).cause?.code)
-        : "";
-    if (code === "23505" || causeCode === "23505") {
+    if (isUniqueViolation(error)) {
       return NextResponse.json(
         {
           error:
-            "A snapshot already exists for this version. Save the resume, then snapshot again.",
+            "A snapshot of this saved version already exists. Edit the resume to capture another.",
         },
         { status: 409 },
       );

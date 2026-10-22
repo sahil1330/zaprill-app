@@ -7,6 +7,8 @@ import ExecutiveProTemplate from "@/components/resume/templates/ExecutiveProTemp
 import MinimalistTemplate from "@/components/resume/templates/MinimalistTemplate";
 import ModernSplitTemplate from "@/components/resume/templates/ModernSplitTemplate";
 import TechStackTemplate from "@/components/resume/templates/TechStackTemplate";
+import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import { exportPageStyle } from "@/lib/resume/print-page";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
 import "@/components/resume/templates/resume-templates.css";
 
@@ -40,8 +42,12 @@ export default function ResumeExportPage({
     let isMounted = true;
     const fetchAndPrint = async () => {
       try {
+        const isPreview =
+          new URLSearchParams(window.location.search).get("preview") === "true";
         const res = await fetch(`/api/resumes/${id}/export`, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ recordDownload: !isPreview }),
         });
         if (!res.ok) {
           if (isMounted) setError("Failed to load resume for export");
@@ -51,18 +57,14 @@ export default function ResumeExportPage({
         if (!isMounted) return;
 
         setResumeData({
-          data: resume.data,
-          metadata: resume.metadata,
-          templateSlug: resume.templateSlug,
+          data: normalizeResumeData(resume.data),
+          metadata: normalizeResumeMetadata(resume.metadata),
+          templateSlug: resume.templateSlug || "minimalist",
           title: resume.title,
         });
 
         // Set document title for the PDF filename
         document.title = `${resume.title} — Resume`;
-
-        // Check if we are in preview mode
-        const isPreview =
-          new URLSearchParams(window.location.search).get("preview") === "true";
 
         // Trigger print dialog after a short delay for rendering (only if NOT preview)
         if (!isPreview && !printedRef.current) {
@@ -107,13 +109,9 @@ export default function ResumeExportPage({
 
   const TemplateComponent =
     TEMPLATE_COMPONENTS[resumeData.templateSlug] ?? MinimalistTemplate;
-  const pageFormat =
-    resumeData.metadata?.page?.format === "letter" ? "letter" : "A4";
-  const pageMargin = resumeData.metadata?.page?.margin ?? 12;
-
   return (
     <div className="resume-export-page">
-      <style>{`@page { size: ${pageFormat}; margin: ${pageMargin}mm; }`}</style>
+      <style>{exportPageStyle(resumeData.metadata)}</style>
       <TemplateComponent
         data={resumeData.data}
         metadata={resumeData.metadata}

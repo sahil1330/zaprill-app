@@ -250,6 +250,7 @@ export default function ResumeEditorPage({
           const { resume } = await res.json();
           dispatch(resumeActions.markSaved({ version: resume.version }));
           setValidationErrors(null);
+          return { ok: true as const, version: resume.version as number };
         } else if (res.status === 400) {
           const result = await res.json();
 
@@ -303,22 +304,26 @@ export default function ResumeEditorPage({
           setValidationErrors(errorsBySection);
           setShowErrorDialog(true);
           dispatch(resumeActions.markSaveFailed());
+          return { ok: false as const };
         } else if (res.status === 409) {
           toast.error(
             "Couldn't sync this tab. Refresh to keep your latest edits.",
           );
           dispatch(resumeActions.markSaveFailed());
+          return { ok: false as const };
         } else {
           toast.error(
             "Couldn't save your changes. They're backed up locally — try again shortly.",
           );
           dispatch(resumeActions.markSaveFailed());
+          return { ok: false as const };
         }
       } catch {
         toast.error(
           "Couldn't reach the server. Your edits are saved locally on this device.",
         );
         dispatch(resumeActions.markSaveFailed());
+        return { ok: false as const };
       }
     },
     [
@@ -336,8 +341,14 @@ export default function ResumeEditorPage({
 
   // ─── Auto-save ──────────────────────────────────
   const { isDirty, isSaving } = useAutoSave({
-    onServerSave: () => handleServerSave({ stripBlankItems: true }),
+    onServerSave: () =>
+      handleServerSave({ stripBlankItems: true }).then(() => undefined),
   });
+
+  const flushPendingSave = useCallback(async () => {
+    if (!isDirty) return { ok: true as const, version };
+    return handleServerSave({ stripBlankItems: false });
+  }, [handleServerSave, isDirty, version]);
 
   // ─── Manual save ────────────────────────────────
   const handleManualSave = () => {
@@ -542,8 +553,14 @@ export default function ResumeEditorPage({
             </span>
           </Button>
 
-          <VersionHistorySheet resumeId={id} />
-          <ShareResumeSheet resumeId={id} />
+          <VersionHistorySheet
+            resumeId={id}
+            onFlushPendingSave={flushPendingSave}
+          />
+          <ShareResumeSheet
+            resumeId={id}
+            onFlushPendingSave={flushPendingSave}
+          />
 
           <Separator orientation="vertical" className="hidden h-6 sm:block" />
 
@@ -570,7 +587,11 @@ export default function ResumeEditorPage({
             onClick={async () => {
               setIsExporting(true);
               try {
-                if (isDirty) await handleServerSave();
+                const flushed = await flushPendingSave();
+                if (!flushed.ok) {
+                  toast.error("Save the resume before exporting.");
+                  return;
+                }
                 window.open(
                   `/resumes/${id}/export`,
                   "_blank",
@@ -578,6 +599,7 @@ export default function ResumeEditorPage({
                 );
               } catch (err) {
                 console.error("Export error:", err);
+                toast.error("Couldn't export this resume.");
               } finally {
                 setIsExporting(false);
               }
@@ -795,11 +817,7 @@ export default function ResumeEditorPage({
 
       <ResumeArchitectChat
         resumeId={id}
-        onFlushPendingSave={
-          isDirty
-            ? () => handleServerSave({ stripBlankItems: false })
-            : undefined
-        }
+        onFlushPendingSave={isDirty ? flushPendingSave : undefined}
       />
 
       {/* Settings Sheet — triggered from gear icon in top bar */}

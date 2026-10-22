@@ -2,6 +2,7 @@
 
 import { IconBrandGithub } from "@tabler/icons-react";
 import { Award, ExternalLink } from "lucide-react";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -67,7 +68,9 @@ export default function ExecutiveProTemplate({
           </h2>
           <div
             className="text-muted-foreground italic leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: basics.summary }}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeResumeHtml(basics.summary),
+            }}
           />
         </section>
       ) : null,
@@ -111,7 +114,9 @@ export default function ExecutiveProTemplate({
                 {item.summary && (
                   <div
                     className="mb-2 text-muted-foreground text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: item.summary }}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeResumeHtml(item.summary),
+                    }}
                   />
                 )}
                 {item.highlights && (item.highlights || []).length > 0 && (
@@ -605,7 +610,7 @@ export default function ExecutiveProTemplate({
                           <div
                             className="mb-2 text-muted-foreground text-sm leading-relaxed"
                             dangerouslySetInnerHTML={{
-                              __html: item.description,
+                              __html: sanitizeResumeHtml(item.description),
                             }}
                           />
                         )}

@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import db from "@/db";
@@ -16,39 +16,62 @@ import type { ResumeData, ResumeMetadata } from "@/types/resume";
  * a dedicated print page, avoiding serverless cold-start issues with Puppeteer.
  */
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
+  try {
+    const { id } = await params;
+    const session = await auth.api.getSession({ headers: await headers() });
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let recordDownload = true;
+    try {
+      const body = await request.json();
+      if (
+        body &&
+        typeof body === "object" &&
+        (body as { recordDownload?: unknown }).recordDownload === false
+      ) {
+        recordDownload = false;
+      }
+    } catch {
+      recordDownload = true;
+    }
+
+    const [found] = await db
+      .select()
+      .from(resume)
+      .where(and(eq(resume.id, id), eq(resume.userId, session.user.id)))
+      .limit(1);
+
+    if (!found) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+    }
+
+    if (recordDownload) {
+      await db
+        .update(resume)
+        .set({ downloadCount: sql`${resume.downloadCount} + 1` })
+        .where(eq(resume.id, id));
+    }
+
+    return NextResponse.json({
+      resume: {
+        id: found.id,
+        title: found.title,
+        data: found.data as ResumeData,
+        metadata: found.metadata as ResumeMetadata,
+        templateSlug: found.templateSlug,
+      },
+    });
+  } catch (error) {
+    console.error("POST /api/resumes/[id]/export error:", error);
+    return NextResponse.json(
+      { error: "Failed to export resume" },
+      { status: 500 },
+    );
   }
-
-  const [found] = await db
-    .select()
-    .from(resume)
-    .where(and(eq(resume.id, id), eq(resume.userId, session.user.id)))
-    .limit(1);
-
-  if (!found) {
-    return NextResponse.json({ error: "Resume not found" }, { status: 404 });
-  }
-
-  // Update download count
-  await db
-    .update(resume)
-    .set({ downloadCount: (found.downloadCount ?? 0) + 1 })
-    .where(eq(resume.id, id));
-
-  return NextResponse.json({
-    resume: {
-      id: found.id,
-      title: found.title,
-      data: found.data as ResumeData,
-      metadata: found.metadata as ResumeMetadata,
-      templateSlug: found.templateSlug,
-    },
-  });
 }

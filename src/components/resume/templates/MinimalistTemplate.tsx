@@ -1,6 +1,7 @@
 "use client";
 
 import { IconBrandGithub } from "@tabler/icons-react";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -65,7 +66,9 @@ export default function MinimalistTemplate({
           <h2 className="resume-section-title">Professional Summary</h2>
           <div
             className="resume-text"
-            dangerouslySetInnerHTML={{ __html: basics.summary }}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeResumeHtml(basics.summary),
+            }}
           />
         </section>
       ) : null,
@@ -105,7 +108,9 @@ export default function MinimalistTemplate({
               {item.summary && (
                 <div
                   className="resume-text mb-1.5"
-                  dangerouslySetInnerHTML={{ __html: item.summary }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeResumeHtml(item.summary),
+                  }}
                 />
               )}
               {item.highlights && (item.highlights || []).length > 0 && (
@@ -523,7 +528,9 @@ export default function MinimalistTemplate({
                   {item.description && (
                     <div
                       className="resume-text mb-1.5"
-                      dangerouslySetInnerHTML={{ __html: item.description }}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeResumeHtml(item.description),
+                      }}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
