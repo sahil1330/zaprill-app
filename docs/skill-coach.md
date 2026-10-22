@@ -1,11 +1,11 @@
 # Skill Coach
 
-Status: design approved with changes. This change is the revised doc only.
+Status: design approved. Assumptions A–F checked against `docs/career-profile.md` at `d691aea` on `cursor/career-profile-41f4`. This change is the doc update only.
 Owner: Skill Coach.
 Reviewer: engineering head.
-Depends on: Dashboard career profile (`docs/career-profile.md`, not in tree yet).
+Depends on: that career-profile branch merging. It is not on this branch.
 
-**Do not start phase 1 code until `docs/career-profile.md` is merged.** Phase 1 (saved plans, no model calls, interim keys) is approved. The first implementation task is to check assumptions A–F against that file. Where the contract disagrees with an assumption, the contract wins and this doc is updated before any migration.
+**Do not start phase 1 code until `cursor/career-profile-41f4` is merged.** The first Coach migration is `0017`. Numbers `0015` and `0016` belong to resume builder and career profile. Do not take them.
 
 Skill Coach is the retention and paid loop for Zaprill's career-intelligence pivot. For each technical skill gap between a user's career profile and a technical target role, it gives a learning plan, an AI tutor, graded practice, progress, and a mock interview. The free tier keeps the full plan and a small taste of the tutor, one graded test a week, and one mock a month. Every paid plan includes the same coaching, with higher limits. Mock interviews are part of the subscription, not a separate purchase.
 
@@ -17,7 +17,7 @@ Gap analysis is a single request, not a learning product.
 
 | Piece | Where | What it actually does |
 | --- | --- | --- |
-| Gap math | `aggregateSkillGaps` in `src/lib/match-engine.ts` | Counts missing skills across matched jobs. Priority is frequency: high above 50% of jobs, medium above 25%, else low. This engine, behind the Dashboard profile, is the only gap source Coach will read. |
+| Gap math | `aggregateSkillGaps` in `src/lib/match-engine.ts` | Counts missing skills across matched jobs. Priority is frequency: high above 50% of jobs, medium above 25%, else low. The career profile at `d691aea` does not compute gaps. This engine is still the only gap producer. |
 | Roadmap generation | `POST /api/analyze-gaps` | `generateText` with `openai("gpt-5-mini")`. The model filters naive gaps and returns `advice`, `relevantSkillGaps`, and `roadmap` as JSON. Zod validates the shape. A 7-day cache reuses `resume_analysis` when `resume_skills` and `inferred_job_titles` match, and logs a zero-token `analyze_gaps` row. |
 | Persistence | `resume_analysis.skill_gaps`, `.roadmap`, `.advice` | JSON blobs on the analysis run. Nothing is a plan the user can resume tomorrow. |
 | UI | `LearningRoadmap` on the Analyze "Learning Roadmap" tab | Renders priority, why, time, and resources. Expand and outbound clicks go to analytics only. No completion state. |
@@ -44,7 +44,7 @@ flowchart LR
   engine["Dashboard / match engine"]
   gaps["Gap list"]
   program["Coach program"]
-  cache["Outline cache by skill and persona"]
+  cache["Outline cache by normalized skill and segment"]
   plan["Plan per skill"]
   progress["Progress"]
 
@@ -52,7 +52,7 @@ flowchart LR
   cache --> plan
 ```
 
-Persona changes tone and which cached outline is copied. It is read from the profile on each request. It is not a column on coach tables.
+Segment (`student`, `fresher`, or `professional`) changes tone and which cached outline is copied. It is read from `career_profile.segment`. It is not a column on coach program, plan, or progress. `null` means unknown and does not enter the outline cache.
 
 | | Student / fresher | Job-switching professional |
 | --- | --- | --- |
@@ -82,9 +82,9 @@ Empty states: no gap list yet → send her to onboarding / Analyze. Zero technic
 ### 2.2 Professional journey
 
 1. Arjun is a Java services developer targeting backend roles that want Kafka and system design. The engine has already dropped HTML and Agile.
-2. His program is tied to the target title he picked (profile review currently caps selected titles at 3; **Assumption B**).
-3. Persona is whatever the profile says he is on this request. Tutor examples stay in the professional voice while that read is `professional`.
-4. `user_profile.current_salary` is not an input. Coach does not add a salary column.
+2. His program is tied to a `career_target_role`. The free program is the one with `isPrimary`. Paid tiers can open more targets up to `activePrograms`.
+3. Segment comes from `career_profile.segment`. Tutor examples stay in the professional voice while that read is `professional`, and in the fresher voice when it is `fresher`.
+4. Compensation on the profile is annual INR. Coach does not read `currentSalaryInr` or `expectedSalaryInr`, and it does not add a salary column.
 5. On any paid plan he gets the tutor, graded practice, and mocks. A higher tier raises the caps. It does not unlock a different product.
 6. A profile or gap-list change reconciles his plans. Progress for a `skill_key` that is still present is kept. This is every tier, not Max-only.
 7. His mock interviews are included in the subscription, up to `mockInterviewsPerMonth` for his tier. They are not a one-off INR purchase.
@@ -98,53 +98,71 @@ Empty states: no gap list yet → send her to onboarding / Analyze. Zero technic
 - No emoji in UI copy.
 - Saved plans stay readable when the kill switch is off and when a cap is hit. The paywall is the next model call, not the outline.
 
-## 3. Profile contract
+## 3. Contract check against `d691aea`
 
-Dashboard owns the profile. The match engine is the only producer of gaps. Skill Coach stores an opaque skill key and a display snapshot taken from that gap list.
+Checked `docs/career-profile.md`, `src/types/career-profile.ts`, and `normalizeCareerKey` in `src/lib/career/derive.ts` at commit `d691aea`. Coach does not own those tables. Names below are the contract's names.
 
-When `docs/career-profile.md` lands, re-read A–F against it before writing schema. Do not treat this section as frozen if the contract uses different names.
+`normalizeCareerKey` is `trim`, lowercase, collapse whitespace, cut at 120 characters. It does not apply `SKILL_ALIASES`. `normalizeSkill` in `src/lib/skill-extractor.ts` is a different function (`golang` → `go`). Coach keys use `normalizeCareerKey` only.
 
-**Assumption A — skill identity.** The profile exposes a stable `skillKey` per skill. Coach never creates that table. Shape we expect to read:
+### A — Skill identity. Mismatch. Contract wins.
 
-```ts
-// Owned by docs/career-profile.md. Not a schema this feature creates.
-type CareerProfileSkill = {
-  skillKey: string;
-  displayName: string;
-  source: "resume" | "self_reported" | "inferred" | "verified";
-};
+There is no `skillKey` and no `displayName`. A skill row is `CareerSkillRecord`: `id`, `name`, `normalizedName`, `category`, `level`, `evidence`, `source`, `sortOrder`. Unique on `(user_id, normalized_name)`.
 
-type CareerProfileTarget = {
-  roleKey: string; // Assumption B
-  title: string;
-};
-```
+| We assumed | Contract |
+| --- | --- |
+| `skillKey` | `normalizedName` |
+| `displayName` | `name` |
+| `source`: `resume \| self_reported \| inferred \| verified` | `source`: `resume \| self_reported` only |
+| Stable id shared across users | `id` is per user. The shared key is `normalizedName` |
 
-If the merged contract already defines `skillKey`, phase 1 uses that and does not write `normalizeSkill` keys.
+`level` is `unspecified \| beginner \| intermediate \| advanced \| expert`. There is no verified level. `inferred` is a header `field_sources` value, not a skill source.
 
-**Assumption B — role identity.** Targets have a stable `roleKey`. Until the contract defines one, the normalized title string in `resume_analysis.inferred_job_titles` is the key.
+Coach `skill_key` stores `normalizedName`. `display_name` stores `name`. Do not foreign-key `skill_key` to `career_skill.id`.
 
-**Assumption C — one gap source.** A gap is a skill key the Dashboard / match engine says is missing for a target role. Coach consumes that list. Coach does not call `aggregateSkillGaps`, does not re-parse resumes, and does not keep a second gap algorithm. Interim read, only if the contract has no gap view yet: the latest `resume_analysis.skill_gaps` and `roadmap` that the engine already stored.
+### B — Role identity. Mismatch. Contract wins.
 
-**Assumption D — local progress vs verified skill.** Coach progress (`not_started | in_progress | practiced | demonstrated`) is local. A passed graded practice test also emits a verified-skill signal through the career profile contract (section 4.9). That signal is the recruiter-visible fact. Coach does not own the column. Confirm the method name when `docs/career-profile.md` is checked.
+There is no `roleKey` and no `job_titles.id`. A target is `CareerTargetRoleRecord`: `id`, `title`, `normalizedTitle`, `seniority`, `isPrimary`, `source`. `normalizedTitle` uses `normalizeCareerKey`, not `normalizeJobTitle` (that helper strips seniority words). Many targets, one `isPrimary`.
 
-**Assumption E — persona.** The profile says whether the user is a student/fresher or a working professional, or it exposes enough experience that a reader can derive it. Derivation if the contract has no flag: zero full-time roles → `student`, otherwise `professional`. Coach reads this on each request through one adapter. It is not stored on `coach_program`, `coach_plan`, or `coach_progress`. The outline cache key uses the value from that read.
+Coach `role_key` stores `normalizedTitle`. `role_title` stores `title`. The free tier's one program is the primary target. Further targets use `activePrograms` on paid tiers. `inferred_job_titles` on an analysis is not the role list once this branch is merged.
 
-**Decision F — v1 is technical only.** Soft skills and non-tech roles are out of v1. Coach keeps gaps whose category is `language`, `framework`, `database`, `cloud`, or `tool`. It drops `soft` and `other`. A target role with no remaining technical gaps does not get a program. The empty state says v1 covers technical skills for technical roles. This matches the analyze-gaps exclusion of Communication, Agile, Scrum, and Teamwork, and it does not grow a non-tech syllabus later in v1.
+### C — Gap source. Mismatch. Match engine stays the producer.
 
-### 3.1 Interim keys
+The profile contract does not emit gaps. The intelligence shell names skill gaps and says they are not computed. `GET /api/career-profile` returns skills the person has and roles they want.
 
-Approved for phase 1 only as the fallback when the merged contract still has no stable skill or role id.
+Coach still does not run its own gap math and does not re-parse resumes. The gap list remains `resume_analysis.skill_gaps` and `roadmap` from the match engine. Each gap skill is re-keyed with `normalizeCareerKey`. If that key is already on `career_skill`, it is not a gap. Profile sync can remove a plan before the next analysis run. That join is not a second gap algorithm.
 
-| Field | Fallback | Drop when |
-| --- | --- | --- |
-| `skill_key` | `normalizeSkill(gap.skill)` from `src/lib/skill-extractor.ts` | Contract publishes `skillKey` |
-| `display_name` | Skill string on the engine roadmap item | Contract `displayName` |
-| `role_key` | Lowercased trimmed selected `inferred_job_titles` entry | Contract `roleKey` |
-| Gap evidence | `{ frequency, priority, category }` copied from the engine `SkillGap` | Engine emits the same evidence under the contract |
-| Provenance | `source_analysis_id` → `resume_analysis.id` | Nullable once the gap list is not an analysis row |
+### D — Verified skill. Partial. Signature changed.
 
-Do not foreign-key `skill_key` or `role_key` to tables this feature does not own. Do not keep a Coach taxonomy next to `SKILLS_TAXONOMY`.
+Local progress stays on Coach. A passed graded test still notifies the profile. `d691aea` does not contain `recordVerifiedSkill`. It tells Skill Coach to `PUT /api/career-profile/skills` so a later resume sync does not clobber the level. That PUT sets `source` to `self_reported` and locks `level`. It is not a recruiter badge.
+
+Dashboard is adding `recordVerifiedSkill(skill, score, verifiedAt, label)`. That is the call in section 4.9. Coach does not PUT the skill on a pass, because that would lock a level the score does not map onto. If the badge should also lock the row, Dashboard does that inside `recordVerifiedSkill`.
+
+### E — Segment. Mismatch. Contract wins.
+
+The field is `segment`: `student \| fresher \| professional \| null`, not a two-value persona. Inference is theirs (open education → student, finished education or under 1.5 years of substantive work → fresher, 1.5 years or more → professional). A member can lock it. Coach reads `CareerProfileView.segment` and does not re-derive it. "Zero full-time roles → student" was wrong: a graduate with no job is a fresher.
+
+The outline cache key is `(normalizedName, segment)` for the three segments. `segment === null` does not write or read the shared cache. The plan still gets the engine outline or a shell.
+
+### F — Soft skills and non-tech roles. Holds, with a limit.
+
+v1 plans still keep only `language`, `framework`, `database`, `cloud`, and `tool`. The profile stores `soft` and `other` as well. Coach ignores those rows. It does not delete them.
+
+`career_target_role` has no tech flag. A non-tech role is out of v1 only because its gaps fall outside those five categories. A technical title stored as free text is in scope.
+
+### 3.1 Keys Coach stores
+
+No `normalizeSkill` keys after the profile branch is merged.
+
+| Coach column | Value |
+| --- | --- |
+| `skill_key` | `career_skill.normalized_name`, or `normalizeCareerKey` of the engine gap string when the profile has no row yet |
+| `display_name` | `career_skill.name`, else the engine skill string |
+| `role_key` | `career_target_role.normalized_title` |
+| `role_title` | `career_target_role.title` |
+| Gap evidence | `{ frequency, priority, category }` from the match-engine `SkillGap`, category dropped unless it is one of the five technical values |
+| Provenance | `source_analysis_id` → `resume_analysis.id` while gaps still come from an analysis |
+
+Catalog lookup on `learning_resources.skill` uses the same `normalizedName`. Rows stored under an alias that only `normalizeSkill` would collapse (`golang` vs `go`) can miss. Coach does not add an alias map to paper over that.
 
 ## 4. Data model
 
@@ -171,14 +189,14 @@ One active learning container for a user and a target role.
 | --- | --- | --- |
 | `id` | text pk | |
 | `user_id` | text fk → `user.id` cascade | |
-| `role_key` | text | Opaque. Assumption B. |
+| `role_key` | text | `career_target_role.normalized_title`. Section B. |
 | `role_title` | text | Snapshot for UI. |
 | `status` | text | `active`, `paused`, `archived`. |
 | `advice` | text | Role-level guidance copied from the gap source. Not the shared outline. |
 | `source_analysis_id` | text fk → `resume_analysis.id` set null | Provenance only. |
 | `gap_fingerprint` | text | Hash of sorted `skill_key`s last applied. Refresh no-ops when it matches. |
 
-No persona column. Unique: `(user_id, role_key)` where `status = 'active'`. A second active program is enforced in the service from `COACH_LIMITS`.
+No segment column. Unique: `(user_id, role_key)` where `status = 'active'`. A second active program is enforced in the service from `COACH_LIMITS`. The first free program is the primary target.
 
 ### 4.2 `coach_plan`
 
@@ -235,21 +253,21 @@ One row per plan. `skill_key` is not copied here. Callers that need the skill jo
 
 ### 4.4 `coach_outline_cache`
 
-Shared across users. One outline per skill and persona. Phase 2. Phase 1 does not write it, because phase 1 outlines are per-user snapshots from the engine and would poison the cache.
+Shared across users. One outline per normalised skill and segment. Phase 2. Phase 1 does not write it, because phase 1 outlines are per-user snapshots from the engine and would poison the cache.
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| `skill_key` | text | |
-| `persona` | text | `student` or `professional`. From the profile read at fill time. |
+| `skill_key` | text | `normalizedName` |
+| `segment` | text | `student`, `fresher`, or `professional`. Not `null`. |
 | `outline` | jsonb | Same shape as `coach_plan.outline`. |
 | `model` | text | |
 | `generated_at` | timestamp | |
 
-Primary key `(skill_key, persona)`.
+Primary key `(skill_key, segment)`.
 
-A hit copies `outline` onto that user's plan and logs `coach_plan` with `cacheHit: true` and zero tokens. A miss is one `generateText`, Zod-parsed, then inserted. The cached why is persona-level, not a biography. Personalized role guidance stays on `coach_program.advice`.
+A hit copies `outline` onto that user's plan and logs `coach_plan` with `cacheHit: true` and zero tokens. A miss is one `generateText`, Zod-parsed, then inserted. The cached why matches the segment, not a biography. Personalized role guidance stays on `coach_program.advice`. A `null` segment skips this table.
 
-Do not key the cache by user, role, salary, or language. Two students missing React share one English outline. The tutor speaks the user's language in the session. It does not store a translated copy of the outline.
+Do not key the cache by user, role, salary, or language. Two freshers missing React share one English outline. The tutor speaks the user's language in the session. It does not store a translated copy of the outline.
 
 ### 4.5 `coach_session`, tasks, attempts
 
@@ -283,7 +301,7 @@ Turn allow: `UPDATE ... SET tutor_turns = tutor_turns + 1 WHERE tutor_turns < $c
 
 ### 4.7 What we will not store
 
-- A persona column on program, plan, or progress.
+- A segment column on program, plan, or progress.
 - `skill_key` on progress.
 - A skills table, a role table, or a copy of the profile.
 - Raw resume text on coach rows.
@@ -298,41 +316,34 @@ Runs for every tier whenever the gap source changes. Not a scheduled Max job.
 2. If `gap_fingerprint` is unchanged, stop. The fingerprint is the technical keys only.
 3. `skill_key` still present → keep the plan and its progress row. Update priority and `gap_evidence`.
 4. `skill_key` gone → set the plan `archived`. Leave the progress row attached.
-5. New `skill_key` → insert a plan. Phase 1 copies the engine roadmap item or writes a shell. Phase 2 copies `coach_outline_cache` for `(skill_key, persona)` when a row exists, otherwise the shell. Refresh itself does not call the model.
+5. New `skill_key` → insert a plan. Phase 1 copies the engine roadmap item or writes a shell. Phase 2 copies `coach_outline_cache` for `(skill_key, segment)` when the segment is known and a row exists, otherwise the shell. Refresh itself does not call the model.
 6. Store the new fingerprint.
 
 Phase 1 includes this path. It makes no AI calls. Archiving a plan does not delete a verified-skill signal already accepted by the profile.
 
 ### 4.9 Verified skill signal
 
-Founder decision: a passed coach test becomes a verified-skill signal written back through the career profile contract. Dashboard owns the table and any later recruiter UI. Coach owns the attempt and the local `demonstrated` flag.
-
-A pass is a graded practice attempt with `score >= 70`. Tutor chat and mock interviews do not qualify. A mock is practice for a role, not proof of one skill.
-
-After the attempt row is stored, Coach calls the profile contract. Proposed method, to confirm when `docs/career-profile.md` is reviewed with the Dashboard owner:
+A passed graded test (score ≥ 70) calls the method Dashboard is adding. Coach does not own the table. Tutor chat and mock interviews do not call it.
 
 ```ts
-// Implemented by Dashboard. Coach does not create the table.
-type RecordVerifiedSkillInput = {
-  userId: string;
-  skillKey: string;
-  displayName: string;
-  source: "coach_practice";
-  attemptId: string;
+// Dashboard implements this. Not in d691aea yet.
+recordVerifiedSkill({
+  skill: string; // career_skill.normalized_name
   score: number; // 0–100
-  passedAt: string; // ISO
-  recruiterLabel: "Verified on Zaprill";
-};
+  verifiedAt: string; // ISO
+  label: "Verified on Zaprill";
+});
 ```
 
-Recruiter-visible later means this payload is enough for a badge on the profile: which skill, when, the score, and a stable English label. It has no transcript, rubric text, salary, or chat. `skillKey` is the same id the profile already uses, so the badge joins the skill instead of a free-text tag.
+`skill` is `normalizedName`, so a second `normalizeCareerKey` still joins the row. `label` is the English recruiter string. The payload has no transcript, rubric, salary, attempt id, or chat. That is enough for a later badge: which skill, the score, when, and the label.
 
 Call rules:
 
-- Idempotent on `attemptId`.
-- Coach sends every pass. Dashboard keeps the higher score for that `skillKey` if it wants a single badge. That rule lives on their side.
-- The call is synchronous after the grade is saved. If it fails, `demonstrated` stays set and Coach retries the same payload. Coach does not keep a second verified-skill table as a fallback source of truth.
-- If the contract has no method when grading ships, grading and `demonstrated` still ship. The write waits on Dashboard. Do not add a column to `user_profile` from this feature.
+- The session user is implied. Coach does not pass `userId` unless Dashboard adds it.
+- Retries send the same `skill`, `score`, `verifiedAt`, and `label`. Dashboard dedupes on `skill`. A later higher score is their update rule.
+- The call is synchronous after the attempt row is stored. If it fails, `demonstrated` stays set and Coach retries that payload. Coach does not keep a verified-skill table.
+- Coach does not `PUT /api/career-profile/skills` on a pass. That route locks `level` as `self_reported`. The score does not map onto `beginner | intermediate | advanced | expert`.
+- If grading ships before the method exists, `demonstrated` still ships and the write waits. Do not add a column to `career_skill` or `user_profile` from this feature.
 
 ## 5. AI tutor
 
@@ -361,7 +372,7 @@ Streaming follows the architect route: `createAgentUIStreamResponse`, `smoothStr
 
 | Tool | Effect |
 | --- | --- |
-| `getLearningContext` | Persona from the profile adapter, role title, skill, one module, progress state, rolling summary. No resume, no salary. |
+| `getLearningContext` | `segment` from the profile, role title, `normalizedName`, one module, progress state, rolling summary. No resume, no salary. |
 | `listCuratedResources` | Active `learning_resources` for this `skill_key`. No web search. |
 | `getProgress` | The progress row for this plan. |
 | `setModuleStatus` | `not_started` → `in_progress` only. Cannot set `demonstrated`. |
@@ -376,7 +387,7 @@ A user turn is not one completion.
 | --- | --- | --- |
 | Tutor step | Each tool-loop step, up to 6 per user message | `maxOutputTokens` 600 on the final step. Earlier steps should be tool calls, not essays. |
 | Summary | Separate `generateText` when `messages` exceed 16. Compresses the older half into `coach_session.summary`. | `maxOutputTokens` 250. About 150 words. Logged as its own row. |
-| Outline fill | Cache miss on `(skill_key, persona)` only. | One `generateText`. Zod-parsed. |
+| Outline fill | Cache miss on `(normalizedName, segment)` only. Skipped when `segment` is null. | One `generateText`. Zod-parsed. |
 | Task generation | Once per task, then reused. | One `generateText`. |
 | Grade | Once per attempt. | One structured `generateText`, `maxOutputTokens` 400. |
 
@@ -419,7 +430,7 @@ Hot turn at the step cap, each step 4,000 input and 1,200 output: `6 * (0.001 + 
 
 The approved free ceiling is ₹40, and the free tutor cap is 10 messages a day. An expected turn is about ₹0.49 (`0.00515 * 95`), so 10 messages are about **₹4.9** and the ceiling covers about eight such days. Ten hot turns are about **₹19.4**, so the ceiling covers about two of those days. One monthly mock taster also draws from the same ₹40. Devanagari and other Indian scripts often use more tokens per sentence than the English example, so the ceiling binds sooner on those sessions. The ceiling is the money backstop. It is not raised to fit every free message.
 
-`logAiUsage` today cannot see reasoning. Phase 2 adds `reasoning_tokens` (integer, default 0) on `ai_usage_log` and passes it into the cost helper. `metadata` also carries `{ programId, planId, sessionId, skillKey, turnIndex, stepIndex, kind, tier }`. `tier` is `free | pro | max`.
+`logAiUsage` today cannot see reasoning. Phase 2 adds `reasoning_tokens` (integer, default 0) on `ai_usage_log` and passes it into the cost helper. `metadata` also carries `{ programId, planId, sessionId, normalizedName, turnIndex, stepIndex, kind, tier }`. `tier` is `free | pro | max`.
 
 ### 5.5 Ceiling, kill switch, refunds
 
@@ -474,7 +485,7 @@ Eval implications for phase 2:
 - Fixtures for one task in English, Hindi, Hinglish, and one more Indian language (Tamil unless the profile tells us otherwise). Equivalent content should score within 10 points.
 - A check that technical names are not translated ("React" stays "React").
 - A check that the model does not refuse, apologize for the language, or flip to English when the user wrote Hindi or Hinglish.
-- Outline cache stays one English row per `(skill_key, persona)`. Language is not a cache key. Adding one would multiply generation cost and split the shared plan.
+- Outline cache stays one English row per `(normalizedName, segment)`. Language is not a cache key. Adding one would multiply generation cost and split the shared plan. `fresher` is its own row, not an alias of `student`.
 - Token ceilings are unchanged. Indian scripts can cost more tokens per sentence, so the INR ceiling binds earlier. That is accepted.
 
 ## 6. Limits
@@ -541,21 +552,22 @@ Affiliate clicks on `learning_resources` stay a side effect of `/api/r`. They ar
 
 ## 7. Phased plan
 
-Profile tables stay untouched. Burn-in for a shipped phase uses a student-shaped account and a professional-shaped account.
+Profile tables stay untouched. Burn-in for a shipped phase uses a student, a fresher, and a professional account.
 
 ### Phase 0 — this document
 
-Approved with the changes in this revision. Implementation is blocked on the merged career-profile contract plus a pass over assumptions A–F.
+A–F are checked against `d691aea` in section 3. Implementation stays blocked until `cursor/career-profile-41f4` is merged. Re-read `recordVerifiedSkill` when Dashboard lands that method. The four-field shape in section 4.9 is what they have named.
 
 ### Phase 1 — saved plans, no model calls
 
-Allowed to start only after that contract check.
+Allowed to start only after that merge.
 
 - Tables: `coach_program`, `coach_plan`, `coach_progress`. No cache, no session, no agent, no `ai_action` values.
-- Build plans from the engine gap list, technical categories only (decision F). `skill_key` is the contract key, or the section 3.1 fallback when the contract has none.
+- Migration `0017` or later. Do not use `0015` or `0016`.
+- Build plans from the engine gap list, technical categories only (section F). `skill_key` is `normalizedName` via `normalizeCareerKey`.
 - Outline from the engine roadmap item, or a shell. Zero `generateText`.
 - Gap refresh (section 4.8) for every tier.
-- Persona is read from the profile adapter for display copy only. It is not stored.
+- Segment is read from `career_profile.segment` for display copy only. It is not stored. `null` still gets a shell plan.
 - UI lists programs and renders outlines with `LearningRoadmap` or a thin wrapper. Analyze's roadmap tab links here.
 - `activePrograms` from `COACH_LIMITS`. Over the cap → 403 `COACH_LIMIT` without deleting the existing program.
 
@@ -570,7 +582,7 @@ Done when a user can reload and see the same plans, mark a module in progress, s
 - Language rules in section 5.7, including the four-language grade fixtures.
 - Verified-skill call (section 4.9) when Dashboard has published the method.
 
-Done when a free user cannot send an 11th tutor message in a day, a second graded test in the same week returns `COACH_LIMIT`, a pass sets `demonstrated` and calls the profile signal when that method exists, a parse failure returns the quota and still records real token cost, a second user missing the same skill and persona does not call the model for the outline, `coach_enabled = false` blocks model routes and leaves plans readable, and a user over the monthly ceiling gets `COACH_LIMIT` / `spend`. A Hindi or Hinglish answer that is right on the skill still passes.
+Done when a free user cannot send an 11th tutor message in a day, a second graded test in the same week returns `COACH_LIMIT`, a pass sets `demonstrated` and calls `recordVerifiedSkill({ skill, score, verifiedAt, label })` when that method exists, a parse failure returns the quota and still records real token cost, a second fresher missing the same `normalizedName` does not call the model for the outline, `coach_enabled = false` blocks model routes and leaves plans readable, and a user over the monthly ceiling gets `COACH_LIMIT` / `spend`. A Hindi or Hinglish answer that is right on the skill still passes.
 
 ### Later
 
@@ -584,7 +596,8 @@ Out of scope: human expert review, a content CMS, replacing job search, soft ski
 
 - A private skill taxonomy or profile tables.
 - A second gap calculator inside Coach.
-- Storing persona, or copying `skill_key` onto progress.
+- Storing `segment`, or copying `skill_key` onto progress.
+- Calling `PUT /api/career-profile/skills` to represent a passed test.
 - Logging coach traffic as `resume_chat` or `analyze_gaps`.
 - Gating by `SELECT count(*) FROM ai_usage_log`.
 - Deriving limits or the INR ceiling from current plan copy or prices.
@@ -598,11 +611,11 @@ Out of scope: human expert review, a content CMS, replacing job search, soft ski
 
 From engineering review:
 
-- Phase 1 may use interim keys, and only after A–F are checked against the merged `docs/career-profile.md`.
-- Dashboard / match engine is the only gap source.
-- Persona is read from the profile. It is not stored.
+- A–F were checked against `d691aea`. Mismatches are in section 3. The contract wins.
+- The match engine is still the only gap producer. The profile is the skill and target inventory.
+- `segment` is read from the profile. It is not stored on coach rows. `fresher` is distinct from `student`.
 - `coach_progress` does not duplicate `skill_key`.
-- Outline cache key is `(skill_key, persona)`, shared across users. English only.
+- Outline cache key is `(normalizedName, segment)`, shared across users. English only. `null` segment is not cached.
 - Gap refresh on a profile or gap-list change runs for every tier.
 - All tier numbers live in `COACH_LIMITS`, separate from plan copy.
 - Quota increments refund when model output fails to parse. Actual provider spend does not.
@@ -615,13 +628,13 @@ From the founder:
 - Free tier: full saved plans and resources, 1 active program, 10 tutor messages a day, 1 graded practice test a week, 1 mock interview a month. Paid tiers scale from there in `COACH_LIMITS`.
 - Spend ceilings ₹40 / ₹200 / ₹600 per month are the approved starting values.
 - The tutor is multilingual, as in section 5.7. UI chrome stays English.
-- A passed graded test (score ≥ 70) is a verified-skill signal written through the career profile contract. Dashboard owns the table. The payload is shaped so a recruiter can see it later.
+- A passed graded test calls `recordVerifiedSkill(skill, score, verifiedAt, label)`. `skill` is `normalizedName`. Dashboard owns the table.
 - Soft skills and non-tech roles are out of v1.
 
 ## 10. Open questions
 
-1. **Persona shape.** Will the contract have an explicit student vs professional flag? Assumption E is the derivation if it does not. Confirm at the A–F check.
-2. **Verified-skill method.** Is `recordVerifiedSkill` in section 4.9 the signature Dashboard will implement, and does a higher later score replace the badge?
-3. **Multiple targets.** Profile review allows 3 titles. Is one active program the free unit, or one program with three roles inside it?
-4. **Placement deadline.** Should a student program store a target date, or is that profile data we only display?
+1. **Badge update.** When `recordVerifiedSkill` runs again for the same `skill` with a higher `score`, does Dashboard replace the badge? The method has no attempt id to dedupe on.
+2. **Level lock.** Should `recordVerifiedSkill` also stop resume sync from clobbering `career_skill.level`, which is what `PUT /api/career-profile/skills` does today? Coach will not call that PUT.
+3. **Primary target.** Free tier uses the `isPrimary` role as its one program. Confirm extra `career_target_role` rows wait for a higher `activePrograms` cap.
+4. **Placement deadline.** Should a student or fresher program store a target date, or is that profile data we only display?
 5. **Paid multiples.** Pro is 4× and Max is 8× the free message, grade, and mock caps, with programs at 1 / 3 / 5. Say if those multiples should change. The ceilings stay 40 / 200 / 600.
