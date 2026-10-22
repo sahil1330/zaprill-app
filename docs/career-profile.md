@@ -123,7 +123,7 @@ Skill gaps are `aggregateSkillGaps` on the jobs used for that basis. Priority is
 careerScore = readiness == null ? null : round(0.75 * readiness + 0.25 * completeness)
 ```
 
-No analysis jobs means `careerScore` and `readiness` are null. Completeness is still returned. The dashboard says the score appears after an analysis. The role feed panel stays unbuilt.
+No analysis jobs means `careerScore` and `readiness` are null. Completeness is still returned. The dashboard says the score appears after an analysis. The Intelligence page explains that score, compares career skills with the jobs in the latest analysis, and lists next steps. See `docs/intelligence-dashboard.md`. The public ATS role feed stays unbuilt.
 
 ## API
 
