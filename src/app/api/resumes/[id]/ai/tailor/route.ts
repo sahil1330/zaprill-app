@@ -7,12 +7,12 @@ import { z } from "zod";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { normalizeResumeData } from "@/lib/resume";
 import {
   clampTailoredPayload,
   type TailoredPayloadInput,
 } from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
-import type { ResumeData } from "@/types/resume";
 
 export const maxDuration = 60;
 
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const { jobDescription } = parsed.data;
-    const data = parsed.data.data as unknown as ResumeData;
+    const data = normalizeResumeData(parsed.data.data);
 
     const resumeText = JSON.stringify({
       basics: { summary: data.basics.summary },

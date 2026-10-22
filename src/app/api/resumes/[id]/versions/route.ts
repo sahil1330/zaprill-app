@@ -1,10 +1,12 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume, resumeVersion } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { insertResumeSnapshot } from "@/lib/resume/insert-snapshot";
+import { snapshotIdentity } from "@/lib/resume/version-snapshot";
+import { createVersionSchema } from "@/lib/validations/resume";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -62,7 +64,19 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const { changeDescription } = await request.json();
+    let payload: unknown;
+    try {
+      payload = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    const parsed = createVersionSchema.safeParse(payload);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
 
     // 1. Fetch current resume data
     const [current] = await db
@@ -75,18 +89,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    // 2. Insert new version
-    const newVersion = await db
-      .insert(resumeVersion)
-      .values({
-        id: nanoid(),
-        resumeId: id,
-        version: current.version,
-        data: current.data as any,
-        metadata: current.metadata as any,
-        changeDescription: changeDescription || "Manual snapshot",
-      })
-      .returning();
+    const identity = snapshotIdentity(current);
+
+    const created = await insertResumeSnapshot({
+      resumeId: id,
+      data: current.data,
+      metadata: current.metadata,
+      templateSlug: identity.templateSlug,
+      title: identity.title,
+      industry: identity.industry,
+      changeDescription: parsed.data.changeDescription || "Manual snapshot",
+    });
 
     // 3. Prune old versions (keep last 20)
     const existingVersions = await db
@@ -109,28 +122,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         );
     }
 
-    return NextResponse.json({ version: newVersion[0] });
+    return NextResponse.json({ version: created });
   } catch (error) {
-    const code =
-      error && typeof error === "object" && "code" in error
-        ? String((error as { code?: string }).code)
-        : "";
-    const causeCode =
-      error &&
-      typeof error === "object" &&
-      "cause" in error &&
-      (error as { cause?: { code?: string } }).cause?.code
-        ? String((error as { cause?: { code?: string } }).cause?.code)
-        : "";
-    if (code === "23505" || causeCode === "23505") {
-      return NextResponse.json(
-        {
-          error:
-            "A snapshot already exists for this version. Save the resume, then snapshot again.",
-        },
-        { status: 409 },
-      );
-    }
     console.error("POST /api/resumes/[id]/versions error:", error);
     return NextResponse.json(
       { error: "Failed to create version snapshot" },

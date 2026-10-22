@@ -2,6 +2,7 @@
 
 import { IconBrandGithub } from "@tabler/icons-react";
 import { HtmlContent } from "@/components/html-content";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -127,7 +128,7 @@ export default function TechStackTemplate({
           {sectionVisibility?.summary && basics?.summary && (
             <section className="resume-section">
               <h2 className="resume-section-title">Summary</h2>
-              <HtmlContent className="resume-text" html={basics.summary} />
+              html={sanitizeResumeHtml(basics.summary)}
             </section>
           )}
 
@@ -164,7 +165,7 @@ export default function TechStackTemplate({
                   {item.summary && (
                     <HtmlContent
                       className="resume-text mb-2"
-                      html={item.summary}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
@@ -309,7 +310,7 @@ export default function TechStackTemplate({
                   {item.description && (
                     <HtmlContent
                       className="resume-text mb-2"
-                      html={item.description}
+                      html={sanitizeResumeHtml(item.description)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (

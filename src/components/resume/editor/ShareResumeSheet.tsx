@@ -13,6 +13,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
+import type { ResumeFlushResult } from "@/lib/resume/save-with-retry";
 import { resumeActions } from "@/store/resumeSlice";
 import type { AppDispatch, RootState } from "@/store/store";
 
@@ -22,7 +23,13 @@ type ShareState = {
   version: number;
 };
 
-export default function ShareResumeSheet({ resumeId }: { resumeId: string }) {
+export default function ShareResumeSheet({
+  resumeId,
+  onFlushPendingSave,
+}: {
+  resumeId: string;
+  onFlushPendingSave?: () => Promise<ResumeFlushResult>;
+}) {
   const dispatch = useDispatch<AppDispatch>();
   const version = useSelector((s: RootState) => s.resume.version);
   const title = useSelector((s: RootState) => s.resume.title);
@@ -66,13 +73,22 @@ export default function ShareResumeSheet({ resumeId }: { resumeId: string }) {
     if (!share) return;
     setSaving(true);
     try {
+      let versionToSend = share.version;
+      if (onFlushPendingSave) {
+        const flushed = await onFlushPendingSave();
+        if (!flushed.ok) {
+          toast.error("Save the resume before changing the share link.");
+          return;
+        }
+        versionToSend = flushed.version;
+      }
       const res = await fetch(`/api/resumes/${resumeId}/share`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           isPublic: next.isPublic,
           rotateSlug: next.rotateSlug ?? false,
-          version: share.version,
+          version: versionToSend,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -115,7 +131,7 @@ export default function ShareResumeSheet({ resumeId }: { resumeId: string }) {
       <Button
         variant="ghost"
         size="sm"
-        className="hidden gap-1.5 sm:inline-flex"
+        className="gap-1.5"
         onClick={() => {
           setOpen(true);
           void loadShare();

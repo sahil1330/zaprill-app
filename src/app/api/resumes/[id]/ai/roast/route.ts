@@ -6,6 +6,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { resumePayloadForAi } from "@/lib/resume/ai-payload";
 import { stripEmoji } from "@/lib/resume/sanitize";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { ResumeData } from "@/types/resume";
@@ -36,9 +37,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const body = await request.json();
-    const data = body.data as ResumeData;
-
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+    const data = resumePayloadForAi(body);
     if (!data) {
       return NextResponse.json(
         { error: "Resume data is required" },

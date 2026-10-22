@@ -5,7 +5,7 @@ import { z } from "zod";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { generateResumeSlug } from "@/lib/resume/slug";
+import { generateResumeSlug, isUniqueViolation } from "@/lib/resume/slug";
 import type { ResumeData } from "@/types/resume";
 
 interface RouteParams {
@@ -17,12 +17,6 @@ const shareSchema = z.object({
   version: z.number().int().positive(),
   rotateSlug: z.boolean().optional(),
 });
-
-function isUniqueViolation(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const record = error as { code?: string; cause?: { code?: string } };
-  return record.code === "23505" || record.cause?.code === "23505";
-}
 
 /**
  * POST /api/resumes/[id]/share
@@ -82,8 +76,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    const mustMintSlug = rotateSlug || !current.slug;
     let slug = current.slug;
-    if (rotateSlug || !slug) {
+    if (mustMintSlug) {
       const data = current.data as ResumeData;
       const seed = data?.basics?.name || current.title;
       slug = generateResumeSlug(seed);
@@ -122,7 +117,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         return NextResponse.json({ resume: updated });
       } catch (error) {
-        if (!isUniqueViolation(error) || attempt === 2 || !rotateSlug) {
+        if (!isUniqueViolation(error) || attempt === 2 || !mustMintSlug) {
           throw error;
         }
         const data = current.data as ResumeData;

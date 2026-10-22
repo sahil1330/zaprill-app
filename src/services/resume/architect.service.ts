@@ -1,10 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "@/db";
-import { resume, resumeChat, resumeVersion } from "@/db/schema";
+import { resume, resumeChat } from "@/db/schema";
 import { enrichResumeMetadata } from "@/lib/inference";
 import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import { insertResumeSnapshot } from "@/lib/resume/insert-snapshot";
 import { clampResumeData } from "@/lib/resume/sanitize";
+import { snapshotIdentity } from "@/lib/resume/version-snapshot";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
 
 export type ResumeArchitectContext = {
@@ -45,6 +47,7 @@ type ResumeRow = {
   userId: string;
   title: string;
   templateSlug: string;
+  industry: string;
   targetRole: string | null;
   data: unknown;
   metadata: unknown;
@@ -79,6 +82,7 @@ export async function loadResumeRow(
       userId: resume.userId,
       title: resume.title,
       templateSlug: resume.templateSlug,
+      industry: resume.industry,
       targetRole: resume.targetRole,
       data: resume.data,
       metadata: resume.metadata,
@@ -187,12 +191,14 @@ async function snapshotBeforeMutate(
 ): Promise<void> {
   if (ctx.versioned) return;
   try {
-    await db.insert(resumeVersion).values({
-      id: nanoid(),
+    const identity = snapshotIdentity(row);
+    await insertResumeSnapshot({
       resumeId: ctx.resumeId,
-      version: row.version,
-      data: row.data as ResumeData,
-      metadata: row.metadata as ResumeMetadata,
+      data: row.data,
+      metadata: row.metadata,
+      templateSlug: identity.templateSlug,
+      title: identity.title,
+      industry: identity.industry,
       changeDescription: "Before Resume Architect edits",
     });
   } catch (error) {
@@ -266,6 +272,7 @@ export async function mutateResume(
         userId: resume.userId,
         title: resume.title,
         templateSlug: resume.templateSlug,
+        industry: resume.industry,
         targetRole: resume.targetRole,
         data: resume.data,
         metadata: resume.metadata,
