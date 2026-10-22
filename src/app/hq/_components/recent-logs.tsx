@@ -41,8 +41,8 @@ export function RecentLogs() {
           <p className="py-10 text-center text-destructive text-sm">{error}</p>
         ) : !logs ? (
           <div className="space-y-8">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4">
+            {["s1", "s2", "s3", "s4", "s5"].map((slot) => (
+              <div key={slot} className="flex items-center gap-4">
                 <Skeleton className="h-9 w-9 rounded-full" />
                 <div className="flex flex-1 flex-col gap-1.5">
                   <Skeleton className="h-3.5 w-[200px]" />

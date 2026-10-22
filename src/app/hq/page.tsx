@@ -10,8 +10,8 @@ import { StatsCards } from "./_components/stats-cards";
 function StatsSkeleton() {
   return (
     <>
-      {Array.from({ length: 4 }).map((_, i) => (
-        <Skeleton key={i} className="h-[110px] w-full rounded-xl" />
+      {["s1", "s2", "s3", "s4"].map((slot) => (
+        <Skeleton key={slot} className="h-[110px] w-full rounded-xl" />
       ))}
     </>
   );

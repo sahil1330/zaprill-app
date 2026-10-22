@@ -34,7 +34,10 @@ export default function MatchRing({
       <svg
         className="-rotate-90 h-full w-full transform"
         viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={`${percentage}% match`}
       >
+        <title>{percentage}% match</title>
         <circle
           cx={size / 2}
           cy={size / 2}

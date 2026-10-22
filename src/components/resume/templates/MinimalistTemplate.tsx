@@ -1,6 +1,7 @@
 "use client";
 
 import { IconBrandGithub } from "@tabler/icons-react";
+import { HtmlContent } from "@/components/html-content";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -63,10 +64,7 @@ export default function MinimalistTemplate({
       sectionVisibility?.summary && basics?.summary ? (
         <section key="summary" className="resume-section">
           <h2 className="resume-section-title">Professional Summary</h2>
-          <div
-            className="resume-text"
-            dangerouslySetInnerHTML={{ __html: basics.summary }}
-          />
+          <HtmlContent className="resume-text" html={basics.summary} />
         </section>
       ) : null,
 
@@ -103,16 +101,17 @@ export default function MinimalistTemplate({
                 </span>
               </div>
               {item.summary && (
-                <div
+                <HtmlContent
                   className="resume-text mb-1.5"
-                  dangerouslySetInnerHTML={{ __html: item.summary }}
+                  html={item.summary}
                 />
               )}
               {item.highlights && (item.highlights || []).length > 0 && (
                 <ul className="resume-bullets">
-                  {(item.highlights || []).map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
+                  {(item.highlights || []).map((h, i) => {
+                    const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                    return <li key={reactKey}>{h}</li>;
+                  })}
                 </ul>
               )}
             </div>
@@ -232,21 +231,25 @@ export default function MinimalistTemplate({
               )}
               {item.highlights && (item.highlights || []).length > 0 && (
                 <ul className="resume-bullets">
-                  {(item.highlights || []).map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
+                  {(item.highlights || []).map((h, i) => {
+                    const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                    return <li key={reactKey}>{h}</li>;
+                  })}
                 </ul>
               )}
               {item.keywords && item.keywords.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1">
-                  {item.keywords.map((k, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded-sm bg-neutral-100 px-1.5 py-0.5 font-medium text-[9px] text-neutral-600 tracking-wide dark:bg-neutral-800 dark:text-neutral-300"
-                    >
-                      {k}
-                    </span>
-                  ))}
+                  {item.keywords.map((k, idx) => {
+                    const reactKey = `${item.id ?? "item"}-${k}-${idx}`;
+                    return (
+                      <span
+                        key={reactKey}
+                        className="rounded-sm bg-neutral-100 px-1.5 py-0.5 font-medium text-[9px] text-neutral-600 tracking-wide dark:bg-neutral-800 dark:text-neutral-300"
+                      >
+                        {k}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -334,9 +337,10 @@ export default function MinimalistTemplate({
               {item.summary && <p className="resume-text">{item.summary}</p>}
               {item.highlights && (item.highlights || []).length > 0 && (
                 <ul className="resume-bullets">
-                  {(item.highlights || []).map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
+                  {(item.highlights || []).map((h, i) => {
+                    const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                    return <li key={reactKey}>{h}</li>;
+                  })}
                 </ul>
               )}
             </div>
@@ -521,16 +525,17 @@ export default function MinimalistTemplate({
                     )}
                   </div>
                   {item.description && (
-                    <div
+                    <HtmlContent
                       className="resume-text mb-1.5"
-                      dangerouslySetInnerHTML={{ __html: item.description }}
+                      html={item.description}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
                     <ul className="resume-bullets">
-                      {(item.highlights || []).map((h, i) => (
-                        <li key={i}>{h}</li>
-                      ))}
+                      {(item.highlights || []).map((h, i) => {
+                        const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                        return <li key={reactKey}>{h}</li>;
+                      })}
                     </ul>
                   )}
                 </div>
