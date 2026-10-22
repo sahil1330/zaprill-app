@@ -25,6 +25,7 @@ import {
 } from "@/services/billing/subscription.service";
 import type { Subscription } from "@/types/billing";
 import { BillingInvoiceTable } from "./_components/billing-invoice-table";
+import { CancelSubscriptionButton } from "./_components/cancel-subscription-button";
 import { RenewalReminder } from "./_components/renewal-reminder";
 
 export const metadata = {
@@ -134,6 +135,13 @@ export default async function BillingPage() {
                   {new Date(typedSub.currentPeriodStart).toLocaleDateString()} —{" "}
                   {new Date(typedSub.currentPeriodEnd).toLocaleDateString()}
                 </p>
+                {typedSub.status !== "canceled" ? (
+                  <div className="mt-4">
+                    <CancelSubscriptionButton
+                      accessEndLabel={accessEndLabel ?? null}
+                    />
+                  </div>
+                ) : null}
               </div>
 
               {isExpiringSoon && accessEndsAt && daysUntilExpiry !== null ? (

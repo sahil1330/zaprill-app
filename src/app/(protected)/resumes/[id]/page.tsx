@@ -36,6 +36,7 @@ import PreviewPanel from "@/components/resume/editor/PreviewPanel";
 import ResumeArchitectChat from "@/components/resume/editor/ResumeArchitectChat";
 import { ResumeEditorErrorFallback } from "@/components/resume/editor/ResumeEditorErrorFallback";
 import RoastDialog from "@/components/resume/editor/RoastDialog";
+import ShareResumeSheet from "@/components/resume/editor/ShareResumeSheet";
 import AtsScorePanel from "@/components/resume/editor/sections/AtsScorePanel";
 import AwardsForm from "@/components/resume/editor/sections/AwardsForm";
 import BasicsForm from "@/components/resume/editor/sections/BasicsForm";
@@ -50,6 +51,7 @@ import SkillsForm from "@/components/resume/editor/sections/SkillsForm";
 import VolunteerForm from "@/components/resume/editor/sections/VolunteerForm";
 import WorkForm from "@/components/resume/editor/sections/WorkForm";
 import TailorDialog from "@/components/resume/editor/TailorDialog";
+import VersionHistorySheet from "@/components/resume/editor/VersionHistorySheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -539,6 +541,9 @@ export default function ResumeEditorPage({
               {showPreview ? "Hide" : "Show"} Preview
             </span>
           </Button>
+
+          <VersionHistorySheet resumeId={id} />
+          <ShareResumeSheet resumeId={id} />
 
           <Separator orientation="vertical" className="hidden h-6 sm:block" />
 

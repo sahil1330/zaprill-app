@@ -5,6 +5,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { generateResumeSlug } from "@/lib/resume/slug";
 import { ensureUserProfile, resumeHasSubstance } from "@/lib/user-profile";
 import { createResumeSchema } from "@/lib/validations/resume";
 import { DEFAULT_RESUME_DATA, DEFAULT_RESUME_METADATA } from "@/types/resume";
@@ -102,8 +103,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ resume: existingResume }, { status: 200 });
     }
 
-    // Generate unique slug
-    const slug = nanoid(10);
+    const slug = generateResumeSlug(title ?? session.user.name);
     const id = nanoid();
 
     // If importing from analysis, we'll use the provided data or defaults
