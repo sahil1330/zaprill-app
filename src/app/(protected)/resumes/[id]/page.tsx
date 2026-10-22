@@ -50,6 +50,7 @@ import SkillsForm from "@/components/resume/editor/sections/SkillsForm";
 import VolunteerForm from "@/components/resume/editor/sections/VolunteerForm";
 import WorkForm from "@/components/resume/editor/sections/WorkForm";
 import TailorDialog from "@/components/resume/editor/TailorDialog";
+import VersionHistorySheet from "@/components/resume/editor/VersionHistorySheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -539,6 +540,8 @@ export default function ResumeEditorPage({
               {showPreview ? "Hide" : "Show"} Preview
             </span>
           </Button>
+
+          <VersionHistorySheet resumeId={id} />
 
           <Separator orientation="vertical" className="hidden h-6 sm:block" />
 

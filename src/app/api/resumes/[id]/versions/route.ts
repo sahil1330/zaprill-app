@@ -111,6 +111,26 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ version: newVersion[0] });
   } catch (error) {
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? String((error as { code?: string }).code)
+        : "";
+    const causeCode =
+      error &&
+      typeof error === "object" &&
+      "cause" in error &&
+      (error as { cause?: { code?: string } }).cause?.code
+        ? String((error as { cause?: { code?: string } }).cause?.code)
+        : "";
+    if (code === "23505" || causeCode === "23505") {
+      return NextResponse.json(
+        {
+          error:
+            "A snapshot already exists for this version. Save the resume, then snapshot again.",
+        },
+        { status: 409 },
+      );
+    }
     console.error("POST /api/resumes/[id]/versions error:", error);
     return NextResponse.json(
       { error: "Failed to create version snapshot" },
