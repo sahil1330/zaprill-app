@@ -113,6 +113,13 @@
       "when": 1790100000000,
       "tag": "0015_resume_version_snapshot_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790200000000,
+      "tag": "0016_drop_resume_share_password",
+      "breakpoints": true
     }
   ]
 }

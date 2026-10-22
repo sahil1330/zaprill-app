@@ -20,6 +20,20 @@ export function snapshotIdentity(row: {
   };
 }
 
+/**
+ * Next `resume_version.version` for a new snapshot.
+ * The column is unique per resume, so this is a snapshot sequence, not the
+ * optimistic lock on `resume.version`. Two snapshots of the same saved resume
+ * therefore get 1 then 2, including Architect's pre-edit copy.
+ */
+export function nextSnapshotVersion(existing: number[]): number {
+  let highest = 0;
+  for (const value of existing) {
+    if (Number.isFinite(value) && value > highest) highest = value;
+  }
+  return highest + 1;
+}
+
 /** Only apply identity that was actually stored on the snapshot row. */
 export function restoreIdentityPatch(version: {
   templateSlug?: string | null;

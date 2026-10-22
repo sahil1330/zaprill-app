@@ -1,9 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "@/db";
-import { resume, resumeChat, resumeVersion } from "@/db/schema";
+import { resume, resumeChat } from "@/db/schema";
 import { enrichResumeMetadata } from "@/lib/inference";
 import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import { insertResumeSnapshot } from "@/lib/resume/insert-snapshot";
 import { clampResumeData } from "@/lib/resume/sanitize";
 import { snapshotIdentity } from "@/lib/resume/version-snapshot";
 import type { ResumeData, ResumeMetadata } from "@/types/resume";
@@ -191,12 +192,10 @@ async function snapshotBeforeMutate(
   if (ctx.versioned) return;
   try {
     const identity = snapshotIdentity(row);
-    await db.insert(resumeVersion).values({
-      id: nanoid(),
+    await insertResumeSnapshot({
       resumeId: ctx.resumeId,
-      version: row.version,
-      data: row.data as ResumeData,
-      metadata: row.metadata as ResumeMetadata,
+      data: row.data,
+      metadata: row.metadata,
       templateSlug: identity.templateSlug,
       title: identity.title,
       industry: identity.industry,

@@ -229,7 +229,8 @@ export default function VersionHistorySheet({
                 </div>
               ) : versions.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
-                  No snapshots yet. Resume Architect saves one before it edits.
+                  No snapshots yet. Save one anytime, including before an edit.
+                  Resume Architect also saves the resume before it changes it.
                   You can also save the current resume from here.
                 </p>
               ) : (

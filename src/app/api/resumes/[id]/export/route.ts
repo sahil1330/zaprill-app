@@ -4,19 +4,19 @@ import { NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import type { ResumeData, ResumeMetadata } from "@/types/resume";
+import { renderResumePdf } from "@/lib/resume/pdf/render";
+import { pdfDownloadFilename } from "@/lib/resume/pdf/text";
+
+export const runtime = "nodejs";
+export const maxDuration = 30;
 
 /**
  * POST /api/resumes/[id]/export
- *
- * Generates an export-ready HTML payload for client-side PDF rendering.
- * Returns the resume data + metadata needed to render a print-optimized page.
- *
- * The actual PDF is generated client-side via window.print() or
- * a dedicated print page, avoiding serverless cold-start issues with Puppeteer.
+ * Returns a PDF file. The download count increments only after the file
+ * is rendered, so a failed export or an HTML preview does not count.
  */
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -25,20 +25,6 @@ export async function POST(
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    let recordDownload = true;
-    try {
-      const body = await request.json();
-      if (
-        body &&
-        typeof body === "object" &&
-        (body as { recordDownload?: unknown }).recordDownload === false
-      ) {
-        recordDownload = false;
-      }
-    } catch {
-      recordDownload = true;
     }
 
     const [found] = await db
@@ -51,20 +37,29 @@ export async function POST(
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    if (recordDownload) {
+    const pdf = await renderResumePdf({
+      title: found.title,
+      templateSlug: found.templateSlug,
+      data: found.data,
+      metadata: found.metadata,
+    });
+
+    try {
       await db
         .update(resume)
         .set({ downloadCount: sql`${resume.downloadCount} + 1` })
         .where(eq(resume.id, id));
+    } catch (error) {
+      console.error("Failed to record resume download:", error);
     }
 
-    return NextResponse.json({
-      resume: {
-        id: found.id,
-        title: found.title,
-        data: found.data as ResumeData,
-        metadata: found.metadata as ResumeMetadata,
-        templateSlug: found.templateSlug,
+    const filename = pdfDownloadFilename(found.title);
+    return new NextResponse(new Uint8Array(pdf), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {

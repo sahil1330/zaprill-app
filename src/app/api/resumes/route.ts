@@ -92,17 +92,6 @@ export async function POST(request: NextRequest) {
     const { title, templateSlug, industry, sourceAnalysisId, data, metadata } =
       parsed.data;
 
-    // Check if user already has a resume to enforce "one resume per user"
-    const [existingResume] = await db
-      .select()
-      .from(resume)
-      .where(eq(resume.userId, session.user.id))
-      .limit(1);
-
-    if (existingResume) {
-      return NextResponse.json({ resume: existingResume }, { status: 200 });
-    }
-
     const id = nanoid();
 
     // If importing from analysis, we'll use the provided data or defaults

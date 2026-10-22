@@ -155,7 +155,7 @@ export async function ensureResume(
     return body.resume;
   }
 
-  // Remove duplicate resumes (one-resume-per-user policy in UI)
+  // Spec isolation only. The product library lists every resume.
   for (const extra of resumes.slice(1)) {
     await request.delete(`/api/resumes/${extra.id}`);
   }

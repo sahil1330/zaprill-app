@@ -73,6 +73,7 @@ import {
 } from "@/components/ui/sheet";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import { downloadResumePdf } from "@/lib/resume/download-pdf";
 import { loadResumeDraft } from "@/lib/resume/draft-recovery";
 import { prepareResumeDataForSave } from "@/lib/resume/sanitize";
 import { patchResumeWithVersionRetry } from "@/lib/resume/save-with-retry";
@@ -592,11 +593,7 @@ export default function ResumeEditorPage({
                   toast.error("Save the resume before exporting.");
                   return;
                 }
-                window.open(
-                  `/resumes/${id}/export`,
-                  "_blank",
-                  "noopener,noreferrer",
-                );
+                await downloadResumePdf(id);
               } catch (err) {
                 console.error("Export error:", err);
                 toast.error("Couldn't export this resume.");

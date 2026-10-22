@@ -1,7 +1,12 @@
 import { and, eq, sql } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume } from "@/db/schema";
+import {
+  publicViewCookieName,
+  shouldCountPublicView,
+} from "@/lib/resume/public-view";
 
 interface RouteParams {
   params: Promise<{ slug: string }>;
@@ -37,12 +42,17 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    await db
-      .update(resume)
-      .set({ viewCount: sql`${resume.viewCount} + 1` })
-      .where(eq(resume.id, found.id));
+    const jar = await cookies();
+    const cookieName = publicViewCookieName(slug);
+    const countView = shouldCountPublicView(jar.get(cookieName)?.value, slug);
+    if (countView) {
+      await db
+        .update(resume)
+        .set({ viewCount: sql`${resume.viewCount} + 1` })
+        .where(eq(resume.id, found.id));
+    }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       resume: {
         title: found.title,
         slug: found.slug,
@@ -52,6 +62,15 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         updatedAt: found.updatedAt,
       },
     });
+    if (countView) {
+      response.cookies.set(cookieName, slug, {
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 12,
+        path: "/",
+      });
+    }
+    return response;
   } catch (error) {
     console.error("GET /api/resumes/public/[slug] error:", error);
     return NextResponse.json(

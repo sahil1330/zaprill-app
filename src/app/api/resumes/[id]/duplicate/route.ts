@@ -58,7 +58,6 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
             targetRole: original.targetRole,
             version: 1,
             isPublic: false,
-            sharePassword: null,
             viewCount: 0,
             downloadCount: 0,
             lastAtsScore: null,
