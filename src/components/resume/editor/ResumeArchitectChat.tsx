@@ -8,8 +8,7 @@ import {
   Check,
   ChevronDown,
   Loader2,
-  PanelRightClose,
-  PanelRightOpen,
+  Minus,
   PenLine,
   Square,
 } from "lucide-react";
@@ -55,15 +54,120 @@ const TOOL_DONE: Record<string, string> = {
   web_search: "Looked up a source",
 };
 
-const WIDTH_KEY = "zaprill.resume-architect.width";
-const OPEN_KEY = "zaprill.resume-architect.open";
-const MIN_WIDTH = 280;
-const MAX_WIDTH = 480;
-const DEFAULT_WIDTH = 360;
+const FRAME_KEY = "zaprill.resume-architect.frame";
+const MARGIN = 16;
+const MIN_W = 320;
+const MIN_H = 280;
+const MAX_W = 640;
+const MAX_H = 760;
+const DEFAULT_W = 380;
+const DEFAULT_H = 480;
 
-function clampWidth(value: number) {
-  return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(value)));
+type Frame = { x: number; y: number; w: number; h: number };
+type ResizeEdge = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+
+function limits(vw: number, vh: number) {
+  const maxW = Math.max(240, Math.min(MAX_W, vw - MARGIN * 2));
+  const maxH = Math.max(220, Math.min(MAX_H, vh - MARGIN * 2));
+  return {
+    minW: Math.min(MIN_W, maxW),
+    minH: Math.min(MIN_H, maxH),
+    maxW,
+    maxH,
+  };
 }
+
+function defaultFrame(vw: number, vh: number): Frame {
+  const { maxW, maxH } = limits(vw, vh);
+  const w = Math.min(DEFAULT_W, maxW);
+  const h = Math.min(DEFAULT_H, maxH);
+  return {
+    w,
+    h,
+    x: Math.max(MARGIN, vw - w - MARGIN),
+    y: Math.max(MARGIN, vh - h - MARGIN),
+  };
+}
+
+function clampFrame(frame: Frame, vw: number, vh: number): Frame {
+  const { minW, minH, maxW, maxH } = limits(vw, vh);
+  const w = Math.min(maxW, Math.max(minW, frame.w));
+  const h = Math.min(maxH, Math.max(minH, frame.h));
+  const x = Math.min(
+    Math.max(MARGIN, frame.x),
+    Math.max(MARGIN, vw - w - MARGIN),
+  );
+  const y = Math.min(
+    Math.max(MARGIN, frame.y),
+    Math.max(MARGIN, vh - h - MARGIN),
+  );
+  return { x, y, w, h };
+}
+
+function readFrame(): { frame: Frame; minimized: boolean } | null {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(FRAME_KEY) ?? "");
+    if (!raw || typeof raw !== "object") return null;
+    const x = Number(raw.x);
+    const y = Number(raw.y);
+    const w = Number(raw.w);
+    const h = Number(raw.h);
+    if (![x, y, w, h].every(Number.isFinite)) return null;
+    return {
+      frame: { x, y, w, h },
+      minimized: raw.minimized !== false,
+    };
+  } catch {
+    return null;
+  }
+}
+
+const RESIZE_HANDLES: Array<{
+  edge: ResizeEdge;
+  label: string;
+  className: string;
+}> = [
+  {
+    edge: "n",
+    label: "Resize from the top",
+    className: "inset-x-3 top-0 h-1.5 cursor-ns-resize",
+  },
+  {
+    edge: "s",
+    label: "Resize from the bottom",
+    className: "inset-x-3 bottom-0 h-1.5 cursor-ns-resize",
+  },
+  {
+    edge: "e",
+    label: "Resize from the right",
+    className: "inset-y-3 right-0 w-1.5 cursor-ew-resize",
+  },
+  {
+    edge: "w",
+    label: "Resize from the left",
+    className: "inset-y-3 left-0 w-1.5 cursor-ew-resize",
+  },
+  {
+    edge: "nw",
+    label: "Resize from the top left",
+    className: "top-0 left-0 size-3 cursor-nwse-resize",
+  },
+  {
+    edge: "ne",
+    label: "Resize from the top right",
+    className: "top-0 right-0 size-3 cursor-nesw-resize",
+  },
+  {
+    edge: "sw",
+    label: "Resize from the bottom left",
+    className: "bottom-0 left-0 size-3 cursor-nesw-resize",
+  },
+  {
+    edge: "se",
+    label: "Resize from the bottom right",
+    className: "right-0 bottom-0 size-3 cursor-nwse-resize",
+  },
+];
 
 function isSnapshot(value: unknown): value is ResumeArchitectSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -341,19 +445,22 @@ function ArchitectSession({
   resumeId,
   initialMessages,
   onFlushPendingSave,
-  startOpen,
 }: {
   resumeId: string;
   initialMessages: ResumeArchitectUIMessage[];
   onFlushPendingSave?: () => Promise<unknown>;
-  startOpen: boolean;
 }) {
   const dispatch = useDispatch<AppDispatch>();
   const currentVersion = useSelector((s: RootState) => s.resume.version);
   const { data: session } = useSession();
   const user = session?.user;
-  const [collapsed, setCollapsed] = useState(!startOpen);
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [minimized, setMinimized] = useState(true);
+  const [frame, setFrame] = useState<Frame>({
+    x: MARGIN,
+    y: MARGIN,
+    w: DEFAULT_W,
+    h: DEFAULT_H,
+  });
   const [hydrated, setHydrated] = useState(false);
   const [compact, setCompact] = useState(false);
   const [input, setInput] = useState("");
@@ -404,7 +511,7 @@ function ArchitectSession({
   const submit = useCallback(async () => {
     const text = input.trim();
     if (!text || busy) return;
-    setCollapsed(false);
+    setMinimized(false);
     setInput("");
     try {
       await onFlushPendingSave?.();
@@ -423,23 +530,25 @@ function ArchitectSession({
   }, [input]);
 
   useEffect(() => {
-    const storedWidth = Number(window.localStorage.getItem(WIDTH_KEY));
-    if (Number.isFinite(storedWidth)) setWidth(clampWidth(storedWidth));
-    const storedOpen = window.localStorage.getItem(OPEN_KEY);
-    if (storedOpen === "0") setCollapsed(true);
-    else if (storedOpen === "1") setCollapsed(false);
-    else setCollapsed(window.matchMedia("(max-width: 1023px)").matches);
+    const stored = readFrame();
+    const next = stored
+      ? clampFrame(stored.frame, window.innerWidth, window.innerHeight)
+      : defaultFrame(window.innerWidth, window.innerHeight);
+    setFrame(next);
+    setMinimized(stored ? stored.minimized : true);
     setHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(WIDTH_KEY, String(width));
-    window.localStorage.setItem(OPEN_KEY, collapsed ? "0" : "1");
-  }, [hydrated, width, collapsed]);
+    window.localStorage.setItem(
+      FRAME_KEY,
+      JSON.stringify({ ...frame, minimized }),
+    );
+  }, [hydrated, frame, minimized]);
 
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 1023px)");
+    const query = window.matchMedia("(max-width: 639px)");
     const apply = () => setCompact(query.matches);
     apply();
     query.addEventListener("change", apply);
@@ -447,20 +556,61 @@ function ArchitectSession({
   }, []);
 
   useEffect(() => {
-    if (collapsed) return;
+    const onResize = () => {
+      setFrame((current) =>
+        clampFrame(current, window.innerWidth, window.innerHeight),
+      );
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    if (minimized) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busy) setCollapsed(true);
+      if (event.key === "Escape" && !busy) setMinimized(true);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [collapsed, busy]);
+  }, [minimized, busy]);
 
-  const resize = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const resizeBy = useCallback(
+    (edge: ResizeEdge, dx: number, dy: number, start: Frame) => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const east = edge === "e" || edge === "ne" || edge === "se";
+      const west = edge === "w" || edge === "nw" || edge === "sw";
+      const north = edge === "n" || edge === "ne" || edge === "nw";
+      const south = edge === "s" || edge === "se" || edge === "sw";
+      const { minW, minH, maxW, maxH } = limits(vw, vh);
+      let w = start.w;
+      let h = start.h;
+      if (east) w = start.w + dx;
+      if (west) w = start.w - dx;
+      if (south) h = start.h + dy;
+      if (north) h = start.h - dy;
+      w = Math.min(maxW, Math.max(minW, w));
+      h = Math.min(maxH, Math.max(minH, h));
+      const x = west ? start.x + start.w - w : start.x;
+      const y = north ? start.y + start.h - h : start.y;
+      setFrame(clampFrame({ x, y, w, h }, vw, vh));
+    },
+    [],
+  );
+
+  const startResize = (edge: ResizeEdge, event: ReactPointerEvent) => {
     event.preventDefault();
+    event.stopPropagation();
     const startX = event.clientX;
-    const startWidth = width;
+    const startY = event.clientY;
+    const start = frame;
     const onMove = (moveEvent: PointerEvent) => {
-      setWidth(clampWidth(startWidth + startX - moveEvent.clientX));
+      resizeBy(
+        edge,
+        moveEvent.clientX - startX,
+        moveEvent.clientY - startY,
+        start,
+      );
     };
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
@@ -470,58 +620,107 @@ function ArchitectSession({
     window.addEventListener("pointerup", onUp);
   };
 
-  if (collapsed) {
+  const startDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (compact) return;
+    if ((event.target as HTMLElement).closest("button")) return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const start = frame;
+    const onMove = (moveEvent: PointerEvent) => {
+      setFrame(
+        clampFrame(
+          {
+            ...start,
+            x: start.x + moveEvent.clientX - startX,
+            y: start.y + moveEvent.clientY - startY,
+          },
+          window.innerWidth,
+          window.innerHeight,
+        ),
+      );
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
+  if (minimized) {
     return (
-      <aside className="flex h-full w-11 shrink-0 flex-col border-border border-l bg-background">
-        <button
-          type="button"
-          className="flex h-full flex-col items-center gap-3 px-1 py-4 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-          onClick={() => setCollapsed(false)}
-          aria-expanded={false}
-          aria-label="Open Resume Architect"
-        >
-          <PanelRightOpen className="size-4" />
-          <span className="font-medium text-xs [writing-mode:vertical-rl]">
-            Architect
-          </span>
-        </button>
-      </aside>
+      <button
+        type="button"
+        className="fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm shadow-sm hover:bg-muted"
+        onClick={() => setMinimized(false)}
+        aria-expanded={false}
+        aria-label="Open Resume Architect"
+      >
+        <PenLine className="size-4" />
+        Architect
+      </button>
     );
   }
 
+  const sheetHeight = Math.min(
+    frame.h,
+    Math.round(
+      typeof window === "undefined" ? DEFAULT_H : window.innerHeight * 0.72,
+    ),
+  );
+
   return (
-    <aside
-      className={cn(
-        "relative flex h-full min-h-0 shrink-0 flex-col border-border border-l bg-background",
-        compact && "w-[min(20rem,calc(100vw-11rem))]",
-      )}
-      style={compact ? undefined : { width }}
+    <section
+      aria-label="Resume Architect"
+      className="fixed z-40 flex flex-col overflow-hidden rounded-lg border border-border bg-background shadow-sm"
+      style={
+        compact
+          ? { left: 12, right: 12, bottom: 12, height: sheetHeight }
+          : { left: frame.x, top: frame.y, width: frame.w, height: frame.h }
+      }
     >
-      {compact ? null : (
-        <div
-          role="slider"
-          aria-orientation="vertical"
-          aria-label="Resize Resume Architect"
-          aria-valuemin={MIN_WIDTH}
-          aria-valuemax={MAX_WIDTH}
-          aria-valuenow={width}
-          tabIndex={0}
-          className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize hover:bg-border"
-          onPointerDown={resize}
+      {(compact
+        ? RESIZE_HANDLES.filter((handle) => handle.edge === "n")
+        : RESIZE_HANDLES
+      ).map((handle) => (
+        <button
+          key={handle.edge}
+          type="button"
+          aria-label={handle.label}
+          className={cn(
+            "absolute z-10 bg-transparent p-0 hover:bg-border",
+            handle.className,
+          )}
+          onPointerDown={(event) => startResize(handle.edge, event)}
           onKeyDown={(event) => {
-            if (event.key === "ArrowLeft") {
-              event.preventDefault();
-              setWidth((current) => clampWidth(current + 16));
-            }
-            if (event.key === "ArrowRight") {
-              event.preventDefault();
-              setWidth((current) => clampWidth(current - 16));
-            }
+            const step = event.shiftKey ? 32 : 16;
+            const dx =
+              event.key === "ArrowRight"
+                ? step
+                : event.key === "ArrowLeft"
+                  ? -step
+                  : 0;
+            const dy =
+              event.key === "ArrowDown"
+                ? step
+                : event.key === "ArrowUp"
+                  ? -step
+                  : 0;
+            if (dx === 0 && dy === 0) return;
+            event.preventDefault();
+            resizeBy(handle.edge, dx, dy, frame);
           }}
         />
-      )}
+      ))}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-border border-b px-3 py-2.5">
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3 border-border border-b px-3 py-2.5",
+            compact ? "cursor-default" : "cursor-grab active:cursor-grabbing",
+          )}
+          onPointerDown={startDrag}
+        >
           <div className="flex min-w-0 items-center gap-2.5">
             <AgentMark />
             <div className="min-w-0">
@@ -529,7 +728,7 @@ function ArchitectSession({
                 Resume Architect
               </p>
               <p className="truncate text-[11px] text-muted-foreground">
-                Edits the resume beside this panel
+                Edits the resume on the page
               </p>
             </div>
           </div>
@@ -538,11 +737,11 @@ function ArchitectSession({
             variant="ghost"
             size="icon"
             className="size-8 text-muted-foreground"
-            onClick={() => setCollapsed(true)}
-            aria-label="Collapse architect"
-            disabled={busy}
+            onClick={() => setMinimized(true)}
+            onPointerDown={(event) => event.stopPropagation()}
+            aria-label="Minimize architect"
           >
-            <PanelRightClose className="size-4" />
+            <Minus className="size-4" />
           </Button>
         </div>
 
@@ -648,7 +847,7 @@ function ArchitectSession({
           )}
         </form>
       </div>
-    </aside>
+    </section>
   );
 }
 
@@ -684,10 +883,15 @@ export default function ResumeArchitectChat({
 
   if (history === null) {
     return (
-      <aside
-        className="h-full w-11 shrink-0 border-border border-l bg-background"
-        aria-hidden
-      />
+      <button
+        type="button"
+        disabled
+        className="fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm shadow-sm"
+        aria-label="Resume Architect"
+      >
+        <PenLine className="size-4" />
+        Architect
+      </button>
     );
   }
 
@@ -696,7 +900,6 @@ export default function ResumeArchitectChat({
       resumeId={resumeId}
       initialMessages={history}
       onFlushPendingSave={onFlushPendingSave}
-      startOpen={history.length > 0}
     />
   );
 }

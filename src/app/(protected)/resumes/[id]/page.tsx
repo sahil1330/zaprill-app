@@ -714,12 +714,12 @@ export default function ResumeEditorPage({
             </ErrorBoundary>
           </div>
         )}
-
-        <ResumeArchitectChat
-          resumeId={id}
-          onFlushPendingSave={isDirty ? flushPendingSave : undefined}
-        />
       </div>
+
+      <ResumeArchitectChat
+        resumeId={id}
+        onFlushPendingSave={isDirty ? flushPendingSave : undefined}
+      />
 
       {/* Validation Error Dialog */}
       <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
