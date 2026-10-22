@@ -67,7 +67,7 @@ graph TD
     end
 
     subgraph Services ["Service Layer (Business Logic)"]
-        AIService["AI Service (Gemini/Groq Inference)"]
+        AIService["AI Service (OpenAI gpt-5-mini via AI SDK)"]
         BillingService["Billing Service (Cashfree Integration)"]
         EmailService["Email Service (Resend)"]
         ReferralService["Referral Logic"]
@@ -83,13 +83,11 @@ graph TD
     Services <--> Data
     
     %% External Integrations
-    Gemini["Google Gemini API"]
-    Groq["Groq Cloud"]
+    OpenAI["OpenAI API (gpt-5-mini, @ai-sdk/openai)"]
     Cashfree["Cashfree Payments"]
     Resend["Resend Email"]
 
-    AIService --- Gemini
-    AIService --- Groq
+    AIService --- OpenAI
     BillingService --- Cashfree
     EmailService --- Resend
 ```
@@ -168,11 +166,12 @@ erDiagram
 > [!TIP]
 > This project leverages a modern, serverless-first stack optimized for scale and developer velocity.
 
+- **Package manager**: pnpm (Node.js 22+)
 - **Framework**: [Next.js 16+](https://nextjs.org) (App Router)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Database**: [Neon Postgres](https://neon.tech) via [Drizzle ORM](https://orm.drizzle.tech)
 - **Auth**: [Better Auth](https://better-auth.com) (Self-managed authentication)
-- **AI**: [Google Gemini](https://ai.google.dev/) & [Groq](https://groq.com)
+- **AI**: [OpenAI](https://platform.openai.com/) `gpt-5-mini` through the Vercel AI SDK provider `@ai-sdk/openai` (`openai("gpt-5-mini")`). Parse, gap analysis, ATS, tailor, roast, summary, enhance, and Resume Architect all use this model.
 - **Payments**: [Cashfree](https://www.cashfree.com/)
 - **Emails**: [Resend](https://resend.com)
 - **State Management**: **Redux (Redux Toolkit)**
