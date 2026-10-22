@@ -141,7 +141,7 @@ export default function PaymentStatusPage({
   const planName = meta?.planName || "Subscription";
 
   return (
-    <div className="container mx-auto max-w-lg px-4 py-12 md:py-20">
+    <div className="container mx-auto max-w-lg px-4 py-6 md:py-8">
       <Card className="overflow-hidden border-muted/60 shadow-xl">
         {/* Status Header */}
         <div

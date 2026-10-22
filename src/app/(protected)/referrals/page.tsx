@@ -150,7 +150,7 @@ export default function ReferralsPage() {
       : 0;
 
   return (
-    <main className="mx-auto max-w-4xl space-y-8 px-4 py-10 sm:px-6">
+    <main className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
       {/* ── Hero header ── */}
       <div className="flex items-start gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/60">
@@ -168,7 +168,7 @@ export default function ReferralsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-10">
           <Loader2 size={32} className="animate-spin text-muted-foreground" />
         </div>
       ) : (

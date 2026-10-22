@@ -1,24 +1,18 @@
 "use client";
 
 import {
-  IconActivity,
-  IconAward,
-  IconBolt,
   IconCopy,
   IconDotsVertical,
   IconDownload,
   IconEdit,
   IconEye,
-  IconFileText,
   IconLoader2,
   IconPlus,
-  IconSearch,
-  IconSparkles,
-  IconTarget,
   IconTrash,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/app/page-header";
 import CreativePortfolioTemplate from "@/components/resume/templates/CreativePortfolioTemplate";
 import ExecutiveProTemplate from "@/components/resume/templates/ExecutiveProTemplate";
@@ -28,22 +22,26 @@ import { TEMPLATE_REGISTRY } from "@/components/resume/templates/registry";
 import TechStackTemplate from "@/components/resume/templates/TechStackTemplate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  DEFAULT_RESUME_DATA,
-  DEFAULT_RESUME_METADATA,
-  type ResumeListItem,
+import { normalizeResumeData, normalizeResumeMetadata } from "@/lib/resume";
+import { downloadResumePdf } from "@/lib/resume/download-pdf";
+import type {
+  ResumeData,
+  ResumeListItem,
+  ResumeMetadata,
 } from "@/types/resume";
 import "@/components/resume/templates/resume-templates.css";
 
-const TEMPLATE_COMPONENTS: Record<string, any> = {
+const TEMPLATE_COMPONENTS: Record<
+  string,
+  React.ComponentType<{ data: ResumeData; metadata: ResumeMetadata }>
+> = {
   minimalist: MinimalistTemplate,
   "tech-stack": TechStackTemplate,
   "executive-pro": ExecutiveProTemplate,
@@ -55,16 +53,14 @@ function ResumeThumbnail({ resume }: { resume: ResumeListItem }) {
   const TemplateComponent =
     TEMPLATE_COMPONENTS[resume.templateSlug] ?? MinimalistTemplate;
 
-  // Safety check: ensure data and metadata are present
-  // Even if they are null in the DB, we pass fallbacks to the template
-  const resumeData = resume.data || DEFAULT_RESUME_DATA;
-  const resumeMetadata = resume.metadata || DEFAULT_RESUME_METADATA;
-
   return (
-    <div className="relative h-[452px] w-[320px] overflow-hidden rounded-md border border-border/10 bg-white shadow-2xl transition-all duration-500 group-hover:shadow-primary/20">
-      <div className="pointer-events-none absolute top-0 left-0 h-[1130px] w-[800px] origin-top-left scale-[0.4]">
-        <div className="h-full w-full p-10">
-          <TemplateComponent data={resumeData} metadata={resumeMetadata} />
+    <div className="relative h-56 overflow-hidden border-border/60 border-b bg-muted/30">
+      <div className="-translate-x-1/2 pointer-events-none absolute top-3 left-1/2 h-[1100px] w-[800px] origin-top scale-[0.28]">
+        <div className="h-full w-full bg-white p-8 shadow-sm">
+          <TemplateComponent
+            data={normalizeResumeData(resume.data)}
+            metadata={normalizeResumeMetadata(resume.metadata)}
+          />
         </div>
       </div>
     </div>
@@ -76,23 +72,26 @@ export default function ResumesPage() {
   const [resumes, setResumes] = useState<ResumeListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const fetchResumes = useCallback(async () => {
     try {
       const res = await fetch("/api/resumes");
-      if (res.ok) {
-        const data = await res.json();
-        setResumes(data.resumes);
+      if (!res.ok) {
+        throw new Error("Failed to fetch resumes");
       }
+      const data = await res.json();
+      setResumes(Array.isArray(data.resumes) ? data.resumes : []);
     } catch (err) {
       console.error("Failed to fetch resumes:", err);
+      toast.error("Couldn't load your resumes.");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchResumes();
+    void fetchResumes();
   }, [fetchResumes]);
 
   const handleCreate = async () => {
@@ -103,322 +102,226 @@ export default function ResumesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      if (res.ok) {
-        const data = await res.json();
-        router.push(`/resumes/${data.resume.id}`);
+      if (!res.ok) {
+        throw new Error("Failed to create resume");
       }
+      const data = await res.json();
+      router.push(`/resumes/${data.resume.id}`);
     } catch (err) {
       console.error("Failed to create resume:", err);
+      toast.error("Couldn't create a resume.");
     } finally {
       setIsCreating(false);
     }
   };
 
   const handleDuplicate = async (id: string) => {
+    setBusyId(id);
     try {
       const res = await fetch(`/api/resumes/${id}/duplicate`, {
         method: "POST",
       });
-      if (res.ok) {
-        fetchResumes();
+      if (!res.ok) {
+        throw new Error("Failed to duplicate resume");
       }
+      await fetchResumes();
     } catch (err) {
       console.error("Failed to duplicate resume:", err);
+      toast.error("Couldn't duplicate this resume.");
+    } finally {
+      setBusyId(null);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete your resume? This cannot be undone.",
-      )
-    )
-      return;
+    if (!confirm("Delete this resume? This cannot be undone.")) return;
+    setBusyId(id);
     try {
       const res = await fetch(`/api/resumes/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setResumes([]);
+      if (!res.ok) {
+        throw new Error("Failed to delete resume");
       }
+      await fetchResumes();
     } catch (err) {
       console.error("Failed to delete resume:", err);
+      toast.error("Couldn't delete this resume.");
+    } finally {
+      setBusyId(null);
     }
   };
 
-  const activeResume = resumes[0]; // Primary resume for the one-resume dashboard
+  const handleDownload = async (id: string) => {
+    setBusyId(id);
+    try {
+      await downloadResumePdf(id);
+      await fetchResumes();
+    } catch (err) {
+      console.error("Failed to export resume:", err);
+      toast.error("Couldn't download the PDF.");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   const getTemplateName = (slug: string) =>
-    TEMPLATE_REGISTRY.find((t) => t.slug === slug)?.name ?? slug;
+    TEMPLATE_REGISTRY.find((template) => template.slug === slug)?.name ?? slug;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-6xl px-6 py-6">
       <PageHeader
         title="Resumes"
-        description="Upload, edit, and export your professional resume."
+        description="Keep a resume for each role. Duplicate one, tailor it, and the others stay in the library."
+        actions={
+          resumes.length > 0 ? (
+            <Button
+              onClick={handleCreate}
+              disabled={isCreating}
+              className="gap-2"
+            >
+              {isCreating ? (
+                <IconLoader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <IconPlus className="h-4 w-4" />
+              )}
+              New resume
+            </Button>
+          ) : null
+        }
       />
 
-      {/* Loading */}
       {isLoading && (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-10">
           <IconLoader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
-      {/* Empty state */}
-      {!isLoading && !activeResume && (
+      {!isLoading && resumes.length === 0 && (
         <div className="py-20 text-center">
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-primary/10 shadow-primary/5 shadow-xl">
-            <IconSparkles className="h-12 w-12 text-primary" />
-          </div>
           <h2 className="mb-4 font-black text-4xl tracking-tight">
             Build your professional identity
           </h2>
           <p className="mx-auto mb-10 max-w-lg font-medium text-lg text-muted-foreground leading-relaxed">
-            Create a stunning, ATS-optimized resume that gets you noticed by top
-            companies. Our AI handles the complexity while you focus on your
-            career.
+            Create a resume for the role you want, then duplicate it when the
+            next job asks for a different story.
           </p>
           <Button
             onClick={handleCreate}
             disabled={isCreating}
             variant="gradient"
             size="lg"
-            className="h-14 gap-2 rounded-full px-10 font-black text-lg transition-all"
+            className="h-14 gap-2 rounded-full px-10 font-black text-lg"
           >
             {isCreating ? (
               <IconLoader2 className="h-6 w-6 animate-spin" />
             ) : (
               <IconPlus className="h-6 w-6" />
             )}
-            Create Your Resume
+            Create your resume
           </Button>
         </div>
       )}
 
-      {/* Dashboard Content */}
-      {!isLoading && activeResume && (
-        <div className="fade-in slide-in-from-bottom-8 animate-in duration-700">
-          <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <h1 className="font-black text-5xl text-foreground tracking-tighter">
-                Your Resume
-              </h1>
-              <p className="mt-2 font-bold text-lg text-muted-foreground">
-                Optimized for {activeResume.industry} • Last updated{" "}
-                {new Date(activeResume.updatedAt).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-12 w-12 rounded-xl"
-                  >
-                    <IconDotsVertical className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem
-                    onClick={() => handleDuplicate(activeResume.id)}
-                  >
-                    <IconCopy className="mr-2 h-4 w-4" /> Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={() => handleDelete(activeResume.id)}
-                  >
-                    <IconTrash className="mr-2 h-4 w-4" /> Delete Resume
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            {/* Featured Preview */}
-            <div className="group lg:col-span-2">
-              <Card
-                className="cursor-pointer overflow-hidden rounded-3xl border-2 border-border/50 shadow-sm transition-all duration-500 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5"
-                onClick={() => router.push(`/resumes/${activeResume.id}`)}
+      {!isLoading && resumes.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {resumes.map((item) => (
+            <Card
+              key={item.id}
+              data-resume-id={item.id}
+              className="overflow-hidden rounded-3xl border-border/60"
+            >
+              <button
+                type="button"
+                className="block w-full text-left"
+                onClick={() => router.push(`/resumes/${item.id}`)}
               >
-                <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden bg-linear-to-br from-muted/30 to-muted/80">
-                  <div className="absolute inset-0 bg-grid-white/10" />
-
-                  <div className="group-hover:-translate-y-2 mt-12 transition-all duration-700 group-hover:scale-105">
-                    <ResumeThumbnail resume={activeResume} />
-                  </div>
-
-                  <div className="absolute inset-0 bg-black/0 transition-colors duration-500 group-hover:bg-black/5" />
-
-                  <div className="-translate-x-1/2 absolute bottom-6 left-1/2 translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                    <Button className="h-12 rounded-full px-8 font-black shadow-xl">
-                      Open Resume Editor
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="border-border/50 border-t p-8">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="font-black text-2xl tracking-tight">
-                        {activeResume.title}
-                      </h2>
-                      <div className="mt-2 flex items-center gap-3">
-                        <Badge
-                          variant="secondary"
-                          className="font-bold text-xs uppercase tracking-widest"
-                        >
-                          {getTemplateName(activeResume.templateSlug)}
-                        </Badge>
-                        <span className="font-bold text-muted-foreground text-xs">
-                          •
-                        </span>
-                        <span className="flex items-center gap-1 font-bold text-muted-foreground text-xs">
-                          <IconActivity className="h-3 w-3" />
-                          {activeResume.status}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="mb-1 font-bold text-muted-foreground text-xs uppercase tracking-[0.2em]">
-                        Created
-                      </div>
-                      <div className="font-bold text-xs">
-                        {new Date(activeResume.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Stats & Actions */}
-            <div className="space-y-6">
-              {/* ATS Score Card */}
-              <Card className="rounded-3xl border-2 border-primary/5 bg-primary/2 p-8 shadow-sm">
-                <h3 className="mb-6 font-black text-primary text-xs uppercase tracking-[0.2em]">
-                  ATS Intelligence
-                </h3>
-                <div className="flex items-center gap-6">
-                  <div className="relative flex h-20 w-20 items-center justify-center">
-                    <svg
-                      className="-rotate-90 h-full w-full"
-                      role="img"
-                      aria-label="ATS score ring"
-                    >
-                      <title>ATS score ring</title>
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="36"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        className="text-primary/10"
-                      />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="36"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        strokeDasharray={226}
-                        strokeDashoffset={
-                          226 - (226 * (activeResume.lastAtsScore ?? 0)) / 100
-                        }
-                        className="text-primary transition-all duration-1000 ease-out"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="font-black text-2xl tracking-tighter">
-                        {activeResume.lastAtsScore ?? 0}%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-1 font-bold text-foreground text-sm">
-                      Global Score
-                    </div>
-                    <p className="font-medium text-muted-foreground text-xs leading-relaxed">
-                      Your resume is {activeResume.lastAtsScore ?? 0}% optimized
-                      for search algorithms.
+                <ResumeThumbnail resume={item} />
+              </button>
+              <CardContent className="space-y-4 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="truncate font-black text-xl tracking-tight">
+                      {item.title}
+                    </h2>
+                    <p className="mt-1 text-muted-foreground text-xs">
+                      Updated {new Date(item.updatedAt).toLocaleDateString()}
+                      {item.industry ? ` · ${item.industry}` : ""}
                     </p>
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label={`Actions for ${item.title}`}
+                        disabled={busyId === item.id}
+                      >
+                        <IconDotsVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleDuplicate(item.id)}
+                      >
+                        <IconCopy className="mr-2 h-4 w-4" /> Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        <IconTrash className="mr-2 h-4 w-4" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              </Card>
 
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="rounded-2xl border-border/50 p-5 text-center">
-                  <div className="mb-2 font-bold text-muted-foreground text-xs uppercase tracking-widest">
-                    Views
-                  </div>
-                  <div className="font-black text-2xl">
-                    {activeResume.viewCount}
-                  </div>
-                </Card>
-                <Card className="rounded-2xl border-border/50 p-5 text-center">
-                  <div className="mb-2 font-bold text-muted-foreground text-xs uppercase tracking-widest">
-                    Downloads
-                  </div>
-                  <div className="font-black text-2xl">
-                    {activeResume.downloadCount}
-                  </div>
-                </Card>
-              </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">
+                    {getTemplateName(item.templateSlug)}
+                  </Badge>
+                  <Badge variant="outline">{item.status}</Badge>
+                  <span className="text-muted-foreground text-xs">
+                    ATS {item.lastAtsScore ?? 0}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {item.viewCount} views
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {item.downloadCount} downloads
+                  </span>
+                </div>
 
-              {/* Main Actions */}
-              <div className="space-y-3 pt-2">
-                <Button
-                  className="h-14 w-full gap-3 rounded-2xl font-black text-lg shadow-lg"
-                  onClick={() => router.push(`/resumes/${activeResume.id}`)}
-                >
-                  <IconEdit className="h-5 w-5" /> Edit Content
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-14 w-full gap-3 rounded-2xl border-2 font-black text-lg transition-all hover:border-primary/30 hover:bg-primary/5"
-                  onClick={() => {
-                    sessionStorage.setItem(
-                      "ai_job_god_resume",
-                      JSON.stringify(activeResume.data),
-                    );
-                    router.push("/analyze");
-                  }}
-                >
-                  <IconBolt className="h-5 w-5 text-primary" /> Analyze & Tailor
-                </Button>
-
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-3 gap-2">
                   <Button
-                    variant="ghost"
-                    className="h-12 gap-2 rounded-xl font-bold text-muted-foreground hover:text-foreground"
-                    onClick={() =>
-                      window.open(
-                        `/resumes/${activeResume.id}/export`,
-                        "_blank",
-                      )
-                    }
+                    className="gap-1.5"
+                    onClick={() => router.push(`/resumes/${item.id}`)}
+                  >
+                    <IconEdit className="h-4 w-4" /> Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="gap-1.5"
+                    disabled={busyId === item.id}
+                    onClick={() => handleDownload(item.id)}
                   >
                     <IconDownload className="h-4 w-4" /> PDF
                   </Button>
                   <Button
-                    variant="ghost"
-                    className="h-12 gap-2 rounded-xl font-bold text-muted-foreground hover:text-foreground"
+                    variant="outline"
+                    className="gap-1.5"
                     onClick={() =>
                       window.open(
-                        `/resumes/${activeResume.id}/export?preview=true`,
+                        `/resumes/${item.id}/export?preview=true`,
                         "_blank",
+                        "noopener,noreferrer",
                       )
                     }
                   >
                     <IconEye className="h-4 w-4" /> Preview
                   </Button>
                 </div>
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
     </div>

@@ -108,10 +108,24 @@
       "breakpoints": true
     },
     {
+      "idx": 15,
+      "version": "7",
+      "when": 1790100000000,
+      "tag": "0015_resume_version_snapshot_identity",
+      "breakpoints": true
+    },
+    {
       "idx": 16,
       "version": "7",
       "when": 1792800000000,
       "tag": "0016_career_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792900000000,
+      "tag": "0017_drop_resume_share_password",
       "breakpoints": true
     }
   ]

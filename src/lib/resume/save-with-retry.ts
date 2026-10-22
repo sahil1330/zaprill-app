@@ -1,5 +1,7 @@
 export const MAX_RESUME_VERSION_RETRIES = 2;
 
+export type ResumeFlushResult = { ok: true; version: number } | { ok: false };
+
 type ResumePatchBody = {
   title?: string;
   data?: unknown;

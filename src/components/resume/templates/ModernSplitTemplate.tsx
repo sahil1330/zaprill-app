@@ -3,6 +3,7 @@
 import { IconBrandGithub } from "@tabler/icons-react";
 import { ExternalLink } from "lucide-react";
 import { HtmlContent } from "@/components/html-content";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -180,7 +181,7 @@ export default function ModernSplitTemplate({
           {sectionVisibility?.summary && basics?.summary && (
             <section className="ms-section">
               <h2 className="ms-section-title">Summary</h2>
-              <HtmlContent className="resume-text" html={basics.summary} />
+              html={sanitizeResumeHtml(basics.summary)}
             </section>
           )}
 
@@ -220,7 +221,7 @@ export default function ModernSplitTemplate({
                   {item.summary && (
                     <HtmlContent
                       className="resume-text mb-2 text-justify"
-                      html={item.summary}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (

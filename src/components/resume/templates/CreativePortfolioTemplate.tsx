@@ -3,6 +3,7 @@
 import { IconBrandGithub } from "@tabler/icons-react";
 import { ExternalLink } from "lucide-react";
 import { HtmlContent } from "@/components/html-content";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -64,7 +65,7 @@ export default function CreativePortfolioTemplate({
         <section key="summary" className="mb-12">
           <HtmlContent
             className="font-medium text-2xl text-foreground leading-relaxed tracking-tight"
-            html={basics.summary}
+            html={sanitizeResumeHtml(basics.summary)}
           />
         </section>
       ) : null,
@@ -108,7 +109,7 @@ export default function CreativePortfolioTemplate({
                   {item.summary && (
                     <HtmlContent
                       className="mb-4 text-muted-foreground leading-relaxed"
-                      html={item.summary}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
@@ -387,7 +388,7 @@ export default function CreativePortfolioTemplate({
                   {item.summary && (
                     <HtmlContent
                       className="mb-4 text-muted-foreground leading-relaxed"
-                      html={item.summary}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
@@ -436,7 +437,7 @@ export default function CreativePortfolioTemplate({
                   {item.summary && (
                     <HtmlContent
                       className="text-muted-foreground leading-relaxed"
-                      html={item.summary}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                 </div>
@@ -481,7 +482,7 @@ export default function CreativePortfolioTemplate({
                   {item.summary && (
                     <HtmlContent
                       className="text-muted-foreground leading-relaxed"
-                      html={item.summary}
+                      html={sanitizeResumeHtml(item.summary)}
                     />
                   )}
                 </div>
@@ -614,7 +615,7 @@ export default function CreativePortfolioTemplate({
                       {item.description && (
                         <HtmlContent
                           className="prose prose-sm mb-4 max-w-none text-muted-foreground leading-relaxed"
-                          html={item.description}
+                          html={sanitizeResumeHtml(item.description)}
                         />
                       )}
                       {item.highlights &&

@@ -1,5 +1,11 @@
 import { customAlphabet } from "nanoid";
 
+export function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const record = error as { code?: string; cause?: { code?: string } };
+  return record.code === "23505" || record.cause?.code === "23505";
+}
+
 const suffixId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 8);
 
 /**

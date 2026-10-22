@@ -793,8 +793,9 @@ export const resume = pgTable(
 
     // Stats
     version: integer("version").notNull().default(1),
+    // Public access is the unguessable slug while is_public is on.
+    // share_password was never written; migration 0017 drops the column.
     isPublic: boolean("is_public").notNull().default(false),
-    sharePassword: text("share_password"), // bcrypt hash, null = no password
     viewCount: integer("view_count").notNull().default(0),
     downloadCount: integer("download_count").notNull().default(0),
     lastAtsScore: integer("last_ats_score"), // cached ATS score (0-100)
@@ -830,6 +831,11 @@ export const resumeVersion = pgTable(
     version: integer("version").notNull(),
     data: jsonb("data").notNull(),
     metadata: jsonb("metadata").notNull(),
+    // Identity captured with the snapshot. Null on rows written before these
+    // columns existed; restore then leaves the live template, title, and industry.
+    templateSlug: text("template_slug"),
+    title: text("title"),
+    industry: text("industry"),
     changeDescription: text("change_description"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

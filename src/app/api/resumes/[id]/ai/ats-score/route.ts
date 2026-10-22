@@ -8,6 +8,7 @@ import { z } from "zod";
 import db from "@/db";
 import { resume, resumeAtsAnalysis } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { normalizeResumeData } from "@/lib/resume";
 import { logAiUsage } from "@/services/ai/usage.service";
 import type { ResumeData } from "@/types/resume";
 
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const { jobDescription } = parsed.data;
-    const data = parsed.data.data as unknown as ResumeData;
+    const data = normalizeResumeData(parsed.data.data);
 
     // Build resume text for analysis
     const resumeText = buildResumeText(data);

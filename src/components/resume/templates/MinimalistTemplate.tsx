@@ -2,6 +2,7 @@
 
 import { IconBrandGithub } from "@tabler/icons-react";
 import { HtmlContent } from "@/components/html-content";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -64,7 +65,7 @@ export default function MinimalistTemplate({
       sectionVisibility?.summary && basics?.summary ? (
         <section key="summary" className="resume-section">
           <h2 className="resume-section-title">Professional Summary</h2>
-          <HtmlContent className="resume-text" html={basics.summary} />
+          html={sanitizeResumeHtml(basics.summary)}
         </section>
       ) : null,
 
@@ -103,7 +104,7 @@ export default function MinimalistTemplate({
               {item.summary && (
                 <HtmlContent
                   className="resume-text mb-1.5"
-                  html={item.summary}
+                  html={sanitizeResumeHtml(item.summary)}
                 />
               )}
               {item.highlights && (item.highlights || []).length > 0 && (
@@ -527,7 +528,7 @@ export default function MinimalistTemplate({
                   {item.description && (
                     <HtmlContent
                       className="resume-text mb-1.5"
-                      html={item.description}
+                      html={sanitizeResumeHtml(item.description)}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (

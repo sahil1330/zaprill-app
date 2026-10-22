@@ -321,7 +321,7 @@ function ArchitectSession({
 }: {
   resumeId: string;
   initialMessages: ResumeArchitectUIMessage[];
-  onFlushPendingSave?: () => Promise<void>;
+  onFlushPendingSave?: () => Promise<unknown>;
   startOpen: boolean;
 }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -554,7 +554,7 @@ export default function ResumeArchitectChat({
   onFlushPendingSave,
 }: {
   resumeId: string;
-  onFlushPendingSave?: () => Promise<void>;
+  onFlushPendingSave?: () => Promise<unknown>;
 }) {
   const [history, setHistory] = useState<ResumeArchitectUIMessage[] | null>(
     null,

@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProtectedLoading() {
   return (
-    <div className="fade-in mx-auto w-full max-w-7xl animate-in px-6 py-10 duration-500">
+    <div className="fade-in mx-auto w-full max-w-7xl animate-in px-6 py-6 duration-500">
       <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[380px_1fr]">
         {/* Left panel skeleton */}
         <div className="sticky top-28 rounded-xl border border-border bg-card p-6 shadow-sm">

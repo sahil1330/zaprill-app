@@ -88,7 +88,7 @@ export default function UserDashboard({
   };
 
   return (
-    <div className="fade-in mx-auto w-full max-w-6xl animate-in space-y-12 px-6 py-12 duration-700">
+    <div className="fade-in mx-auto w-full max-w-6xl animate-in space-y-8 px-6 py-6 duration-700">
       {/* Welcome Header */}
       <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="space-y-2">

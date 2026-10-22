@@ -4,6 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import db from "@/db";
 import { resume, resumeVersion } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { restoreIdentityPatch } from "@/lib/resume/version-snapshot";
 
 interface RouteParams {
   params: Promise<{ id: string; versionId: string }>;
@@ -46,13 +47,15 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
 
-    // 3. Update the resume with the snapshot data
-    // We also increment the version number of the main resume to ensure consistency
+    // 3. Update the resume with the snapshot data.
+    // Identity columns are null on snapshots taken before they were stored;
+    // those restores keep the live template, title, and industry.
     const [updated] = await db
       .update(resume)
       .set({
         data: version.data as any,
         metadata: version.metadata as any,
+        ...restoreIdentityPatch(version),
         version: found.version + 1,
         updatedAt: new Date(),
       })

@@ -3,6 +3,7 @@
 import { IconBrandGithub } from "@tabler/icons-react";
 import { Award, ExternalLink } from "lucide-react";
 import { HtmlContent } from "@/components/html-content";
+import { sanitizeResumeHtml } from "@/lib/resume/html";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -68,7 +69,7 @@ export default function ExecutiveProTemplate({
           </h2>
           <HtmlContent
             className="text-muted-foreground italic leading-relaxed"
-            html={basics.summary}
+            html={sanitizeResumeHtml(basics.summary)}
           />
         </section>
       ) : null,
@@ -112,7 +113,7 @@ export default function ExecutiveProTemplate({
                 {item.summary && (
                   <HtmlContent
                     className="mb-2 text-muted-foreground text-sm leading-relaxed"
-                    html={item.summary}
+                    html={sanitizeResumeHtml(item.summary)}
                   />
                 )}
                 {item.highlights && (item.highlights || []).length > 0 && (
@@ -620,7 +621,7 @@ export default function ExecutiveProTemplate({
                         {item.description && (
                           <HtmlContent
                             className="mb-2 text-muted-foreground text-sm leading-relaxed"
-                            html={item.description}
+                            html={sanitizeResumeHtml(item.description)}
                           />
                         )}
                         {item.highlights &&

@@ -4,26 +4,14 @@ import { createAuthMiddleware } from "better-auth/api";
 import { admin, anonymous, emailOTP, phoneNumber } from "better-auth/plugins";
 import db from "@/db";
 import * as schema from "@/db/schema";
+import {
+  resolveAuthCookieDomain,
+  shouldUseCrossSubdomainCookies,
+} from "./auth-cookie-domain";
 import { sendResetPasswordMail } from "./emails/reset-password";
 import { sendVerificationEmail } from "./emails/verification-email";
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
-function resolveAuthCookieDomain(): string | undefined {
-  if (process.env.VERCEL_ENV === "preview") return undefined;
-
-  const appUrl =
-    process.env.BETTER_AUTH_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    "";
-
-  // Only pin the cookie to the production apex when this deploy actually
-  // serves zaprill.com. Test Vercel production URLs must stay host-only.
-  if (appUrl.includes("zaprill.com")) return "zaprill.com";
-  if (process.env.NODE_ENV === "production") return undefined;
-  return "localhost";
-}
+const authCookieDomain = resolveAuthCookieDomain();
 
 export const auth = betterAuth({
   baseURL: {
@@ -51,9 +39,13 @@ export const auth = betterAuth({
     "https://*.zaprill.com",
   ],
   advanced: {
+    // When enabled, Better Auth writes Cookie Domain from `domain` (or a
+    // string baseURL). Leave it off unless we pinned zaprill.com — the old
+    // helper derived that domain from BETTER_AUTH_URL, which is copied onto
+    // the test Vercel project as app.zaprill.com.
     crossSubDomainCookies: {
-      enabled: true,
-      domain: resolveAuthCookieDomain(),
+      enabled: shouldUseCrossSubdomainCookies(),
+      domain: authCookieDomain,
     },
   },
   database: drizzleAdapter(db, {
