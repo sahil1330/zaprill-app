@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { enrichResumeMetadata } from "@/lib/inference";
 import { normalizeResumeData } from "@/lib/resume";
 import { ensureUserProfile } from "@/lib/user-profile";
+import { setCurrentAnnualSalary } from "@/services/career/career-profile.service";
 
 export async function GET() {
   try {
@@ -85,35 +86,23 @@ export async function PATCH(req: Request) {
         .where(eq(user.id, session.user.id));
     }
 
-    // 2. Update User Profile Table
-    const profileUpdates: Record<string, any> = { updatedAt: new Date() };
-    if (onboardingStatus) profileUpdates.onboardingStatus = onboardingStatus;
-    if (primaryResumeId) profileUpdates.primaryResumeId = primaryResumeId;
-    // Allow null to clear salary, but skip if key is not present in body
+    // Salary goes through the career profile so user_profile.current_salary
+    // and the career file cannot diverge. Annual CTC, whole INR.
     if ("currentSalary" in body) {
-      profileUpdates.currentSalary =
+      const parsed =
         currentSalary != null
-          ? parseInt(String(currentSalary), 10) || null
+          ? Number.parseInt(String(currentSalary), 10)
           : null;
+      const annual = parsed != null && Number.isFinite(parsed) ? parsed : null;
+      await setCurrentAnnualSalary(session.user.id, annual);
     }
 
-    if (Object.keys(profileUpdates).length > 1) {
+    // 2. Update User Profile Table. Salary is handled above.
+    if (onboardingStatus || primaryResumeId) {
       await ensureUserProfile(session.user.id, {
         onboardingStatus: onboardingStatus || undefined,
         primaryResumeId: primaryResumeId || undefined,
       });
-      if ("currentSalary" in body) {
-        await db
-          .update(userProfile)
-          .set({
-            currentSalary:
-              currentSalary != null
-                ? parseInt(String(currentSalary), 10) || null
-                : null,
-            updatedAt: new Date(),
-          })
-          .where(eq(userProfile.userId, session.user.id));
-      }
     }
 
     // 3. Update Resume Table if resumeRaw is provided and we have a primaryResumeId

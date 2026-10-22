@@ -2,8 +2,11 @@
 
 import {
   IconArrowRight,
+  IconBriefcase,
   IconFileText,
   IconLoader2,
+  IconSchool,
+  IconUser,
   IconWand,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -17,8 +20,10 @@ import { Card } from "@/components/ui/card";
 import { FileUpload } from "@/components/ui/file-upload";
 import { WordFadeIn } from "@/components/ui/word-fade-in";
 import { cn } from "@/lib/utils";
+import type { CareerProfileView, CareerSegment } from "@/types/career-profile";
 
-type Step = "welcome" | "choice" | "upload" | "scanning" | "results";
+type Step = "welcome" | "choice" | "upload" | "scanning" | "path" | "results";
+type PathIntent = "upload" | "build";
 
 interface AtsResult {
   score: number;
@@ -42,6 +47,12 @@ interface AtsResult {
 
 export default function OnboardingPage() {
   const [step, setStep] = useState<Step>("welcome");
+  const [pathIntent, setPathIntent] = useState<PathIntent>("upload");
+  const [suggestedSegment, setSuggestedSegment] =
+    useState<CareerSegment | null>(null);
+  const [chosenSegment, setChosenSegment] = useState<CareerSegment | null>(
+    null,
+  );
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [atsResult, setAtsResult] = useState<AtsResult | null>(null);
   const [resumeId, setResumeId] = useState<string | null>(null);
@@ -124,7 +135,7 @@ export default function OnboardingPage() {
 
       const atsData = await atsRes.json();
       setAtsResult(atsData);
-      setStep("results");
+      await openInferredPath();
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Something went wrong";
@@ -144,6 +155,73 @@ export default function OnboardingPage() {
       setStep("choice");
     } catch {
       toast.error("Failed to start onboarding");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  const openInferredPath = async () => {
+    setPathIntent("upload");
+    try {
+      const response = await fetch("/api/career-profile/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const body = (await response.json().catch(() => ({}))) as {
+        profile?: CareerProfileView;
+        error?: string;
+      };
+      if (!response.ok) {
+        setSuggestedSegment(null);
+        setChosenSegment(null);
+        toast.error(
+          body.error ||
+            "We could not read a suggestion from your resume. Choose a path.",
+        );
+      } else {
+        const segment = body.profile?.segment ?? null;
+        setSuggestedSegment(segment);
+        setChosenSegment(segment);
+      }
+    } catch {
+      setSuggestedSegment(null);
+      setChosenSegment(null);
+    }
+    setStep("path");
+  };
+
+  const beginBuildPath = () => {
+    setPathIntent("build");
+    setSuggestedSegment(null);
+    setChosenSegment(null);
+    setStep("path");
+  };
+
+  const continueFromPath = async () => {
+    if (!chosenSegment) return;
+    setIsUpdatingStatus(true);
+    try {
+      const response = await fetch("/api/career-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ segment: chosenSegment }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(body.error || "Could not save your path");
+      }
+      if (pathIntent === "build") {
+        await handleStartBuilding();
+        return;
+      }
+      setStep("results");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Could not save your path";
+      toast.error(message);
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -273,7 +351,7 @@ export default function OnboardingPage() {
                 title="I'll build one here"
                 description="Use our AI-powered builder to create a professional resume from scratch."
                 icon={<IconWand className="h-8 w-8 text-primary" />}
-                onClick={handleStartBuilding}
+                onClick={beginBuildPath}
               />
             </div>
           </motion.div>
@@ -326,6 +404,68 @@ export default function OnboardingPage() {
           </motion.div>
         )}
 
+        {step === "path" && (
+          <motion.div
+            key="path"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            className="w-full max-w-4xl"
+          >
+            <div className="mb-10 text-center">
+              <h2 className="mb-4 font-bold text-3xl text-foreground">
+                Where are you in your career?
+              </h2>
+              <p className="text-muted-foreground">
+                {suggestedSegment
+                  ? "We guessed from your resume. Change it if this is wrong. Your choice is what we keep."
+                  : "Pick the path that fits you right now. You can change it later."}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <ChoiceCard
+                title="Student"
+                description="Still in college or school. Internships and campus jobs stay on this path."
+                icon={<IconSchool className="h-8 w-8 text-primary" />}
+                selected={chosenSegment === "student"}
+                suggested={suggestedSegment === "student"}
+                onClick={() => setChosenSegment("student")}
+              />
+              <ChoiceCard
+                title="Fresher"
+                description="Under 2 years of full-time, contract, or freelance work."
+                icon={<IconUser className="h-8 w-8 text-primary" />}
+                selected={chosenSegment === "fresher"}
+                suggested={suggestedSegment === "fresher"}
+                onClick={() => setChosenSegment("fresher")}
+              />
+              <ChoiceCard
+                title="Professional"
+                description="2 or more years of full-time, contract, or freelance work."
+                icon={<IconBriefcase className="h-8 w-8 text-primary" />}
+                selected={chosenSegment === "professional"}
+                suggested={suggestedSegment === "professional"}
+                onClick={() => setChosenSegment("professional")}
+              />
+            </div>
+            <div className="mt-8 flex justify-center">
+              <Button
+                variant="gradient"
+                size="lg"
+                className="h-12 rounded-full px-8"
+                disabled={!chosenSegment || isUpdatingStatus}
+                onClick={() => void continueFromPath()}
+              >
+                {isUpdatingStatus ? (
+                  <IconLoader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : null}
+                Continue
+                <IconArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
         {step === "results" && atsResult && resumeId && (
           <motion.div
             key="results"
@@ -351,22 +491,39 @@ function ChoiceCard({
   description,
   icon,
   onClick,
+  selected = false,
+  suggested = false,
 }: {
   title: string;
   description: string;
   icon: React.ReactNode;
   onClick: () => void;
+  selected?: boolean;
+  suggested?: boolean;
 }) {
   return (
     <motion.button
       whileHover={{ y: -5, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      aria-pressed={selected}
       className="text-left"
     >
-      <Card className="group h-full border-border bg-card p-8 shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-primary/5 hover:shadow-xl">
-        <div className="mb-6 w-fit rounded-2xl bg-muted p-3 transition-colors group-hover:bg-primary/10">
-          {icon}
+      <Card
+        className={cn(
+          "group h-full border-border bg-card p-8 shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-primary/5 hover:shadow-xl",
+          selected && "border-primary ring-2 ring-primary/30",
+        )}
+      >
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div className="w-fit rounded-2xl bg-muted p-3 transition-colors group-hover:bg-primary/10">
+            {icon}
+          </div>
+          {suggested ? (
+            <span className="font-medium text-primary text-xs uppercase tracking-widest">
+              Suggested
+            </span>
+          ) : null}
         </div>
         <h3 className="mb-3 font-bold text-foreground text-xl">{title}</h3>
         <p className="text-muted-foreground leading-relaxed">{description}</p>

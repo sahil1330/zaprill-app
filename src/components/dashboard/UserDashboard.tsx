@@ -121,15 +121,26 @@ export default function UserDashboard({
               <Target className="h-3.5 w-3.5" />
               Career Profile
             </CardTitle>
-            <Link href="/profile">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 font-bold text-xs uppercase tracking-widest"
-              >
-                Edit
-              </Button>
-            </Link>
+            <div className="flex items-center gap-1">
+              <Link href="/intelligence">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 font-bold text-xs uppercase tracking-widest"
+                >
+                  Intelligence
+                </Button>
+              </Link>
+              <Link href="/profile">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 font-bold text-xs uppercase tracking-widest"
+                >
+                  Edit
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
             <div className="flex items-start gap-4">

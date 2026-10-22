@@ -37,6 +37,52 @@ export const onboardingStatusEnum = pgEnum("onboarding_status", [
   "completed",
 ]);
 
+/** Who the member is today. Colleges are not a segment. */
+export const careerSegmentEnum = pgEnum("career_segment", [
+  "student",
+  "fresher",
+  "professional",
+]);
+
+export const careerSkillLevelEnum = pgEnum("career_skill_level", [
+  "unspecified",
+  "beginner",
+  "intermediate",
+  "advanced",
+  "expert",
+]);
+
+/** How a child row entered the career profile. */
+export const careerRecordSourceEnum = pgEnum("career_record_source", [
+  "resume",
+  "self_reported",
+]);
+
+export const careerEmploymentTypeEnum = pgEnum("career_employment_type", [
+  "internship",
+  "full_time",
+  "part_time",
+  "contract",
+  "freelance",
+  "apprenticeship",
+  "other",
+]);
+
+export const careerPayPeriodEnum = pgEnum("career_pay_period", [
+  "monthly",
+  "annual",
+]);
+
+export const careerTargetSeniorityEnum = pgEnum("career_target_seniority", [
+  "intern",
+  "fresher",
+  "junior",
+  "mid",
+  "senior",
+  "lead",
+  "unspecified",
+]);
+
 export const resourceTypeEnum = pgEnum("resource_type", [
   "course",
   "book",
@@ -153,6 +199,184 @@ export const userProfile = pgTable("user_profile", {
   currentSalary: integer("current_salary"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+/**
+ * Shared career profile. One row per user.
+ * Resume Builder and Skill Coach read and write this aggregate.
+ * Resume JSON stays the document; this is the person.
+ * Current and expected pay are stored as entered, plus a normalized annual INR figure.
+ * `user_profile.current_salary` mirrors the annual current figure.
+ */
+export const careerProfile = pgTable("career_profile", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  segment: careerSegmentEnum("segment"),
+  headline: text("headline"),
+  city: text("city"),
+  region: text("region"),
+  countryCode: text("country_code").notNull().default("IN"),
+  currentPayPeriod: careerPayPeriodEnum("current_pay_period")
+    .notNull()
+    .default("annual"),
+  /** Amount in `currentPayPeriod` units. Null when unset. */
+  currentPayInr: integer("current_pay_inr"),
+  /** Canonical annual whole INR. Monthly stipend times 12, or the annual amount. */
+  currentSalaryInr: integer("current_salary_inr"),
+  expectedPayPeriod: careerPayPeriodEnum("expected_pay_period")
+    .notNull()
+    .default("annual"),
+  expectedMinInr: integer("expected_min_inr"),
+  expectedMaxInr: integer("expected_max_inr"),
+  expectedMinAnnualInr: integer("expected_min_annual_inr"),
+  expectedMaxAnnualInr: integer("expected_max_annual_inr"),
+  /** Whole months. The API exposes years with one decimal. */
+  experienceMonths: integer("experience_months"),
+  noticePeriodDays: integer("notice_period_days"),
+  openToRelocate: boolean("open_to_relocate").notNull().default(false),
+  /**
+   * Per-field provenance. Keys are CareerFieldKey.
+   * `self_reported` is not overwritten by resume sync.
+   */
+  fieldSources: jsonb("field_sources")
+    .$type<Record<string, string>>()
+    .notNull()
+    .default({}),
+  derivedFromResumeId: text("derived_from_resume_id").references(
+    () => resume.id,
+    { onDelete: "set null" },
+  ),
+  lastDerivedAt: timestamp("last_derived_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const careerAcademic = pgTable(
+  "career_academic",
+  {
+    id: text("id").primaryKey(),
+    careerProfileId: text("career_profile_id")
+      .notNull()
+      .references(() => careerProfile.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    institution: text("institution").notNull(),
+    studyType: text("study_type"),
+    area: text("area"),
+    startDate: text("start_date"),
+    endDate: text("end_date"),
+    score: text("score"),
+    isCurrent: boolean("is_current").notNull().default(false),
+    source: careerRecordSourceEnum("source").notNull().default("resume"),
+    sourceItemId: text("source_item_id"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("career_academic_user_id_idx").on(t.userId)],
+);
+
+export const careerExperience = pgTable(
+  "career_experience",
+  {
+    id: text("id").primaryKey(),
+    careerProfileId: text("career_profile_id")
+      .notNull()
+      .references(() => careerProfile.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    company: text("company").notNull(),
+    title: text("title").notNull(),
+    location: text("location"),
+    employmentType: careerEmploymentTypeEnum("employment_type")
+      .notNull()
+      .default("full_time"),
+    startDate: text("start_date"),
+    endDate: text("end_date"),
+    isCurrent: boolean("is_current").notNull().default(false),
+    summary: text("summary"),
+    highlights: jsonb("highlights").$type<string[]>().notNull().default([]),
+    source: careerRecordSourceEnum("source").notNull().default("resume"),
+    sourceItemId: text("source_item_id"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("career_experience_user_id_idx").on(t.userId)],
+);
+
+export const careerSkill = pgTable(
+  "career_skill",
+  {
+    id: text("id").primaryKey(),
+    careerProfileId: text("career_profile_id")
+      .notNull()
+      .references(() => careerProfile.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    normalizedName: text("normalized_name").notNull(),
+    category: skillCategoryEnum("category").notNull().default("other"),
+    level: careerSkillLevelEnum("level").notNull().default("unspecified"),
+    /** True only after an explicit level edit. Evidence and verification do not set this. */
+    levelLocked: boolean("level_locked").notNull().default(false),
+    evidence: jsonb("evidence")
+      .$type<
+        {
+          kind: string;
+          label: string;
+          refId?: string;
+          score?: number;
+          verifiedAt?: string;
+        }[]
+      >()
+      .notNull()
+      .default([]),
+    source: careerRecordSourceEnum("source").notNull().default("resume"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("career_skill_user_name_uidx").on(t.userId, t.normalizedName),
+    index("career_skill_user_id_idx").on(t.userId),
+  ],
+);
+
+export const careerTargetRole = pgTable(
+  "career_target_role",
+  {
+    id: text("id").primaryKey(),
+    careerProfileId: text("career_profile_id")
+      .notNull()
+      .references(() => careerProfile.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    normalizedTitle: text("normalized_title").notNull(),
+    seniority: careerTargetSeniorityEnum("seniority")
+      .notNull()
+      .default("unspecified"),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    source: careerRecordSourceEnum("source").notNull().default("resume"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("career_target_role_user_title_uidx").on(
+      t.userId,
+      t.normalizedTitle,
+    ),
+    index("career_target_role_user_id_idx").on(t.userId),
+  ],
+);
 
 /**
  * Stores each resume analysis run for a user.

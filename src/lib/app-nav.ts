@@ -5,6 +5,7 @@ import {
   FileText,
   Gift,
   Home,
+  Radar,
   Target,
   TrendingUp,
   User,
@@ -20,6 +21,7 @@ export interface AppNavItem {
 
 export const APP_NAV_PRIMARY: AppNavItem[] = [
   { title: "Home", url: "/", icon: Home, mobilePrimary: true },
+  { title: "Intelligence", url: "/intelligence", icon: Radar },
   { title: "Analyze", url: "/analyze", icon: Target, mobilePrimary: true },
   { title: "My Jobs", url: "/jobs", icon: Briefcase, mobilePrimary: true },
   { title: "Resumes", url: "/resumes", icon: FileText, mobilePrimary: true },
