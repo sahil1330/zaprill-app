@@ -67,7 +67,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         .limit(1);
 
       if (!exists) {
-        return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "Resume not found" },
+          { status: 404 },
+        );
       }
 
       return NextResponse.json(

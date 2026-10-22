@@ -31,7 +31,9 @@ export default function PublicResumeView({
 
     async function load() {
       try {
-        const res = await fetch(`/api/resumes/public/${encodeURIComponent(slug)}`);
+        const res = await fetch(
+          `/api/resumes/public/${encodeURIComponent(slug)}`,
+        );
         const body = await res.json().catch(() => ({}));
         if (!res.ok) {
           throw new Error(
@@ -49,7 +51,9 @@ export default function PublicResumeView({
         });
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load resume");
+          setError(
+            err instanceof Error ? err.message : "Failed to load resume",
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);

@@ -28,7 +28,9 @@ export function CancelSubscriptionButton({
   async function cancel() {
     setPending(true);
     try {
-      const res = await fetch("/api/billing/subscription", { method: "DELETE" });
+      const res = await fetch("/api/billing/subscription", {
+        method: "DELETE",
+      });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(body.error || "Could not cancel the subscription");
@@ -54,9 +56,7 @@ export function CancelSubscriptionButton({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
-        render={
-          <Button variant="destructive" className="w-full sm:w-auto" />
-        }
+        render={<Button variant="destructive" className="w-full sm:w-auto" />}
       >
         Cancel plan
       </AlertDialogTrigger>

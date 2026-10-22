@@ -7,8 +7,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import db from "@/db";
 import { plan } from "@/db/schema";
-import { BillingError } from "@/lib/billing-utils";
 import { auth } from "@/lib/auth";
+import { BillingError } from "@/lib/billing-utils";
 import {
   cancelSubscription,
   getSubscriptionById,

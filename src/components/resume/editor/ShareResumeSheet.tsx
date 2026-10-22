@@ -37,7 +37,8 @@ export default function ShareResumeSheet({ resumeId }: { resumeId: string }) {
     try {
       const res = await fetch(`/api/resumes/${resumeId}`);
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error || "Failed to load share settings");
+      if (!res.ok)
+        throw new Error(body.error || "Failed to load share settings");
       setShare({
         slug: body.resume.slug,
         isPublic: !!body.resume.isPublic,
@@ -49,14 +50,19 @@ export default function ShareResumeSheet({ resumeId }: { resumeId: string }) {
     } catch (error) {
       console.error(error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to load share settings",
+        error instanceof Error
+          ? error.message
+          : "Failed to load share settings",
       );
     } finally {
       setLoading(false);
     }
   }
 
-  async function updateShare(next: { isPublic: boolean; rotateSlug?: boolean }) {
+  async function updateShare(next: {
+    isPublic: boolean;
+    rotateSlug?: boolean;
+  }) {
     if (!share) return;
     setSaving(true);
     try {
