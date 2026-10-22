@@ -1,11 +1,12 @@
 import { z } from "zod";
 import {
   CAREER_EMPLOYMENT_TYPES,
+  CAREER_PAY_PERIODS,
   CAREER_SEGMENTS,
   CAREER_SKILL_CATEGORIES,
   CAREER_SKILL_LEVELS,
   CAREER_TARGET_SENIORITIES,
-  SKILL_EVIDENCE_KINDS,
+  USER_SKILL_EVIDENCE_KINDS,
 } from "@/types/career-profile";
 
 function zodEnum<const T extends string>(values: readonly T[]) {
@@ -26,6 +27,8 @@ const emptyToNull = (max: number) =>
       return value.length === 0 ? null : value;
     });
 
+const payAmount = z.number().int().min(0).max(100_000_000).nullable();
+
 const careerDate = z
   .string()
   .trim()
@@ -39,7 +42,7 @@ const careerDate = z
   });
 
 export const skillEvidenceSchema = z.object({
-  kind: zodEnum(SKILL_EVIDENCE_KINDS),
+  kind: zodEnum(USER_SKILL_EVIDENCE_KINDS),
   label: z.string().trim().min(1).max(200),
   refId: z.string().trim().min(1).max(64).optional(),
 });
@@ -56,27 +59,25 @@ export const careerProfilePatchSchema = z
       .regex(/^[A-Za-z]{2}$/, "Use a 2-letter country code")
       .transform((value) => value.toUpperCase())
       .optional(),
-    currentSalaryInr: z
-      .number()
-      .int()
-      .min(0)
-      .max(100_000_000)
-      .nullable()
-      .optional(),
-    expectedSalaryInr: z
-      .number()
-      .int()
-      .min(0)
-      .max(100_000_000)
-      .nullable()
-      .optional(),
+    currentPayPeriod: zodEnum(CAREER_PAY_PERIODS).optional(),
+    currentPayInr: payAmount.optional(),
+    expectedPayPeriod: zodEnum(CAREER_PAY_PERIODS).optional(),
+    expectedMinInr: payAmount.optional(),
+    expectedMaxInr: payAmount.optional(),
     yearsOfExperience: z.number().min(0).max(60).nullable().optional(),
     noticePeriodDays: z.number().int().min(0).max(365).nullable().optional(),
     openToRelocate: z.boolean().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: "Provide at least one field to update",
-  });
+  })
+  .refine(
+    (value) =>
+      value.expectedMinInr == null ||
+      value.expectedMaxInr == null ||
+      value.expectedMinInr <= value.expectedMaxInr,
+    { message: "Expected minimum cannot exceed the maximum" },
+  );
 
 export const careerSyncSchema = z.object({
   refreshSegment: z.boolean().optional(),
@@ -121,7 +122,16 @@ export const careerTargetWriteSchema = z.object({
   isPrimary: z.boolean().optional(),
 });
 
+export const recordVerifiedSkillSchema = z.object({
+  skill: z.string().trim().min(1).max(80),
+  score: z.number().int().min(0).max(100),
+  verifiedAt: z.string().datetime({ offset: true }).optional(),
+});
+
 export type CareerProfilePatch = z.infer<typeof careerProfilePatchSchema>;
+export type RecordVerifiedSkillInput = z.infer<
+  typeof recordVerifiedSkillSchema
+>;
 export type CareerSkillWrite = z.infer<typeof careerSkillWriteSchema>;
 export type CareerAcademicWrite = z.infer<typeof careerAcademicWriteSchema>;
 export type CareerExperienceWrite = z.infer<typeof careerExperienceWriteSchema>;

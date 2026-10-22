@@ -8,6 +8,7 @@ import {
   careerSkill,
   careerTargetRole,
   resume,
+  resumeAnalysis,
   userProfile,
 } from "@/db/schema";
 import {
@@ -21,6 +22,8 @@ import {
   normalizeCareerKey,
   yearsToMonths,
 } from "@/lib/career/derive";
+import { toAnnualInr, usesMonthlyStipend } from "@/lib/career/pay";
+import { scoreCareerProfile } from "@/lib/career/score";
 import { normalizeResumeData } from "@/lib/resume";
 import { ensureUserProfile } from "@/lib/user-profile";
 import type {
@@ -29,6 +32,7 @@ import type {
   CareerProfilePatch,
   CareerSkillWrite,
   CareerTargetWrite,
+  RecordVerifiedSkillInput,
 } from "@/lib/validations/career-profile";
 import type {
   CareerAcademicRecord,
@@ -44,11 +48,13 @@ import type {
 import {
   CAREER_EMPLOYMENT_TYPES,
   CAREER_FIELD_KEYS,
+  CAREER_PAY_PERIODS,
   CAREER_SEGMENTS,
   CAREER_SKILL_CATEGORIES,
   CAREER_SKILL_LEVELS,
   CAREER_TARGET_SENIORITIES,
   SKILL_EVIDENCE_KINDS,
+  VERIFIED_SKILL_LABEL,
 } from "@/types/career-profile";
 
 export class CareerProfileError extends Error {
@@ -116,7 +122,11 @@ export async function syncCareerProfileFromResume(
       id,
       userId,
       ...header,
-      expectedSalaryInr: existing?.expectedSalaryInr ?? null,
+      expectedPayPeriod: existing?.expectedPayPeriod ?? "annual",
+      expectedMinInr: existing?.expectedMinInr ?? null,
+      expectedMaxInr: existing?.expectedMaxInr ?? null,
+      expectedMinAnnualInr: existing?.expectedMinAnnualInr ?? null,
+      expectedMaxAnnualInr: existing?.expectedMaxAnnualInr ?? null,
       noticePeriodDays: existing?.noticePeriodDays ?? null,
       openToRelocate: existing?.openToRelocate ?? false,
       derivedFromResumeId: ctx.resumeId,
@@ -184,12 +194,42 @@ export async function updateCareerProfile(
         : yearsToMonths(patch.yearsOfExperience);
     sources.yearsOfExperience = "self_reported";
   }
-  if ("currentSalaryInr" in patch) {
-    set.currentSalaryInr = patch.currentSalaryInr ?? null;
+  if ("currentPayInr" in patch || "currentPayPeriod" in patch) {
+    const period = patch.currentPayPeriod ?? existing.currentPayPeriod;
+    const amount =
+      "currentPayInr" in patch
+        ? (patch.currentPayInr ?? null)
+        : existing.currentPayInr;
+    set.currentPayPeriod = period;
+    set.currentPayInr = amount;
+    set.currentSalaryInr = toAnnualInr(period, amount);
     sources.currentSalaryInr = "self_reported";
   }
-  if ("expectedSalaryInr" in patch) {
-    set.expectedSalaryInr = patch.expectedSalaryInr ?? null;
+  if (
+    "expectedMinInr" in patch ||
+    "expectedMaxInr" in patch ||
+    "expectedPayPeriod" in patch
+  ) {
+    const period = patch.expectedPayPeriod ?? existing.expectedPayPeriod;
+    const min =
+      "expectedMinInr" in patch
+        ? (patch.expectedMinInr ?? null)
+        : existing.expectedMinInr;
+    const max =
+      "expectedMaxInr" in patch
+        ? (patch.expectedMaxInr ?? null)
+        : existing.expectedMaxInr;
+    if (min != null && max != null && min > max) {
+      throw new CareerProfileError(
+        "Expected minimum cannot exceed the maximum",
+        400,
+      );
+    }
+    set.expectedPayPeriod = period;
+    set.expectedMinInr = min;
+    set.expectedMaxInr = max;
+    set.expectedMinAnnualInr = toAnnualInr(period, min);
+    set.expectedMaxAnnualInr = toAnnualInr(period, max);
   }
   if ("noticePeriodDays" in patch) {
     set.noticePeriodDays = patch.noticePeriodDays ?? null;
@@ -204,15 +244,100 @@ export async function updateCareerProfile(
     .set(set)
     .where(eq(careerProfile.userId, userId));
 
-  if ("currentSalaryInr" in patch) {
+  if ("currentPayInr" in patch || "currentPayPeriod" in patch) {
     await ensureUserProfile(userId);
     await db
       .update(userProfile)
       .set({
-        currentSalary: patch.currentSalaryInr ?? null,
+        currentSalary:
+          "currentSalaryInr" in set ? (set.currentSalaryInr ?? null) : null,
         updatedAt: new Date(),
       })
       .where(eq(userProfile.userId, userId));
+  }
+
+  return getCareerProfile(userId);
+}
+
+/** Legacy profile salary is annual CTC. This is the only writer for that figure. */
+export async function setCurrentAnnualSalary(
+  userId: string,
+  annualInr: number | null,
+): Promise<CareerProfileView> {
+  if (
+    annualInr != null &&
+    (!Number.isInteger(annualInr) || annualInr < 0 || annualInr > 100_000_000)
+  ) {
+    throw new CareerProfileError(
+      "Current salary must be a whole number of rupees up to 10 crore",
+      400,
+    );
+  }
+  return updateCareerProfile(userId, {
+    currentPayPeriod: "annual",
+    currentPayInr: annualInr,
+  });
+}
+
+/**
+ * Skill Coach records a passing check. Does not lock the level.
+ * Replaces any previous verified evidence on that skill.
+ * Recruiter visibility is a later surface; the evidence is stored now.
+ */
+export async function recordVerifiedSkill(
+  userId: string,
+  input: RecordVerifiedSkillInput,
+): Promise<CareerProfileView> {
+  const profile = await ensureCareerProfile(userId);
+  const normalizedName = normalizeCareerKey(input.skill);
+  if (!normalizedName) {
+    throw new CareerProfileError("Skill name is required", 400);
+  }
+
+  const verifiedAt = input.verifiedAt ? new Date(input.verifiedAt) : new Date();
+  if (Number.isNaN(verifiedAt.getTime())) {
+    throw new CareerProfileError("verifiedAt is not a valid date", 400);
+  }
+  const verified: SkillEvidence = {
+    kind: "verified",
+    label: VERIFIED_SKILL_LABEL,
+    score: input.score,
+    verifiedAt: verifiedAt.toISOString(),
+  };
+
+  const existingRows = await db
+    .select()
+    .from(careerSkill)
+    .where(eq(careerSkill.userId, userId));
+  const target = existingRows.find(
+    (row) => row.normalizedName === normalizedName,
+  );
+
+  if (target) {
+    await db
+      .update(careerSkill)
+      .set({
+        evidence: replaceVerifiedEvidence(
+          asEvidence(target.evidence),
+          verified,
+        ),
+        updatedAt: new Date(),
+      })
+      .where(eq(careerSkill.id, target.id));
+  } else {
+    await db.insert(careerSkill).values({
+      id: nanoid(),
+      careerProfileId: profile.id,
+      userId,
+      name: input.skill.trim(),
+      normalizedName,
+      category: "other",
+      level: "unspecified",
+      levelLocked: false,
+      evidence: [verified],
+      source: "self_reported",
+      sortOrder: nextSort(existingRows.map((row) => row.sortOrder)),
+    });
   }
 
   return getCareerProfile(userId);
@@ -246,16 +371,25 @@ export async function upsertCareerSkill(
   }
 
   const target = byId ?? byName;
+  const levelEdit = input.level != null;
+  const incomingEvidence = input.evidence ?? [];
   if (target) {
+    const identityEdit =
+      normalizedName !== target.normalizedName ||
+      (input.category != null && input.category !== target.category);
     await db
       .update(careerSkill)
       .set({
         name: input.name.trim(),
         normalizedName,
         category: input.category ?? target.category,
-        level: input.level ?? target.level,
-        evidence: input.evidence ?? asEvidence(target.evidence),
-        source: "self_reported",
+        level: levelEdit ? input.level : target.level,
+        levelLocked: levelEdit ? true : target.levelLocked,
+        evidence:
+          input.evidence != null
+            ? unionEvidence(asEvidence(target.evidence), incomingEvidence)
+            : asEvidence(target.evidence),
+        source: levelEdit || identityEdit ? "self_reported" : target.source,
         updatedAt: new Date(),
       })
       .where(eq(careerSkill.id, target.id));
@@ -268,7 +402,8 @@ export async function upsertCareerSkill(
       normalizedName,
       category: input.category ?? "other",
       level: input.level ?? "unspecified",
-      evidence: input.evidence ?? [],
+      levelLocked: levelEdit,
+      evidence: incomingEvidence,
       source: "self_reported",
       sortOrder: nextSort(existingRows.map((row) => row.sortOrder)),
     });
@@ -543,8 +678,12 @@ function nextHeader(
     else delete sources.yearsOfExperience;
   }
 
+  let currentPayPeriod = existing?.currentPayPeriod ?? "annual";
+  let currentPayInr = existing?.currentPayInr ?? null;
   let currentSalaryInr = existing?.currentSalaryInr ?? null;
   if (!isLocked(sources, "currentSalaryInr", false)) {
+    currentPayPeriod = "annual";
+    currentPayInr = legacySalaryInr;
     currentSalaryInr = legacySalaryInr;
     if (legacySalaryInr != null) sources.currentSalaryInr = "legacy_profile";
     else delete sources.currentSalaryInr;
@@ -556,6 +695,8 @@ function nextHeader(
     city,
     region,
     countryCode,
+    currentPayPeriod,
+    currentPayInr,
     currentSalaryInr,
     experienceMonths,
     fieldSources: cleanSources(sources),
@@ -684,6 +825,7 @@ async function syncSkills(
         normalizedName: skill.normalizedName,
         category: skill.category,
         level: skill.level,
+        levelLocked: false,
         evidence: skill.evidence,
         source: "resume",
         sortOrder: skill.sortOrder,
@@ -694,10 +836,7 @@ async function syncSkills(
       await db
         .update(careerSkill)
         .set({
-          level:
-            match.level === "unspecified" && skill.level !== "unspecified"
-              ? skill.level
-              : match.level,
+          level: match.levelLocked ? match.level : skill.level,
           category:
             match.category === "other" && skill.category !== "other"
               ? skill.category
@@ -714,8 +853,8 @@ async function syncSkills(
         careerProfileId,
         name: skill.name,
         category: skill.category,
-        level: skill.level,
-        evidence: skill.evidence,
+        level: match.levelLocked ? match.level : skill.level,
+        evidence: unionEvidence(asEvidence(match.evidence), skill.evidence),
         source: "resume",
         sortOrder: skill.sortOrder,
         updatedAt: new Date(),
@@ -724,9 +863,13 @@ async function syncSkills(
   }
 
   for (const row of existing) {
-    if (row.source === "resume" && !derivedKeys.has(row.normalizedName)) {
-      await db.delete(careerSkill).where(eq(careerSkill.id, row.id));
+    if (row.source !== "resume" || derivedKeys.has(row.normalizedName)) {
+      continue;
     }
+    if (asEvidence(row.evidence).some((item) => item.kind === "verified")) {
+      continue;
+    }
+    await db.delete(careerSkill).where(eq(careerSkill.id, row.id));
   }
 }
 
@@ -922,39 +1065,53 @@ async function loadView(userId: string): Promise<CareerProfileView | null> {
   const header = await loadHeader(userId);
   if (!header) return null;
 
-  const [academics, experience, skills, targetRoles] = await Promise.all([
-    db
-      .select()
-      .from(careerAcademic)
-      .where(eq(careerAcademic.userId, userId))
-      .orderBy(asc(careerAcademic.sortOrder), asc(careerAcademic.createdAt)),
-    db
-      .select()
-      .from(careerExperience)
-      .where(eq(careerExperience.userId, userId))
-      .orderBy(
-        asc(careerExperience.sortOrder),
-        asc(careerExperience.createdAt),
-      ),
-    db
-      .select()
-      .from(careerSkill)
-      .where(eq(careerSkill.userId, userId))
-      .orderBy(asc(careerSkill.sortOrder), asc(careerSkill.name)),
-    db
-      .select()
-      .from(careerTargetRole)
-      .where(eq(careerTargetRole.userId, userId))
-      .orderBy(
-        desc(careerTargetRole.isPrimary),
-        asc(careerTargetRole.sortOrder),
-      ),
-  ]);
+  const [academics, experience, skills, targetRoles, latestAnalysis] =
+    await Promise.all([
+      db
+        .select()
+        .from(careerAcademic)
+        .where(eq(careerAcademic.userId, userId))
+        .orderBy(asc(careerAcademic.sortOrder), asc(careerAcademic.createdAt)),
+      db
+        .select()
+        .from(careerExperience)
+        .where(eq(careerExperience.userId, userId))
+        .orderBy(
+          asc(careerExperience.sortOrder),
+          asc(careerExperience.createdAt),
+        ),
+      db
+        .select()
+        .from(careerSkill)
+        .where(eq(careerSkill.userId, userId))
+        .orderBy(asc(careerSkill.sortOrder), asc(careerSkill.name)),
+      db
+        .select()
+        .from(careerTargetRole)
+        .where(eq(careerTargetRole.userId, userId))
+        .orderBy(
+          desc(careerTargetRole.isPrimary),
+          asc(careerTargetRole.sortOrder),
+        ),
+      db
+        .select({ id: resumeAnalysis.id, jobs: resumeAnalysis.jobs })
+        .from(resumeAnalysis)
+        .where(eq(resumeAnalysis.userId, userId))
+        .orderBy(desc(resumeAnalysis.createdAt))
+        .limit(1),
+    ]);
+
+  const segment = oneOf(header.segment, CAREER_SEGMENTS);
+  const currentPeriod =
+    oneOf(header.currentPayPeriod, CAREER_PAY_PERIODS) ?? "annual";
+  const expectedPeriod =
+    oneOf(header.expectedPayPeriod, CAREER_PAY_PERIODS) ?? "annual";
+  const analysis = latestAnalysis[0] ?? null;
 
   return {
     id: header.id,
     userId: header.userId,
-    segment: oneOf(header.segment, CAREER_SEGMENTS),
+    segment,
     headline: header.headline,
     location: {
       city: header.city,
@@ -963,9 +1120,26 @@ async function loadView(userId: string): Promise<CareerProfileView | null> {
     },
     compensation: {
       currency: "INR",
-      period: "annual",
-      currentInr: header.currentSalaryInr,
-      expectedInr: header.expectedSalaryInr,
+      stipend: usesMonthlyStipend({
+        segment,
+        experience: experience.map((row) => ({
+          employmentType:
+            oneOf(row.employmentType, CAREER_EMPLOYMENT_TYPES) ?? "full_time",
+          isCurrent: row.isCurrent,
+        })),
+      }),
+      current: {
+        period: currentPeriod,
+        amountInr: header.currentPayInr,
+        annualInr: header.currentSalaryInr,
+      },
+      expected: {
+        period: expectedPeriod,
+        minInr: header.expectedMinInr,
+        maxInr: header.expectedMaxInr,
+        minAnnualInr: header.expectedMinAnnualInr,
+        maxAnnualInr: header.expectedMaxAnnualInr,
+      },
       noticePeriodDays: header.noticePeriodDays,
     },
     yearsOfExperience:
@@ -980,6 +1154,21 @@ async function loadView(userId: string): Promise<CareerProfileView | null> {
     experience: experience.map(mapExperience),
     skills: skills.map(mapSkill),
     targetRoles: targetRoles.map(mapTarget),
+    intelligence: scoreCareerProfile({
+      segment,
+      skillNames: skills.map((skill) => skill.name),
+      targetRoles: targetRoles.map((role) => ({
+        id: role.id,
+        title: role.title,
+        isPrimary: role.isPrimary,
+      })),
+      hasPay:
+        header.currentSalaryInr != null ||
+        header.expectedMinAnnualInr != null ||
+        header.expectedMaxAnnualInr != null,
+      jobs: asAnalysisJobs(analysis?.jobs),
+      analysisId: analysis?.id ?? null,
+    }),
     createdAt: requiredIso(header.createdAt),
     updatedAt: requiredIso(header.updatedAt),
   };
@@ -1027,6 +1216,7 @@ function mapSkill(row: SkillRow): CareerSkillRecord {
     normalizedName: row.normalizedName,
     category: oneOf(row.category, CAREER_SKILL_CATEGORIES) ?? "other",
     level: oneOf(row.level, CAREER_SKILL_LEVELS) ?? "unspecified",
+    levelLocked: row.levelLocked,
     evidence: asEvidence(row.evidence),
     source: row.source,
     sortOrder: row.sortOrder,
@@ -1168,10 +1358,36 @@ function asEvidence(value: unknown): SkillEvidence[] {
     if (typeof record.refId === "string" && record.refId.trim()) {
       evidence.refId = record.refId.trim();
     }
+    if (evidence.kind === "verified") {
+      const score = (item as { score?: unknown }).score;
+      const verifiedAt = (item as { verifiedAt?: unknown }).verifiedAt;
+      if (
+        typeof score === "number" &&
+        Number.isInteger(score) &&
+        score >= 0 &&
+        score <= 100
+      ) {
+        evidence.score = score;
+      }
+      if (
+        typeof verifiedAt === "string" &&
+        !Number.isNaN(Date.parse(verifiedAt))
+      ) {
+        evidence.verifiedAt = new Date(verifiedAt).toISOString();
+      }
+    }
     out.push(evidence);
     if (out.length >= 12) break;
   }
   return out;
+}
+
+function replaceVerifiedEvidence(
+  current: SkillEvidence[],
+  verified: SkillEvidence,
+): SkillEvidence[] {
+  const rest = current.filter((item) => item.kind !== "verified").slice(0, 11);
+  return [...rest, verified];
 }
 
 function unionEvidence(
@@ -1191,6 +1407,26 @@ function unionEvidence(
     out.push(item);
   }
   return out;
+}
+
+function asAnalysisJobs(
+  value: unknown,
+): { title: string; requiredSkills: string[] }[] {
+  if (!Array.isArray(value)) return [];
+  const jobs: { title: string; requiredSkills: string[] }[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as { title?: unknown; requiredSkills?: unknown };
+    const title = typeof record.title === "string" ? record.title : "";
+    const requiredSkills = Array.isArray(record.requiredSkills)
+      ? record.requiredSkills.filter(
+          (skill): skill is string => typeof skill === "string",
+        )
+      : [];
+    if (!title.trim() && requiredSkills.length === 0) continue;
+    jobs.push({ title, requiredSkills });
+  }
+  return jobs;
 }
 
 function asStringList(value: unknown): string[] {

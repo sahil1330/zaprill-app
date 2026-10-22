@@ -68,6 +68,11 @@ export const careerEmploymentTypeEnum = pgEnum("career_employment_type", [
   "other",
 ]);
 
+export const careerPayPeriodEnum = pgEnum("career_pay_period", [
+  "monthly",
+  "annual",
+]);
+
 export const careerTargetSeniorityEnum = pgEnum("career_target_seniority", [
   "intern",
   "fresher",
@@ -199,7 +204,8 @@ export const userProfile = pgTable("user_profile", {
  * Shared career profile. One row per user.
  * Resume Builder and Skill Coach read and write this aggregate.
  * Resume JSON stays the document; this is the person.
- * Compensation is annual INR. `user_profile.current_salary` is the legacy mirror.
+ * Current and expected pay are stored as entered, plus a normalized annual INR figure.
+ * `user_profile.current_salary` mirrors the annual current figure.
  */
 export const careerProfile = pgTable("career_profile", {
   id: text("id").primaryKey(),
@@ -212,8 +218,20 @@ export const careerProfile = pgTable("career_profile", {
   city: text("city"),
   region: text("region"),
   countryCode: text("country_code").notNull().default("IN"),
+  currentPayPeriod: careerPayPeriodEnum("current_pay_period")
+    .notNull()
+    .default("annual"),
+  /** Amount in `currentPayPeriod` units. Null when unset. */
+  currentPayInr: integer("current_pay_inr"),
+  /** Canonical annual whole INR. Monthly stipend times 12, or the annual amount. */
   currentSalaryInr: integer("current_salary_inr"),
-  expectedSalaryInr: integer("expected_salary_inr"),
+  expectedPayPeriod: careerPayPeriodEnum("expected_pay_period")
+    .notNull()
+    .default("annual"),
+  expectedMinInr: integer("expected_min_inr"),
+  expectedMaxInr: integer("expected_max_inr"),
+  expectedMinAnnualInr: integer("expected_min_annual_inr"),
+  expectedMaxAnnualInr: integer("expected_max_annual_inr"),
   /** Whole months. The API exposes years with one decimal. */
   experienceMonths: integer("experience_months"),
   noticePeriodDays: integer("notice_period_days"),
@@ -305,8 +323,18 @@ export const careerSkill = pgTable(
     normalizedName: text("normalized_name").notNull(),
     category: skillCategoryEnum("category").notNull().default("other"),
     level: careerSkillLevelEnum("level").notNull().default("unspecified"),
+    /** True only after an explicit level edit. Evidence and verification do not set this. */
+    levelLocked: boolean("level_locked").notNull().default(false),
     evidence: jsonb("evidence")
-      .$type<{ kind: string; label: string; refId?: string }[]>()
+      .$type<
+        {
+          kind: string;
+          label: string;
+          refId?: string;
+          score?: number;
+          verifiedAt?: string;
+        }[]
+      >()
       .notNull()
       .default([]),
     source: careerRecordSourceEnum("source").notNull().default("resume"),

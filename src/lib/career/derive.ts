@@ -10,6 +10,13 @@ import type { ResumeData } from "@/types/resume";
 
 const NOW_FALLBACK = () => new Date();
 
+/**
+ * Under this many years of substantive work, the member is a fresher.
+ * Substantive work is full-time, contract, or freelance. Internships,
+ * apprenticeships, and part-time campus jobs do not count.
+ */
+export const FRESHER_UNDER_YEARS = 2;
+
 const GENERIC_SKILL_NAMES = new Set([
   "skills",
   "general",
@@ -123,7 +130,7 @@ export function deriveCareerDraft(input: {
   );
 
   return {
-    segment: inferSegment(resume, yearsOfExperience, now),
+    segment: inferSegment(resume, now),
     headline: headlineFrom(resume),
     city: blankToNull(resume.basics?.location?.city),
     region: blankToNull(resume.basics?.location?.region),
@@ -146,11 +153,7 @@ function headlineFrom(resume: ResumeData): string | null {
   return label.slice(0, 160);
 }
 
-function inferSegment(
-  resume: ResumeData,
-  years: number | null,
-  now: Date,
-): CareerSegment | null {
+function inferSegment(resume: ResumeData, now: Date): CareerSegment | null {
   const jobs = (resume.work ?? []).filter((job) =>
     Boolean(job.company?.trim() || job.position?.trim()),
   );
@@ -166,9 +169,33 @@ function inferSegment(
     if (studying) return "student";
     return "fresher";
   }
-  if (years == null) return "professional";
-  if (years < 1.5) return "fresher";
+
+  const substantiveYears = substantiveYearsOf(resume, now);
+  if (substantiveYears == null || substantiveYears < FRESHER_UNDER_YEARS) {
+    return "fresher";
+  }
   return "professional";
+}
+
+function substantiveYearsOf(resume: ResumeData, now: Date): number | null {
+  const jobs = (resume.work ?? []).filter(
+    (job) =>
+      Boolean(job.company?.trim() || job.position?.trim()) &&
+      isSubstantiveEmployment(employmentTypeFrom(job.position ?? "")),
+  );
+  if (jobs.length === 0) return null;
+
+  const explicit = resume.totalYearsOfExperience;
+  if (
+    typeof explicit === "number" &&
+    Number.isFinite(explicit) &&
+    explicit > 0 &&
+    explicit <= 60
+  ) {
+    return Math.round(explicit * 10) / 10;
+  }
+
+  return deriveYears(undefined, jobs, now);
 }
 
 function deriveYears(

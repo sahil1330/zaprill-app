@@ -1,7 +1,7 @@
 /**
  * Shared career profile contract.
  * Resume Builder, Skill Coach, and the Intelligence Dashboard all use this shape.
- * Compensation is annual whole rupees. There is no Adzuna dependency here.
+ * Pay is stored as entered and as normalized annual INR. There is no Adzuna dependency here.
  */
 
 export const CAREER_SEGMENTS = ["student", "fresher", "professional"] as const;
@@ -60,13 +60,32 @@ export const SKILL_EVIDENCE_KINDS = [
   "certification",
   "academic",
   "self_reported",
+  "verified",
 ] as const;
 export type SkillEvidenceKind = (typeof SKILL_EVIDENCE_KINDS)[number];
+
+/** Evidence a member or resume import may write. Verification uses recordVerifiedSkill. */
+export const USER_SKILL_EVIDENCE_KINDS = [
+  "resume_keyword",
+  "work",
+  "project",
+  "certification",
+  "academic",
+  "self_reported",
+] as const;
+
+export const VERIFIED_SKILL_LABEL = "Verified on Zaprill";
+
+export const CAREER_PAY_PERIODS = ["monthly", "annual"] as const;
+export type CareerPayPeriod = (typeof CAREER_PAY_PERIODS)[number];
 
 export type SkillEvidence = {
   kind: SkillEvidenceKind;
   label: string;
   refId?: string;
+  /** 0–100. Set only on verified evidence. */
+  score?: number;
+  verifiedAt?: string;
 };
 
 export const CAREER_FIELD_KEYS = [
@@ -128,6 +147,8 @@ export type CareerSkillRecord = {
   normalizedName: string;
   category: CareerSkillCategory;
   level: CareerSkillLevel;
+  /** True after an explicit level edit. Evidence-only writes leave this false. */
+  levelLocked: boolean;
   evidence: SkillEvidence[];
   source: CareerRecordSource;
   sortOrder: number;
@@ -143,6 +164,53 @@ export type CareerTargetRoleRecord = {
   sortOrder: number;
 };
 
+export type CareerPayFigure = {
+  period: CareerPayPeriod;
+  /** Amount in `period` units, as entered. */
+  amountInr: number | null;
+  /** Normalized annual whole INR. */
+  annualInr: number | null;
+};
+
+export type CareerExpectedPay = {
+  period: CareerPayPeriod;
+  minInr: number | null;
+  maxInr: number | null;
+  minAnnualInr: number | null;
+  maxAnnualInr: number | null;
+};
+
+export type CareerRoleReadiness = {
+  id: string;
+  title: string;
+  isPrimary: boolean;
+  /** Mean match against analysis jobs whose titles match this role. Null when none match. */
+  readiness: number | null;
+  jobCount: number;
+};
+
+export type CareerSkillGapView = {
+  skill: string;
+  frequency: number;
+  priority: "high" | "medium" | "low";
+  category: CareerSkillCategory;
+};
+
+/**
+ * Deterministic score. `careerScore` is null until a resume analysis has jobs.
+ * Weights live in `src/lib/career/score.ts` and docs/career-profile.md.
+ */
+export type CareerIntelligence = {
+  careerScore: number | null;
+  readiness: number | null;
+  completeness: number;
+  /** target_roles: gaps and readiness used title-matched jobs. all_jobs: no target matched. none: no analysis jobs. */
+  basis: "target_roles" | "all_jobs" | "none";
+  analysisId: string | null;
+  roles: CareerRoleReadiness[];
+  skillGaps: CareerSkillGapView[];
+};
+
 /** JSON body returned by every career-profile route as `{ profile }`. */
 export type CareerProfileView = {
   id: string;
@@ -156,9 +224,10 @@ export type CareerProfileView = {
   };
   compensation: {
     currency: "INR";
-    period: "annual";
-    currentInr: number | null;
-    expectedInr: number | null;
+    /** Students, and anyone in a current internship or apprenticeship, enter a monthly stipend. */
+    stipend: boolean;
+    current: CareerPayFigure;
+    expected: CareerExpectedPay;
     noticePeriodDays: number | null;
   };
   yearsOfExperience: number | null;
@@ -170,6 +239,7 @@ export type CareerProfileView = {
   experience: CareerExperienceRecord[];
   skills: CareerSkillRecord[];
   targetRoles: CareerTargetRoleRecord[];
+  intelligence: CareerIntelligence;
   createdAt: string;
   updatedAt: string;
 };

@@ -151,7 +151,30 @@ test("a finished degree or a post-college internship is a fresher", () => {
   assert.equal(internAfter.segment, "fresher");
 });
 
-test("substantive work under 1.5 years is a fresher, then a professional", () => {
+test("undated full-time work with no year count stays a fresher", () => {
+  const draft = deriveCareerDraft({
+    resume: resume({
+      work: [
+        {
+          id: "job-1",
+          company: "Postman",
+          position: "Software Engineer",
+          website: "",
+          startDate: "",
+          endDate: null,
+          summary: "",
+          highlights: [],
+          location: "",
+        },
+      ],
+    }),
+    now: NOW,
+  });
+  assert.equal(draft.segment, "fresher");
+  assert.equal(draft.yearsOfExperience, null);
+});
+
+test("substantive work under 2 years is a fresher, then a professional", () => {
   const recent = deriveCareerDraft({
     resume: resume({
       totalYearsOfExperience: 1.4,
@@ -174,9 +197,30 @@ test("substantive work under 1.5 years is a fresher, then a professional", () =>
   assert.equal(recent.segment, "fresher");
   assert.equal(recent.yearsOfExperience, 1.4);
 
+  const stillEarly = deriveCareerDraft({
+    resume: resume({
+      totalYearsOfExperience: 1.9,
+      work: [
+        {
+          id: "job-1",
+          company: "Postman",
+          position: "Software Engineer",
+          website: "",
+          startDate: "",
+          endDate: null,
+          summary: "",
+          highlights: [],
+          location: "",
+        },
+      ],
+    }),
+    now: NOW,
+  });
+  assert.equal(stillEarly.segment, "fresher");
+
   const established = deriveCareerDraft({
     resume: resume({
-      totalYearsOfExperience: 1.5,
+      totalYearsOfExperience: 2,
       work: [
         {
           id: "job-1",
