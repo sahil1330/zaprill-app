@@ -172,7 +172,7 @@ export function createResumeArchitectTools(ctx: ResumeArchitectContext) {
         item: z
           .record(z.unknown())
           .describe(
-            "Fields for the entry. Work: company, position, startDate, endDate, location, highlights[]. Education: institution, studyType, area, startDate, endDate, score. Skills: name, level, keywords[]. Projects: name, description, highlights[], keywords[].",
+            "Fields for the entry. Work: company, position, startDate, endDate, location, highlights[]. Education: institution, studyType, area, startDate, endDate, score. Skills: name, level, keywords[]. Projects: name, description, highlights[], url, githubUrl, keywords[]. Certifications: name, issuer, date. Publications: name, publisher, releaseDate, summary. Use only facts the user gave.",
           ),
       }),
       execute: async ({ section, id, item }) => {

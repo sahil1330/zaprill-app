@@ -209,3 +209,79 @@ test("a target role in another field is a switcher", () => {
   assert.ok(order.indexOf("skills") < order.indexOf("work"));
   assert.ok(order.indexOf("work") < order.indexOf("education"));
 });
+
+test("work dates supply years when the profile does not", () => {
+  const audience = detectAudience({
+    targetRole: "Backend Engineer",
+    workTitles: ["Backend Engineer", "Software Engineer"],
+    workSpans: [
+      { startDate: "2016-01", endDate: "2020-01" },
+      { startDate: "2020-01", endDate: "2024-01" },
+    ],
+    workCount: 2,
+    educationCount: 1,
+    profile: {
+      segment: null,
+      countryCode: "US",
+      yearsOfExperience: null,
+      headline: null,
+      targetRoles: [],
+      experienceTitles: [],
+    },
+  });
+  assert.equal(audience.field, "software");
+  assert.equal(audience.years, 8);
+  assert.equal(audience.stage, "experienced");
+  const review = reviewResume({
+    audience,
+    data: resume({ education: [education("e1")] }),
+    metadata: DEFAULT_RESUME_METADATA,
+    templateSlug: "minimalist",
+  });
+  assert.equal(review.maxPages, 1);
+});
+
+test("data scientist is treated as software", () => {
+  const audience = detectAudience({
+    targetRole: "Data Scientist",
+    workCount: 1,
+    profile: {
+      segment: "professional",
+      countryCode: "US",
+      yearsOfExperience: 4,
+      headline: null,
+      targetRoles: ["Data Scientist"],
+      experienceTitles: ["Data Scientist"],
+    },
+  });
+  assert.equal(audience.field, "software");
+  assert.equal(audience.stage, "experienced");
+});
+
+test("teacher to product manager is a switcher even with an empty resume", () => {
+  const audience = detectAudience({
+    targetRole: "Product Manager",
+    workTitles: [],
+    workCount: 0,
+    educationCount: 1,
+    profile: {
+      segment: "professional",
+      countryCode: "US",
+      yearsOfExperience: 6,
+      headline: "High school teacher moving into product",
+      targetRoles: ["Product Manager"],
+      experienceTitles: ["High School Teacher"],
+    },
+  });
+  assert.equal(audience.stage, "switcher");
+  assert.equal(audience.switching, true);
+  const order = reviewResume({
+    audience,
+    data: resume({ education: [education("e1")] }),
+    metadata: DEFAULT_RESUME_METADATA,
+    templateSlug: "minimalist",
+  }).recommended.sectionOrder;
+  assert.ok(order.indexOf("skills") < order.indexOf("projects"));
+  assert.ok(order.indexOf("projects") < order.indexOf("work"));
+  assert.ok(order.indexOf("work") < order.indexOf("education"));
+});

@@ -20,6 +20,10 @@ export function reviewStoredResume(input: {
     summary: data.basics.summary,
     countryCode: data.basics.location.countryCode,
     workTitles: data.work.map((item) => item.position),
+    workSpans: data.work.map((item) => ({
+      startDate: item.startDate,
+      endDate: item.endDate,
+    })),
     educationCount: data.education.length,
     workCount: data.work.length,
     profile: input.profile,
