@@ -1,5 +1,7 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -902,6 +904,10 @@ export const aiActionEnum = pgEnum("ai_action", [
   "ats_scan",
   "resume_roast",
   "resume_chat",
+  "coach_plan",
+  "coach_tutor",
+  "coach_practice",
+  "coach_mock",
 ]);
 
 /**
@@ -929,6 +935,9 @@ export const aiUsageLog = pgTable(
     promptTokens: integer("prompt_tokens").notNull().default(0),
     completionTokens: integer("completion_tokens").notNull().default(0),
     totalTokens: integer("total_tokens").notNull().default(0),
+    // Already included in completion_tokens for this provider. Stored so the
+    // reasoning share is visible. Do not add it again when pricing the call.
+    reasoningTokens: integer("reasoning_tokens").notNull().default(0),
     // Estimated USD cost computed at write-time from the model rate table.
     // Null when the model is unknown / cost cannot be computed.
     costUsd: numeric("cost_usd", { precision: 12, scale: 8 }),
@@ -1222,5 +1231,190 @@ export const referralRewards = pgTable(
     index("referral_rewards_referral_id_idx").on(t.referralId),
     index("referral_rewards_recipient_user_id_idx").on(t.recipientUserId),
     index("referral_rewards_commission_status_idx").on(t.commissionStatus),
+  ],
+);
+
+// ─────────────────────────────────────────────────
+// Skill Coach
+// Status columns are text so tier and product changes do not need new enums.
+// ─────────────────────────────────────────────────
+
+export const coachProgram = pgTable(
+  "coach_program",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    roleKey: text("role_key").notNull(),
+    roleTitle: text("role_title").notNull(),
+    status: text("status").notNull().default("active"),
+    advice: text("advice"),
+    sourceAnalysisId: text("source_analysis_id").references(
+      () => resumeAnalysis.id,
+      { onDelete: "set null" },
+    ),
+    gapFingerprint: text("gap_fingerprint"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("coach_program_active_role_uidx")
+      .on(t.userId, t.roleKey)
+      .where(sql`${t.status} = 'active'`),
+    index("coach_program_user_id_idx").on(t.userId),
+  ],
+);
+
+export const coachPlan = pgTable(
+  "coach_plan",
+  {
+    id: text("id").primaryKey(),
+    programId: text("program_id")
+      .notNull()
+      .references(() => coachProgram.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    skillKey: text("skill_key").notNull(),
+    displayName: text("display_name").notNull(),
+    priority: text("priority").notNull().default("medium"),
+    category: text("category").notNull().default("other"),
+    status: text("status").notNull().default("active"),
+    outline: jsonb("outline").notNull().default({}),
+    outlineSource: text("outline_source").notNull().default("gap_roadmap"),
+    gapEvidence: jsonb("gap_evidence").notNull().default({}),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("coach_plan_program_skill_uidx").on(t.programId, t.skillKey),
+    index("coach_plan_user_id_idx").on(t.userId),
+  ],
+);
+
+export const coachProgress = pgTable("coach_progress", {
+  planId: text("plan_id")
+    .primaryKey()
+    .references(() => coachPlan.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  state: text("state").notNull().default("not_started"),
+  currentModuleKey: text("current_module_key"),
+  tasksAttempted: integer("tasks_attempted").notNull().default(0),
+  tasksPassed: integer("tasks_passed").notNull().default(0),
+  lastSessionAt: timestamp("last_session_at"),
+  masteryScore: integer("mastery_score"),
+});
+
+export const coachOutlineCache = pgTable(
+  "coach_outline_cache",
+  {
+    skillKey: text("skill_key").notNull(),
+    segment: text("segment").notNull(),
+    outline: jsonb("outline").notNull(),
+    model: text("model").notNull(),
+    generatedAt: timestamp("generated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("coach_outline_cache_skill_segment_uidx").on(
+      t.skillKey,
+      t.segment,
+    ),
+  ],
+);
+
+export const coachSession = pgTable(
+  "coach_session",
+  {
+    id: text("id").primaryKey(),
+    planId: text("plan_id")
+      .notNull()
+      .references(() => coachPlan.id, { onDelete: "cascade" }),
+    programId: text("program_id")
+      .notNull()
+      .references(() => coachProgram.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    status: text("status").notNull().default("active"),
+    messages: jsonb("messages").notNull().default([]),
+    summary: text("summary"),
+    moduleKey: text("module_key"),
+    turnCount: integer("turn_count").notNull().default(0),
+    startedAt: timestamp("started_at").notNull().defaultNow(),
+    endedAt: timestamp("ended_at"),
+  },
+  (t) => [
+    index("coach_session_plan_id_idx").on(t.planId),
+    index("coach_session_user_id_idx").on(t.userId),
+  ],
+);
+
+export const coachTask = pgTable(
+  "coach_task",
+  {
+    id: text("id").primaryKey(),
+    planId: text("plan_id")
+      .notNull()
+      .references(() => coachPlan.id, { onDelete: "cascade" }),
+    moduleKey: text("module_key"),
+    kind: text("kind").notNull(),
+    prompt: text("prompt").notNull(),
+    rubric: jsonb("rubric").notNull().default({}),
+    resourceId: text("resource_id").references(() => learningResources.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("coach_task_plan_id_idx").on(t.planId)],
+);
+
+export const coachAttempt = pgTable(
+  "coach_attempt",
+  {
+    id: text("id").primaryKey(),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => coachTask.id, { onDelete: "cascade" }),
+    sessionId: text("session_id").references(() => coachSession.id, {
+      onDelete: "set null",
+    }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    answer: text("answer").notNull(),
+    score: integer("score"),
+    feedback: text("feedback"),
+    passed: boolean("passed").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("coach_attempt_task_id_idx").on(t.taskId),
+    index("coach_attempt_user_id_idx").on(t.userId),
+  ],
+);
+
+export const coachPeriodUsage = pgTable(
+  "coach_period_usage",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    periodKind: text("period_kind").notNull(),
+    periodStart: date("period_start").notNull(),
+    tutorTurns: integer("tutor_turns").notNull().default(0),
+    practiceGrades: integer("practice_grades").notNull().default(0),
+    mockSessions: integer("mock_sessions").notNull().default(0),
+    spendPaise: integer("spend_paise").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("coach_period_usage_pk").on(
+      t.userId,
+      t.periodKind,
+      t.periodStart,
+    ),
   ],
 );

@@ -27,6 +27,8 @@ export const APP_SETTING_KEYS = [
   "referral_referee_reward_pct", // % discount coupon for referee  (e.g. "10")
   "referral_expiry_days", // days before a referral expires  (e.g. "90")
   "referral_max_per_user", // max referrals per user (e.g. "50", "" = unlimited)
+  // Skill Coach kill switch. Only the exact string "true" allows model calls.
+  "coach_enabled",
 ] as const;
 
 export type AppSettingKey = (typeof APP_SETTING_KEYS)[number];
