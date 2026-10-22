@@ -301,7 +301,12 @@ export default function ResumesPage() {
                 </h3>
                 <div className="flex items-center gap-6">
                   <div className="relative flex h-20 w-20 items-center justify-center">
-                    <svg className="-rotate-90 h-full w-full">
+                    <svg
+                      className="-rotate-90 h-full w-full"
+                      role="img"
+                      aria-label="ATS score ring"
+                    >
+                      <title>ATS score ring</title>
                       <circle
                         cx="40"
                         cy="40"

@@ -164,9 +164,7 @@ export function stripBlankResumeItems(data: ResumeData): ResumeData {
     certifications: (data.certifications || []).filter(
       (item) => !isBlank(item.name),
     ),
-    languages: (data.languages || []).filter(
-      (item) => !isBlank(item.language),
-    ),
+    languages: (data.languages || []).filter((item) => !isBlank(item.language)),
     volunteer: (data.volunteer || []).filter(
       (item) => !isBlank(item.organization),
     ),

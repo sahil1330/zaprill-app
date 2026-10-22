@@ -19,8 +19,8 @@ export default function ProtectedLoading() {
 
           {/* Stats skeleton */}
           <div className="mb-10 grid grid-cols-2 gap-5 md:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-[120px] rounded-xl" />
+            {["s1", "s2", "s3", "s4"].map((slot) => (
+              <Skeleton key={slot} className="h-[120px] rounded-xl" />
             ))}
           </div>
 
@@ -28,8 +28,8 @@ export default function ProtectedLoading() {
           <Skeleton className="mb-8 h-12 w-full" />
 
           {/* List skeleton */}
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-[180px] w-full rounded-2xl" />
+          {["s1", "s2", "s3"].map((slot) => (
+            <Skeleton key={slot} className="h-[180px] w-full rounded-2xl" />
           ))}
         </div>
       </div>

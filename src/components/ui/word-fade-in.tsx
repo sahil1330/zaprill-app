@@ -37,16 +37,19 @@ export function WordFadeIn({
         className,
       )}
     >
-      {_words.map((word, i) => (
-        <motion.span
-          key={`${word}-${i}`}
-          variants={variants}
-          custom={i}
-          className="inline-block pr-[0.3em]"
-        >
-          {word}
-        </motion.span>
-      ))}
+      {_words.map((word, i) => {
+        const reactKey = `${word}-${i}`;
+        return (
+          <motion.span
+            key={reactKey}
+            variants={variants}
+            custom={i}
+            className="inline-block pr-[0.3em]"
+          >
+            {word}
+          </motion.span>
+        );
+      })}
     </motion.h1>
   );
 }

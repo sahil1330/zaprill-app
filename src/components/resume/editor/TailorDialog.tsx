@@ -69,17 +69,23 @@ export default function TailorDialog() {
         // Pre-select all
         if (result.work) {
           const wMap: Record<string, boolean> = {};
-          result.work.forEach((w) => (wMap[w.id] = true));
+          result.work.forEach((w) => {
+            wMap[w.id] = true;
+          });
           setSelectedWork(wMap);
         }
         if (result.projects) {
           const pMap: Record<string, boolean> = {};
-          result.projects.forEach((p) => (pMap[p.id] = true));
+          result.projects.forEach((p) => {
+            pMap[p.id] = true;
+          });
           setSelectedProjects(pMap);
         }
         if (result.skills) {
           const sMap: Record<string, boolean> = {};
-          result.skills.forEach((s) => (sMap[s.id] = true));
+          result.skills.forEach((s) => {
+            sMap[s.id] = true;
+          });
           setSelectedSkills(sMap);
         }
       } else {
@@ -247,12 +253,18 @@ export default function TailorDialog() {
                               isSelected ? "" : "opacity-50"
                             }`}
                           >
-                            {w.highlights.map((h, i) => (
-                              <div key={i} className="flex gap-2 text-sm">
-                                <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                                <span>{h}</span>
-                              </div>
-                            ))}
+                            {w.highlights.map((h, i) => {
+                              const reactKey = `${w.id ?? "item"}-${h}-${i}`;
+                              return (
+                                <div
+                                  key={reactKey}
+                                  className="flex gap-2 text-sm"
+                                >
+                                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                                  <span>{h}</span>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       );
@@ -293,12 +305,18 @@ export default function TailorDialog() {
                               isSelected ? "" : "opacity-50"
                             }`}
                           >
-                            {p.highlights.map((h, i) => (
-                              <div key={i} className="flex gap-2 text-sm">
-                                <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                                <span>{h}</span>
-                              </div>
-                            ))}
+                            {p.highlights.map((h, i) => {
+                              const reactKey = `${p.id ?? "item"}-${h}-${i}`;
+                              return (
+                                <div
+                                  key={reactKey}
+                                  className="flex gap-2 text-sm"
+                                >
+                                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                                  <span>{h}</span>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       );
@@ -334,15 +352,18 @@ export default function TailorDialog() {
                                 {origSkill.name}
                               </div>
                               <div className="flex flex-wrap gap-1">
-                                {s.keywords.map((kw, i) => (
-                                  <Badge
-                                    key={i}
-                                    variant="secondary"
-                                    className="font-normal text-xs"
-                                  >
-                                    {kw}
-                                  </Badge>
-                                ))}
+                                {s.keywords.map((kw, i) => {
+                                  const reactKey = `${s.id ?? "item"}-${kw}-${i}`;
+                                  return (
+                                    <Badge
+                                      key={reactKey}
+                                      variant="secondary"
+                                      className="font-normal text-xs"
+                                    >
+                                      {kw}
+                                    </Badge>
+                                  );
+                                })}
                               </div>
                             </div>
                             <Switch

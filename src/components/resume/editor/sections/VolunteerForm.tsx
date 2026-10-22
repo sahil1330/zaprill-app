@@ -302,8 +302,9 @@ export default function VolunteerForm({
               {(watch(`volunteer.${idx}.highlights`) || []).map(
                 (highlight, hIdx) => {
                   const isEnhancing = enhancingKey === `${field.id}-${hIdx}`;
+                  const reactKey = `${field.id ?? "item"}-${highlight}-${hIdx}`;
                   return (
-                    <div key={hIdx} className="space-y-1">
+                    <div key={reactKey} className="space-y-1">
                       <div className="flex items-start gap-2">
                         <span className="mt-2.5 w-4 shrink-0 text-muted-foreground text-xs">
                           •

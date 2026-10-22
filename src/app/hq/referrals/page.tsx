@@ -330,10 +330,14 @@ export default function ReferralsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-referral-referrer-reward"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Referrer Reward %
                   </label>
                   <input
+                    id="hq-referral-referrer-reward"
                     type="number"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     value={settingsForm.referral_referrer_reward_pct}
@@ -348,10 +352,14 @@ export default function ReferralsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-referral-referee-reward"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Referee Reward %
                   </label>
                   <input
+                    id="hq-referral-referee-reward"
                     type="number"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     value={settingsForm.referral_referee_reward_pct}
@@ -367,10 +375,14 @@ export default function ReferralsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-referral-expiry-days"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Expiry (Days)
                   </label>
                   <input
+                    id="hq-referral-expiry-days"
                     type="number"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     value={settingsForm.referral_expiry_days}
@@ -383,10 +395,14 @@ export default function ReferralsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-referral-max-per-user"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Max Referrals / User
                   </label>
                   <input
+                    id="hq-referral-max-per-user"
                     type="number"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     placeholder="Unlimited"
@@ -404,6 +420,7 @@ export default function ReferralsPage() {
               </div>
 
               <button
+                type="button"
                 className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm shadow hover:bg-primary/90 disabled:opacity-50"
                 onClick={saveSettings}
                 disabled={savingSettings}
@@ -426,6 +443,7 @@ export default function ReferralsPage() {
             </div>
             {!showInfluencerForm && (
               <button
+                type="button"
                 className="flex items-center gap-1 font-medium text-primary text-xs hover:underline"
                 onClick={() => setShowInfluencerForm(true)}
               >
@@ -438,10 +456,14 @@ export default function ReferralsPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-influencer-user-id"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     User ID
                   </label>
                   <input
+                    id="hq-influencer-user-id"
                     type="text"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     placeholder="user_xxxx"
@@ -455,10 +477,14 @@ export default function ReferralsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-influencer-custom-code"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Custom Code
                   </label>
                   <input
+                    id="hq-influencer-custom-code"
                     type="text"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     placeholder="TECHGURU"
@@ -475,10 +501,14 @@ export default function ReferralsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-influencer-commission-type"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Commission Type
                   </label>
                   <select
+                    id="hq-influencer-commission-type"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     value={influencerForm.commissionType}
                     onChange={(e) =>
@@ -494,10 +524,14 @@ export default function ReferralsPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-medium text-muted-foreground text-xs uppercase">
+                  <label
+                    htmlFor="hq-influencer-commission-value"
+                    className="font-medium text-muted-foreground text-xs uppercase"
+                  >
                     Value
                   </label>
                   <input
+                    id="hq-influencer-commission-value"
                     type="number"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     value={influencerForm.commissionValue}
@@ -513,6 +547,7 @@ export default function ReferralsPage() {
 
               <div className="flex gap-2 pt-2">
                 <button
+                  type="button"
                   className="flex-1 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm shadow hover:bg-primary/90"
                   onClick={createInfluencerCode}
                   disabled={submittingInfluencer}
@@ -520,6 +555,7 @@ export default function ReferralsPage() {
                   Create Code
                 </button>
                 <button
+                  type="button"
                   className="rounded-md border border-input bg-transparent px-4 py-2 font-medium text-sm shadow-sm hover:bg-accent"
                   onClick={() => setShowInfluencerForm(false)}
                 >
@@ -560,6 +596,7 @@ export default function ReferralsPage() {
               <option value="fraudulent">Fraudulent</option>
             </select>
             <button
+              type="button"
               className="rounded-md border p-1.5 hover:bg-accent"
               onClick={fetchData}
             >
@@ -659,6 +696,7 @@ export default function ReferralsPage() {
                     <td className="px-6 py-4 text-right">
                       {referral.status !== "fraudulent" && (
                         <button
+                          type="button"
                           className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"
                           onClick={() => flagFraud(referral.id)}
                           title="Flag Fraud"

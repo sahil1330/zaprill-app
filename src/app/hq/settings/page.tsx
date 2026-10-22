@@ -19,8 +19,8 @@ export default function SettingsPage() {
           <div className="space-y-6">
             <Skeleton className="h-10 w-[360px] rounded-lg" />
             <div className="grid gap-4 md:grid-cols-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-[180px] rounded-xl" />
+              {["s1", "s2", "s3", "s4"].map((slot) => (
+                <Skeleton key={slot} className="h-[180px] rounded-xl" />
               ))}
             </div>
           </div>

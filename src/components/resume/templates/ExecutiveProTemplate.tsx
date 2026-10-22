@@ -2,6 +2,7 @@
 
 import { IconBrandGithub } from "@tabler/icons-react";
 import { Award, ExternalLink } from "lucide-react";
+import { HtmlContent } from "@/components/html-content";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -65,9 +66,9 @@ export default function ExecutiveProTemplate({
           <h2 className="mb-3 border-primary border-b-2 font-bold text-lg text-primary uppercase tracking-wider">
             Executive Summary
           </h2>
-          <div
+          <HtmlContent
             className="text-muted-foreground italic leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: basics.summary }}
+            html={basics.summary}
           />
         </section>
       ) : null,
@@ -109,21 +110,24 @@ export default function ExecutiveProTemplate({
                   </span>
                 </div>
                 {item.summary && (
-                  <div
+                  <HtmlContent
                     className="mb-2 text-muted-foreground text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: item.summary }}
+                    html={item.summary}
                   />
                 )}
                 {item.highlights && (item.highlights || []).length > 0 && (
                   <ul className="ml-4 space-y-1.5">
-                    {(item.highlights || []).map((h, i) => (
-                      <li
-                        key={i}
-                        className="list-disc pl-1 text-muted-foreground text-sm leading-snug"
-                      >
-                        {h}
-                      </li>
-                    ))}
+                    {(item.highlights || []).map((h, i) => {
+                      const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                      return (
+                        <li
+                          key={reactKey}
+                          className="list-disc pl-1 text-muted-foreground text-sm leading-snug"
+                        >
+                          {h}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -201,14 +205,17 @@ export default function ExecutiveProTemplate({
                   )}
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {(group.keywords || []).map((skill, i) => (
-                    <span
-                      key={i}
-                      className="border-primary/30 border-l-2 pl-2 text-muted-foreground text-xs"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  {(group.keywords || []).map((skill, i) => {
+                    const reactKey = `${group.id ?? "item"}-${skill}-${i}`;
+                    return (
+                      <span
+                        key={reactKey}
+                        className="border-primary/30 border-l-2 pl-2 text-muted-foreground text-xs"
+                      >
+                        {skill}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -262,26 +269,32 @@ export default function ExecutiveProTemplate({
                 )}
                 {item.keywords && (item.keywords || []).length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-1.5">
-                    {(item.keywords || []).map((kw, idx) => (
-                      <span
-                        key={idx}
-                        className="rounded border border-primary/20 bg-secondary/5 px-1.5 py-0.5 font-semibold text-[10px] text-muted-foreground uppercase tracking-wide"
-                      >
-                        {kw}
-                      </span>
-                    ))}
+                    {(item.keywords || []).map((kw, idx) => {
+                      const reactKey = `${item.id ?? "item"}-${kw}-${idx}`;
+                      return (
+                        <span
+                          key={reactKey}
+                          className="rounded border border-primary/20 bg-secondary/5 px-1.5 py-0.5 font-semibold text-[10px] text-muted-foreground uppercase tracking-wide"
+                        >
+                          {kw}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
                 {item.highlights && (item.highlights || []).length > 0 && (
                   <ul className="ml-4 space-y-1">
-                    {(item.highlights || []).map((h, i) => (
-                      <li
-                        key={i}
-                        className="list-square pl-1 text-muted-foreground text-sm"
-                      >
-                        {h}
-                      </li>
-                    ))}
+                    {(item.highlights || []).map((h, i) => {
+                      const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                      return (
+                        <li
+                          key={reactKey}
+                          className="list-square pl-1 text-muted-foreground text-sm"
+                        >
+                          {h}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -385,14 +398,17 @@ export default function ExecutiveProTemplate({
                 )}
                 {item.highlights && (item.highlights || []).length > 0 && (
                   <ul className="mt-1.5 ml-4 space-y-1.5">
-                    {(item.highlights || []).map((h, i) => (
-                      <li
-                        key={i}
-                        className="list-disc pl-1 text-muted-foreground text-sm leading-snug"
-                      >
-                        {h}
-                      </li>
-                    ))}
+                    {(item.highlights || []).map((h, i) => {
+                      const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                      return (
+                        <li
+                          key={reactKey}
+                          className="list-disc pl-1 text-muted-foreground text-sm leading-snug"
+                        >
+                          {h}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -602,24 +618,25 @@ export default function ExecutiveProTemplate({
                           </div>
                         )}
                         {item.description && (
-                          <div
+                          <HtmlContent
                             className="mb-2 text-muted-foreground text-sm leading-relaxed"
-                            dangerouslySetInnerHTML={{
-                              __html: item.description,
-                            }}
+                            html={item.description}
                           />
                         )}
                         {item.highlights &&
                           (item.highlights || []).length > 0 && (
                             <ul className="ml-4 space-y-1.5">
-                              {(item.highlights || []).map((h, idx) => (
-                                <li
-                                  key={idx}
-                                  className="list-disc pl-1 text-muted-foreground text-sm leading-snug"
-                                >
-                                  {h}
-                                </li>
-                              ))}
+                              {(item.highlights || []).map((h, idx) => {
+                                const reactKey = `${item.id ?? "item"}-${h}-${idx}`;
+                                return (
+                                  <li
+                                    key={reactKey}
+                                    className="list-disc pl-1 text-muted-foreground text-sm leading-snug"
+                                  >
+                                    {h}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           )}
                       </div>
