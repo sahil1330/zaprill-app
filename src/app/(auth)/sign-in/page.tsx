@@ -143,10 +143,14 @@ function SignInForm() {
 
             <form onSubmit={handleCredentialsSignIn} className="space-y-4">
               <div className="space-y-2">
-                <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+                <label
+                  htmlFor="sign-in-email"
+                  className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+                >
                   Email
                 </label>
                 <Input
+                  id="sign-in-email"
                   type="email"
                   placeholder="name@example.com"
                   value={email}
@@ -158,7 +162,10 @@ function SignInForm() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+                  <label
+                    htmlFor="sign-in-password"
+                    className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+                  >
                     Password
                   </label>
                   <Link
@@ -169,6 +176,7 @@ function SignInForm() {
                   </Link>
                 </div>
                 <PasswordInput
+                  id="sign-in-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading || googleLoading}

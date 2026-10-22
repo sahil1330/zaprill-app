@@ -383,6 +383,7 @@ export default function ProfilePage() {
 
                   <div className="grid gap-4">
                     {(resumeData.basics.profiles || []).map((social, idx) => {
+                      const reactKey = `social-${idx}`;
                       const network = social.network.toLowerCase();
                       const Icon = network.includes("linkedin")
                         ? IconBrandLinkedin
@@ -392,7 +393,7 @@ export default function ProfilePage() {
 
                       return (
                         <div
-                          key={idx}
+                          key={reactKey}
                           className="group relative flex flex-col gap-4 rounded-xl border-2 border-border bg-muted/30 p-4 md:flex-row"
                         >
                           <div className="grid flex-1 gap-4 md:grid-cols-3">
@@ -738,87 +739,90 @@ export default function ProfilePage() {
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {(resumeData.work || []).map((exp, idx) => (
-                      <div
-                        key={idx}
-                        className="group relative border-border/50 border-b pb-8 last:border-0 last:pb-0"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="-right-2 absolute top-0 text-destructive opacity-0 transition-all group-hover:opacity-100"
-                          onClick={() => {
-                            const newWork = [...(resumeData.work || [])];
-                            newWork.splice(idx, 1);
-                            updResume({ work: newWork });
-                          }}
+                    {(resumeData.work || []).map((exp, idx) => {
+                      const reactKey = `work-${idx}`;
+                      return (
+                        <div
+                          key={reactKey}
+                          className="group relative border-border/50 border-b pb-8 last:border-0 last:pb-0"
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <div className="mb-4 grid gap-4 md:grid-cols-3">
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Role
-                            </Label>
-                            <Input
-                              value={exp.position || ""}
-                              onChange={(e) => {
-                                const newWork = [...(resumeData.work || [])];
-                                newWork[idx].position = e.target.value;
-                                updResume({ work: newWork });
-                              }}
-                              className="border-2 font-bold"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Company
-                            </Label>
-                            <Input
-                              value={exp.company || ""}
-                              onChange={(e) => {
-                                const newWork = [...(resumeData.work || [])];
-                                newWork[idx].company = e.target.value;
-                                updResume({ work: newWork });
-                              }}
-                              className="border-2 font-bold"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Duration
-                            </Label>
-                            <Input
-                              value={`${exp.startDate || ""}${exp.endDate ? ` - ${exp.endDate}` : ""}`}
-                              onChange={(e) => {
-                                const [start, end] =
-                                  e.target.value.split(" - ");
-                                const newWork = [...(resumeData.work || [])];
-                                newWork[idx].startDate = start || "";
-                                newWork[idx].endDate = end || null;
-                                updResume({ work: newWork });
-                              }}
-                              placeholder="e.g. Jan 2020 - Present"
-                              className="border-2 font-bold"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                            Description
-                          </Label>
-                          <Textarea
-                            value={exp.summary || ""}
-                            onChange={(e) => {
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="-right-2 absolute top-0 text-destructive opacity-0 transition-all group-hover:opacity-100"
+                            onClick={() => {
                               const newWork = [...(resumeData.work || [])];
-                              newWork[idx].summary = e.target.value;
+                              newWork.splice(idx, 1);
                               updResume({ work: newWork });
                             }}
-                            className="min-h-[100px] font-medium"
-                          />
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="mb-4 grid gap-4 md:grid-cols-3">
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Role
+                              </Label>
+                              <Input
+                                value={exp.position || ""}
+                                onChange={(e) => {
+                                  const newWork = [...(resumeData.work || [])];
+                                  newWork[idx].position = e.target.value;
+                                  updResume({ work: newWork });
+                                }}
+                                className="border-2 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Company
+                              </Label>
+                              <Input
+                                value={exp.company || ""}
+                                onChange={(e) => {
+                                  const newWork = [...(resumeData.work || [])];
+                                  newWork[idx].company = e.target.value;
+                                  updResume({ work: newWork });
+                                }}
+                                className="border-2 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Duration
+                              </Label>
+                              <Input
+                                value={`${exp.startDate || ""}${exp.endDate ? ` - ${exp.endDate}` : ""}`}
+                                onChange={(e) => {
+                                  const [start, end] =
+                                    e.target.value.split(" - ");
+                                  const newWork = [...(resumeData.work || [])];
+                                  newWork[idx].startDate = start || "";
+                                  newWork[idx].endDate = end || null;
+                                  updResume({ work: newWork });
+                                }}
+                                placeholder="e.g. Jan 2020 - Present"
+                                className="border-2 font-bold"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                              Description
+                            </Label>
+                            <Textarea
+                              value={exp.summary || ""}
+                              onChange={(e) => {
+                                const newWork = [...(resumeData.work || [])];
+                                newWork[idx].summary = e.target.value;
+                                updResume({ work: newWork });
+                              }}
+                              className="min-h-[100px] font-medium"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </CardContent>
                 </Card>
 
@@ -860,99 +864,102 @@ export default function ProfilePage() {
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {(resumeData.projects || []).map((proj, idx) => (
-                      <div
-                        key={idx}
-                        className="group relative border-border/50 border-b pb-8 last:border-0 last:pb-0"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="-right-2 absolute top-0 text-destructive opacity-0 transition-all group-hover:opacity-100"
-                          onClick={() => {
-                            const newProj = [...(resumeData.projects || [])];
-                            newProj.splice(idx, 1);
-                            updResume({ projects: newProj });
-                          }}
+                    {(resumeData.projects || []).map((proj, idx) => {
+                      const reactKey = `project-${idx}`;
+                      return (
+                        <div
+                          key={reactKey}
+                          className="group relative border-border/50 border-b pb-8 last:border-0 last:pb-0"
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <div className="space-y-4">
-                          <div className="mb-4 grid gap-4 md:grid-cols-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="-right-2 absolute top-0 text-destructive opacity-0 transition-all group-hover:opacity-100"
+                            onClick={() => {
+                              const newProj = [...(resumeData.projects || [])];
+                              newProj.splice(idx, 1);
+                              updResume({ projects: newProj });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="space-y-4">
+                            <div className="mb-4 grid gap-4 md:grid-cols-2">
+                              <div className="space-y-2">
+                                <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                  Project Name
+                                </Label>
+                                <Input
+                                  value={proj.name || ""}
+                                  onChange={(e) => {
+                                    const newProj = [
+                                      ...(resumeData.projects || []),
+                                    ];
+                                    newProj[idx].name = e.target.value;
+                                    updResume({ projects: newProj });
+                                  }}
+                                  className="border-2 font-bold"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                  Project URL
+                                </Label>
+                                <Input
+                                  value={proj.url || ""}
+                                  onChange={(e) => {
+                                    const newProj = [
+                                      ...(resumeData.projects || []),
+                                    ];
+                                    newProj[idx].url = e.target.value;
+                                    updResume({ projects: newProj });
+                                  }}
+                                  placeholder="e.g. GitHub: my-project"
+                                  className="border-2 font-bold"
+                                />
+                              </div>
+                            </div>
+
                             <div className="space-y-2">
                               <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                                Project Name
+                                Technologies (comma separated)
                               </Label>
                               <Input
-                                value={proj.name || ""}
+                                value={(proj.keywords || []).join(", ")}
                                 onChange={(e) => {
                                   const newProj = [
                                     ...(resumeData.projects || []),
                                   ];
-                                  newProj[idx].name = e.target.value;
+                                  newProj[idx].keywords = e.target.value
+                                    .split(",")
+                                    .map((t) => t.trim());
                                   updResume({ projects: newProj });
                                 }}
+                                placeholder="React, Node.js, ..."
                                 className="border-2 font-bold"
                               />
                             </div>
+
                             <div className="space-y-2">
                               <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                                Project URL
+                                Description
                               </Label>
-                              <Input
-                                value={proj.url || ""}
+                              <Textarea
+                                value={proj.description || ""}
                                 onChange={(e) => {
                                   const newProj = [
                                     ...(resumeData.projects || []),
                                   ];
-                                  newProj[idx].url = e.target.value;
+                                  newProj[idx].description = e.target.value;
                                   updResume({ projects: newProj });
                                 }}
-                                placeholder="e.g. GitHub: my-project"
-                                className="border-2 font-bold"
+                                className="min-h-[80px] font-medium"
                               />
                             </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Technologies (comma separated)
-                            </Label>
-                            <Input
-                              value={(proj.keywords || []).join(", ")}
-                              onChange={(e) => {
-                                const newProj = [
-                                  ...(resumeData.projects || []),
-                                ];
-                                newProj[idx].keywords = e.target.value
-                                  .split(",")
-                                  .map((t) => t.trim());
-                                updResume({ projects: newProj });
-                              }}
-                              placeholder="React, Node.js, ..."
-                              className="border-2 font-bold"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Description
-                            </Label>
-                            <Textarea
-                              value={proj.description || ""}
-                              onChange={(e) => {
-                                const newProj = [
-                                  ...(resumeData.projects || []),
-                                ];
-                                newProj[idx].description = e.target.value;
-                                updResume({ projects: newProj });
-                              }}
-                              className="min-h-[80px] font-medium"
-                            />
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </CardContent>
                 </Card>
 
@@ -994,94 +1001,97 @@ export default function ProfilePage() {
                     </Button>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {(resumeData.education || []).map((edu, idx) => (
-                      <div
-                        key={idx}
-                        className="group relative border-border/50 border-b pb-8 last:border-0 last:pb-0"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="-right-2 absolute top-0 text-destructive opacity-0 transition-all group-hover:opacity-100"
-                          onClick={() => {
-                            const newEdu = [...(resumeData.education || [])];
-                            newEdu.splice(idx, 1);
-                            updResume({ education: newEdu });
-                          }}
+                    {(resumeData.education || []).map((edu, idx) => {
+                      const reactKey = `education-${idx}`;
+                      return (
+                        <div
+                          key={reactKey}
+                          className="group relative border-border/50 border-b pb-8 last:border-0 last:pb-0"
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <div className="mb-4 grid gap-4 md:grid-cols-3">
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Degree / Certificate
-                            </Label>
-                            <Input
-                              value={edu.studyType || ""}
-                              onChange={(e) => {
-                                const newEdu = [
-                                  ...(resumeData.education || []),
-                                ];
-                                newEdu[idx].studyType = e.target.value;
-                                updResume({ education: newEdu });
-                              }}
-                              className="border-2 font-bold"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Institution
-                            </Label>
-                            <Input
-                              value={edu.institution || ""}
-                              onChange={(e) => {
-                                const newEdu = [
-                                  ...(resumeData.education || []),
-                                ];
-                                newEdu[idx].institution = e.target.value;
-                                updResume({ education: newEdu });
-                              }}
-                              className="border-2 font-bold"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Field of Study
-                            </Label>
-                            <Input
-                              value={edu.area || ""}
-                              onChange={(e) => {
-                                const newEdu = [
-                                  ...(resumeData.education || []),
-                                ];
-                                newEdu[idx].area = e.target.value;
-                                updResume({ education: newEdu });
-                              }}
-                              placeholder="e.g. Information Technology"
-                              className="border-2 font-bold"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
-                              Graduation Year
-                            </Label>
-                            <Input
-                              type="number"
-                              value={edu.endDate || ""}
-                              onChange={(e) => {
-                                const newEdu = [
-                                  ...(resumeData.education || []),
-                                ];
-                                newEdu[idx].endDate = e.target.value || null;
-                                updResume({ education: newEdu });
-                              }}
-                              placeholder="e.g. 2025"
-                              className="border-2 font-bold"
-                            />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="-right-2 absolute top-0 text-destructive opacity-0 transition-all group-hover:opacity-100"
+                            onClick={() => {
+                              const newEdu = [...(resumeData.education || [])];
+                              newEdu.splice(idx, 1);
+                              updResume({ education: newEdu });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <div className="mb-4 grid gap-4 md:grid-cols-3">
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Degree / Certificate
+                              </Label>
+                              <Input
+                                value={edu.studyType || ""}
+                                onChange={(e) => {
+                                  const newEdu = [
+                                    ...(resumeData.education || []),
+                                  ];
+                                  newEdu[idx].studyType = e.target.value;
+                                  updResume({ education: newEdu });
+                                }}
+                                className="border-2 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Institution
+                              </Label>
+                              <Input
+                                value={edu.institution || ""}
+                                onChange={(e) => {
+                                  const newEdu = [
+                                    ...(resumeData.education || []),
+                                  ];
+                                  newEdu[idx].institution = e.target.value;
+                                  updResume({ education: newEdu });
+                                }}
+                                className="border-2 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Field of Study
+                              </Label>
+                              <Input
+                                value={edu.area || ""}
+                                onChange={(e) => {
+                                  const newEdu = [
+                                    ...(resumeData.education || []),
+                                  ];
+                                  newEdu[idx].area = e.target.value;
+                                  updResume({ education: newEdu });
+                                }}
+                                placeholder="e.g. Information Technology"
+                                className="border-2 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="font-black text-muted-foreground text-xs uppercase tracking-widest">
+                                Graduation Year
+                              </Label>
+                              <Input
+                                type="number"
+                                value={edu.endDate || ""}
+                                onChange={(e) => {
+                                  const newEdu = [
+                                    ...(resumeData.education || []),
+                                  ];
+                                  newEdu[idx].endDate = e.target.value || null;
+                                  updResume({ education: newEdu });
+                                }}
+                                placeholder="e.g. 2025"
+                                className="border-2 font-bold"
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </CardContent>
                 </Card>
               </>

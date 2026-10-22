@@ -10,7 +10,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,24 +31,38 @@ interface ReferralData {
   totalRewards: number;
 }
 
+const HOW_IT_WORKS_STEP_IDS = [
+  "share-link",
+  "sign-up",
+  "subscribe",
+  "apply-coupon",
+] as const;
+
+const HOW_IT_WORKS_STEPS = [
+  "Share your referral link with friends",
+  "They sign up using your link",
+  "When they subscribe, you both earn a discount coupon",
+  "Apply your coupon automatically at your next renewal",
+] as const;
+
 export function ReferralPanel() {
   const [data, setData] = useState<ReferralData | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    fetchReferralData();
-  }, []);
-
-  async function fetchReferralData() {
+  const fetchReferralData = useCallback(async () => {
     try {
       const res = await fetch("/api/referrals");
       if (res.ok) setData(await res.json());
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchReferralData();
+  }, [fetchReferralData]);
 
   async function generateCode() {
     setGenerating(true);
@@ -242,20 +256,15 @@ export function ReferralPanel() {
                 How it works
               </p>
               <ol className="space-y-2">
-                {[
-                  "Share your referral link with friends",
-                  "They sign up using your link",
-                  "When they subscribe, you both earn a discount coupon",
-                  "Apply your coupon automatically at your next renewal",
-                ].map((step, i) => (
+                {HOW_IT_WORKS_STEP_IDS.map((stepId, i) => (
                   <li
-                    key={i}
+                    key={stepId}
                     className="flex items-start gap-3 text-muted-foreground text-sm"
                   >
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 font-bold text-[10px] text-primary">
                       {i + 1}
                     </span>
-                    {step}
+                    {HOW_IT_WORKS_STEPS[i]}
                   </li>
                 ))}
               </ol>

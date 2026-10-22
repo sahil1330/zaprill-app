@@ -18,8 +18,8 @@ export default function AnalyticsPage() {
         fallback={
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-[110px] w-full rounded-xl" />
+              {["s1", "s2", "s3", "s4"].map((slot) => (
+                <Skeleton key={slot} className="h-[110px] w-full rounded-xl" />
               ))}
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7">

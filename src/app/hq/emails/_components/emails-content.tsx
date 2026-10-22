@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { HtmlContent } from "@/components/html-content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -31,8 +32,8 @@ import { cn } from "@/lib/utils";
 function EmailSkeleton() {
   return (
     <div className="divide-y rounded-md border">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 p-4">
+      {["s1", "s2", "s3", "s4", "s5"].map((slot) => (
+        <div key={slot} className="flex items-center gap-4 p-4">
           <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
           <div className="flex-1 space-y-2">
             <div className="flex justify-between">
@@ -127,48 +128,52 @@ export function EmailsContent() {
                 </div>
               ) : (
                 <div className="rounded-md border">
-                  {emails.map((email, i) => (
-                    <div
-                      key={email.id || i}
-                      onClick={() => setSelectedEmail(email)}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-muted/50",
-                        i !== emails.length - 1 && "border-b",
-                      )}
-                    >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        {type === "sent" ? (
-                          <Send className="h-5 w-5" />
-                        ) : (
-                          <Inbox className="h-5 w-5" />
+                  {emails.map((email, i) => {
+                    const reactKey = email.id || `email-${i}`;
+                    return (
+                      <button
+                        type="button"
+                        key={reactKey}
+                        onClick={() => setSelectedEmail(email)}
+                        className={cn(
+                          "flex w-full cursor-pointer items-center gap-4 bg-transparent p-4 text-left font-inherit transition-colors hover:bg-muted/50",
+                          i !== emails.length - 1 && "border-b",
                         )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex items-center justify-between">
-                          <p className="truncate font-semibold text-sm">
-                            {type === "sent"
-                              ? email.to?.[0] || "No recipient"
-                              : email.from}
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          {type === "sent" ? (
+                            <Send className="h-5 w-5" />
+                          ) : (
+                            <Inbox className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1 flex items-center justify-between">
+                            <p className="truncate font-semibold text-sm">
+                              {type === "sent"
+                                ? email.to?.[0] || "No recipient"
+                                : email.from}
+                            </p>
+                            <p className="shrink-0 text-muted-foreground text-xs">
+                              {format(
+                                new Date(email.created_at || email.receivedAt),
+                                "MMM dd, HH:mm",
+                              )}
+                            </p>
+                          </div>
+                          <p className="truncate text-foreground/80 text-sm">
+                            {email.subject || "(No subject)"}
                           </p>
-                          <p className="shrink-0 text-muted-foreground text-xs">
-                            {format(
-                              new Date(email.created_at || email.receivedAt),
-                              "MMM dd, HH:mm",
-                            )}
+                          <p className="line-clamp-1 truncate text-muted-foreground text-xs">
+                            {email.text ||
+                              email.body?.substring(0, 100) ||
+                              "No preview available"}
                           </p>
                         </div>
-                        <p className="truncate text-foreground/80 text-sm">
-                          {email.subject || "(No subject)"}
-                        </p>
-                        <p className="line-clamp-1 truncate text-muted-foreground text-xs">
-                          {email.text ||
-                            email.body?.substring(0, 100) ||
-                            "No preview available"}
-                        </p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    </div>
-                  ))}
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -223,9 +228,9 @@ export function EmailsContent() {
           <div className="flex-1 overflow-hidden border-t">
             <ScrollArea className="h-full p-6">
               {selectedEmail?.html ? (
-                <div
+                <HtmlContent
                   className="prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: selectedEmail.html }}
+                  html={selectedEmail.html}
                 />
               ) : (
                 <pre className="whitespace-pre-wrap font-sans text-sm">

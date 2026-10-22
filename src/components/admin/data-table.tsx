@@ -329,12 +329,17 @@ export function DataTable<TData, TValue>({
                   />
                 </PaginationItem>
 
-                {pageRange.map((page, i) =>
-                  page === "..." ? (
-                    <PaginationItem key={`ellipsis-${i}`}>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  ) : (
+                {pageRange.map((page, i) => {
+                  if (page === "...") {
+                    const reactKey = `ellipsis-${i}`;
+                    return (
+                      <PaginationItem key={reactKey}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+
+                  return (
                     <PaginationItem key={page}>
                       <PaginationLink
                         isActive={page === currentPage}
@@ -344,8 +349,8 @@ export function DataTable<TData, TValue>({
                         {page}
                       </PaginationLink>
                     </PaginationItem>
-                  ),
-                )}
+                  );
+                })}
 
                 <PaginationItem>
                   <PaginationNext

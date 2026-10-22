@@ -50,7 +50,9 @@ export default function ErrorPage({
             Try Again
           </Button>
           <Button
-            onClick={() => (window.location.href = "/")}
+            onClick={() => {
+              window.location.href = "/";
+            }}
             variant="outline"
             size="lg"
             className="h-12 w-full font-bold sm:w-auto"

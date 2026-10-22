@@ -23,7 +23,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency } from "@/lib/billing-utils";
-import type { Plan } from "@/types/billing";
+
+type Plan = {
+  id: string;
+  name: string;
+  amount: string;
+  billingCycle: string;
+  isGstEnabled: boolean;
+  gstPercentage: string | null;
+};
+
+type Coupon = {
+  id: string;
+  code: string;
+  type: string;
+  value: string;
+};
 
 export default function CheckoutForm({
   plan: initialPlan,
@@ -32,7 +47,7 @@ export default function CheckoutForm({
 }: {
   plan: Plan;
   availablePlans?: Plan[];
-  availableCoupons?: any[];
+  availableCoupons?: Coupon[];
 }) {
   const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<Plan>(initialPlan);
@@ -274,6 +289,7 @@ export default function CheckoutForm({
                       {availableCoupons.map((coupon) => (
                         <button
                           key={coupon.id}
+                          type="button"
                           onClick={() => handleApplyCoupon(coupon.code)}
                           className="flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 text-xs transition-colors hover:bg-emerald-100"
                         >
