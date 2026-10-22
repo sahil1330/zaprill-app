@@ -198,9 +198,13 @@ export default function PricingPlans({ plans }: { plans: Plan[] }) {
                         typeof feature === "string" ? feature : feature.text;
                       const info =
                         typeof feature === "string" ? null : feature.info;
+                      const reactKey = `${text}-${i}`;
 
                       return (
-                        <li key={i} className="flex items-start text-left">
+                        <li
+                          key={reactKey}
+                          className="flex items-start text-left"
+                        >
                           <Check className="mr-3 h-5 w-5 shrink-0 text-primary" />
                           <div className="flex min-w-0 items-center gap-1.5">
                             <span className="text-muted-foreground text-sm">

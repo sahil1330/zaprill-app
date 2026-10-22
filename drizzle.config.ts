@@ -7,7 +7,10 @@ dotenv.config({ path: ".env.local" });
 // Use the direct (non-pooler) Neon endpoint for drizzle-kit migrations.
 // The pooler URL has "-pooler" in the hostname; we strip it and remove
 // channel_binding which is only needed for the Neon HTTP driver.
-const rawUrl = process.env.DATABASE_URL!;
+const rawUrl = process.env.DATABASE_URL;
+if (!rawUrl) {
+  throw new Error("DATABASE_URL is required to run drizzle-kit");
+}
 const directUrl = rawUrl
   .replace("-pooler.", ".")
   .replace(/[&?]channel_binding=require/g, "");

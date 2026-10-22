@@ -239,11 +239,9 @@ export function ProfileReview({
                 const isEditing = editingTitleIndex === idx;
 
                 if (isEditing) {
+                  const reactKey = `edit-${idx}`;
                   return (
-                    <div
-                      key={"edit-" + idx}
-                      className="flex items-center gap-2"
-                    >
+                    <div key={reactKey} className="flex items-center gap-2">
                       <Input
                         value={editingTitleValue}
                         onChange={(e) =>
@@ -259,6 +257,7 @@ export function ProfileReview({
                         className="h-12 font-bold"
                       />
                       <Button
+                        type="button"
                         size="sm"
                         onClick={() => saveEditedTitle(idx)}
                         className="h-12"
@@ -272,6 +271,7 @@ export function ProfileReview({
                 return (
                   <div key={title} className="group/item relative">
                     <button
+                      type="button"
                       onClick={() => toggleTitle(title)}
                       className={`group flex w-full items-center justify-between rounded-xl border-2 p-4 text-left transition-all duration-200 ${
                         isSelected
@@ -299,6 +299,7 @@ export function ProfileReview({
                     {/* Floating Actions */}
                     <div className="-translate-y-1/2 absolute top-1/2 right-12 flex gap-1 opacity-0 transition-opacity group-hover/item:opacity-100">
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           startEditingTitle(idx, title);
@@ -313,6 +314,7 @@ export function ProfileReview({
                         <TrendingUp className="h-3.5 w-3.5 rotate-90" />
                       </button>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeTitle(title);
@@ -377,6 +379,7 @@ export function ProfileReview({
                 >
                   {skill}
                   <button
+                    type="button"
                     onClick={() => removeSkill(skill)}
                     className="flex h-5 w-5 items-center justify-center rounded-md transition-colors hover:bg-foreground hover:text-background"
                   >
@@ -400,6 +403,7 @@ export function ProfileReview({
                 className="h-12 border-border bg-muted/50 font-bold"
               />
               <Button
+                type="button"
                 onClick={addSkill}
                 variant="default"
                 className="h-12 w-12 shrink-0 p-0"
@@ -460,6 +464,7 @@ export function ProfileReview({
 
         <div className="pt-4">
           <Button
+            type="button"
             onClick={handleSubmit}
             disabled={selectedTitles.length === 0}
             className="group h-16 w-full font-black text-xl tracking-tight shadow-xl"

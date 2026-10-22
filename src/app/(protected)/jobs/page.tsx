@@ -267,12 +267,14 @@ export default function MyJobsPage() {
             </span>
             <div className="h-4 w-px bg-background/20" />
             <button
+              type="button"
               onClick={handleBulkUnsave}
               className="whitespace-nowrap font-black text-destructive-foreground text-sm transition-colors hover:text-red-400"
             >
               Remove Selected
             </button>
             <button
+              type="button"
               onClick={() => setSelectedJobs(new Set())}
               className="whitespace-nowrap font-medium text-background/60 text-sm transition-colors hover:text-background"
             >

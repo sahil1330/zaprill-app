@@ -188,7 +188,7 @@ export default async function BillingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BillingInvoiceTable invoices={invoices as any} />
+          <BillingInvoiceTable invoices={invoices} />
         </CardContent>
       </Card>
     </div>

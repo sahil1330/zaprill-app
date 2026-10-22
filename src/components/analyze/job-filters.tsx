@@ -81,10 +81,14 @@ export function JobFilters({
           {/* Text Filters */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+              <label
+                htmlFor="job-filter-title"
+                className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+              >
                 Search Title
               </label>
               <Input
+                id="job-filter-title"
                 placeholder="e.g. Frontend Engineer"
                 value={searchTitle}
                 onChange={(e) => {
@@ -100,10 +104,14 @@ export function JobFilters({
               />
             </div>
             <div className="space-y-2">
-              <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+              <label
+                htmlFor="job-filter-city"
+                className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+              >
                 City (India)
               </label>
               <LocationCombobox
+                id="job-filter-city"
                 value={searchLoc}
                 onChange={(city) => {
                   updateFilter("searchLoc", city);
@@ -156,7 +164,10 @@ export function JobFilters({
           {/* Dropdown Filters */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+              <label
+                htmlFor="job-filter-workspace"
+                className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+              >
                 Workspace
               </label>
               <Select
@@ -169,7 +180,10 @@ export function JobFilters({
                   });
                 }}
               >
-                <SelectTrigger className="border-border bg-background font-bold">
+                <SelectTrigger
+                  id="job-filter-workspace"
+                  className="border-border bg-background font-bold"
+                >
                   <SelectValue placeholder="Any Workspace" />
                 </SelectTrigger>
                 <SelectContent className="font-bold">
@@ -181,7 +195,10 @@ export function JobFilters({
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+              <label
+                htmlFor="job-filter-employment"
+                className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+              >
                 Employment Type
               </label>
               <Select
@@ -194,7 +211,10 @@ export function JobFilters({
                   });
                 }}
               >
-                <SelectTrigger className="border-border bg-background font-bold">
+                <SelectTrigger
+                  id="job-filter-employment"
+                  className="border-border bg-background font-bold"
+                >
                   <SelectValue placeholder="Any Type" />
                 </SelectTrigger>
                 <SelectContent className="font-bold">
@@ -211,7 +231,10 @@ export function JobFilters({
           <div className="space-y-6 pt-1">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+                <label
+                  htmlFor="job-filter-match"
+                  className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+                >
                   Min Match Score
                 </label>
                 <span className="font-black text-foreground text-sm">
@@ -219,6 +242,7 @@ export function JobFilters({
                 </span>
               </div>
               <Slider
+                id="job-filter-match"
                 defaultValue={[0]}
                 max={100}
                 step={5}
@@ -235,10 +259,14 @@ export function JobFilters({
               />
             </div>
             <div className="flex items-center justify-between rounded border border-border bg-background p-3">
-              <label className="font-bold text-foreground text-sm">
+              <label
+                htmlFor="job-filter-salary"
+                className="font-bold text-foreground text-sm"
+              >
                 Require Salary Details
               </label>
               <Switch
+                id="job-filter-salary"
                 checked={requireSalary}
                 onCheckedChange={(v) => {
                   updateFilter("requireSalary", v);

@@ -265,9 +265,10 @@ export default function DatabasePage() {
                         }
                       />
                     </PaginationItem>
-                    {pageRange.map((p, i) =>
-                      p === "..." ? (
-                        <PaginationItem key={`e-${i}`}>
+                    {pageRange.map((p, i) => {
+                      const reactKey = `ellipsis-${i}`;
+                      return p === "..." ? (
+                        <PaginationItem key={reactKey}>
                           <PaginationEllipsis />
                         </PaginationItem>
                       ) : (
@@ -280,8 +281,8 @@ export default function DatabasePage() {
                             {p}
                           </PaginationLink>
                         </PaginationItem>
-                      ),
-                    )}
+                      );
+                    })}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>

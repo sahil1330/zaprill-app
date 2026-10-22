@@ -67,8 +67,8 @@ export default async function CheckoutPage(props: CheckoutPageProps) {
         Complete your purchase
       </h1>
       <CheckoutForm
-        plan={selectedPlan as any}
-        availablePlans={availablePlans as any}
+        plan={selectedPlan}
+        availablePlans={availablePlans}
         availableCoupons={availableCoupons}
       />
     </div>

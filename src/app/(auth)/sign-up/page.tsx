@@ -144,7 +144,10 @@ function SignUpForm() {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
+                  role="img"
+                  aria-label="Email"
                 >
+                  <title>Email</title>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -227,10 +230,14 @@ function SignUpForm() {
 
               <form onSubmit={handleCredentialsSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+                  <label
+                    htmlFor="sign-up-name"
+                    className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+                  >
                     Name
                   </label>
                   <Input
+                    id="sign-up-name"
                     type="text"
                     placeholder="John Doe"
                     value={name}
@@ -241,10 +248,14 @@ function SignUpForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+                  <label
+                    htmlFor="sign-up-email"
+                    className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+                  >
                     Email
                   </label>
                   <Input
+                    id="sign-up-email"
                     type="email"
                     placeholder="name@example.com"
                     value={email}
@@ -255,10 +266,14 @@ function SignUpForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
+                  <label
+                    htmlFor="sign-up-password"
+                    className="font-bold text-muted-foreground text-xs uppercase tracking-wider"
+                  >
                     Password (min 8 chars)
                   </label>
                   <PasswordInput
+                    id="sign-up-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading || googleLoading}

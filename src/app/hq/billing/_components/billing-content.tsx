@@ -39,8 +39,8 @@ function ContentSkeleton() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-[110px] rounded-xl" />
+        {["s1", "s2", "s3"].map((slot) => (
+          <Skeleton key={slot} className="h-[110px] rounded-xl" />
         ))}
       </div>
       <div className="grid gap-4 md:grid-cols-2">

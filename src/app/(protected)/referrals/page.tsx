@@ -411,7 +411,7 @@ export default function ReferralsPage() {
                     desc: "You get a discount coupon automatically applied to your next renewal. Your friend gets one too.",
                   },
                 ].map((step, i) => (
-                  <li key={i} className="flex items-start gap-4">
+                  <li key={step.title} className="flex items-start gap-4">
                     <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 font-black text-primary text-sm">
                       {i + 1}
                     </span>

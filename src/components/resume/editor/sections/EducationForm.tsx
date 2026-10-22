@@ -305,38 +305,45 @@ export default function EducationForm({
                       </Button>
                     </div>
                     {(watch(`education.${idx}.courses`) || []).map(
-                      (_, cIdx) => (
-                        <div key={cIdx} className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Input
-                              {...register(`education.${idx}.courses.${cIdx}`)}
-                              placeholder="Data Structures"
-                              className="h-9 text-sm"
+                      (course, cIdx) => {
+                        const reactKey = `${field.id ?? "item"}-${course}-${cIdx}`;
+                        return (
+                          <div key={reactKey} className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                {...register(
+                                  `education.${idx}.courses.${cIdx}`,
+                                )}
+                                placeholder="Data Structures"
+                                className="h-9 text-sm"
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const current =
+                                    watch(`education.${idx}.courses`) || [];
+                                  setValue(
+                                    `education.${idx}.courses`,
+                                    current.filter((_, i) => i !== cIdx),
+                                    { shouldValidate: true },
+                                  );
+                                }}
+                                className="h-8 w-8 shrink-0 p-0 text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <FieldError
+                              errors={[
+                                (errors.education?.[idx] as any)?.courses?.[
+                                  cIdx
+                                ],
+                              ]}
                             />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const current =
-                                  watch(`education.${idx}.courses`) || [];
-                                setValue(
-                                  `education.${idx}.courses`,
-                                  current.filter((_, i) => i !== cIdx),
-                                  { shouldValidate: true },
-                                );
-                              }}
-                              className="h-8 w-8 shrink-0 p-0 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
                           </div>
-                          <FieldError
-                            errors={[
-                              (errors.education?.[idx] as any)?.courses?.[cIdx],
-                            ]}
-                          />
-                        </div>
-                      ),
+                        );
+                      },
                     )}
                   </div>
                 </CardContent>

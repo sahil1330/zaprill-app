@@ -2,6 +2,7 @@
 
 import { IconBrandGithub } from "@tabler/icons-react";
 import { ExternalLink } from "lucide-react";
+import { HtmlContent } from "@/components/html-content";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -179,10 +180,7 @@ export default function ModernSplitTemplate({
           {sectionVisibility?.summary && basics?.summary && (
             <section className="ms-section">
               <h2 className="ms-section-title">Summary</h2>
-              <div
-                className="resume-text"
-                dangerouslySetInnerHTML={{ __html: basics.summary }}
-              />
+              <HtmlContent className="resume-text" html={basics.summary} />
             </section>
           )}
 
@@ -220,9 +218,9 @@ export default function ModernSplitTemplate({
                     </span>
                   </div>
                   {item.summary && (
-                    <div
+                    <HtmlContent
                       className="resume-text mb-2 text-justify"
-                      dangerouslySetInnerHTML={{ __html: item.summary }}
+                      html={item.summary}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
@@ -273,21 +271,24 @@ export default function ModernSplitTemplate({
                       <span className="mr-1 font-medium text-muted-foreground text-xs">
                         Courses:
                       </span>
-                      {(item.courses || []).map((course, idx) => (
-                        <span
-                          key={idx}
-                          className="rounded border px-2 py-0.5 font-medium text-[10px]"
-                          style={{
-                            backgroundColor:
-                              "color-mix(in srgb, var(--resume-primary) 5%, transparent)",
-                            color: "var(--resume-primary)",
-                            borderColor:
-                              "color-mix(in srgb, var(--resume-primary) 10%, transparent)",
-                          }}
-                        >
-                          {course}
-                        </span>
-                      ))}
+                      {(item.courses || []).map((course, idx) => {
+                        const reactKey = `${item.id ?? "item"}-${course}-${idx}`;
+                        return (
+                          <span
+                            key={reactKey}
+                            className="rounded border px-2 py-0.5 font-medium text-[10px]"
+                            style={{
+                              backgroundColor:
+                                "color-mix(in srgb, var(--resume-primary) 5%, transparent)",
+                              color: "var(--resume-primary)",
+                              borderColor:
+                                "color-mix(in srgb, var(--resume-primary) 10%, transparent)",
+                            }}
+                          >
+                            {course}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
