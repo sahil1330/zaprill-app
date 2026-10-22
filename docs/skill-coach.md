@@ -5,7 +5,7 @@ Owner: Skill Coach.
 Reviewer: engineering head.
 Depends on: that career-profile branch merging. It is not on this branch.
 
-**Do not start phase 1 code until `cursor/career-profile-41f4` is merged.** The first Coach migration is `0017`. Numbers `0015` and `0016` belong to resume builder and career profile. Do not take them.
+**Do not start phase 1 code until `cursor/career-profile-41f4` is merged.** The first Coach migration is `0018`. `0015` is the career profile, `0016` is the resume builder, and `0017` is the resume builder share-password drop. Do not take those numbers.
 
 Skill Coach is the retention and paid loop for Zaprill's career-intelligence pivot. For each technical skill gap between a user's career profile and a technical target role, it gives a learning plan, an AI tutor, graded practice, progress, and a mock interview. The free tier keeps the full plan and a small taste of the tutor, one graded test a week, and one mock a month. Every paid plan includes the same coaching, with higher limits. Mock interviews are part of the subscription, not a separate purchase.
 
@@ -563,7 +563,7 @@ A–F are checked against `d691aea` in section 3. Implementation stays blocked u
 Allowed to start only after that merge.
 
 - Tables: `coach_program`, `coach_plan`, `coach_progress`. No cache, no session, no agent, no `ai_action` values.
-- Migration `0017` or later. Do not use `0015` or `0016`.
+- Migration `0018` or later. Do not use `0015`, `0016`, or `0017`.
 - Build plans from the engine gap list, technical categories only (section F). `skill_key` is `normalizedName` via `normalizeCareerKey`.
 - Outline from the engine roadmap item, or a shell. Zero `generateText`.
 - Gap refresh (section 4.8) for every tier.
