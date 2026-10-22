@@ -27,7 +27,7 @@ export const APP_SETTING_KEYS = [
   "referral_referee_reward_pct", // % discount coupon for referee  (e.g. "10")
   "referral_expiry_days", // days before a referral expires  (e.g. "90")
   "referral_max_per_user", // max referrals per user (e.g. "50", "" = unlimited)
-  // Skill Coach kill switch. Only the exact string "true" allows model calls.
+  // Skill Coach. Missing or any value other than "true" keeps the coach link off.
   "coach_enabled",
 ] as const;
 
@@ -102,6 +102,12 @@ export async function getReferralSettings(): Promise<ReferralSettings> {
       ? parseInt(map.referral_max_per_user, 10)
       : null,
   };
+}
+
+/** True only when ops has set `coach_enabled` to the string "true". */
+export async function isCoachEnabled(): Promise<boolean> {
+  const value = await getSettingValue("coach_enabled");
+  return value === "true";
 }
 
 /** Get a single setting value. Returns `""` if not found. */

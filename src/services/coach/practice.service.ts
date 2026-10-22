@@ -154,6 +154,62 @@ ${COACH_LANGUAGE_RULES}`,
   }
 }
 
+/** Stores the grade and, on a pass, writes the profile verified-skill signal. */
+export async function commitGradedAttempt(input: {
+  userId: string;
+  planId: string;
+  taskId: string;
+  skillKey: string;
+  answer: string;
+  score: number;
+  feedback: string;
+}) {
+  const passed = isPassingScore(input.score);
+  const attemptId = nanoid();
+  await db.insert(coachAttempt).values({
+    id: attemptId,
+    taskId: input.taskId,
+    userId: input.userId,
+    answer: input.answer,
+    score: input.score,
+    feedback: input.feedback,
+    passed,
+  });
+  await db
+    .update(coachProgress)
+    .set({
+      state: passed ? "demonstrated" : "practiced",
+      masteryScore: input.score,
+      tasksAttempted: sql`${coachProgress.tasksAttempted} + 1`,
+      tasksPassed: passed
+        ? sql`${coachProgress.tasksPassed} + 1`
+        : coachProgress.tasksPassed,
+      lastSessionAt: new Date(),
+    })
+    .where(eq(coachProgress.planId, input.planId));
+
+  let verified = false;
+  if (passed) {
+    try {
+      await recordVerifiedSkill(input.userId, {
+        skill: input.skillKey,
+        score: input.score,
+        verifiedAt: new Date().toISOString(),
+      });
+      verified = true;
+    } catch (error) {
+      console.error("[coach] recordVerifiedSkill failed", error);
+    }
+  }
+  return {
+    attemptId,
+    score: input.score,
+    passed,
+    feedback: input.feedback,
+    verified,
+  };
+}
+
 export async function gradePracticeTest(input: {
   userId: string;
   planId: string;
@@ -195,43 +251,15 @@ Feedback must use the language of the answer.
 ${COACH_LANGUAGE_RULES}`,
     });
     const tokens = readTokenUsage(usage);
-    const passed = isPassingScore(output.score);
-    const attemptId = nanoid();
-    await db.insert(coachAttempt).values({
-      id: attemptId,
-      taskId: task.id,
+    const committed = await commitGradedAttempt({
       userId: input.userId,
+      planId: input.planId,
+      taskId: task.id,
+      skillKey: context.plan.skillKey,
       answer: input.answer,
       score: output.score,
       feedback: output.feedback,
-      passed,
     });
-    await db
-      .update(coachProgress)
-      .set({
-        state: passed ? "demonstrated" : "practiced",
-        masteryScore: output.score,
-        tasksAttempted: sql`${coachProgress.tasksAttempted} + 1`,
-        tasksPassed: passed
-          ? sql`${coachProgress.tasksPassed} + 1`
-          : coachProgress.tasksPassed,
-        lastSessionAt: new Date(),
-      })
-      .where(eq(coachProgress.planId, input.planId));
-
-    let verified = false;
-    if (passed) {
-      try {
-        await recordVerifiedSkill(input.userId, {
-          skill: context.plan.skillKey,
-          score: output.score,
-          verifiedAt: new Date().toISOString(),
-        });
-        verified = true;
-      } catch (error) {
-        console.error("[coach] recordVerifiedSkill failed", error);
-      }
-    }
 
     await meter.reconcile(
       actualPaise(
@@ -257,15 +285,11 @@ ${COACH_LANGUAGE_RULES}`,
         kind: "grade",
         tier,
         score: output.score,
-        passed,
+        passed: committed.passed,
       },
     });
     return {
-      attemptId,
-      score: output.score,
-      passed,
-      feedback: output.feedback,
-      verified,
+      ...committed,
       tier,
     };
   } catch (error) {

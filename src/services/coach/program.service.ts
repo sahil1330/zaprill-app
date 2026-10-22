@@ -7,6 +7,7 @@ import {
   coachProgress,
   resumeAnalysis,
 } from "@/db/schema";
+import { isCoachEnabled } from "@/lib/app-settings";
 import {
   CareerProfileError,
   getCareerProfile,
@@ -230,6 +231,7 @@ async function refreshPlans(input: {
 export async function syncCoachPrograms(userId: string): Promise<{
   tier: CoachTier;
   allowance: Awaited<ReturnType<typeof coachAllowance>>;
+  coachEnabled: boolean;
   programs: CoachProgramView[];
   notices: string[];
 }> {
@@ -417,6 +419,7 @@ export async function syncCoachPrograms(userId: string): Promise<{
   return {
     tier,
     allowance,
+    coachEnabled: await isCoachEnabled(),
     programs: programs.filter((program) => program.status === "active"),
     notices: [...new Set(notices)],
   };

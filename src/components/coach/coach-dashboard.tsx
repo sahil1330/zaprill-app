@@ -65,6 +65,7 @@ interface ProgramView {
 
 interface ProgramsResponse {
   allowance?: Allowance;
+  coachEnabled?: boolean;
   programs?: ProgramView[];
   notices?: string[];
   error?: string;
@@ -80,6 +81,7 @@ interface Question {
 export function CoachDashboard() {
   const [programs, setPrograms] = useState<ProgramView[]>([]);
   const [allowance, setAllowance] = useState<Allowance | null>(null);
+  const [coachEnabled, setCoachEnabled] = useState(false);
   const [notices, setNotices] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,6 +111,7 @@ export function CoachDashboard() {
       }
       setPrograms(body.programs ?? []);
       setAllowance(body.allowance ?? null);
+      setCoachEnabled(body.coachEnabled === true);
       setNotices(body.notices ?? []);
       setPlanId((current) => {
         if (
@@ -308,6 +311,13 @@ export function CoachDashboard() {
         }
       />
 
+      {coachEnabled ? null : (
+        <p className="rounded-2xl bg-muted px-4 py-3 text-muted-foreground text-sm">
+          Skill Coach model calls are switched off. Saved programs stay
+          readable. Tutor, tests, and mocks wait until coaching is turned on.
+        </p>
+      )}
+
       {allowance && (
         <Card>
           <CardContent className="grid gap-3 px-6 sm:grid-cols-4">
@@ -500,7 +510,7 @@ export function CoachDashboard() {
                   />
                   <Button
                     onClick={() => void sendTutor()}
-                    disabled={busy !== null}
+                    disabled={busy !== null || !coachEnabled}
                   >
                     {busy === "tutor" && <Loader2 className="animate-spin" />}
                     Send
@@ -519,7 +529,7 @@ export function CoachDashboard() {
                   <Button
                     variant="outline"
                     onClick={() => void startTest()}
-                    disabled={busy !== null}
+                    disabled={busy !== null || !coachEnabled}
                   >
                     {busy === "test" && <Loader2 className="animate-spin" />}
                     Start test
@@ -560,7 +570,7 @@ export function CoachDashboard() {
                   <Button
                     variant="outline"
                     onClick={() => void startMock()}
-                    disabled={busy !== null}
+                    disabled={busy !== null || !coachEnabled}
                   >
                     {busy === "mock" && <Loader2 className="animate-spin" />}
                     Start mock

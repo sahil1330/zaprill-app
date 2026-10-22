@@ -177,4 +177,4 @@ CREATE INDEX IF NOT EXISTS "coach_task_plan_id_idx" ON "coach_task" USING btree 
 CREATE INDEX IF NOT EXISTS "coach_attempt_task_id_idx" ON "coach_attempt" USING btree ("task_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "coach_attempt_user_id_idx" ON "coach_attempt" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "coach_period_usage_pk" ON "coach_period_usage" USING btree ("user_id","period_kind","period_start");--> statement-breakpoint
-INSERT INTO "app_settings" ("key", "value") VALUES ('coach_enabled', 'true') ON CONFLICT ("key") DO NOTHING;
+INSERT INTO "app_settings" ("key", "value") VALUES ('coach_enabled', 'false') ON CONFLICT ("key") DO NOTHING;

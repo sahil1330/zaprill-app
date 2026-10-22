@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "@/db";
 import { plan } from "@/db/schema";
-import { getSettingValue } from "@/lib/app-settings";
+import { isCoachEnabled } from "@/lib/app-settings";
 import { getSubscriptionWithAccess } from "@/services/billing/subscription.service";
 import { coachDisabledError } from "@/services/coach/errors";
 import {
@@ -36,8 +36,7 @@ export async function resolveCoachTier(userId: string): Promise<CoachTier> {
 
 /** Model calls only. Saved plans stay readable when this is off. */
 export async function assertCoachModelsEnabled(): Promise<void> {
-  const value = await getSettingValue("coach_enabled");
-  if (value !== "true") throw coachDisabledError();
+  if (!(await isCoachEnabled())) throw coachDisabledError();
 }
 
 export async function coachAllowance(userId: string, tier: CoachTier) {
