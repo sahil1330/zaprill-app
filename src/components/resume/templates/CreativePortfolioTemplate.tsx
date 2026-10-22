@@ -2,6 +2,7 @@
 
 import { IconBrandGithub } from "@tabler/icons-react";
 import { ExternalLink } from "lucide-react";
+import { HtmlContent } from "@/components/html-content";
 import { ensureHttps } from "@/lib/utils";
 import {
   DEFAULT_RESUME_DATA,
@@ -61,9 +62,9 @@ export default function CreativePortfolioTemplate({
     summary: () =>
       sectionVisibility?.summary && basics?.summary ? (
         <section key="summary" className="mb-12">
-          <div
+          <HtmlContent
             className="font-medium text-2xl text-foreground leading-relaxed tracking-tight"
-            dangerouslySetInnerHTML={{ __html: basics.summary }}
+            html={basics.summary}
           />
         </section>
       ) : null,
@@ -105,22 +106,25 @@ export default function CreativePortfolioTemplate({
                     )}
                   </div>
                   {item.summary && (
-                    <div
+                    <HtmlContent
                       className="mb-4 text-muted-foreground leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: item.summary }}
+                      html={item.summary}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
                     <ul className="space-y-3">
-                      {(item.highlights || []).map((h, i) => (
-                        <li
-                          key={i}
-                          className="flex gap-4 text-muted-foreground leading-relaxed"
-                        >
-                          <span className="shrink-0 text-primary/40">—</span>
-                          <span>{h}</span>
-                        </li>
-                      ))}
+                      {(item.highlights || []).map((h, i) => {
+                        const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                        return (
+                          <li
+                            key={reactKey}
+                            className="flex gap-4 text-muted-foreground leading-relaxed"
+                          >
+                            <span className="shrink-0 text-primary/40">—</span>
+                            <span>{h}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
@@ -162,14 +166,17 @@ export default function CreativePortfolioTemplate({
                 </p>
                 {item.courses && (item.courses || []).length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {(item.courses || []).map((course, i) => (
-                      <span
-                        key={i}
-                        className="rounded-lg bg-secondary/60 px-2.5 py-1 font-medium text-[11px] text-muted-foreground"
-                      >
-                        {course}
-                      </span>
-                    ))}
+                    {(item.courses || []).map((course, i) => {
+                      const reactKey = `${item.id ?? "item"}-${course}-${i}`;
+                      return (
+                        <span
+                          key={reactKey}
+                          className="rounded-lg bg-secondary/60 px-2.5 py-1 font-medium text-[11px] text-muted-foreground"
+                        >
+                          {course}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -254,26 +261,32 @@ export default function CreativePortfolioTemplate({
                 )}
                 {item.highlights && (item.highlights || []).length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {(item.highlights || []).map((h, i) => (
-                      <span
-                        key={i}
-                        className="rounded-full bg-secondary px-3 py-1 font-medium text-secondary-foreground text-xs"
-                      >
-                        {h}
-                      </span>
-                    ))}
+                    {(item.highlights || []).map((h, i) => {
+                      const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                      return (
+                        <span
+                          key={reactKey}
+                          className="rounded-full bg-secondary px-3 py-1 font-medium text-secondary-foreground text-xs"
+                        >
+                          {h}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
                 {item.keywords && (item.keywords || []).length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-1.5">
-                    {(item.keywords || []).map((keyword, i) => (
-                      <span
-                        key={i}
-                        className="rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 font-semibold text-[10px] text-primary uppercase tracking-wider"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
+                    {(item.keywords || []).map((keyword, i) => {
+                      const reactKey = `${item.id ?? "item"}-${keyword}-${i}`;
+                      return (
+                        <span
+                          key={reactKey}
+                          className="rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 font-semibold text-[10px] text-primary uppercase tracking-wider"
+                        >
+                          {keyword}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -372,22 +385,25 @@ export default function CreativePortfolioTemplate({
                     )}
                   </div>
                   {item.summary && (
-                    <div
+                    <HtmlContent
                       className="mb-4 text-muted-foreground leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: item.summary }}
+                      html={item.summary}
                     />
                   )}
                   {item.highlights && (item.highlights || []).length > 0 && (
                     <ul className="space-y-3">
-                      {(item.highlights || []).map((h, i) => (
-                        <li
-                          key={i}
-                          className="flex gap-4 text-muted-foreground leading-relaxed"
-                        >
-                          <span className="shrink-0 text-primary/40">—</span>
-                          <span>{h}</span>
-                        </li>
-                      ))}
+                      {(item.highlights || []).map((h, i) => {
+                        const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                        return (
+                          <li
+                            key={reactKey}
+                            className="flex gap-4 text-muted-foreground leading-relaxed"
+                          >
+                            <span className="shrink-0 text-primary/40">—</span>
+                            <span>{h}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
@@ -418,9 +434,9 @@ export default function CreativePortfolioTemplate({
                     {item.awarder}
                   </p>
                   {item.summary && (
-                    <div
+                    <HtmlContent
                       className="text-muted-foreground leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: item.summary }}
+                      html={item.summary}
                     />
                   )}
                 </div>
@@ -463,9 +479,9 @@ export default function CreativePortfolioTemplate({
                     {item.publisher}
                   </p>
                   {item.summary && (
-                    <div
+                    <HtmlContent
                       className="text-muted-foreground leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: item.summary }}
+                      html={item.summary}
                     />
                   )}
                 </div>
@@ -596,25 +612,28 @@ export default function CreativePortfolioTemplate({
                         </p>
                       )}
                       {item.description && (
-                        <div
+                        <HtmlContent
                           className="prose prose-sm mb-4 max-w-none text-muted-foreground leading-relaxed"
-                          dangerouslySetInnerHTML={{ __html: item.description }}
+                          html={item.description}
                         />
                       )}
                       {item.highlights &&
                         (item.highlights || []).length > 0 && (
                           <ul className="space-y-3">
-                            {(item.highlights || []).map((h, i) => (
-                              <li
-                                key={i}
-                                className="flex gap-4 text-muted-foreground leading-relaxed"
-                              >
-                                <span className="shrink-0 text-primary/40">
-                                  —
-                                </span>
-                                <span>{h}</span>
-                              </li>
-                            ))}
+                            {(item.highlights || []).map((h, i) => {
+                              const reactKey = `${item.id ?? "item"}-${h}-${i}`;
+                              return (
+                                <li
+                                  key={reactKey}
+                                  className="flex gap-4 text-muted-foreground leading-relaxed"
+                                >
+                                  <span className="shrink-0 text-primary/40">
+                                    —
+                                  </span>
+                                  <span>{h}</span>
+                                </li>
+                              );
+                            })}
                           </ul>
                         )}
                     </div>

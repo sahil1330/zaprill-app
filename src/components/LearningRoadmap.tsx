@@ -67,6 +67,7 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
     >
       {/* Header */}
       <button
+        type="button"
         onClick={() => {
           const nextExpanded = !expanded;
           setExpanded(nextExpanded);
@@ -128,12 +129,13 @@ function RoadmapCard({ item, index }: { item: RoadmapItem; index: number }) {
           {/* Resources */}
           <div className="flex flex-col gap-2.5">
             {item.resources.map((res, i) => {
+              const reactKey = `${res.name}-${i}`;
               const Icon = RESOURCE_ICONS[res.type] ?? FileText;
               const isSearch = res.url?.includes("google.com/search");
 
               return (
                 <div
-                  key={i}
+                  key={reactKey}
                   className="group flex items-center gap-3 rounded-md border border-border bg-background p-3 transition-colors hover:border-foreground/30"
                 >
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-border bg-muted text-foreground">

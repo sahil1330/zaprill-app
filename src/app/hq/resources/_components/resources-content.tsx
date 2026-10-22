@@ -143,8 +143,8 @@ export function ResourcesContent({
 
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[200px] rounded-xl" />
+          {["s1", "s2", "s3"].map((slot) => (
+            <Skeleton key={slot} className="h-[200px] rounded-xl" />
           ))}
         </div>
       ) : resources.length === 0 ? (

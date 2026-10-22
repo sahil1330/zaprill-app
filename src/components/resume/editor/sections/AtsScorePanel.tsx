@@ -420,7 +420,12 @@ export default function AtsScorePanel() {
                   </h3>
                 </div>
                 <div className="relative flex items-center justify-center">
-                  <svg className="-rotate-90 h-20 w-20 transform">
+                  <svg
+                    className="-rotate-90 h-20 w-20 transform"
+                    role="img"
+                    aria-label="ATS score"
+                  >
+                    <title>ATS score</title>
                     <circle
                       cx="40"
                       cy="40"
@@ -586,9 +591,10 @@ export default function AtsScorePanel() {
               <div className="space-y-3">
                 {result.suggestions.map((s, i) => {
                   const isApplied = appliedFixes.has(i);
+                  const reactKey = `${s.section}-${s.issue}-${i}`;
                   return (
                     <div
-                      key={`suggestion-${i}`}
+                      key={reactKey}
                       className={`group rounded-2xl border p-4 transition-all duration-300 ${
                         isApplied
                           ? "border-score-high/20 bg-score-high/40 opacity-80"

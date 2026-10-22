@@ -109,9 +109,10 @@ export default function RoastDialog() {
                 <div className="prose prose-sm dark:prose-invert max-w-none">
                   {roast.split("\n").map((line, i) => {
                     if (!line.trim()) return null;
+                    const reactKey = `roast-line-${line}-${i}`;
                     return (
                       <p
-                        key={`roast-line-${i}`}
+                        key={reactKey}
                         className="mb-2 text-sm leading-relaxed last:mb-0"
                       >
                         {line}

@@ -153,8 +153,8 @@ export function PlansContent({ plans, loading, onMutate, onRefresh }: Props) {
 
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[200px] rounded-xl" />
+          {["s1", "s2", "s3"].map((slot) => (
+            <Skeleton key={slot} className="h-[200px] rounded-xl" />
           ))}
         </div>
       ) : plans.length === 0 ? (
@@ -219,14 +219,20 @@ export function PlansContent({ plans, loading, onMutate, onRefresh }: Props) {
                 </div>
                 {Array.isArray(plan.features) && plan.features.length > 0 && (
                   <ul className="mb-4 space-y-1 text-muted-foreground text-xs">
-                    {plan.features.slice(0, 3).map((f: any, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        <span className="h-1 w-1 shrink-0 rounded-full bg-primary" />
-                        <span className="truncate">
-                          {typeof f === "string" ? f : f.text}
-                        </span>
-                      </li>
-                    ))}
+                    {plan.features.slice(0, 3).map((f: any, i) => {
+                      const reactKey = `feature-${i}`;
+                      return (
+                        <li
+                          key={reactKey}
+                          className="flex items-center gap-1.5"
+                        >
+                          <span className="h-1 w-1 shrink-0 rounded-full bg-primary" />
+                          <span className="truncate">
+                            {typeof f === "string" ? f : f.text}
+                          </span>
+                        </li>
+                      );
+                    })}
                     {plan.features.length > 3 && (
                       <li className="text-muted-foreground text-xs">
                         +{plan.features.length - 3} more
@@ -444,45 +450,51 @@ export function PlansContent({ plans, loading, onMutate, onRefresh }: Props) {
                 </Button>
               </div>
               <div className="max-h-[200px] space-y-2 overflow-y-auto pr-1">
-                {form.features.map((feat, index) => (
-                  <div key={index} className="group flex items-start gap-2">
-                    <div className="grid flex-1 gap-1.5">
-                      <Input
-                        placeholder="Feature name"
-                        value={feat.text}
-                        className="h-8 text-xs"
-                        onChange={(e) => {
-                          const newFeats = [...form.features];
-                          newFeats[index].text = e.target.value;
-                          setForm((f) => ({ ...f, features: newFeats }));
-                        }}
-                      />
-                      <Input
-                        placeholder="Info (optional)"
-                        value={feat.info}
-                        className="h-8 text-[10px] opacity-70 focus:opacity-100"
-                        onChange={(e) => {
-                          const newFeats = [...form.features];
-                          newFeats[index].info = e.target.value;
-                          setForm((f) => ({ ...f, features: newFeats }));
-                        }}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100"
-                      onClick={() => {
-                        const newFeats = [...form.features];
-                        newFeats.splice(index, 1);
-                        setForm((f) => ({ ...f, features: newFeats }));
-                      }}
+                {form.features.map((feat, index) => {
+                  const reactKey = `feat-${index}`;
+                  return (
+                    <div
+                      key={reactKey}
+                      className="group flex items-start gap-2"
                     >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+                      <div className="grid flex-1 gap-1.5">
+                        <Input
+                          placeholder="Feature name"
+                          value={feat.text}
+                          className="h-8 text-xs"
+                          onChange={(e) => {
+                            const newFeats = [...form.features];
+                            newFeats[index].text = e.target.value;
+                            setForm((f) => ({ ...f, features: newFeats }));
+                          }}
+                        />
+                        <Input
+                          placeholder="Info (optional)"
+                          value={feat.info}
+                          className="h-8 text-[10px] opacity-70 focus:opacity-100"
+                          onChange={(e) => {
+                            const newFeats = [...form.features];
+                            newFeats[index].info = e.target.value;
+                            setForm((f) => ({ ...f, features: newFeats }));
+                          }}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive opacity-0 transition-opacity group-hover:opacity-100"
+                        onClick={() => {
+                          const newFeats = [...form.features];
+                          newFeats.splice(index, 1);
+                          setForm((f) => ({ ...f, features: newFeats }));
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  );
+                })}
                 {form.features.length === 0 && (
                   <p className="rounded-lg border border-dashed py-4 text-center text-[10px] text-muted-foreground">
                     No features added.
