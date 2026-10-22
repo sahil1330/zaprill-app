@@ -197,6 +197,9 @@ const resumeSlice = createSlice({
       state.version = action.payload.version;
       state.lastSavedAt = new Date().toISOString();
     },
+    setVersion(state, action: PayloadAction<number>) {
+      state.version = action.payload;
+    },
     markSaveFailed(state) {
       state.isSaving = false;
     },

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # Placeholder values only. Real credentials stay in GitHub/Vercel.
+      # pragma: allowlist secret
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/zaprill # pragma: allowlist secret
+      BETTER_AUTH_SECRET: ci-better-auth-secret-placeholder # pragma: allowlist secret
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      GOOGLE_OAUTH_CLIENT_ID: ci-google-oauth-client-id # pragma: allowlist secret
+      GOOGLE_OAUTH_CLIENT_SECRET: ci-google-oauth-client-secret # pragma: allowlist secret
+      OPENAI_API_KEY: ci-openai-placeholder # pragma: allowlist secret
+      RESEND_API_KEY: ci-resend-placeholder # pragma: allowlist secret
+      RESEND_WEBHOOK_SECRET: ci-resend-webhook-placeholder # pragma: allowlist secret
+      CASHFREE_CLIENT_ID: ci-cashfree-client-id # pragma: allowlist secret
+      CASHFREE_CLIENT_SECRET: ci-cashfree-client-secret # pragma: allowlist secret
+      CASHFREE_ENVIRONMENT: SANDBOX
+      NEXT_PUBLIC_CASHFREE_ENVIRONMENT: SANDBOX
+      ADZUNA_APP_ID: ci-adzuna-app-id # pragma: allowlist secret
+      ADZUNA_APP_KEY: ci-adzuna-app-key # pragma: allowlist secret
+      NEXT_PUBLIC_GA4_MEASUREMENT_ID: G-CIPLACEHOLDER
+      GA_PROPERTY_ID: "0"
+      GOOGLE_CLIENT_ID: ci-ga-client-id # pragma: allowlist secret
+      GOOGLE_CLIENT_SECRET: ci-ga-client-secret # pragma: allowlist secret
+      GOOGLE_REFRESH_TOKEN: ci-ga-refresh-token # pragma: allowlist secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build

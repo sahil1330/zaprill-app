@@ -8,6 +8,10 @@ import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Learning-resource click redirect: GET /api/r?id=<resourceId>
+ * Public resumes are a different URL: /r/{slug} and GET /api/resumes/public/[slug].
+ */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
