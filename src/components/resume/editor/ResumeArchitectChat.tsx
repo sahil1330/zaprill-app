@@ -8,11 +8,19 @@ import {
   Check,
   ChevronDown,
   Loader2,
+  PanelRightClose,
+  PanelRightOpen,
   PenLine,
   Square,
-  X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Streamdown } from "streamdown";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -31,6 +39,9 @@ const TOOL_PENDING: Record<string, string> = {
   upsertEntry: "Updating section",
   removeEntry: "Removing entry",
   setDesign: "Updating design",
+  applyRecommendedLayout: "Applying layout",
+  lookupGuidance: "Checking field rules",
+  web_search: "Looking up a source",
 };
 
 const TOOL_DONE: Record<string, string> = {
@@ -39,7 +50,20 @@ const TOOL_DONE: Record<string, string> = {
   upsertEntry: "Updated section",
   removeEntry: "Removed entry",
   setDesign: "Updated design",
+  applyRecommendedLayout: "Applied layout",
+  lookupGuidance: "Checked field rules",
+  web_search: "Looked up a source",
 };
+
+const WIDTH_KEY = "zaprill.resume-architect.width";
+const OPEN_KEY = "zaprill.resume-architect.open";
+const MIN_WIDTH = 280;
+const MAX_WIDTH = 480;
+const DEFAULT_WIDTH = 360;
+
+function clampWidth(value: number) {
+  return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(value)));
+}
 
 function isSnapshot(value: unknown): value is ResumeArchitectSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -63,7 +87,7 @@ function AgentMark({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-[0_1px_0_rgba(255,255,255,0.25)_inset]",
+        "flex size-8 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-foreground",
         className,
       )}
       aria-hidden
@@ -328,7 +352,10 @@ function ArchitectSession({
   const currentVersion = useSelector((s: RootState) => s.resume.version);
   const { data: session } = useSession();
   const user = session?.user;
-  const [open, setOpen] = useState(startOpen);
+  const [collapsed, setCollapsed] = useState(!startOpen);
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [hydrated, setHydrated] = useState(false);
+  const [compact, setCompact] = useState(false);
   const [input, setInput] = useState("");
   const appliedVersions = useRef(new Set<number>());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -377,7 +404,7 @@ function ArchitectSession({
   const submit = useCallback(async () => {
     const text = input.trim();
     if (!text || busy) return;
-    setOpen(true);
+    setCollapsed(false);
     setInput("");
     try {
       await onFlushPendingSave?.();
@@ -396,111 +423,188 @@ function ArchitectSession({
   }, [input]);
 
   useEffect(() => {
-    if (!open) return;
+    const storedWidth = Number(window.localStorage.getItem(WIDTH_KEY));
+    if (Number.isFinite(storedWidth)) setWidth(clampWidth(storedWidth));
+    const storedOpen = window.localStorage.getItem(OPEN_KEY);
+    if (storedOpen === "0") setCollapsed(true);
+    else if (storedOpen === "1") setCollapsed(false);
+    else setCollapsed(window.matchMedia("(max-width: 1023px)").matches);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    window.localStorage.setItem(WIDTH_KEY, String(width));
+    window.localStorage.setItem(OPEN_KEY, collapsed ? "0" : "1");
+  }, [hydrated, width, collapsed]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1023px)");
+    const apply = () => setCompact(query.matches);
+    apply();
+    query.addEventListener("change", apply);
+    return () => query.removeEventListener("change", apply);
+  }, []);
+
+  useEffect(() => {
+    if (collapsed) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busy) setOpen(false);
+      if (event.key === "Escape" && !busy) setCollapsed(true);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, busy]);
+  }, [collapsed, busy]);
+
+  const resize = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = width;
+    const onMove = (moveEvent: PointerEvent) => {
+      setWidth(clampWidth(startWidth + startX - moveEvent.clientX));
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
+  if (collapsed) {
+    return (
+      <aside className="flex h-full w-11 shrink-0 flex-col border-border border-l bg-background">
+        <button
+          type="button"
+          className="flex h-full flex-col items-center gap-3 px-1 py-4 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+          onClick={() => setCollapsed(false)}
+          aria-expanded={false}
+          aria-label="Open Resume Architect"
+        >
+          <PanelRightOpen className="size-4" />
+          <span className="font-medium text-xs [writing-mode:vertical-rl]">
+            Architect
+          </span>
+        </button>
+      </aside>
+    );
+  }
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-4 sm:px-6">
-      <div
-        className={cn(
-          "pointer-events-auto relative isolate flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background/95 shadow-[0_-18px_48px_-20px_oklch(0.141_0.005_286_/_0.38)] backdrop-blur-md",
-          "before:absolute before:inset-x-8 before:top-0 before:z-10 before:h-0.5 before:rounded-full before:bg-primary before:content-['']",
-        )}
-      >
-        {open ? (
-          <div className="flex max-h-[min(56vh,32rem)] min-h-0 flex-col overflow-hidden">
-            <div className="flex items-center justify-between gap-3 border-border/80 border-b px-3 py-2.5">
-              <div className="flex min-w-0 items-center gap-2.5">
-                <AgentMark />
-                <div className="min-w-0">
-                  <p className="font-heading font-semibold text-sm tracking-tight">
-                    Resume Architect
-                  </p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    Edits land on the page as you talk
-                  </p>
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8 text-muted-foreground"
-                onClick={() => setOpen(false)}
-                aria-label="Close architect"
-                disabled={busy}
-              >
-                <X className="size-4" />
-              </Button>
+    <aside
+      className={cn(
+        "relative flex h-full min-h-0 shrink-0 flex-col border-border border-l bg-background",
+        compact && "w-[min(20rem,calc(100vw-11rem))]",
+      )}
+      style={compact ? undefined : { width }}
+    >
+      {compact ? null : (
+        <div
+          role="slider"
+          aria-orientation="vertical"
+          aria-label="Resize Resume Architect"
+          aria-valuemin={MIN_WIDTH}
+          aria-valuemax={MAX_WIDTH}
+          aria-valuenow={width}
+          tabIndex={0}
+          className="absolute inset-y-0 left-0 z-10 w-1.5 cursor-col-resize hover:bg-border"
+          onPointerDown={resize}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              setWidth((current) => clampWidth(current + 16));
+            }
+            if (event.key === "ArrowRight") {
+              event.preventDefault();
+              setWidth((current) => clampWidth(current - 16));
+            }
+          }}
+        />
+      )}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-border border-b px-3 py-2.5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <AgentMark />
+            <div className="min-w-0">
+              <p className="font-heading font-semibold text-sm tracking-tight">
+                Resume Architect
+              </p>
+              <p className="truncate text-[11px] text-muted-foreground">
+                Edits the resume beside this panel
+              </p>
             </div>
-
-            <StickToBottom
-              className="relative h-[min(42vh,24rem)] min-h-0 w-full min-w-0 overflow-hidden"
-              resize="smooth"
-              initial="smooth"
-            >
-              <StickToBottom.Content
-                className="flex w-full min-w-0 max-w-full flex-col gap-4 px-3 py-3"
-                scrollClassName="overflow-x-hidden overflow-y-auto overscroll-contain"
-              >
-                {messages.length === 0 ? (
-                  <p className="px-1 py-6 text-center text-muted-foreground text-sm">
-                    Describe the role you want, or say what to change. The
-                    preview updates as the architect writes.
-                  </p>
-                ) : (
-                  messages.map((message, index) => (
-                    <MessageParts
-                      key={message.id}
-                      message={message}
-                      isLastMessage={index === messages.length - 1}
-                      isStreaming={isStreaming}
-                      userName={user?.name}
-                      userImage={user?.image}
-                      userEmail={user?.email}
-                    />
-                  ))
-                )}
-                {status === "submitted" ? (
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                    <AgentMark className="size-6" />
-                    Drafting
-                  </div>
-                ) : null}
-                {error ? (
-                  <div className="flex items-center justify-between gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-destructive text-xs">
-                    <span>The architect hit an error.</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-7"
-                      onClick={() => regenerate()}
-                    >
-                      Retry
-                    </Button>
-                  </div>
-                ) : null}
-              </StickToBottom.Content>
-              <StickOnSend active={busy} />
-              <ScrollToLatest />
-            </StickToBottom>
           </div>
-        ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 text-muted-foreground"
+            onClick={() => setCollapsed(true)}
+            aria-label="Collapse architect"
+            disabled={busy}
+          >
+            <PanelRightClose className="size-4" />
+          </Button>
+        </div>
+
+        <StickToBottom
+          className="relative min-h-0 w-full min-w-0 flex-1 overflow-hidden"
+          resize="smooth"
+          initial="smooth"
+        >
+          <StickToBottom.Content
+            className="flex w-full min-w-0 max-w-full flex-col gap-4 px-3 py-3"
+            scrollClassName="overflow-x-hidden overflow-y-auto overscroll-contain"
+          >
+            {messages.length === 0 ? (
+              <p className="px-1 py-6 text-center text-muted-foreground text-sm">
+                Describe the role you want, or say what to change. The preview
+                updates as the architect writes.
+              </p>
+            ) : (
+              messages.map((message, index) => (
+                <MessageParts
+                  key={message.id}
+                  message={message}
+                  isLastMessage={index === messages.length - 1}
+                  isStreaming={isStreaming}
+                  userName={user?.name}
+                  userImage={user?.image}
+                  userEmail={user?.email}
+                />
+              ))
+            )}
+            {status === "submitted" ? (
+              <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                <AgentMark className="size-6" />
+                Drafting
+              </div>
+            ) : null}
+            {error ? (
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-destructive text-xs">
+                <span>The architect hit an error.</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7"
+                  onClick={() => regenerate()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : null}
+          </StickToBottom.Content>
+          <StickOnSend active={busy} />
+          <ScrollToLatest />
+        </StickToBottom>
 
         <form
-          className="flex items-end gap-2 border-border/70 border-t px-2.5 py-2"
+          className="flex items-end gap-2 border-border border-t px-2.5 py-2"
           onSubmit={(event) => {
             event.preventDefault();
             void submit();
           }}
         >
-          {!open ? <AgentMark className="mb-0.5" /> : null}
           <label className="sr-only" htmlFor="resume-architect-input">
             Message Resume Architect
           </label>
@@ -509,7 +613,6 @@ function ArchitectSession({
             ref={textareaRef}
             rows={1}
             value={input}
-            onFocus={() => setOpen(true)}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {
@@ -519,14 +622,14 @@ function ArchitectSession({
             }}
             placeholder="Tell the architect what to add or change"
             disabled={busy && input.length === 0}
-            className="max-h-28 min-h-10 flex-1 resize-none rounded-xl bg-muted/40 px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            className="max-h-28 min-h-10 flex-1 resize-none rounded-md border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           {busy ? (
             <Button
               type="button"
               size="icon"
               variant="secondary"
-              className="mb-0.5 size-9 shrink-0 rounded-full"
+              className="size-9 shrink-0"
               onClick={() => stop()}
               aria-label="Stop generating"
             >
@@ -536,7 +639,7 @@ function ArchitectSession({
             <Button
               type="submit"
               size="icon"
-              className="mb-0.5 size-9 shrink-0 rounded-full"
+              className="size-9 shrink-0"
               disabled={!input.trim()}
               aria-label="Send message"
             >
@@ -545,7 +648,7 @@ function ArchitectSession({
           )}
         </form>
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -580,7 +683,12 @@ export default function ResumeArchitectChat({
   }, [resumeId]);
 
   if (history === null) {
-    return null;
+    return (
+      <aside
+        className="h-full w-11 shrink-0 border-border border-l bg-background"
+        aria-hidden
+      />
+    );
   }
 
   return (

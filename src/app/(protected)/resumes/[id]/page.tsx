@@ -624,7 +624,7 @@ export default function ResumeEditorPage({
       </header>
 
       {/* ─── Three-panel Layout ────────────────────── */}
-      <div className="flex flex-1 overflow-hidden pb-20">
+      <div className="flex flex-1 overflow-hidden">
         {/* Left: Section Navigation (content sections only) */}
         <nav className="flex w-12 shrink-0 flex-col border-border border-r bg-muted/20 lg:w-44">
           <ScrollArea className="flex-1 py-2">
@@ -714,6 +714,11 @@ export default function ResumeEditorPage({
             </ErrorBoundary>
           </div>
         )}
+
+        <ResumeArchitectChat
+          resumeId={id}
+          onFlushPendingSave={isDirty ? flushPendingSave : undefined}
+        />
       </div>
 
       {/* Validation Error Dialog */}
@@ -811,11 +816,6 @@ export default function ResumeEditorPage({
           </div>
         </SheetContent>
       </Sheet>
-
-      <ResumeArchitectChat
-        resumeId={id}
-        onFlushPendingSave={isDirty ? flushPendingSave : undefined}
-      />
 
       {/* Settings Sheet — triggered from gear icon in top bar */}
       <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
