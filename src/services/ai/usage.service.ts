@@ -90,7 +90,11 @@ export const MODEL_RATES: Record<string, ModelRate> = {
  * Compute the estimated USD cost for a single LLM call.
  * Returns `null` when the model is not in the pricing table (cost is unknown).
  */
-function estimateCostUsd(
+/**
+ * Reasoning tokens are already inside completion tokens for this provider.
+ * Record them on the row. Do not pass them in again here.
+ */
+export function estimateCostUsd(
   model: string,
   promptTokens: number,
   completionTokens: number,
@@ -121,7 +125,11 @@ export interface LogUsageParams {
     | "tailor_resume"
     | "ats_scan"
     | "resume_roast"
-    | "resume_chat";
+    | "resume_chat"
+    | "coach_plan"
+    | "coach_tutor"
+    | "coach_practice"
+    | "coach_mock";
   /**
    * The exact model identifier string used when constructing the SDK call,
    * e.g. `openai("gpt-5-mini")` → pass `"gpt-5-mini"`.
@@ -131,6 +139,8 @@ export interface LogUsageParams {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
+  /** Subset of completion tokens. Not added on top of the cost. */
+  reasoningTokens?: number;
   /** Wall-clock milliseconds for the LLM call only (not the full route) */
   latencyMs?: number | null;
   /** True when the response was served from the analysis cache (0 tokens consumed) */
@@ -192,6 +202,7 @@ export function logAiUsage(params: LogUsageParams): void {
       promptTokens: params.promptTokens,
       completionTokens: params.completionTokens,
       totalTokens: params.totalTokens,
+      reasoningTokens: params.reasoningTokens ?? 0,
       // Store as fixed-point string for Postgres NUMERIC; null when unknown.
       costUsd: costUsd !== null ? costUsd.toFixed(8) : undefined,
       latencyMs: params.latencyMs ?? null,
