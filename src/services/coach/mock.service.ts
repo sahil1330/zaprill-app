@@ -33,7 +33,7 @@ const questionSchema = z.object({
     .array(
       z.object({
         id: z.string().trim().min(1).max(40),
-        prompt: z.string().trim().min(1).max(500),
+        prompt: z.string().trim().min(1).max(200),
       }),
     )
     .min(3)
@@ -42,7 +42,7 @@ const questionSchema = z.object({
 
 const reviewSchema = z.object({
   score: z.number().int().min(0).max(100),
-  feedback: z.string().min(1).max(2500),
+  feedback: z.string().min(1).max(800),
 });
 
 interface MockMessage {
@@ -71,8 +71,8 @@ export async function startMockInterview(userId: string, planId: string) {
       output: Output.object({ schema: questionSchema }),
       maxOutputTokens: COACH_LIMITS.tutorMaxOutputTokens,
       providerOptions: { openai: { reasoningEffort: "low" } },
-      prompt: `Write 3 to 5 spoken-style mock interview questions for the skill "${context.plan.displayName}" and the role "${context.program.roleTitle}".
-Questions are in English. Ids are short stable slugs.
+      prompt: `Write 3 spoken-style mock interview questions for the skill "${context.plan.displayName}" and the role "${context.program.roleTitle}".
+Questions are in English. Each question is one sentence under 160 characters. Ids are short stable slugs.
 Do not include model answers.
 ${COACH_FACT_RULES}`,
     });
@@ -182,7 +182,7 @@ export async function reviewMockInterview(input: {
       prompt: `Review this mock interview for ${context.plan.displayName}. This is practice feedback only. Do not say the skill is verified.
 Questions and answers:
 ${JSON.stringify({ transcript: session.messages, answers: input.answers })}
-Feedback must use the language of the answers.
+Feedback must use the language of the answers, in at most 80 words.
 ${COACH_LANGUAGE_RULES}
 ${COACH_FACT_RULES}`,
     });

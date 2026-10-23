@@ -28,13 +28,13 @@ import {
 import { COACH_LANGUAGE_RULES } from "@/services/coach/prompts";
 
 const taskSchema = z.object({
-  prompt: z.string().min(1).max(2000),
-  rubric: z.array(z.string().min(1).max(240)).min(1).max(6),
+  prompt: z.string().min(1).max(480),
+  rubric: z.array(z.string().min(1).max(100)).min(1).max(4),
 });
 
 const gradeSchema = z.object({
   score: z.number().int().min(0).max(100),
-  feedback: z.string().min(1).max(2000),
+  feedback: z.string().min(1).max(600),
 });
 
 async function openTask(planId: string) {
@@ -93,8 +93,9 @@ export async function startPracticeTest(userId: string, planId: string) {
       maxOutputTokens: COACH_LIMITS.gradeMaxOutputTokens,
       providerOptions: { openai: { reasoningEffort: "low" } },
       prompt: `Write one practice question for the skill "${context.plan.displayName}" in the role "${context.program.roleTitle}".
-The prompt the learner sees must be English. The rubric is private and lists observable technical points.
-Do not include the answer.
+The prompt the learner sees must be English, at most two sentences, and under 280 characters.
+The rubric is private: exactly three bullets, each under 12 words.
+No scenario, no code, and no sample answer.
 ${COACH_LANGUAGE_RULES}`,
     });
     const tokens = readTokenUsage(usage);
@@ -247,7 +248,7 @@ Question: ${task.prompt}
 Private rubric: ${JSON.stringify(task.rubric)}
 Answer: ${input.answer}
 Give an integer score from 0 to 100 for the skill, not for English fluency.
-Feedback must use the language of the answer.
+Feedback must use the language of the answer, in at most 60 words.
 ${COACH_LANGUAGE_RULES}`,
     });
     const tokens = readTokenUsage(usage);
