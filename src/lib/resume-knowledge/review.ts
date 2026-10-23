@@ -71,44 +71,103 @@ function strip(value: string | null | undefined): string {
     .trim();
 }
 
+const BODY_CHARS = 88;
+
+/** Line height the server PDF actually draws. Metadata may ask for 1.5; the page caps it so a one-page resume fits. */
+export function renderedLineHeight(value: number): number {
+  const raw = Number.isFinite(value) && value > 0 ? value : 1.3;
+  return Math.min(1.3, Math.max(1.15, raw));
+}
+
+function textLines(
+  value: string | null | undefined,
+  chars = BODY_CHARS,
+): number {
+  const clean = strip(value);
+  if (!clean) return 0;
+  return Math.max(1, Math.ceil(clean.length / chars));
+}
+
 export function estimateContentLines(data: ResumeData): number {
-  let lines = 4;
+  let lines = 4.5;
   const summary = strip(data.basics.summary);
-  if (summary) lines += Math.max(2, Math.ceil(summary.length / 90));
-  for (const job of data.work) {
-    lines += 2 + job.highlights.filter((line) => strip(line)).length;
+  if (summary) lines += 1.6 + textLines(summary);
+  if (data.work.length > 0) {
+    lines += 1.6;
+    for (const job of data.work) {
+      lines += 2.2;
+      if (strip(job.summary)) lines += textLines(job.summary);
+      for (const highlight of job.highlights) {
+        lines += textLines(highlight);
+      }
+    }
   }
-  lines += data.education.length * 2;
+  if (data.education.length > 0) {
+    lines += 1.6 + data.education.length * 2.1;
+  }
   if (data.skills.length > 0) {
-    lines += 1 + Math.ceil(data.skills.length / 3);
+    lines += 1.6;
+    for (const skill of data.skills) {
+      lines += textLines(`${skill.name}: ${skill.keywords.join(", ")}`);
+    }
   }
-  for (const project of data.projects) {
-    lines += 2 + project.highlights.filter((line) => strip(line)).length;
-    const description = strip(project.description);
-    if (description) lines += Math.ceil(description.length / 90);
+  if (data.projects.length > 0) {
+    lines += 1.6;
+    for (const project of data.projects) {
+      lines += 1.3 + textLines(project.description);
+      for (const highlight of project.highlights) {
+        lines += textLines(highlight);
+      }
+      if (strip(project.url) || strip(project.githubUrl)) lines += 1;
+    }
   }
-  lines += data.certifications.length;
-  lines += data.publications.length * 2;
-  lines += data.volunteer.length + data.awards.length;
-  if (data.languages.length > 0) lines += 1;
+  if (data.certifications.length > 0) {
+    lines += 1.6 + data.certifications.length * 1.15;
+  }
+  if (data.languages.length > 0) {
+    lines += 1.6 + data.languages.length * 0.9;
+  }
+  if (data.volunteer.length > 0) {
+    lines += 1.6 + data.volunteer.length * 2;
+  }
+  if (data.awards.length > 0) {
+    lines += 1.6 + data.awards.length * 1.1;
+  }
+  if (data.publications.length > 0) {
+    lines += 1.6 + data.publications.length * 1.4;
+  }
+  if (data.references.length > 0) {
+    lines += 1.6 + data.references.length;
+  }
   return lines;
 }
 
-/** Baseline is about 48 body lines on A4 at 11pt with 15mm margins. */
-export function linesPerPage(fontSize: number, marginMm: number): number {
+/**
+ * About 44 wrapped body lines on A4 at 11pt, line-height 1.3, 20mm margins,
+ * matching the server PDF section rhythm.
+ */
+export function linesPerPage(
+  fontSize: number,
+  marginMm: number,
+  lineHeight = 1.3,
+): number {
   const size = fontSize > 0 ? fontSize : 11;
   const margin = Number.isFinite(marginMm) ? marginMm : 20;
+  const leading =
+    Number.isFinite(lineHeight) && lineHeight > 0 ? lineHeight : 1.3;
   const usable = Math.max(120, 297 - margin * 2);
-  const raw = 48 * (11 / size) * (usable / (297 - 30));
-  return Math.max(28, Math.round(raw));
+  const raw = 44 * (11 / size) * (usable / (297 - 40)) * (1.3 / leading);
+  return Math.max(24, Math.round(raw));
 }
 
 export function estimatePages(
   data: ResumeData,
   fontSize: number,
   marginMm: number,
+  lineHeight = 1.35,
 ): number {
-  const pages = estimateContentLines(data) / linesPerPage(fontSize, marginMm);
+  const pages =
+    estimateContentLines(data) / linesPerPage(fontSize, marginMm, lineHeight);
   return Math.round(pages * 10) / 10;
 }
 
@@ -178,7 +237,8 @@ export function reviewResume(input: {
   const maxPages = maxPagesFor(audience.field, audience.stage, audience.years);
   const fontSize = metadata.typography.font.size;
   const margin = metadata.page.margin;
-  const estimatedPages = estimatePages(data, fontSize, margin);
+  const lineHeight = renderedLineHeight(metadata.typography.lineHeight);
+  const estimatedPages = estimatePages(data, fontSize, margin, lineHeight);
   const violations: ResumeViolation[] = [];
   const present = presentSections(data);
 
@@ -259,7 +319,9 @@ export function reviewResume(input: {
   }
 
   const weak = highlights.some((line) =>
-    /\b(responsible for|duties included|worked on)\b/i.test(line),
+    /^\s*(?:[•*-]\s*)?(responsible for|duties included|worked on)\b/i.test(
+      strip(line),
+    ),
   );
   const withMetric = highlights.filter((line) => /\d/.test(line)).length;
   const needsMetric =

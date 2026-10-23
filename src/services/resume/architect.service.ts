@@ -196,11 +196,31 @@ export async function getResumeOverview(ctx: ResumeArchitectContext) {
   };
 }
 
+const writeTail = new WeakMap<ResumeArchitectContext, Promise<void>>();
+
+/** Run resume writes for one architect turn one at a time. Tool calls in a step are parallel. */
+export function enqueueResumeWrite<T>(
+  ctx: ResumeArchitectContext,
+  task: () => Promise<T>,
+): Promise<T> {
+  const previous = writeTail.get(ctx) ?? Promise.resolve();
+  const result = previous.then(task, task);
+  const settled = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  writeTail.set(ctx, settled);
+  return result;
+}
+
 async function snapshotBeforeMutate(
   ctx: ResumeArchitectContext,
   row: ResumeRow,
 ): Promise<void> {
   if (ctx.versioned) return;
+  // Claim the snapshot before the first await so parallel tool calls
+  // in one turn do not insert the same (resume, version) twice.
+  ctx.versioned = true;
   try {
     const identity = snapshotIdentity(row);
     await insertResumeSnapshot({
@@ -215,7 +235,6 @@ async function snapshotBeforeMutate(
   } catch (error) {
     console.warn("[resume-architect] version snapshot skipped:", error);
   }
-  ctx.versioned = true;
 }
 
 export async function mutateResume(
@@ -235,7 +254,27 @@ export async function mutateResume(
     targetRole?: string | null;
   },
 ): Promise<ResumeArchitectSnapshot> {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  return enqueueResumeWrite(ctx, () => writeResumeOnce(ctx, change, mutator));
+}
+
+async function writeResumeOnce(
+  ctx: ResumeArchitectContext,
+  change: string,
+  mutator: (input: {
+    data: ResumeData;
+    metadata: ResumeMetadata;
+    title: string;
+    templateSlug: string;
+    targetRole: string | null;
+  }) => {
+    data?: ResumeData;
+    metadata?: ResumeMetadata;
+    title?: string;
+    templateSlug?: string;
+    targetRole?: string | null;
+  },
+): Promise<ResumeArchitectSnapshot> {
+  for (let attempt = 0; attempt < 8; attempt++) {
     const row = await loadResumeRow(ctx);
     if (attempt === 0) {
       await snapshotBeforeMutate(ctx, row);

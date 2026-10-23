@@ -1,9 +1,25 @@
 import { customAlphabet } from "nanoid";
 
 export function isUniqueViolation(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const record = error as { code?: string; cause?: { code?: string } };
-  return record.code === "23505" || record.cause?.code === "23505";
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const record = current as {
+      code?: unknown;
+      message?: unknown;
+      cause?: unknown;
+    };
+    if (record.code === "23505") return true;
+    if (
+      typeof record.message === "string" &&
+      /duplicate key value violates unique constraint/i.test(record.message)
+    ) {
+      return true;
+    }
+    current = record.cause;
+  }
+  return false;
 }
 
 const suffixId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 8);

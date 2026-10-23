@@ -38,7 +38,7 @@ export type ResumeAudience = {
 
 const FIELD_PATTERNS: Record<Exclude<ResumeField, "general">, RegExp> = {
   software:
-    /\b(software|frontend|front-end|backend|back-end|full[- ]?stack|devops|site reliability|sre|programmer|developer|data scientist|machine learning|ml engineer|data engineer|typescript|javascript|react|node\.?js|python|golang|java|kubernetes)\b/i,
+    /\b(software engineer|frontend|front-end|backend|back-end|full[- ]?stack|devops|site reliability|sre|programmer|developer|data scientist|machine learning|ml engineer|data engineer|typescript|javascript|react|node\.?js|python|golang|java|kubernetes)\b/i,
   design:
     /\b(designer|product design|graphic design|visual design|ux|ui\/ux|user experience|user interface)\b/i,
   marketing:

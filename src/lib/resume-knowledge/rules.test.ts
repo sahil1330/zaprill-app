@@ -86,6 +86,67 @@ test("fresher software order puts education and projects above work", () => {
   assert.ok(review.violations.some((item) => item.id === "section-order"));
 });
 
+test("a full fresher resume with projects still fits the one-page estimate", () => {
+  const long =
+    "Shipped a React and Node.js app used by 640 students during the March exam week.";
+  const data = resume({
+    basics: {
+      ...DEFAULT_RESUME_DATA.basics,
+      summary:
+        "Software engineer who ships React and Node.js features for student products. Looking for a software engineer role in Bengaluru.",
+    },
+    work: [work("w1", [long, long, long])],
+    education: [education("e1")],
+    projects: [
+      {
+        id: "p1",
+        name: "CampusBus",
+        description:
+          "Full-stack bus tracker for the PES campus with live occupancy.",
+        highlights: [long, long],
+        keywords: ["React"],
+        startDate: "",
+        endDate: null,
+        url: "https://github.com/example/campusbus",
+        githubUrl: "",
+      },
+    ],
+    skills: [
+      {
+        id: "s1",
+        name: "Languages",
+        level: "",
+        keywords: ["TypeScript", "JavaScript", "Python", "SQL"],
+        category: "technical",
+      },
+    ],
+    certifications: [
+      {
+        id: "c1",
+        name: "AWS Cloud Practitioner",
+        issuer: "Amazon Web Services",
+        date: "2025-11",
+        url: "",
+      },
+    ],
+    languages: [
+      { id: "l1", language: "English", fluency: "Professional" },
+      { id: "l2", language: "Hindi", fluency: "Native" },
+    ],
+  });
+  const review = reviewResume({
+    audience: fresher,
+    data,
+    metadata: DEFAULT_RESUME_METADATA,
+    templateSlug: "minimalist",
+  });
+  assert.ok(review.estimatedPages <= 1.15);
+  assert.equal(
+    review.violations.some((item) => item.id === "length-one-page"),
+    false,
+  );
+});
+
 test("a short fresher resume stays within one page", () => {
   const data = resume({
     basics: {
@@ -105,6 +166,61 @@ test("a short fresher resume stays within one page", () => {
   assert.equal(
     review.violations.some((item) => item.id === "length-one-page"),
     false,
+  );
+});
+
+test("a metric that says responsible for is not a weak opener", () => {
+  const data = resume({
+    work: [
+      work("w1", [
+        "Delivered a churn model that identified 15 percent of subscribers responsible for 41 percent of cancellations.",
+        "Cut stockouts 11 percent across 40 stores.",
+        "Shortened the refresh from 5 hours to 70 minutes.",
+        "Closed $2.4 million in new ARR against a $1.8 million quota.",
+      ]),
+    ],
+    education: [education("e1")],
+  });
+  const review = reviewResume({
+    audience: {
+      field: "software",
+      stage: "experienced",
+      region: "IN",
+      years: 6,
+      switching: false,
+    },
+    data,
+    metadata: DEFAULT_RESUME_METADATA,
+    templateSlug: "minimalist",
+  });
+  assert.equal(
+    review.violations.some((item) => item.id === "bullets"),
+    false,
+  );
+  const weak = reviewResume({
+    audience: {
+      field: "software",
+      stage: "experienced",
+      region: "IN",
+      years: 6,
+      switching: false,
+    },
+    data: resume({
+      work: [
+        work("w1", [
+          "Responsible for the weekly forecast.",
+          "Cut stockouts 11 percent across 40 stores.",
+          "Shortened the refresh from 5 hours to 70 minutes.",
+          "Closed $2.4 million in new ARR.",
+        ]),
+      ],
+    }),
+    metadata: DEFAULT_RESUME_METADATA,
+    templateSlug: "minimalist",
+  });
+  assert.equal(
+    weak.violations.some((item) => item.id === "bullets"),
+    true,
   );
 });
 
@@ -239,6 +355,30 @@ test("work dates supply years when the profile does not", () => {
     templateSlug: "minimalist",
   });
   assert.equal(review.maxPages, 1);
+});
+
+test("selling software does not make an account executive a software resume", () => {
+  const audience = detectAudience({
+    targetRole: "Account Executive",
+    industry: "sales",
+    summary:
+      "Account executive with 7 years selling B2B software to mid-market operations teams.",
+    workTitles: ["Account Executive", "Sales Development Representative"],
+    workCount: 3,
+    profile: {
+      segment: "professional",
+      countryCode: "US",
+      yearsOfExperience: 7,
+      headline: "Account Executive",
+      targetRoles: ["Account Executive"],
+      experienceTitles: [
+        "Account Executive",
+        "Sales Development Representative",
+      ],
+    },
+  });
+  assert.equal(audience.field, "general");
+  assert.equal(audience.stage, "experienced");
 });
 
 test("data scientist is treated as software", () => {
