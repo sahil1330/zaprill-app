@@ -7,6 +7,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { clampedResumePage } from "@/lib/resume/print-page";
+import { renderedLineHeight } from "@/lib/resume-knowledge/review";
 import type {
   ResumeData,
   ResumeMetadata,
@@ -107,9 +108,8 @@ export function ResumePdfDocument({
     14,
     Math.max(10, Number(metadata.typography?.font?.size) || 11),
   );
-  const lineHeight = Math.min(
-    2,
-    Math.max(1.2, Number(metadata.typography?.lineHeight) || 1.5),
+  const lineHeight = renderedLineHeight(
+    Number(metadata.typography?.lineHeight) || 1.3,
   );
   const margin = page.marginMm * 2.83465;
   const sidebarKeys =
@@ -133,40 +133,40 @@ export function ResumePdfDocument({
     },
     name: {
       fontFamily: bold,
-      fontSize: layout === "creative" ? size + 12 : size + 8,
+      fontSize: layout === "creative" ? size + 8 : size + 5,
       color: theme.primary,
     },
-    label: { marginTop: 2, fontSize: size },
-    contact: { marginTop: 4, fontSize: Math.max(8, size - 1.5) },
+    label: { marginTop: 1, fontSize: size },
+    contact: { marginTop: 2, fontSize: Math.max(10, size - 1) },
     header: {
-      marginBottom: 12,
-      paddingBottom: 6,
+      marginBottom: 8,
+      paddingBottom: 3,
       alignItems: layout === "minimalist" ? "center" : "flex-start",
       borderBottomWidth:
         layout === "minimalist" || layout === "executive" ? 1 : 0,
       borderBottomColor: theme.primary,
     },
-    section: { marginBottom: 10 },
+    section: { marginBottom: 6 },
     sectionTitle: {
       fontFamily: bold,
       fontSize: size,
-      letterSpacing: 0.8,
+      letterSpacing: 0.6,
       textTransform: "uppercase",
       color: theme.primary,
       borderBottomWidth: 1,
       borderBottomColor: theme.primary,
-      paddingBottom: 2,
-      marginBottom: 6,
+      paddingBottom: 1,
+      marginBottom: 3,
     },
-    entry: { marginBottom: 7 },
+    entry: { marginBottom: 4 },
     row: {
       flexDirection: "row",
       justifyContent: "space-between",
       gap: 8,
     },
     entryTitle: { fontFamily: bold, fontSize: size },
-    muted: { fontSize: Math.max(8, size - 1), opacity: 0.85 },
-    bullet: { marginLeft: 8, marginTop: 1 },
+    muted: { fontSize: Math.max(10, size - 1), opacity: 0.85 },
+    bullet: { marginLeft: 8, marginTop: 0 },
     lead: { fontSize: size + 1, marginBottom: 10 },
     card: {
       borderWidth: 1,
@@ -218,7 +218,9 @@ export function ResumePdfDocument({
       }
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           <Text style={layout === "executive" ? { fontFamily: italic } : {}}>
             {text}
           </Text>
@@ -229,7 +231,9 @@ export function ResumePdfDocument({
     if (key === "work" && data.work.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.work.map((item) => (
             <View key={item.id} style={styles.entry}>
               <View style={styles.row}>
@@ -244,9 +248,9 @@ export function ResumePdfDocument({
               {htmlToPlain(item.summary) ? (
                 <Text>{htmlToPlain(item.summary)}</Text>
               ) : null}
-              {item.highlights.map((highlight) =>
+              {item.highlights.map((highlight, index) =>
                 highlight ? (
-                  <Text key={highlight} style={styles.bullet}>
+                  <Text key={`${item.id}-h-${index}`} style={styles.bullet}>
                     • {highlight}
                   </Text>
                 ) : null,
@@ -260,7 +264,9 @@ export function ResumePdfDocument({
     if (key === "education" && data.education.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.education.map((item) => (
             <View key={item.id} style={styles.entry}>
               <View style={styles.row}>
@@ -284,7 +290,9 @@ export function ResumePdfDocument({
     if (key === "skills" && data.skills.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.skills.map((item) => (
             <Text key={item.id} style={styles.entry}>
               <Text style={styles.entryTitle}>{item.name}: </Text>
@@ -298,7 +306,9 @@ export function ResumePdfDocument({
     if (key === "projects" && data.projects.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.projects.map((item) => {
             const body = (
               <View
@@ -309,9 +319,9 @@ export function ResumePdfDocument({
                 {htmlToPlain(item.description) ? (
                   <Text>{htmlToPlain(item.description)}</Text>
                 ) : null}
-                {item.highlights.map((highlight) =>
+                {item.highlights.map((highlight, index) =>
                   highlight ? (
-                    <Text key={highlight} style={styles.bullet}>
+                    <Text key={`${item.id}-h-${index}`} style={styles.bullet}>
                       • {highlight}
                     </Text>
                   ) : null,
@@ -332,7 +342,9 @@ export function ResumePdfDocument({
     if (key === "certifications" && data.certifications.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.certifications.map((item) => (
             <Text key={item.id} style={styles.entry}>
               {item.name}
@@ -347,7 +359,9 @@ export function ResumePdfDocument({
     if (key === "languages" && data.languages.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.languages.map((item) => (
             <Text key={item.id}>
               {item.language}
@@ -361,7 +375,9 @@ export function ResumePdfDocument({
     if (key === "volunteer" && data.volunteer.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.volunteer.map((item) => (
             <View key={item.id} style={styles.entry}>
               <Text style={styles.entryTitle}>
@@ -380,7 +396,9 @@ export function ResumePdfDocument({
     if (key === "awards" && data.awards.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.awards.map((item) => (
             <Text key={item.id} style={styles.entry}>
               {item.title}
@@ -394,7 +412,9 @@ export function ResumePdfDocument({
     if (key === "publications" && data.publications.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.publications.map((item) => (
             <Text key={item.id} style={styles.entry}>
               {item.name}
@@ -408,7 +428,9 @@ export function ResumePdfDocument({
     if (key === "references" && data.references.length > 0) {
       return (
         <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <Text style={styles.sectionTitle} minPresenceAhead={36}>
+            {title}
+          </Text>
           {data.references.map((item) => (
             <Text key={item.id} style={styles.entry}>
               {item.name}
@@ -430,7 +452,9 @@ export function ResumePdfDocument({
     .filter((section) => section.items?.length)
     .map((section) => (
       <View key={section.id} style={styles.section}>
-        <Text style={styles.sectionTitle}>{section.sectionName}</Text>
+        <Text style={styles.sectionTitle} minPresenceAhead={36}>
+          {section.sectionName}
+        </Text>
         {section.items.map((item) => (
           <View key={item.id} style={styles.entry}>
             <Text style={styles.entryTitle}>{item.title}</Text>

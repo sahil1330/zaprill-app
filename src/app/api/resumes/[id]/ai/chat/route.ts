@@ -12,7 +12,10 @@ import {
   type ResumeArchitectUIMessage,
 } from "@/lib/agents/resume-architect";
 import { auth } from "@/lib/auth";
+import { reviewStoredResume } from "@/lib/resume-knowledge";
+import { guidanceFor } from "@/lib/resume-knowledge/prompt";
 import { logAiUsage } from "@/services/ai/usage.service";
+import { getCareerProfile } from "@/services/career/career-profile.service";
 import {
   loadChatMessages,
   loadResumeRow,
@@ -61,9 +64,34 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   const userId = authz.userId;
   const startedAt = Date.now();
+  const row = await loadResumeRow({ resumeId: id, userId });
+  let profile = null;
+  try {
+    const view = await getCareerProfile(userId);
+    profile = {
+      segment: view.segment,
+      countryCode: view.location.countryCode,
+      yearsOfExperience: view.yearsOfExperience,
+      headline: view.headline,
+      targetRoles: view.targetRoles.map((role) => role.title),
+      experienceTitles: view.experience.map((item) => item.title),
+    };
+  } catch {
+    profile = null;
+  }
+  const review = reviewStoredResume({
+    data: row.data,
+    metadata: row.metadata,
+    templateSlug: row.templateSlug,
+    targetRole: row.targetRole,
+    industry: row.industry,
+    profile,
+  });
   const ctx: ResumeArchitectContext = {
     resumeId: id,
     userId,
+    guidance: guidanceFor(review.audience),
+    profile,
     onUsage: (usage) => {
       logAiUsage({
         userId,
@@ -74,6 +102,21 @@ export async function POST(request: Request, { params }: RouteParams) {
         totalTokens: usage.totalTokens ?? 0,
         latencyMs: Date.now() - startedAt,
         success: true,
+      });
+    },
+    onToolUsage: (usage) => {
+      logAiUsage({
+        userId,
+        action: "resume_chat",
+        model: RESUME_ARCHITECT_MODEL,
+        promptTokens: usage.inputTokens ?? 0,
+        completionTokens: usage.outputTokens ?? 0,
+        totalTokens: usage.totalTokens ?? 0,
+        latencyMs: Date.now() - startedAt,
+        success: usage.success ?? true,
+        errorCode:
+          usage.success === false ? "WEB_SEARCH_UNAVAILABLE" : undefined,
+        metadata: usage.metadata,
       });
     },
   };
