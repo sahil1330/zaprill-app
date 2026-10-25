@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 interface AtsIconProps {
   className?: string;
   animated?: boolean;
-  /** "brand" = primary purple on light surfaces; "inherit" = follows parent text color (e.g. white on buttons) */
+  /** "brand" = primary on light surfaces; "inherit" = follows parent text color (e.g. white on buttons) */
   variant?: "brand" | "inherit";
 }
 

@@ -291,8 +291,8 @@ export default function UserDashboard({
                   </div>
                   {salaryIntelligence.gap != null &&
                     salaryIntelligence.gap > 0 && (
-                      <div className="rounded-lg bg-violet-50 px-3 py-2 dark:bg-violet-900/20">
-                        <p className="font-black text-violet-700 text-xs dark:text-violet-400">
+                      <div className="rounded-lg bg-accent px-3 py-2">
+                        <p className="font-black text-accent-foreground text-xs">
                           +{formatInr(salaryIntelligence.gap)} gap identified
                         </p>
                       </div>

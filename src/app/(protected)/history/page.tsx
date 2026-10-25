@@ -140,7 +140,7 @@ export default function CareerInsightsPage() {
             {salaryIntelligence && lastAnalysis && (
               <div className="space-y-3">
                 <h3 className="flex items-center gap-2 font-black text-2xl tracking-tight">
-                  <Zap className="h-6 w-6 text-violet-500" />
+                  <Zap className="h-6 w-6 text-primary" />
                   Salary Intelligence
                 </h3>
                 <SalaryIntelligenceCard
@@ -176,7 +176,7 @@ export default function CareerInsightsPage() {
             {!salaryIntelligence && lastAnalysis && (
               <div className="space-y-3">
                 <h3 className="flex items-center gap-2 font-black text-2xl tracking-tight">
-                  <Zap className="h-6 w-6 text-violet-500" />
+                  <Zap className="h-6 w-6 text-primary" />
                   Salary Intelligence
                 </h3>
                 <div className="rounded-2xl border border-border/60 border-dashed bg-muted/30 px-5 py-8 text-center">

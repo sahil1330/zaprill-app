@@ -236,7 +236,7 @@ export default function SalaryIntelligenceCard({
                 className={cn(
                   "font-black text-sm",
                   gap > 0
-                    ? "text-violet-600 dark:text-violet-400"
+                    ? "text-primary"
                     : "text-green-600 dark:text-green-400",
                 )}
               >
