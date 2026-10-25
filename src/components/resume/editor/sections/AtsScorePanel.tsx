@@ -43,6 +43,21 @@ interface AtsResult {
   missingKeywords: string[];
   suggestions: AtsSuggestion[];
   sectionScores: Record<string, number>;
+  explanation?: {
+    keywordCoverage: number | null;
+    parseability: number;
+    formatting: number;
+    estimatedPages: number;
+    maxPages: number;
+    field: string;
+    stage: string;
+    citations: Array<{
+      id: string;
+      title: string;
+      publisher: string;
+      url: string;
+    }>;
+  };
 }
 
 /**
@@ -52,6 +67,10 @@ export default function AtsScorePanel() {
   const dispatch = useDispatch<AppDispatch>();
   const resumeId = useSelector((s: RootState) => s.resume.resumeId);
   const resumeData = useSelector((s: RootState) => s.resume.data);
+  const metadata = useSelector((s: RootState) => s.resume.metadata);
+  const templateSlug = useSelector((s: RootState) => s.resume.templateSlug);
+  const targetRole = useSelector((s: RootState) => s.resume.targetRole);
+  const industry = useSelector((s: RootState) => s.resume.industry);
 
   const [jobDescription, setJobDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -70,6 +89,10 @@ export default function AtsScorePanel() {
         body: JSON.stringify({
           jobDescription: jobDescription.trim() || undefined,
           data: resumeData,
+          metadata,
+          templateSlug,
+          targetRole,
+          industry,
         }),
       });
       if (res.ok) {
@@ -496,6 +519,43 @@ export default function AtsScorePanel() {
               )}
             </CardContent>
           </Card>
+
+          {result.explanation && (
+            <div className="space-y-2 rounded-xl border border-border p-4 text-sm">
+              <p className="font-medium">
+                {result.explanation.field} / {result.explanation.stage}
+                {" · "}
+                about {result.explanation.estimatedPages} of{" "}
+                {result.explanation.maxPages} pages
+              </p>
+              <p className="text-muted-foreground">
+                Keyword coverage{" "}
+                {result.explanation.keywordCoverage == null
+                  ? "not scored"
+                  : `${result.explanation.keywordCoverage}%`}
+                . Parseability {result.explanation.parseability}%. Formatting{" "}
+                {result.explanation.formatting}%.
+              </p>
+              {result.explanation.citations.length > 0 && (
+                <ul className="space-y-1 text-muted-foreground text-xs">
+                  {result.explanation.citations.map((source) => (
+                    <li key={source.id}>
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline"
+                      >
+                        {source.title}
+                      </a>
+                      {", "}
+                      {source.publisher}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* Section Grid */}
           <div className="grid grid-cols-2 gap-3">
