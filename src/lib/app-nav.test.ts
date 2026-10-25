@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { APP_NAV_PRIMARY } from "@/lib/app-nav";
 
 describe("APP_NAV_PRIMARY mobile destinations", () => {
@@ -6,9 +7,9 @@ describe("APP_NAV_PRIMARY mobile destinations", () => {
     const urls = APP_NAV_PRIMARY.filter((i) => i.mobilePrimary).map(
       (i) => i.url,
     );
-    expect(urls).toContain("/intelligence");
-    expect(urls).toContain("/skill-coach");
-    expect(urls).toContain("/resumes");
-    expect(urls.length).toBeLessThanOrEqual(5);
+    assert.ok(urls.includes("/intelligence"));
+    assert.ok(urls.includes("/skill-coach"));
+    assert.ok(urls.includes("/resumes"));
+    assert.ok(urls.length <= 5);
   });
 });
