@@ -4,7 +4,7 @@ import { IntelligenceDashboard } from "@/components/intelligence/intelligence-da
 export const metadata: Metadata = {
   title: "Intelligence · Zaprill",
   description:
-    "Your career file: segment, academics, experience, skills, target roles, and pay in INR.",
+    "Career score, market for your target roles, skill gaps, and the next step.",
 };
 
 export default function IntelligencePage() {
