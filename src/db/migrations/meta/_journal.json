@@ -127,6 +127,13 @@
       "when": 1792900000000,
       "tag": "0017_drop_resume_share_password",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793000000000,
+      "tag": "0018_skill_coach",
+      "breakpoints": true
     }
   ]
 }
