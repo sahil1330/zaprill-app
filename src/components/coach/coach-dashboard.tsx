@@ -17,6 +17,14 @@ import {
   type TutorMessage,
   TutorThread,
 } from "@/components/coach/tutor-thread";
+import {
+  CoachMicButton,
+  CoachSpeakerButton,
+} from "@/components/coach/voice/coach-speech-controls";
+import {
+  micReasonForSpeechMode,
+  useCoachSpeech,
+} from "@/components/coach/voice/use-coach-speech";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,6 +117,14 @@ export function CoachDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [planId, setPlanId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const speech = useCoachSpeech({
+    onTranscript: (transcript) => {
+      setMessage((current) => {
+        const existing = current.trim();
+        return existing ? `${existing} ${transcript}` : transcript;
+      });
+    },
+  });
   const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>([]);
   const [tutorError, setTutorError] = useState<string | null>(null);
   const planIdRef = useRef(planId);
@@ -170,6 +186,11 @@ export function CoachDashboard() {
       program.plans.map((plan) => ({ plan, roleTitle: program.roleTitle })),
     )
     .find((item) => item.plan.id === planId);
+  const lastAssistantText =
+    [...tutorMessages].reverse().find((entry) => entry.role === "assistant")
+      ?.content ?? "";
+  const micReason = micReasonForSpeechMode(speech.mode);
+  const speechNotice = speech.notice ?? micReason;
 
   async function postJson(url: string, payload: unknown) {
     const response = await fetch(url, {
@@ -431,6 +452,8 @@ export function CoachDashboard() {
                         key={plan.id}
                         type="button"
                         onClick={() => {
+                          speech.stopSpeak();
+                          speech.stopListen();
                           setPlanId(plan.id);
                           setTask(null);
                           setGrade(null);
@@ -546,6 +569,38 @@ export function CoachDashboard() {
                         : busy !== null && busy !== "tutor"
                           ? "Wait for the current request to finish."
                           : undefined
+                    }
+                    notice={speechNotice}
+                    micSlot={
+                      <CoachMicButton
+                        listening={speech.listening}
+                        disabled={speech.mode === "text-only"}
+                        disabledReason={micReason ?? undefined}
+                        describedBy={
+                          micReason ? "tutor-speech-notice" : undefined
+                        }
+                        onPress={() => {
+                          if (speech.listening) speech.stopListen();
+                          else void speech.startListen();
+                        }}
+                      />
+                    }
+                    speakerSlot={
+                      <CoachSpeakerButton
+                        disabled={
+                          speech.mode === "text-only" ||
+                          lastAssistantText.trim().length === 0
+                        }
+                        disabledReason={
+                          speech.mode === "text-only"
+                            ? "Voice output is not available on this device."
+                            : lastAssistantText.trim()
+                              ? undefined
+                              : "No tutor reply to play yet."
+                        }
+                        onSpeak={() => speech.speak(lastAssistantText)}
+                        onStop={speech.stopSpeak}
+                      />
                     }
                   />
                 </CardContent>

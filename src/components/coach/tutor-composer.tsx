@@ -11,6 +11,7 @@ export function TutorComposer({
   onSend,
   busy,
   disabledReason,
+  notice,
   micSlot,
   speakerSlot,
 }: {
@@ -19,9 +20,9 @@ export function TutorComposer({
   onSend: () => void;
   busy: boolean;
   disabledReason?: string;
-  /** Reserved for a later mic control. Unused by the dashboard for now. */
+  /** Subtle speech status, such as the device-speech fallback. */
+  notice?: string | null;
   micSlot?: ReactNode;
-  /** Reserved for a later speaker control. Unused by the dashboard for now. */
   speakerSlot?: ReactNode;
 }) {
   const blocked = busy || Boolean(disabledReason);
@@ -47,6 +48,15 @@ export function TutorComposer({
         aria-label="Message the tutor"
         aria-describedby={disabledReason ? "tutor-composer-reason" : undefined}
       />
+      {notice ? (
+        <p
+          id="tutor-speech-notice"
+          data-slot="tutor-speech-notice"
+          className="text-muted-foreground text-xs"
+        >
+          {notice}
+        </p>
+      ) : null}
       <div className="flex items-center gap-2">
         {micSlot}
         <Button type="submit" disabled={!canSend}>
