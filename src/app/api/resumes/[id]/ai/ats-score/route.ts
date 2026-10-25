@@ -1,5 +1,3 @@
-import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
@@ -8,71 +6,21 @@ import { z } from "zod";
 import db from "@/db";
 import { resume, resumeAtsAnalysis } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { normalizeResumeData } from "@/lib/resume";
+import { scoreResumeAts } from "@/lib/resume-knowledge/ats-score";
+import { KNOWLEDGE_VERSION } from "@/lib/resume-knowledge/types";
 import { logAiUsage } from "@/services/ai/usage.service";
-import type { ResumeData } from "@/types/resume";
+import { getCareerProfile } from "@/services/career/career-profile.service";
 
 export const maxDuration = 60;
 
-const MODEL = "gpt-5-mini" as const;
-
 const RequestSchema = z.object({
-  jobDescription: z.string().optional(),
+  jobDescription: z.string().max(20000).optional(),
   data: z.record(z.unknown()),
+  metadata: z.record(z.unknown()).optional(),
+  templateSlug: z.string().max(80).optional(),
+  targetRole: z.string().max(200).optional(),
+  industry: z.string().max(80).optional(),
 });
-
-const AtsResultSchema = z.object({
-  score: z.number().min(0).max(100),
-  keywordMatches: z.array(z.string()),
-  missingKeywords: z.array(z.string()),
-  suggestions: z.array(
-    z.object({
-      section: z.string(),
-      issue: z.string(),
-      fix: z.string(),
-      action: z
-        .object({
-          type: z.enum([
-            "update_summary",
-            "add_work_highlight",
-            "update_work_highlights",
-            "add_skill_keywords",
-            "update_education",
-            "add_project_highlight",
-            "update_project_highlights",
-            "update_basics",
-            "update_work",
-            "update_project",
-            "update_skill",
-            "no_action_needed",
-          ]),
-          id: z.string().optional(),
-          content: z.string().optional(),
-          value: z.string().optional(),
-          keywords: z.array(z.string()).optional(),
-          highlights: z.array(z.string()).optional(),
-          data: z.record(z.any()).optional(),
-        })
-        .optional(),
-    }),
-  ),
-  sectionScores: z.record(z.number()),
-});
-
-/** Extract the first JSON object block from a model response */
-function extractJSON(text: string): string | null {
-  const start = text.indexOf("{");
-  if (start === -1) return null;
-  let depth = 0;
-  for (let i = start; i < text.length; i++) {
-    if (text[i] === "{") depth++;
-    else if (text[i] === "}") {
-      depth--;
-      if (depth === 0) return text.slice(start, i + 1);
-    }
-  }
-  return null;
-}
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -85,9 +33,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
-    // Verify resume belongs to user
     const [row] = await db
-      .select({ userId: resume.userId })
+      .select({
+        userId: resume.userId,
+        templateSlug: resume.templateSlug,
+        metadata: resume.metadata,
+        targetRole: resume.targetRole,
+        industry: resume.industry,
+      })
       .from(resume)
       .where(eq(resume.id, id))
       .limit(1);
@@ -105,118 +58,65 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { jobDescription } = parsed.data;
-    const data = normalizeResumeData(parsed.data.data);
-
-    // Build resume text for analysis
-    const resumeText = buildResumeText(data);
-    const currentDate = new Date().toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
-
-    const jdContext = jobDescription
-      ? `\n\nJob Description to match against:\n${jobDescription}`
-      : "\n\nNo specific job description provided. Score against general best practices for the candidate's target industry.";
-
-    const llmStart = Date.now();
-    const { text, usage } = await generateText({
-      model: openai(MODEL),
-      temperature: 0,
-      prompt: `You are an ELITE ATS (Applicant Tracking System) analyzer. Optimize this resume for high-impact professional standards and keyword compatibility.
-Current Date: ${currentDate}
-
-STABILITY & GROUND TRUTH RULES:
-1. SOURCE OF TRUTH: The provided JSON resume data is the absolute ground truth. If data exists (e.g., graduation year, GPA, summary), do NOT say it's missing.
-2. NO REVERSALS: If a section has already been improved with high-impact action verbs and metrics, do NOT suggest changing it back or adding minor "filler" tweaks.
-3. CONSISTENCY: Be objective. Do not fluctuate scores for identical content.
-4. DIMINISHING RETURNS: If a section score is 90 or higher, it is "Excellent". Do NOT provide minor nitpicks just to have suggestions.
-5. NO NITPICKING: Your goal is to reach a stable, high-quality profile (90+). Once there, stay consistent.
-
-CONTENT RULES:
-1. ACTION VERBS: Use elite, high-impact verbs (e.g., "Spearheaded", "Orchestrated", "Engineered", "Optimized").
-2. METRICS: Every fix for Work or Projects MUST include a quantified result ONLY if data is available or can be realistically inferred. NEVER use placeholders like "X%", "Y%", "[number]", or "[percentage]". If no metric is available, focus on qualitative scale (e.g., "significantly improved performance", "at enterprise scale").
-3. GPA & SCORES: If GPA (score) is missing and likely high, suggest adding it. If already present, don't mention it. NEVER use placeholders like "[GPA]" or "X.XX". Use actual values if known or provide a realistic high score (e.g. 3.8/4.0). KEEP IT CONCISE (max 20 chars). Do NOT include "equivalent" explanations or multiple scales.
-4. 1-PAGE LIMIT: Elite tech resumes must be 1 page. All suggestions must be extremely concise, punchy, and avoid fluff. Use high-density information patterns: [Action Verb] + [Quantifiable Impact] + [Tool/Tech Used]. No flowery intros or conclusions.
-5. DATE FORMAT: All dates MUST follow the "YYYY-MM" format (e.g., "2022-01", "2025-06"). NEVER use "Jan 2022" or "January 2022".
-
-JSON Resume Data:
-${resumeText}${jdContext}
-
-ACTION TYPES & SCHEMAS:
-- "update_summary": { "type": "update_summary", "content": "..." }
-- "add_work_highlight": { "type": "add_work_highlight", "id": "...", "content": "..." }
-- "update_work_highlights": { "type": "update_work_highlights", "id": "...", "highlights": ["...", "..."] }
-- "add_skill_keywords": { "type": "add_skill_keywords", "id": "...", "keywords": ["..."] }
-- "update_education": { "type": "update_education", "id": "...", "data": { "score": "3.9/4.0", "startDate": "2020-08", "endDate": "2024-05" } }
-- "add_project_highlight": { "type": "add_project_highlight", "id": "...", "content": "..." }
-- "update_project_highlights": { "type": "update_project_highlights", "id": "...", "highlights": ["...", "..."] }
-- "update_basics": { "type": "update_basics", "data": { ... } }
-- "update_work": { "type": "update_work", "id": "...", "data": { "position": "...", "startDate": "YYYY-MM" } }
-- "no_action_needed": Use this if a suggestion is purely advice.
-
-Response JSON Format:
-{
-  "score": number,
-  "keywordMatches": string[],
-  "missingKeywords": string[],
-  "suggestions": [
-    {
-      "section": string,
-      "issue": string,
-      "fix": string,
-      "action": { type, id?, content?, keywords?, highlights?, data? }
+    let profile = null;
+    try {
+      const view = await getCareerProfile(session.user.id);
+      profile = {
+        segment: view.segment,
+        countryCode: view.location.countryCode,
+        yearsOfExperience: view.yearsOfExperience,
+        headline: view.headline,
+        targetRoles: view.targetRoles.map((role) => role.title),
+        experienceTitles: view.experience.map((item) => item.title),
+      };
+    } catch {
+      profile = null;
     }
-  ],
-  "sectionScores": { "Summary": 0-100, "Experience": 0-100, "Education": 0-100, "Skills": 0-100, "Projects": 0-100, "Formatting": 0-100 }
-}
 
-IMPORTANT: Only provide suggestions for sections with scores below 85. For scores 85-100, only provide a suggestion if there is a CRITICAL missing keyword or a MAJOR impact metric missing. Always ensure dates are in "YYYY-MM" format and GPA/Score is under 20 characters. Do not use placeholder text like "[Place Content Here]" or any dummy keywords like "X%".`,
+    const started = Date.now();
+    const result = scoreResumeAts({
+      data: parsed.data.data,
+      metadata: parsed.data.metadata ?? row.metadata,
+      templateSlug: parsed.data.templateSlug ?? row.templateSlug,
+      targetRole: parsed.data.targetRole ?? row.targetRole,
+      industry: parsed.data.industry ?? row.industry,
+      jobDescription: parsed.data.jobDescription,
+      profile,
     });
-    const latencyMs = Date.now() - llmStart;
 
     logAiUsage({
       userId: session.user.id,
       action: "ats_scan",
-      model: MODEL,
-      promptTokens: usage.inputTokens ?? 0,
-      completionTokens: usage.outputTokens ?? 0,
-      totalTokens: usage.totalTokens ?? 0,
-      latencyMs,
+      model: "resume-knowledge",
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      latencyMs: Date.now() - started,
       success: true,
+      metadata: {
+        scorer: "deterministic",
+        knowledgeVersion: KNOWLEDGE_VERSION,
+        keywordCoverage: result.explanation.keywordCoverage,
+      },
     });
 
-    // Parse and validate
-    const jsonStr = extractJSON(text) ?? text;
-    const result = AtsResultSchema.safeParse(JSON.parse(jsonStr));
-
-    if (!result.success) {
-      console.warn("ATS result schema validation failed:", result.error.issues);
-      return NextResponse.json(
-        { error: "Failed to parse ATS analysis", details: result.error.issues },
-        { status: 500 },
-      );
-    }
-
-    // Store in DB
     const analysisId = nanoid();
     await db.insert(resumeAtsAnalysis).values({
       id: analysisId,
       resumeId: id,
-      jobDescription: jobDescription ?? null,
-      score: result.data.score,
-      breakdown: result.data,
+      jobDescription: parsed.data.jobDescription ?? null,
+      score: result.score,
+      breakdown: result,
     });
 
-    // Update cached score on resume
     await db
       .update(resume)
-      .set({ lastAtsScore: result.data.score })
+      .set({ lastAtsScore: result.score })
       .where(eq(resume.id, id));
 
     return NextResponse.json({
       id: analysisId,
-      ...result.data,
+      ...result,
     });
   } catch (error) {
     console.error("ATS scoring error:", error);
@@ -225,49 +125,4 @@ IMPORTANT: Only provide suggestions for sections with scores below 85. For score
       { status: 500 },
     );
   }
-}
-
-/** Build a clean JSON representation for the LLM */
-function buildResumeText(data: ResumeData): string {
-  return JSON.stringify(
-    {
-      basics: {
-        name: data.basics.name,
-        label: data.basics.label,
-        summary: data.basics.summary,
-        location: data.basics.location,
-      },
-      work: data.work.map((w) => ({
-        id: w.id,
-        position: w.position,
-        company: w.company,
-        startDate: w.startDate,
-        endDate: w.endDate,
-        highlights: w.highlights,
-      })),
-      skills: data.skills.map((s) => ({
-        id: s.id,
-        name: s.name,
-        keywords: s.keywords,
-      })),
-      projects: data.projects.map((p) => ({
-        id: p.id,
-        name: p.name,
-        startDate: p.startDate,
-        endDate: p.endDate,
-        highlights: p.highlights,
-      })),
-      education: data.education.map((e) => ({
-        id: e.id,
-        institution: e.institution,
-        studyType: e.studyType,
-        area: e.area,
-        startDate: e.startDate,
-        endDate: e.endDate,
-        score: e.score,
-      })),
-    },
-    null,
-    2,
-  );
 }

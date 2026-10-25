@@ -1,42 +1,42 @@
-# Graph Report - workspace  (2026-10-22)
+# Graph Report - workspace  (2026-10-23)
 
 ## Corpus Check
-- 413 files · ~268,726 words
+- 426 files · ~282,043 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 14 file(s) not represented in the graph (top: (none) 4, .woff2 3, .ico 2)
 
 ## Summary
-- 2828 nodes · 8810 edges · 177 communities (119 shown, 58 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 445 edges (avg confidence: 0.95)
+- 2926 nodes · 9112 edges · 165 communities (111 shown, 54 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 440 edges (avg confidence: 0.95)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8431da88`
+- Built from commit: `a248a8fa`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - cn
-- next
+- sanitize.ts
 - dependencies
-- utils.ts
-- react
+- ResumeData
+- schema.ts
 - referral.service.ts
 - ats-score/route.ts
 - ErrorBoundary
 - VersionHistorySheet.tsx
-- analyze/page.tsx
-- Badge
+- analytics.ts
+- JobCard.tsx
 - sidebar.tsx
 - Resend
-- CardContent
+- (protected)/billing/page.tsx
 - data-table.tsx
-- ClientProvider.tsx
+- sign-up/page.tsx
 - biome.json
 - user
 - lib/auth.ts
-- data-table.tsx
-- types/resume.ts
+- coupons-content.tsx
+- resumes/page.tsx
 - package.json
 - derive.ts
 - Resume Architect — Implementation Plan
@@ -46,19 +46,19 @@
 - Neon Serverless Postgres
 - components.json
 - requireApiUserId
-- parse-resume/route.ts
+- review.ts
 - nanoid
 - normalizeCareerKey
-- resume-api.ts
-- helpers/audit.ts
+- checkout/route.ts
+- getCareerProfile
 - architect.service.ts
 - 🌍 World-Class Multi-Industry Resume Architect — Complete Implementation Plan for Claude Opus 4.7
 - onboarding/page.tsx
-- Architecture Guidelines
+- validations/career-profile.ts
 - PHASE 9: KEY EDGE CASES & ERROR HANDLING
-- Skeleton
-- AnalyzePageContent (Main Analysis Engine)
-- profile/page.tsx
+- react
+- billing.ts
+- jobs/page.tsx
 - PHASE 13: STEP-BY-STEP IMPLEMENTATION ORDER
 - career-profile.service.ts
 - invoice-email.ts
@@ -67,13 +67,13 @@
 - Resume Builder Actual Implementation Plan
 - intelligence-dashboard.tsx
 - scripts
-- pool.ts
+- types/resume.ts
 - PHASE 3: RESUME EDITOR & FORM BUILDER
-- Button
-- sign-up/page.tsx
+- Input
+- subscription.service.ts
 - compilerOptions
 - Google Analytics 4
-- subscription.service.ts
+- cashfree.ts
 - resume-editor.ts
 - PHASE 5: PDF GENERATION STRATEGY (DUAL-ENGINE)
 - PHASE 2: TEMPLATE SYSTEM ARCHITECTURE
@@ -83,23 +83,23 @@
 - PHASE 10: USER EXPERIENCE & TOOLTIPS
 - README.md
 - useAuth
-- analyze-gaps/route.ts
-- dropdown-menu.tsx
+- auth
+- admin-header.tsx
 - app/layout.tsx
-- (protected)/referrals/page.tsx
+- versions/route.ts
 - PHASE 0: PRE-IMPLEMENTATION PREPARATION
 - PHASE 8: INDUSTRY-SPECIFIC SMART DEFAULTS
 - AdminHeader â€” HQ top bar with breadcrumb nav, search, notifications, user menu
 - seed-plans.ts
-- checkout/route.ts
+- analyze/page.tsx
 - next
-- (auth)/layout.tsx
+- api/referrals/route.ts
 - job_titles
-- VersionHistorySheet.tsx
-- score.ts
+- invoice.service.ts
+- types/index.ts
 - normalizeResumeData
 - GitHub project method (mandatory)
-- scripts
+- [slug]/route.ts
 - devDependencies
 - chart.tsx
 - sendMail
@@ -107,15 +107,15 @@
 - DataTable â€” Generic admin data table with sort/filter/paginate/export capabilities
 - POST /api/referrals/claim
 - saveToLocal
-- loadView
-- sanitize.ts
+- pool.ts
+- JobFilters â€” Advanced job filter panel (title, city, work type, emp type, match score, salary)
 - resume-owner-fixes.test.ts
 - analytics/route.ts
 - job-titles.ts
 - validations/resume.ts
 - Adzuna API
 - Quick Reference
-- app-shell.tsx
+- SkillGapPanel.tsx
 - File Document Icon (SVG)
 - Application Logo (Branding Asset)
 - Next.js Logotype Brand Asset
@@ -149,34 +149,24 @@
 - setSettingValue
 - saveCompanySettings
 - getBaseUrl
-- cashfree.ts
-- invoices/route.ts
-- input-group.tsx
-- admin-header.tsx
+- LearningRoadmap.tsx
 - WebhookService
-- app-settings.ts
-- ResumeData
+- draft-recovery.ts
 - MOBILE_BREAKPOINT
-- billing.ts
 - STORAGE_KEY
-- derive.test.ts
+- auth-cookie-domain.ts
 - UI/UX Pro Max - Design Intelligence
 - compilerOptions
-- ClientProvider.tsx
-- invoice.service.ts
 - Billing Retry API (POST /api/billing/retry)
 - Frontend Design
 - backfill-migrations.ts
-- Career profile
+- updateCareerProfile
 - Pre-Delivery Checklist
 - How to Use This Skill
-- @playwright/test
 - actions.ts
 - r/route.ts
 - Common Rules for Professional UI
 - Example Workflow
-- PlansContent
-- ResourcesContent
 - nanoid
 - FileUpload
 - Migrations
@@ -186,9 +176,7 @@
 - MemeLoader â€” Playful loading screen with animated GIFs during job search/analysis
 - DELETE /api/billing/subscription
 - { signIn, signOut, signUp, useSession, getSession }
-- (auth)/layout.tsx
 - get-refresh-token.js
-- Project Architecture Rules (AGENTS.md)
 - app_settings
 
 ## God Nodes (most connected - your core abstractions)
@@ -206,14 +194,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `Interaction (App)` --references--> `Button()`  [INFERRED]
   .agents/skills/ui-ux-pro-max/SKILL.md → src/components/ui/button.tsx
-- `Skills, evidence, and locks` --references--> `resume()`  [INFERRED]
-  docs/career-profile.md → src/lib/career/derive.test.ts
-- `6. Limits` --references--> `subscriptionGrantsAccess()`  [INFERRED]
-  docs/skill-coach.md → src/services/billing/subscription.service.ts
 - `10. Open questions` --references--> `recordVerifiedSkill()`  [INFERRED]
   docs/skill-coach.md → src/services/career/career-profile.service.ts
 - `D — Verified skill. Partial. Signature changed.` --references--> `recordVerifiedSkill()`  [INFERRED]
   docs/skill-coach.md → src/services/career/career-profile.service.ts
+- `Phase 0 — this document` --references--> `recordVerifiedSkill()`  [INFERRED]
+  docs/skill-coach.md → src/services/career/career-profile.service.ts
+- `4.2 `coach_plan`` --references--> `RoadmapItem`  [INFERRED]
+  docs/skill-coach.md → src/types/index.ts
 
 ## Import Cycles
 - None detected.
@@ -238,63 +226,63 @@
 - **Billing Module Dependency Chain** — src_services_billing_webhook_service_ts, src_services_billing_invoice_service_ts, src_services_billing_payment_service_ts, src_services_billing_subscription_service_ts, src_services_billing_coupon_service_ts, src_services_billing_referral_service_ts, billing_utils_lib, src_types_billing_types_ts, cashfree [INFERRED]
 - **AI Usage Cost Tracking** — src_services_ai_usage_service_ts, model_rates_table, drizzle_orm, nanoid [INFERRED]
 
-## Communities (177 total, 58 thin omitted)
+## Communities (165 total, 54 thin omitted)
 
 ### Community 0 - "cn"
-Cohesion: 0.09
-Nodes (39): AlertDialog, DropdownMenu, class-variance-authority, INDIA_CITIES, LocationCombobox(), LocationComboboxProps, CardAction(), Checkbox() (+31 more)
+Cohesion: 0.08
+Nodes (48): INDIA_CITIES, LocationCombobox(), LocationComboboxProps, BreadcrumbEllipsis(), CardAction(), Command(), CommandEmpty(), CommandGroup() (+40 more)
 
-### Community 1 - "next"
+### Community 1 - "sanitize.ts"
 Cohesion: 0.06
-Nodes (32): jwks, received_email, drizzle-orm, next, ALLOWED_TABLES, resend, dynamic, GET() (+24 more)
+Nodes (54): 5.4 Cost model, maxDuration, POST(), RequestSchema, RouteParams, maxDuration, MODEL, POST() (+46 more)
 
 ### Community 2 - "dependencies"
 Cohesion: 0.04
 Nodes (56): dependencies, ai, @ai-sdk/openai, @ai-sdk/react, @base-ui/react, better-auth, cashfree-pg, class-variance-authority (+48 more)
 
-### Community 3 - "utils.ts"
-Cohesion: 0.19
-Nodes (28): ContactItem, Template Registry, formatProfileText, getProfileIcon, @tabler/icons-react, HtmlContent(), HtmlContentProps, PreviewPanel() (+20 more)
+### Community 3 - "ResumeData"
+Cohesion: 0.18
+Nodes (29): ContactItem, DropdownMenu, Template Registry, formatProfileText, getProfileIcon, @tabler/icons-react, HtmlContent(), HtmlContentProps (+21 more)
 
-### Community 4 - "react"
-Cohesion: 0.08
-Nodes (58): InputGroup, @dnd-kit/core, @dnd-kit/sortable, @hookform/resolvers, lucide-react, react, react-hook-form, react-redux (+50 more)
+### Community 4 - "schema.ts"
+Cohesion: 0.06
+Nodes (33): dynamic, dynamic, account, aiActionEnum, auditLog, billingCycleEnum, billingReasonEnum, careerEmploymentTypeEnum (+25 more)
 
 ### Community 5 - "referral.service.ts"
-Cohesion: 0.09
-Nodes (35): Referral Claim API (POST /api/referrals/claim), Referral Validate API (GET /api/referrals/validate), dynamic, GET(), POST(), requireAdmin(), dynamic, POST() (+27 more)
+Cohesion: 0.11
+Nodes (28): dynamic, GET(), POST(), requireAdmin(), dynamic, POST(), dynamic, GET() (+20 more)
 
 ### Community 6 - "ats-score/route.ts"
-Cohesion: 0.16
-Nodes (17): Duplicate Resume API (POST /api/resumes/[id]/duplicate), Enhance Bullet AI API (POST /api/resumes/[id]/ai/enhance), Export Resume API (POST /api/resumes/[id]/export), Restore Version API (POST /api/resumes/[id]/versions/[versionId]/restore), Resume Versions API (GET/POST /api/resumes/[id]/versions), Roast Resume AI API (POST /api/resumes/[id]/ai/roast), AtsResultSchema, buildResumeText() (+9 more)
+Cohesion: 0.24
+Nodes (10): Duplicate Resume API (POST /api/resumes/[id]/duplicate), Enhance Bullet AI API (POST /api/resumes/[id]/ai/enhance), Export Resume API (POST /api/resumes/[id]/export), Restore Version API (POST /api/resumes/[id]/versions/[versionId]/restore), Resume Versions API (GET/POST /api/resumes/[id]/versions), Resume CRUD API (GET/PATCH/DELETE /api/resumes/[id]), Resumes List/Create API (GET/POST /api/resumes), Roast Resume AI API (POST /api/resumes/[id]/ai/roast) (+2 more)
 
 ### Community 8 - "VersionHistorySheet.tsx"
 Cohesion: 0.09
-Nodes (47): @base-ui/react, sonner, EmailsContent(), EmailSkeleton(), EmailsPage(), EMPTY_FORM, Props, EMPTY_FORM (+39 more)
+Nodes (52): AlertDialog, InputGroup, class-variance-authority, ErrorPage(), UserActionsClient(), UserActionsClientProps, CancelSubscriptionButton(), ResumeEditorPage() (+44 more)
 
-### Community 9 - "analyze/page.tsx"
-Cohesion: 0.07
-Nodes (78): AnalyzeTypes â€” ReviewState and FilterState type definitions for the analyze workflow, JobFilters â€” Advanced job filter panel (title, city, work type, emp type, match score, salary), ResultsHeader â€” Analysis results header with user profile card and summary stat cards, StatCard â€” Simple stat display card with large value + label (used in results header), AnalyzePage(), AnalyzePageContent(), TabId, TABS (+70 more)
+### Community 9 - "analytics.ts"
+Cohesion: 0.18
+Nodes (34): AnalyticsProvider(), useAnalytics(), clearUserId(), GA_MEASUREMENT_ID, gtag(), GtagCommand, JobEventParams, ResumeFileParams (+26 more)
 
-### Community 10 - "Badge"
-Cohesion: 0.12
-Nodes (34): ParsingProgress â€” Resume parsing progress panel with ProgressTimeline and skill preview, ProfileReview â€” Post-parse profile editor for skills, job titles, and experience before analysis, GET /api/career-insights, ErrorPage(), UserDetailPage(), CareerInsightsData, CareerInsightsPage(), ParsingProgress() (+26 more)
+### Community 10 - "JobCard.tsx"
+Cohesion: 0.39
+Nodes (7): JobCard(), timeAgo(), MatchRing(), MatchRingProps, buttonVariants, trackJobApplied(), trackJobCardImpression()
 
 ### Community 11 - "sidebar.tsx"
-Cohesion: 0.16
-Nodes (27): AdminSidebar(), items, UserSidebar(), SidebarContent(), SidebarContext, SidebarContextProps, SidebarFooter(), SidebarGroup() (+19 more)
+Cohesion: 0.10
+Nodes (41): AdminLayout(), AdminSidebar(), items, AppShell(), AppShellProps, MobileBottomNav(), UserSidebar(), NavUser (+33 more)
 
-### Community 13 - "CardContent"
-Cohesion: 0.11
-Nodes (33): AnalysisError â€” Error screen for rate-limit / analysis failure with upgrade CTA, POST /api/billing/checkout, POST /api/billing/coupons/validate, GET /api/billing/payment-status, POST /api/billing/retry, PaymentStatusPage, PricingPlans Component, ForgotPasswordPage() (+25 more)
+### Community 13 - "(protected)/billing/page.tsx"
+Cohesion: 0.17
+Nodes (13): ClientProvider (Session-User Bridge), db (Drizzle ORM Database), db/schema (Drizzle Tables - plan, subscription, invoice, coupons, userProfile, resume), PricingPlans Component, PrimaryResumePage (Redirect), RenewalReminder(), RenewalReminderProps, metadata (+5 more)
 
 ### Community 14 - "data-table.tsx"
 Cohesion: 0.14
-Nodes (34): @tanstack/react-table, DatabasePage(), applyMutation(), MutatePayload, TableSkeleton(), User, UsersTable(), DataTable() (+26 more)
+Nodes (32): InvoiceModal (Invoice Detail Dialog), DatabasePage(), BillingInvoiceTable(), billingReasonLabel(), formatInvoiceNumber(), Invoice, InvoiceModal(), StatusIcon() (+24 more)
 
-### Community 15 - "ClientProvider.tsx"
-Cohesion: 0.18
-Nodes (8): Providers, authSlice, initialState, resumeSlice, ReduxStore, AuthState, CoreTypes, ResumeTypes
+### Community 15 - "sign-up/page.tsx"
+Cohesion: 0.06
+Nodes (37): SignInForm (Client Component), SignUpForm (Client Component), GET /api/referrals/validate, auth-client (Better-Auth Client), checkUserExists (Server Action), authSlice (Redux Auth State), @reduxjs/toolkit, checkUserExists() (+29 more)
 
 ### Community 16 - "biome.json"
 Cohesion: 0.06
@@ -305,36 +293,36 @@ Cohesion: 0.08
 Nodes (35): account, ai_usage_log, audit_log, coupon_usage, coupons, ai_action, billing_cycle, billing_reason (+27 more)
 
 ### Community 18 - "lib/auth.ts"
-Cohesion: 0.06
-Nodes (62): Admin Analytics (GA4) Endpoint, Admin Audit Log Endpoint, Admin Database Browser Endpoint, Admin Emails (Resend) Endpoint, Admin Referrals Management Endpoint, Admin Learning Resources CRUD Endpoint, Admin Settings (Plans & Coupons) Endpoint, Admin Stats (Revenue, AI, Growth) Endpoint (+54 more)
+Cohesion: 0.08
+Nodes (46): Admin Analytics (GA4) Endpoint, Admin Audit Log Endpoint, Admin Database Browser Endpoint, Admin Emails (Resend) Endpoint, Admin Referrals Management Endpoint, Admin Learning Resources CRUD Endpoint, Admin Settings (Plans & Coupons) Endpoint, Admin Stats (Revenue, AI, Growth) Endpoint (+38 more)
 
-### Community 19 - "data-table.tsx"
-Cohesion: 0.13
-Nodes (24): InvoiceModal (Invoice Detail Dialog), CouponsContent(), EMPTY_FORM, Props, STATUS_VARIANT, CouponsPage(), EMPTY, Coupon (+16 more)
+### Community 19 - "coupons-content.tsx"
+Cohesion: 0.08
+Nodes (51): POST /api/billing/checkout, POST /api/billing/coupons/validate, @base-ui/react, sonner, CouponsContent(), EMPTY_FORM, Props, STATUS_VARIANT (+43 more)
 
-### Community 20 - "types/resume.ts"
-Cohesion: 0.06
-Nodes (34): ResumeThumbnail (Template Preview), GET+PATCH+DELETE /api/resumes/[id], POST /api/resumes/[id]/duplicate, POST /api/resumes/[id]/export, db (Drizzle ORM Database), db/schema (Drizzle Tables - plan, subscription, invoice, coupons, userProfile, resume), resumeSlice (Redux Resume Editor State), Redux Store (+26 more)
+### Community 20 - "resumes/page.tsx"
+Cohesion: 0.08
+Nodes (33): ResumeThumbnail (Template Preview), GET+PATCH+DELETE /api/resumes/[id], POST /api/resumes/[id]/duplicate, POST /api/resumes/[id]/export, resumeSlice (Redux Resume Editor State), Redux Store, PreviewPanel (Live Resume Preview), ResumeEditorPage (Rich Resume Editor) (+25 more)
 
 ### Community 21 - "package.json"
-Cohesion: 0.06
-Nodes (32): engines, node, tsx, name, private, version, babel-plugin-react-compiler, @biomejs/biome (+24 more)
+Cohesion: 0.05
+Nodes (36): engines, node, tsx, name, private, version, @ai-sdk/react, babel-plugin-react-compiler (+28 more)
 
 ### Community 22 - "derive.ts"
-Cohesion: 0.10
-Nodes (41): attachContextualEvidence(), blankToNull(), CareerDraft, cleanDate(), countryCode(), deriveAcademics(), deriveCareerDraft(), deriveExperience() (+33 more)
+Cohesion: 0.14
+Nodes (33): attachContextualEvidence(), blankToNull(), cleanDate(), countryCode(), deriveAcademics(), deriveCareerDraft(), deriveExperience(), deriveSkills() (+25 more)
 
 ### Community 23 - "Resume Architect — Implementation Plan"
 Cohesion: 0.05
 Nodes (37): API Routes, Architecture Overview, code:block1 (┌───────────────────────────────────────────────────────────), code:block2 (src/), Commit History, Creative Portfolio Template ✅, Dashboard Page (`/resumes`), Database Schema (+29 more)
 
 ### Community 24 - "webhook.service.ts"
-Cohesion: 0.19
-Nodes (22): POST(), GET(), getCompanySettings(), calculatePeriodEnd(), redeemCoupon(), attachSubscriptionToInvoice(), getInvoiceByCashfreeOrderId(), markInvoicePaid() (+14 more)
+Cohesion: 0.21
+Nodes (19): POST(), GET(), getCompanySettings(), fetchOrderPayments(), redeemCoupon(), attachSubscriptionToInvoice(), getInvoiceByCashfreeOrderId(), markInvoicePaid() (+11 more)
 
 ### Community 25 - "ResumeArchitectChat.tsx"
-Cohesion: 0.13
-Nodes (26): @ai-sdk/react, streamdown, use-stick-to-bottom, buildColumns(), AgentMark(), ArchitectSession(), isSnapshot(), Markdown() (+18 more)
+Cohesion: 0.12
+Nodes (29): @tanstack/react-table, applyMutation(), buildColumns(), MutatePayload, TableSkeleton(), User, UsersTable(), AgentMark() (+21 more)
 
 ### Community 26 - "Neon Serverless Postgres"
 Cohesion: 0.08
@@ -349,32 +337,32 @@ Cohesion: 0.09
 Nodes (22): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+14 more)
 
 ### Community 29 - "requireApiUserId"
-Cohesion: 0.18
-Nodes (30): DELETE(), PUT(), DELETE(), PUT(), GET(), PUT(), DELETE(), PUT() (+22 more)
+Cohesion: 0.23
+Nodes (21): DELETE(), PUT(), DELETE(), PUT(), GET(), PUT(), DELETE(), PUT() (+13 more)
 
-### Community 30 - "parse-resume/route.ts"
-Cohesion: 0.10
-Nodes (26): Resume CRUD API (GET/PATCH/DELETE /api/resumes/[id]), Resumes List/Create API (GET/POST /api/resumes), maxDuration, MODEL, POST(), ResumeSchema, GET(), PATCH() (+18 more)
+### Community 30 - "review.ts"
+Cohesion: 0.08
+Nodes (47): CORE_SECTIONS, fieldGuidance(), LAYOUT_RULES, maxPagesFor(), ORDER, regionGuidance(), sectionOrderFor(), stageGuidance() (+39 more)
 
 ### Community 31 - "nanoid"
-Cohesion: 0.12
-Nodes (20): nanoid, POST(), RouteParams, POST(), RouteParams, shareSchema, POST(), RouteParams (+12 more)
+Cohesion: 0.10
+Nodes (32): drizzle-orm, nanoid, maxDuration, MODEL, POST(), ResumeSchema, GET(), PATCH() (+24 more)
 
 ### Community 32 - "normalizeCareerKey"
 Cohesion: 0.06
 Nodes (39): 10. Open questions, 2.1 Student journey, 2.2 Professional journey, 2.3 Shared rules, 2. Product shape, 3.1 Keys Coach stores, 3. Contract check against `d691aea`, 4.1 `coach_program` (+31 more)
 
-### Community 33 - "resume-api.ts"
-Cohesion: 0.36
-Nodes (7): deleteExtraResumes(), ensureResume(), getResume(), listResumes(), ResumeBasics, ResumeData, ResumeMetadata
+### Community 33 - "checkout/route.ts"
+Cohesion: 0.14
+Nodes (20): GET /api/billing/payment-status, POST /api/billing/retry, PaymentStatusPage, maxDuration, POST(), coupons, couponUsage, invoice (+12 more)
 
-### Community 34 - "helpers/audit.ts"
-Cohesion: 0.20
-Nodes (14): CORE_ROUTES, assertPageLoaded(), captureScreen(), countVisibleCTAs(), ensureReportDir(), FINDINGS_FILE, FindingSeverity, getPrimaryHeadings() (+6 more)
+### Community 34 - "getCareerProfile"
+Cohesion: 0.17
+Nodes (23): yearsToMonths(), asEvidence(), asFieldSources(), assertOwned(), CareerProfileError, cleanSources(), ensureCareerProfile(), getCareerProfile() (+15 more)
 
 ### Community 35 - "architect.service.ts"
-Cohesion: 0.14
-Nodes (27): GET(), maxDuration, POST(), requireResumeOwner(), RouteParams, resumeChat, createResumeArchitectAgent(), RESUME_ARCHITECT_MODEL (+19 more)
+Cohesion: 0.11
+Nodes (35): ai, @ai-sdk/openai, GET(), maxDuration, POST(), requireResumeOwner(), RouteParams, resumeChat (+27 more)
 
 ### Community 36 - "🌍 World-Class Multi-Industry Resume Architect — Complete Implementation Plan for Claude Opus 4.7"
 Cohesion: 0.11
@@ -384,37 +372,37 @@ Nodes (17): 11.1 Export Formats, 11.2 Public Sharing, 12.1 User Dashboard, 12.2 
 Cohesion: 0.06
 Nodes (42): POST /api/parse-resume, GET+PATCH /api/profile, POST /api/resumes/[id]/ai/ats-score, GET+POST /api/resumes, motion, react-dropzone, ResumeScanResults Component, ResumeScannerLoader Component (+34 more)
 
-### Community 38 - "Architecture Guidelines"
-Cohesion: 0.18
-Nodes (11): 1. Separation of Frontend and Backend, 2. API Routes over Server Actions, 3. Client-Side Data Fetching, 4. When to use Server Components, 5. Security and Validation, 6.1. High-Level System Architecture, 6.2. Database Entity Relationship Diagram (ERD), 6.3. Directory Map & Responsibilities (+3 more)
+### Community 38 - "validations/career-profile.ts"
+Cohesion: 0.08
+Nodes (21): CareerAcademicWrite, careerAcademicWriteSchema, careerDate, CareerExperienceWrite, careerExperienceWriteSchema, CareerProfilePatch, careerProfilePatchSchema, CareerSkillWrite (+13 more)
 
 ### Community 39 - "PHASE 9: KEY EDGE CASES & ERROR HANDLING"
 Cohesion: 0.15
 Nodes (13): 9.10 Mobile/Tablet Responsiveness, 9.11 Skill Database / Autocomplete, 9.12 Import Existing Resume, 9.1 Content Overflow / Multi-Page, 9.2 Data Loss Prevention, 9.3 Rich Text HTML Injection (XSS), 9.4 Large File / Image Handling, 9.5 PDF Generation Timeouts (Serverless) (+5 more)
 
-### Community 40 - "Skeleton"
-Cohesion: 0.12
-Nodes (31): date-fns, recharts, AnalyticsContent(), AnalyticsData, KpiSkeleton(), AnalyticsPage(), AuditList(), AuditLog (+23 more)
+### Community 40 - "react"
+Cohesion: 0.06
+Nodes (94): AnalysisError â€” Error screen for rate-limit / analysis failure with upgrade CTA, GET /api/career-insights, GET+POST /api/referrals, date-fns, lucide-react, react, recharts, ResumeUploader Component (+86 more)
 
-### Community 41 - "AnalyzePageContent (Main Analysis Engine)"
-Cohesion: 0.14
-Nodes (14): AnalyzePageContent (Main Analysis Engine), GET /api/analysis-history/[id], POST /api/analyze-gaps, POST /api/save-analysis, POST /api/search-jobs, JobCard (Job Match Card), JobTitleAutocomplete Component, LearningRoadmap Component (+6 more)
+### Community 41 - "billing.ts"
+Cohesion: 0.11
+Nodes (18): dynamic, POST(), verifyWebhookSignature(), CashfreeWebhookEvent, CheckoutRequest, CheckoutResponse, Coupon, CouponStatus (+10 more)
 
-### Community 42 - "profile/page.tsx"
-Cohesion: 0.16
-Nodes (23): JobListItem (Tracked Job Card), POST+DELETE /api/save-job, GET /api/user-jobs, ResumeUploader Component, AUTH_FEATURES, AuthConfigTab(), TRUSTED_ORIGINS, CompanyTab() (+15 more)
+### Community 42 - "jobs/page.tsx"
+Cohesion: 0.15
+Nodes (17): JobListItem (Tracked Job Card), POST+DELETE /api/save-job, GET /api/user-jobs, SettingsContent(), SettingsPage(), EmptyState(), JobListItem(), MyJobsPage() (+9 more)
 
 ### Community 43 - "PHASE 13: STEP-BY-STEP IMPLEMENTATION ORDER"
 Cohesion: 0.18
 Nodes (11): PHASE 13: STEP-BY-STEP IMPLEMENTATION ORDER, Week 10: Testing & QA, Week 1: Foundation, Week 2: Editor Shell, Week 3: All Form Sections, Week 4: Templates, Week 5: PDF Generation, Week 6: ATS Engine (+3 more)
 
 ### Community 44 - "career-profile.service.ts"
-Cohesion: 0.04
-Nodes (70): A — Skill identity. Mismatch. Contract wins., careerAcademic, careerExperience, careerProfile, careerSkill, careerTargetRole, toAnnualInr(), usesMonthlyStipend() (+62 more)
+Cohesion: 0.05
+Nodes (64): A — Skill identity. Mismatch. Contract wins., careerAcademic, careerExperience, careerProfile, careerSkill, careerTargetRole, CareerDraft, DraftAcademic (+56 more)
 
 ### Community 45 - "invoice-email.ts"
-Cohesion: 0.17
-Nodes (18): GET(), CompanyTabProps, billingReasonLabel(), colors, fmtDate(), formatInvNum(), InvoicePdf(), InvoicePdfProps (+10 more)
+Cohesion: 0.18
+Nodes (18): @react-pdf/renderer, CompanyTabProps, billingReasonLabel(), colors, fmtDate(), formatInvNum(), InvoicePdf(), InvoicePdfProps (+10 more)
 
 ### Community 46 - "PHASE 7: AI-POWERED FEATURES"
 Cohesion: 0.22
@@ -425,28 +413,28 @@ Cohesion: 0.24
 Nodes (7): Global CSS Migration to shadcn Theme, Home Page (Landing), nextConfig, Root Layout, Global Error Boundary, Global Loading Component, 404 Not Found Page
 
 ### Community 49 - "intelligence-dashboard.tsx"
-Cohesion: 0.13
-Nodes (28): IntelligencePage(), metadata, annualEquivalent(), displayExpected(), displayPay(), expectedBand(), expectedForPeriod(), figureForPeriod() (+20 more)
+Cohesion: 0.14
+Nodes (27): IntelligencePage(), metadata, annualEquivalent(), displayExpected(), displayPay(), expectedBand(), expectedForPeriod(), figureForPeriod() (+19 more)
 
 ### Community 50 - "scripts"
 Cohesion: 0.09
 Nodes (23): scripts, build, db:backfill-log, db:generate, db:migrate, db:push, db:seed-plans, db:studio (+15 more)
 
-### Community 51 - "pool.ts"
-Cohesion: 0.60
-Nodes (4): pg, buildDirectUrl(), getPool(), withTransaction()
+### Community 51 - "types/resume.ts"
+Cohesion: 0.07
+Nodes (24): getTemplateMeta(), TEMPLATE_REGISTRY, NOW, calculateTotalExperience(), extractJobTitles(), parseDate(), fresher, AtsBreakdown (+16 more)
 
 ### Community 52 - "PHASE 3: RESUME EDITOR & FORM BUILDER"
 Cohesion: 0.25
 Nodes (8): 3.1 Editor Layout (Three-Panel Design), 3.2 Section Components (shadcn/ui based), 3.3 Form State Management, 3.4 Validation Rules (Zod Schemas), code:block5 (+------------------+---------------------------+------------), code:typescript (// src/stores/resume-store.ts), code:typescript (// src/lib/validations/resume.ts), PHASE 3: RESUME EDITOR & FORM BUILDER
 
-### Community 53 - "Button"
-Cohesion: 0.25
-Nodes (27): ResumeEditorPage(), SECTIONS, TOOLS, ResumeEditorErrorFallback(), ResumeEditorErrorFallbackProps, AtsScorePanel(), AwardsForm(), BasicsForm() (+19 more)
+### Community 53 - "Input"
+Cohesion: 0.10
+Nodes (63): @dnd-kit/core, @dnd-kit/sortable, @hookform/resolvers, react-hook-form, react-redux, zod, AtsResult, AtsSuggestion (+55 more)
 
-### Community 54 - "sign-up/page.tsx"
-Cohesion: 0.13
-Nodes (23): SignInForm (Client Component), SignUpForm (Client Component), GET /api/referrals/validate, auth-client (Better-Auth Client), checkUserExists (Server Action), authSlice (Redux Auth State), checkUserExists(), SignInForm() (+15 more)
+### Community 54 - "subscription.service.ts"
+Cohesion: 0.22
+Nodes (14): 6. Limits, GET(), DELETE(), GET(), BillingError, calculatePeriodEnd(), cancelSubscription(), endOfAccessDay() (+6 more)
 
 ### Community 55 - "compilerOptions"
 Cohesion: 0.11
@@ -456,13 +444,13 @@ Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModu
 Cohesion: 0.29
 Nodes (5): setUserId, trackPageView, analytics, auth-client, useAnalytics
 
-### Community 57 - "subscription.service.ts"
-Cohesion: 0.23
-Nodes (13): ClientProvider (Session-User Bridge), GET(), DELETE(), GET(), AuthLayout(), ClientProvider(), cancelSubscription(), endOfAccessDay() (+5 more)
+### Community 57 - "cashfree.ts"
+Cohesion: 0.17
+Nodes (12): cashfree-pg, GET(), POST(), CashfreeOrder, CashfreePaymentDetail, CashfreeRefundResult, createCashfreeOrder(), createCashfreeRefund() (+4 more)
 
 ### Community 58 - "resume-editor.ts"
-Cohesion: 0.16
-Nodes (26): patchResume(), resetResumeToBaseline(), ResumeRecord, VALID_BASELINE_DATA, VALID_BASELINE_METADATA, addSocialProfile(), addWorkExperience(), clickSave() (+18 more)
+Cohesion: 0.05
+Nodes (62): devDependencies, @playwright/test, tsx, tsx, name, private, scripts, report (+54 more)
 
 ### Community 59 - "PHASE 5: PDF GENERATION STRATEGY (DUAL-ENGINE)"
 Cohesion: 0.33
@@ -496,21 +484,21 @@ Nodes (4): code:bash (npm run dev), Deploy on Vercel, Getting Started, Learn Mor
 Cohesion: 0.40
 Nodes (3): useAuth, useAutoSave, /sign-in
 
-### Community 67 - "analyze-gaps/route.ts"
-Cohesion: 0.12
-Nodes (19): 1. What exists today, AnalysisResponseSchema, arraysMatch(), extractJSON(), filterGapsByRelevantNames(), maxDuration, MODEL, POST() (+11 more)
+### Community 67 - "auth"
+Cohesion: 0.10
+Nodes (11): jwks, received_email, GET(), median(), parseSalaryToInr(), percentile(), jobVisit, resumeAnalysis (+3 more)
 
-### Community 68 - "dropdown-menu.tsx"
-Cohesion: 0.16
-Nodes (19): MutatePayload, UserRowActions(), UserRowActionsProps, NotFound(), BillingClientShell(), ResumesPage(), DataTableColumnHeader(), Navbar() (+11 more)
+### Community 68 - "admin-header.tsx"
+Cohesion: 0.15
+Nodes (30): MutatePayload, UserRowActions(), UserRowActionsProps, NotFound(), BillingClientShell(), ResumesPage(), AdminHeader(), DataTableColumnHeader() (+22 more)
 
 ### Community 69 - "app/layout.tsx"
 Cohesion: 0.18
 Nodes (12): next-themes, @next/third-parties, @vercel/speed-insights, inter, metadata, RootLayout(), satoshi, ThemeProvider() (+4 more)
 
-### Community 70 - "(protected)/referrals/page.tsx"
-Cohesion: 0.28
-Nodes (7): GET+POST /api/referrals, fmtDate(), ReferralData, ReferralsPage(), copyLink(), shareLink(), STATUS_CONFIG
+### Community 70 - "versions/route.ts"
+Cohesion: 0.26
+Nodes (9): POST(), RouteParams, POST(), RouteParams, resumeVersion, insertResumeSnapshot(), nextSnapshotVersion(), restoreIdentityPatch() (+1 more)
 
 ### Community 71 - "PHASE 0: PRE-IMPLEMENTATION PREPARATION"
 Cohesion: 0.50
@@ -525,44 +513,44 @@ Cohesion: 0.50
 Nodes (4): AdminHeader â€” HQ top bar with breadcrumb nav, search, notifications, user menu, AdminSidebar â€” HQ sidebar with navigation links (Overview, Users, Database, Analytics, etc.), ThemeProvider â€” Wrapper around next-themes NextThemesProvider, ThemeToggle â€” Light/dark/system toggle using next-themes useTheme
 
 ### Community 74 - "seed-plans.ts"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (10): dotenv, @neondatabase/serverless, cleanUrl, __dirname, migrationsFolder, createTestUser(), coupons, db (+2 more)
 
-### Community 75 - "checkout/route.ts"
-Cohesion: 0.16
-Nodes (19): maxDuration, POST(), POST(), coupons, couponUsage, invoice, BillingError, calculateDiscount() (+11 more)
+### Community 75 - "analyze/page.tsx"
+Cohesion: 0.09
+Nodes (31): AnalyzePage(), AnalyzePageContent(), TabId, TABS, AnalysisError(), AnalysisErrorProps, JobFiltersProps, JOB_MEMES (+23 more)
 
 ### Community 76 - "next"
-Cohesion: 0.16
-Nodes (11): dynamic, AdzunaResult, buildSalaryString(), maxDuration, optimizeJobTitle(), POST(), jobTitleAliases, jobTitles (+3 more)
+Cohesion: 0.07
+Nodes (21): next, resend, ALLOWED_TABLES, resend, GET(), dynamic, AdzunaResult, buildSalaryString() (+13 more)
 
-### Community 77 - "(auth)/layout.tsx"
-Cohesion: 0.29
-Nodes (3): Project Architecture Rules (AGENTS.md), CLAUDE.md â†’ AGENTS.md Redirect, Custom Next.js Middleware (proxy.ts)
+### Community 77 - "api/referrals/route.ts"
+Cohesion: 0.39
+Nodes (7): Referral Claim API (POST /api/referrals/claim), Referral Validate API (GET /api/referrals/validate), dynamic, GET(), getSession(), POST(), getReferralStats()
 
 ### Community 78 - "job_titles"
 Cohesion: 0.67
 Nodes (3): job_title_aliases, job_title_index, job_titles
 
-### Community 79 - "VersionHistorySheet.tsx"
-Cohesion: 0.35
-Nodes (14): UserActionsClient(), UserActionsClientProps, CancelSubscriptionButton(), AlertDialog(), AlertDialogAction(), AlertDialogCancel(), AlertDialogContent(), AlertDialogDescription() (+6 more)
+### Community 79 - "invoice.service.ts"
+Cohesion: 0.50
+Nodes (7): getCouponUsageByInvoice(), releaseCoupon(), CreateInvoiceParams, expireStaleInvoices(), markInvoiceFailed(), voidInvoice(), BillingReason
 
-### Community 80 - "score.ts"
-Cohesion: 0.10
-Nodes (31): Career score, JobCardProps, LockedJobCardProps, CAREER_SCORE_WEIGHTS, COMPLETENESS_POINT, completenessScore(), containsTokenSequence(), mapGap() (+23 more)
+### Community 80 - "types/index.ts"
+Cohesion: 0.05
+Nodes (61): AnalyzePageContent (Main Analysis Engine), GET /api/analysis-history/[id], POST /api/analyze-gaps, POST /api/save-analysis, POST /api/search-jobs, Career score, 1. What exists today, JobCard (Job Match Card) (+53 more)
 
 ### Community 81 - "normalizeResumeData"
-Cohesion: 0.19
-Nodes (15): ResumeExportPage(), TEMPLATE_COMPONENTS, ResumeThumbnail(), metadata, PublicResumePage(), PublicResume, PublicResumeView(), load() (+7 more)
+Cohesion: 0.10
+Nodes (24): assertEndpoint(), costUsd(), EvalRow, Job, Level, main(), runOne(), worker() (+16 more)
 
 ### Community 82 - "GitHub project method (mandatory)"
-Cohesion: 0.15
-Nodes (13): Auth: two GitHub identities, Burn-in (after every fix, before moving on), Burn-in and defect harvesting (required), Commands cheat sheet, Defect harvesting (during and after burn-in), Failure modes we already hit, GitHub project method (mandatory), Persist login — never log out (+5 more)
+Cohesion: 0.05
+Nodes (35): Project Architecture Rules (AGENTS.md), CLAUDE.md â†’ AGENTS.md Redirect, 1. Separation of Frontend and Backend, 2. API Routes over Server Actions, 3. Client-Side Data Fetching, 4. When to use Server Components, 5. Security and Validation, 6.1. High-Level System Architecture (+27 more)
 
-### Community 83 - "scripts"
-Cohesion: 0.14
-Nodes (13): devDependencies, @playwright/test, tsx, tsx, name, private, scripts, report (+5 more)
+### Community 83 - "[slug]/route.ts"
+Cohesion: 0.60
+Nodes (4): GET(), RouteParams, publicViewCookieName(), shouldCountPublicView()
 
 ### Community 84 - "devDependencies"
 Cohesion: 0.15
@@ -573,20 +561,20 @@ Cohesion: 0.20
 Nodes (12): ChartConfig, ChartContainer(), ChartContext, ChartContextProps, ChartLegendContent(), ChartStyle(), ChartTooltipContent(), getPayloadConfigFromPayload() (+4 more)
 
 ### Community 86 - "sendMail"
-Cohesion: 0.09
-Nodes (19): better-auth, resend, GET, POST, referralRewards, referrals, sendOTPMail(), sendRefereeWelcomeEmail() (+11 more)
+Cohesion: 0.11
+Nodes (17): better-auth, GET, POST, referralRewards, referrals, sendOTPMail(), sendRefereeWelcomeEmail(), sendReferrerRewardEmail() (+9 more)
 
-### Community 91 - "loadView"
-Cohesion: 0.13
-Nodes (22): yearsToMonths(), asAnalysisJobs(), asEvidence(), asFieldSources(), asStringList(), cleanSources(), isLocked(), iso() (+14 more)
+### Community 91 - "pool.ts"
+Cohesion: 0.60
+Nodes (4): pg, buildDirectUrl(), getPool(), withTransaction()
 
-### Community 92 - "sanitize.ts"
-Cohesion: 0.07
-Nodes (51): 5.4 Cost model, ai, @ai-sdk/openai, maxDuration, MODEL, POST(), RequestSchema, RouteParams (+43 more)
+### Community 92 - "JobFilters â€” Advanced job filter panel (title, city, work type, emp type, match score, salary)"
+Cohesion: 0.50
+Nodes (4): AnalyzeTypes â€” ReviewState and FilterState type definitions for the analyze workflow, JobFilters â€” Advanced job filter panel (title, city, work type, emp type, match score, salary), ResultsHeader â€” Analysis results header with user profile card and summary stat cards, StatCard â€” Simple stat display card with large value + label (used in results header)
 
 ### Community 93 - "resume-owner-fixes.test.ts"
-Cohesion: 0.18
-Nodes (16): pdf-parse, @react-pdf/renderer, POST(), contactLine(), dates(), Layout, layoutFor(), ResumePdfDocument() (+8 more)
+Cohesion: 0.17
+Nodes (18): fresher, main(), metadata, POST(), renderedLineHeight(), renderResumePdf(), contactLine(), dates() (+10 more)
 
 ### Community 94 - "analytics/route.ts"
 Cohesion: 0.40
@@ -600,45 +588,29 @@ Nodes (29): awardItemSchema, basicsSchema, certificationItemSchema, CreateResume
 Cohesion: 0.18
 Nodes (11): 10. Charts & Data (LOW), 1. Accessibility (CRITICAL), 2. Touch & Interaction (CRITICAL), 3. Performance (HIGH), 4. Style Selection (HIGH), 5. Layout & Responsive (HIGH), 6. Typography & Color (MEDIUM), 7. Animation (MEDIUM) (+3 more)
 
-### Community 99 - "app-shell.tsx"
-Cohesion: 0.20
-Nodes (14): AdminLayout(), AppShell(), AppShellProps, MobileBottomNav(), NavUser, SidebarInset(), SidebarProvider(), ALL_APP_NAV (+6 more)
+### Community 99 - "SkillGapPanel.tsx"
+Cohesion: 0.27
+Nodes (9): ParsingProgress â€” Resume parsing progress panel with ProgressTimeline and skill preview, ProfileReview â€” Post-parse profile editor for skills, job titles, and experience before analysis, ResultsHeader(), ResultsHeaderProps, StatCard(), SkillBadge(), SkillBadgeProps, PriorityDot() (+1 more)
 
 ### Community 111 - "hq/referrals/page.tsx"
 Cohesion: 0.22
 Nodes (6): AdminSummary, fmt(), ReferralRow, ReferralSettings, ReferralsPage(), SummaryCards()
 
-### Community 134 - "cashfree.ts"
-Cohesion: 0.15
-Nodes (13): cashfree-pg, dynamic, POST(), CashfreeOrder, CashfreePaymentDetail, CashfreeRefundResult, createCashfreeOrder(), createCashfreeRefund() (+5 more)
-
-### Community 136 - "input-group.tsx"
-Cohesion: 0.26
-Nodes (13): InputGroup(), InputGroupAddon(), inputGroupAddonVariants, InputGroupButton(), inputGroupButtonVariants, InputGroupInput(), InputGroupText(), InputGroupTextarea() (+5 more)
-
-### Community 137 - "admin-header.tsx"
+### Community 135 - "LearningRoadmap.tsx"
 Cohesion: 0.43
-Nodes (12): AdminHeader(), AppHeader(), Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage() (+4 more)
+Nodes (6): LearningRoadmap(), PRIORITY_STYLES, RESOURCE_ICONS, RoadmapCard(), trackResourceLinkClicked(), trackRoadmapItemExpanded()
 
 ### Community 138 - "WebhookService"
-Cohesion: 0.33
-Nodes (8): seed-plans, CouponService, InvoiceService, PaymentService, ReferralService, SubscriptionService, WebhookService, BillingTypes
+Cohesion: 0.44
+Nodes (7): CouponService, InvoiceService, PaymentService, ReferralService, SubscriptionService, WebhookService, BillingTypes
 
-### Community 139 - "app-settings.ts"
-Cohesion: 0.24
-Nodes (10): dynamic, GET(), POST(), requireAdmin(), appSettings, APP_SETTING_KEYS, AppSettingKey, ReferralSettings (+2 more)
+### Community 140 - "draft-recovery.ts"
+Cohesion: 0.35
+Nodes (9): ResumeEditorError(), getResumeDraftKey(), getResumeIdFromPath(), hasResumeDraft(), loadResumeDraft(), ResumeDraftSnapshot, ResumeEditorState, ResumeData (+1 more)
 
-### Community 140 - "ResumeData"
-Cohesion: 0.27
-Nodes (11): ResumeEditorError(), ResultsHeaderProps, SkillGapPanelProps, getResumeDraftKey(), getResumeIdFromPath(), hasResumeDraft(), loadResumeDraft(), ResumeDraftSnapshot (+3 more)
-
-### Community 142 - "billing.ts"
-Cohesion: 0.15
-Nodes (12): CheckoutRequest, CheckoutResponse, Coupon, CouponStatus, CouponType, CouponUsage, CouponUsageStatus, CouponValidationResult (+4 more)
-
-### Community 144 - "derive.test.ts"
-Cohesion: 0.31
-Nodes (5): hostnameOf(), isZaprillHost(), resolveAuthCookieDomain(), shouldUseCrossSubdomainCookies(), NOW
+### Community 144 - "auth-cookie-domain.ts"
+Cohesion: 0.67
+Nodes (4): hostnameOf(), isZaprillHost(), resolveAuthCookieDomain(), shouldUseCrossSubdomainCookies()
 
 ### Community 145 - "UI/UX Pro Max - Design Intelligence"
 Cohesion: 0.22
@@ -647,14 +619,6 @@ Nodes (8): Available Domains, Available Stacks, How to Use, Output Formats, Prer
 ### Community 146 - "compilerOptions"
 Cohesion: 0.22
 Nodes (8): compilerOptions, module, moduleResolution, noEmit, skipLibCheck, strict, target, include
-
-### Community 147 - "ClientProvider.tsx"
-Cohesion: 0.31
-Nodes (5): claimStoredReferral(), getStoredReferralCode(), useReferralClaim(), AuthInitializer(), serializeUser()
-
-### Community 148 - "invoice.service.ts"
-Cohesion: 0.38
-Nodes (9): calculateInvoiceAmounts(), getCouponUsageByInvoice(), releaseCoupon(), createInvoice(), CreateInvoiceParams, expireStaleInvoices(), markInvoiceFailed(), voidInvoice() (+1 more)
 
 ### Community 149 - "Billing Retry API (POST /api/billing/retry)"
 Cohesion: 0.28
@@ -668,7 +632,7 @@ Nodes (6): Design principles, Frontend Design, Ground it in the subject, More on
 Cohesion: 0.12
 Nodes (15): FINDINGS_FILE, OUTPUT, REPORT_DIR, UxFinding, all, apply, arg(), args (+7 more)
 
-### Community 152 - "Career profile"
+### Community 152 - "updateCareerProfile"
 Cohesion: 0.25
 Nodes (8): API, Career profile, Pay, Segment, Skills, evidence, and locks, Still open, Tables, setCurrentAnnualSalary()
 
@@ -680,13 +644,13 @@ Nodes (6): Accessibility, Interaction, Layout, Light/Dark Mode, Pre-Delivery Che
 Cohesion: 0.33
 Nodes (6): How to Use This Skill, Step 1: Analyze User Requirements, Step 2: Generate Design System (REQUIRED), Step 2b: Persist Design System (Master + Overrides Pattern), Step 3: Supplement with Detailed Searches (as needed), Step 4: Stack Guidelines (React Native)
 
-### Community 155 - "@playwright/test"
-Cohesion: 0.43
-Nodes (3): stabilizePageForScreenshot(), VISUAL_SCREENSHOT_OPTS, @playwright/test
-
 ### Community 156 - "actions.ts"
-Cohesion: 0.67
-Nodes (7): useAdminActions(), banUserAction(), deleteUserAction(), ensureAdmin(), setRoleAction(), unbanUserAction(), logAuditAction()
+Cohesion: 0.47
+Nodes (8): useAdminActions(), banUserAction(), deleteUserAction(), ensureAdmin(), setRoleAction(), unbanUserAction(), logAuditAction(), authClient
+
+### Community 157 - "r/route.ts"
+Cohesion: 0.21
+Nodes (7): dynamic, GET(), POST(), requireAdmin(), dynamic, learningResources, resourceClicks
 
 ### Community 158 - "Common Rules for Professional UI"
 Cohesion: 0.40
@@ -704,37 +668,29 @@ Nodes (4): Common Sticking Points, Pre-Delivery Checklist, Query Strategy, Tips 
 Cohesion: 0.50
 Nodes (4): Must Use, Recommended, Skip, When to Apply
 
-### Community 179 - "(auth)/layout.tsx"
-Cohesion: 0.40
-Nodes (4): directUrl, drizzle-kit, Neon Database Connection Test, create-test-user
-
 ### Community 180 - "get-refresh-token.js"
 Cohesion: 0.29
 Nodes (4): oauth2Client, rl, scopes, url
 
-### Community 182 - "Project Architecture Rules (AGENTS.md)"
-Cohesion: 0.33
-Nodes (3): GitHub project method, GitHub project tracking, graphify
-
 ## Knowledge Gaps
 - **143 isolated node(s):** `tsx`, `@fontsource-variable/inter`, `@types/pdf-parse`, `geist`, `shadcn` (+138 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1043 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1075 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `next` to `referral.service.ts`, `cashfree.ts`, `invoices/route.ts`, `ats-score/route.ts`, `analyze/page.tsx`, `Badge`, `app-settings.ts`, `ResumeData`, `CardContent`, `admin-header.tsx`, `sidebar.tsx`, `ClientProvider.tsx`, `types/resume.ts`, `package.json`, `webhook.service.ts`, `actions.ts`, `r/route.ts`, `parse-resume/route.ts`, `requireApiUserId`, `nanoid`, `architect.service.ts`, `onboarding/page.tsx`, `profile/page.tsx`, `Root Layout`, `intelligence-dashboard.tsx`, `Button`, `sign-up/page.tsx`, `subscription.service.ts`, `analyze-gaps/route.ts`, `dropdown-menu.tsx`, `app/layout.tsx`, `checkout/route.ts`, `next`, `(auth)/layout.tsx`, `VersionHistorySheet.tsx`, `normalizeResumeData`, `sendMail`, `sanitize.ts`, `analytics/route.ts`, `app-shell.tsx`?**
-  _High betweenness centrality (0.140) - this node is a cross-community bridge._
+- **Why does `next` connect `next` to `sanitize.ts`, `schema.ts`, `referral.service.ts`, `VersionHistorySheet.tsx`, `analytics.ts`, `sidebar.tsx`, `draft-recovery.ts`, `(protected)/billing/page.tsx`, `sign-up/page.tsx`, `lib/auth.ts`, `coupons-content.tsx`, `resumes/page.tsx`, `package.json`, `webhook.service.ts`, `actions.ts`, `requireApiUserId`, `r/route.ts`, `nanoid`, `checkout/route.ts`, `architect.service.ts`, `onboarding/page.tsx`, `react`, `billing.ts`, `Root Layout`, `intelligence-dashboard.tsx`, `subscription.service.ts`, `cashfree.ts`, `auth`, `admin-header.tsx`, `app/layout.tsx`, `versions/route.ts`, `analyze/page.tsx`, `api/referrals/route.ts`, `types/index.ts`, `GitHub project method (mandatory)`, `[slug]/route.ts`, `sendMail`, `analytics/route.ts`?**
+  _High betweenness centrality (0.107) - this node is a cross-community bridge._
 - **What connects `tsx`, `@fontsource-variable/inter`, `@types/pdf-parse` to the rest of the system?**
   _143 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `cn` be split into smaller, more focused modules?**
-  _Cohesion score 0.0851063829787234 - nodes in this community are weakly interconnected._
-- **Why does `Button()` connect `Badge` to `cn`, `react`, `ErrorBoundary`, `VersionHistorySheet.tsx`, `analyze/page.tsx`, `admin-header.tsx`, `input-group.tsx`, `ResumeData`, `CardContent`, `data-table.tsx`, `sidebar.tsx`, `data-table.tsx`, `types/resume.ts`, `ResumeArchitectChat.tsx`, `Common Rules for Professional UI`, `PlansContent`, `ResourcesContent`, `onboarding/page.tsx`, `Skeleton`, `profile/page.tsx`, `intelligence-dashboard.tsx`, `Button`, `sign-up/page.tsx`, `dropdown-menu.tsx`, `(protected)/referrals/page.tsx`, `VersionHistorySheet.tsx`, `normalizeResumeData`?**
-  _High betweenness centrality (0.096) - this node is a cross-community bridge._
-- **Should `next` be split into smaller, more focused modules?**
-  _Cohesion score 0.0649452269170579 - nodes in this community are weakly interconnected._
-- **Why does `react` connect `react` to `cn`, `next`, `utils.ts`, `VersionHistorySheet.tsx`, `analyze/page.tsx`, `Badge`, `admin-header.tsx`, `ResumeData`, `CardContent`, `data-table.tsx`, `sidebar.tsx`, `input-group.tsx`, `ClientProvider.tsx`, `data-table.tsx`, `types/resume.ts`, `package.json`, `ClientProvider.tsx`, `ResumeArchitectChat.tsx`, `onboarding/page.tsx`, `Skeleton`, `profile/page.tsx`, `invoice-email.ts`, `intelligence-dashboard.tsx`, `Button`, `sign-up/page.tsx`, `subscription.service.ts`, `dropdown-menu.tsx`, `app/layout.tsx`, `(protected)/referrals/page.tsx`, `(auth)/layout.tsx`, `VersionHistorySheet.tsx`, `normalizeResumeData`, `chart.tsx`, `app-shell.tsx`, `hq/referrals/page.tsx`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+  _Cohesion score 0.08376623376623377 - nodes in this community are weakly interconnected._
+- **Why does `react` connect `react` to `cn`, `ResumeData`, `schema.ts`, `LearningRoadmap.tsx`, `VersionHistorySheet.tsx`, `analytics.ts`, `JobCard.tsx`, `sidebar.tsx`, `draft-recovery.ts`, `(protected)/billing/page.tsx`, `data-table.tsx`, `sign-up/page.tsx`, `coupons-content.tsx`, `resumes/page.tsx`, `package.json`, `ResumeArchitectChat.tsx`, `onboarding/page.tsx`, `jobs/page.tsx`, `invoice-email.ts`, `intelligence-dashboard.tsx`, `Input`, `admin-header.tsx`, `app/layout.tsx`, `analyze/page.tsx`, `GitHub project method (mandatory)`, `chart.tsx`, `SkillGapPanel.tsx`, `hq/referrals/page.tsx`?**
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Should `sanitize.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.055299539170506916 - nodes in this community are weakly interconnected._
+- **Why does `Button()` connect `VersionHistorySheet.tsx` to `cn`, `ErrorBoundary`, `JobCard.tsx`, `sidebar.tsx`, `draft-recovery.ts`, `data-table.tsx`, `sign-up/page.tsx`, `coupons-content.tsx`, `resumes/page.tsx`, `ResumeArchitectChat.tsx`, `Common Rules for Professional UI`, `onboarding/page.tsx`, `react`, `jobs/page.tsx`, `intelligence-dashboard.tsx`, `Input`, `admin-header.tsx`, `analyze/page.tsx`, `SkillGapPanel.tsx`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Should `dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.03571428571428571 - nodes in this community are weakly interconnected._
