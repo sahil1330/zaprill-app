@@ -34,6 +34,13 @@ export function coachLimitError(
   });
 }
 
+export function coachProviderError(detail: string): CoachServiceError {
+  return new CoachServiceError(detail, 502, {
+    error: "COACH_PROVIDER",
+    detail,
+  });
+}
+
 export function coachNotFound(message = "Not found"): CoachServiceError {
   return new CoachServiceError(message, 404, { error: "NOT_FOUND" });
 }

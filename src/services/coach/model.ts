@@ -2,6 +2,19 @@ import type { LanguageModelUsage } from "ai";
 import { estimateCostUsd, logAiUsage } from "@/services/ai/usage.service";
 import { COACH_LIMITS, usdToPaise } from "@/services/coach/limits";
 
+/**
+ * gpt-5-mini is a reasoning model. The OpenAI provider defaults
+ * `reasoningSummary` to "detailed" whenever effort is set, which spends the
+ * output budget on a summary and leaves tutor text empty. Null keeps effort
+ * low and skips that summary.
+ */
+export const coachModelOptions = {
+  openai: {
+    reasoningEffort: "low" as const,
+    reasoningSummary: null,
+  },
+};
+
 export interface TokenUsage {
   promptTokens: number;
   completionTokens: number;

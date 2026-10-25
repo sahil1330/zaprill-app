@@ -385,36 +385,42 @@ export const careerTargetRole = pgTable(
  * The heavy JSON blobs (jobs, skillGaps, roadmap) are stored as jsonb
  * for efficient querying without over-normalising.
  */
-export const resumeAnalysis = pgTable("resume_analysis", {
-  id: text("id").primaryKey(), // nanoid / cuid
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+export const resumeAnalysis = pgTable(
+  "resume_analysis",
+  {
+    id: text("id").primaryKey(), // nanoid / cuid
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
 
-  // Parsed resume snapshot
-  resumeName: text("resume_name"), // candidate's name from resume
-  resumeEmail: text("resume_email"),
-  resumePhone: text("resume_phone"),
-  resumeLocation: text("resume_location"),
-  resumeSkills: text("resume_skills").array().default([]), // flat skill list for indexed search
-  inferredJobTitles: text("inferred_job_titles").array().default([]),
-  resumeRaw: jsonb("resume_raw"), // full ResumeData object
+    // Parsed resume snapshot
+    resumeName: text("resume_name"), // candidate's name from resume
+    resumeEmail: text("resume_email"),
+    resumePhone: text("resume_phone"),
+    resumeLocation: text("resume_location"),
+    resumeSkills: text("resume_skills").array().default([]), // flat skill list for indexed search
+    inferredJobTitles: text("inferred_job_titles").array().default([]),
+    resumeRaw: jsonb("resume_raw"), // full ResumeData object
 
-  // Analysis results
-  jobs: jsonb("jobs").default([]), // JobMatch[]
-  skillGaps: jsonb("skill_gaps").default([]), // SkillGap[]
-  roadmap: jsonb("roadmap").default([]), // RoadmapItem[]
-  advice: text("advice"), // AI Advice
+    // Analysis results
+    jobs: jsonb("jobs").default([]), // JobMatch[]
+    skillGaps: jsonb("skill_gaps").default([]), // SkillGap[]
+    roadmap: jsonb("roadmap").default([]), // RoadmapItem[]
+    advice: text("advice"), // AI Advice
 
-  // Meta
-  searchLocation: text("search_location"), // location used for job search
-  totalJobsFound: integer("total_jobs_found").default(0),
-  topMatchScore: integer("top_match_score").default(0), // 0-100
-  avgMatchScore: integer("avg_match_score").default(0), // 0-100
+    // Meta
+    searchLocation: text("search_location"), // location used for job search
+    totalJobsFound: integer("total_jobs_found").default(0),
+    topMatchScore: integer("top_match_score").default(0), // 0-100
+    avgMatchScore: integer("avg_match_score").default(0), // 0-100
 
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("resume_analysis_user_created_idx").on(t.userId, t.createdAt.desc()),
+  ],
+);
 
 /**
  * Jobs that a user explicitly saved/bookmarked.
@@ -1293,20 +1299,24 @@ export const coachPlan = pgTable(
   ],
 );
 
-export const coachProgress = pgTable("coach_progress", {
-  planId: text("plan_id")
-    .primaryKey()
-    .references(() => coachPlan.id, { onDelete: "cascade" }),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  state: text("state").notNull().default("not_started"),
-  currentModuleKey: text("current_module_key"),
-  tasksAttempted: integer("tasks_attempted").notNull().default(0),
-  tasksPassed: integer("tasks_passed").notNull().default(0),
-  lastSessionAt: timestamp("last_session_at"),
-  masteryScore: integer("mastery_score"),
-});
+export const coachProgress = pgTable(
+  "coach_progress",
+  {
+    planId: text("plan_id")
+      .primaryKey()
+      .references(() => coachPlan.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    state: text("state").notNull().default("not_started"),
+    currentModuleKey: text("current_module_key"),
+    tasksAttempted: integer("tasks_attempted").notNull().default(0),
+    tasksPassed: integer("tasks_passed").notNull().default(0),
+    lastSessionAt: timestamp("last_session_at"),
+    masteryScore: integer("mastery_score"),
+  },
+  (t) => [index("coach_progress_user_id_idx").on(t.userId)],
+);
 
 export const coachOutlineCache = pgTable(
   "coach_outline_cache",

@@ -20,6 +20,7 @@ import { COACH_LIMITS, isPassingScore } from "@/services/coach/limits";
 import { openCoachMeter } from "@/services/coach/meter.service";
 import {
   actualPaise,
+  coachModelOptions,
   logCoachCall,
   paiseForTokens,
   readTokenUsage,
@@ -91,7 +92,7 @@ export async function startPracticeTest(userId: string, planId: string) {
       model: openai(COACH_LIMITS.model),
       output: Output.object({ schema: taskSchema }),
       maxOutputTokens: COACH_LIMITS.gradeMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      providerOptions: coachModelOptions,
       prompt: `Write one practice question for the skill "${context.plan.displayName}" in the role "${context.program.roleTitle}".
 The prompt the learner sees must be English, at most two sentences, and under 280 characters.
 The rubric is private: exactly three bullets, each under 12 words.
@@ -242,7 +243,7 @@ export async function gradePracticeTest(input: {
       model: openai(COACH_LIMITS.model),
       output: Output.object({ schema: gradeSchema }),
       maxOutputTokens: COACH_LIMITS.gradeMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      providerOptions: coachModelOptions,
       prompt: `Grade this practice answer for the skill "${context.plan.displayName}".
 Question: ${task.prompt}
 Private rubric: ${JSON.stringify(task.rubric)}

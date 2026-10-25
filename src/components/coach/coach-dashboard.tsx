@@ -152,6 +152,7 @@ export function CoachDashboard() {
     });
     const body = (await response.json().catch(() => ({}))) as {
       error?: string;
+      detail?: string;
       capability?: string;
       upgradeTo?: string | null;
       reply?: string;
@@ -165,15 +166,22 @@ export function CoachDashboard() {
       questions?: Question[];
     };
     if (!response.ok) {
-      const upgrade =
-        body.error === "COACH_LIMIT" && body.upgradeTo
-          ? ` Limit reached (${body.capability}). `
-          : body.error === "COACH_DISABLED"
-            ? " Coaching is paused right now."
-            : "";
-      throw new Error(
-        body.error ? `${body.error}.${upgrade}` : "Request failed",
-      );
+      if (body.error === "COACH_LIMIT") {
+        const upgrade = body.upgradeTo ? ` Upgrade to ${body.upgradeTo}.` : "";
+        throw new Error(
+          `Limit reached (${body.capability ?? "coach"}).${upgrade}`,
+        );
+      }
+      if (body.error === "COACH_DISABLED") {
+        throw new Error("Coaching is paused right now.");
+      }
+      if (body.error === "COACH_PROVIDER") {
+        throw new Error(
+          body.detail?.trim() ||
+            "The coach model could not complete that request.",
+        );
+      }
+      throw new Error(body.error ?? body.detail ?? "Request failed");
     }
     return body;
   }
@@ -351,6 +359,7 @@ export function CoachDashboard() {
           {notice}{" "}
           <Link
             href="/intelligence"
+            prefetch={false}
             className="text-primary underline-offset-4 hover:underline"
           >
             Intelligence
@@ -358,6 +367,7 @@ export function CoachDashboard() {
           {" · "}
           <Link
             href="/analyze"
+            prefetch={false}
             className="text-primary underline-offset-4 hover:underline"
           >
             Analyze
@@ -365,6 +375,7 @@ export function CoachDashboard() {
           {" · "}
           <Link
             href="/billing"
+            prefetch={false}
             className="text-primary underline-offset-4 hover:underline"
           >
             Billing

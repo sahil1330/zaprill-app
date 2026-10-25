@@ -21,6 +21,7 @@ export function MobileBottomNav() {
             <li key={item.url} className="flex-1">
               <Link
                 href={item.url}
+                prefetch={false}
                 className={cn(
                   "flex flex-col items-center gap-0.5 px-1 py-2.5 font-bold text-[10px] uppercase tracking-wide transition-colors",
                   active

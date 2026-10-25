@@ -1,7 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { generateText, Output } from "ai";
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
 import db from "@/db";
 import {
   coachOutlineCache,
@@ -11,6 +10,7 @@ import {
 } from "@/db/schema";
 import { getCareerProfile } from "@/services/career/career-profile.service";
 import { assertCoachModelsEnabled } from "@/services/coach/entitlement.service";
+import { coachProviderError } from "@/services/coach/errors";
 import { type CoachOutline, isShellOutline } from "@/services/coach/gaps";
 import type { CoachTier } from "@/services/coach/limits";
 import { COACH_LIMITS } from "@/services/coach/limits";
@@ -18,44 +18,17 @@ import type { MeterHold } from "@/services/coach/meter.service";
 import { openCoachMeter } from "@/services/coach/meter.service";
 import {
   actualPaise,
+  coachModelOptions,
   logCoachCall,
   paiseForTokens,
   readTokenUsage,
   usageFromError,
 } from "@/services/coach/model";
 import { COACH_LANGUAGE_RULES } from "@/services/coach/prompts";
-
-const outlineSchema = z.object({
-  why: z.string().min(1).max(600),
-  estimatedTime: z.string().min(1).max(80),
-  modules: z
-    .array(
-      z.object({
-        key: z.string().min(1).max(80),
-        title: z.string().min(1).max(120),
-        objective: z.string().min(1).max(400),
-        estimatedMinutes: z.number().int().min(10).max(600),
-        resources: z
-          .array(
-            z.object({
-              type: z.enum([
-                "course",
-                "book",
-                "tutorial",
-                "documentation",
-                "practice",
-              ]),
-              name: z.string().min(1).max(160),
-              free: z.boolean(),
-              estimatedTime: z.string().max(80).optional(),
-            }),
-          )
-          .max(4),
-      }),
-    )
-    .min(1)
-    .max(4),
-});
+import {
+  outlineFromModel,
+  outlineSchema,
+} from "@/services/coach/provider-schema";
 
 const SEGMENTS = new Set(["student", "fresher", "professional"]);
 
@@ -174,15 +147,21 @@ export async function ensureSharedOutline(input: {
     const { output, usage } = await generateText({
       model: openai(COACH_LIMITS.model),
       output: Output.object({ schema: outlineSchema }),
-      maxOutputTokens: COACH_LIMITS.tutorMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      maxOutputTokens: COACH_LIMITS.outlineMaxOutputTokens,
+      providerOptions: coachModelOptions,
       prompt: `Write a short English learning outline for the skill "${input.displayName}" aimed at a ${input.segment} in India.
 The outline is shared across users. Do not mention a person, employer, salary, or city.
 No URLs. Name resource types only.
+Every resource includes estimatedTime. Use an empty string when the duration is unknown.
 ${COACH_LANGUAGE_RULES}`,
     });
     const tokens = readTokenUsage(usage);
-    const outline: CoachOutline = output;
+    if (!output) {
+      throw coachProviderError(
+        "The coach model did not return an outline. Try again.",
+      );
+    }
+    const outline: CoachOutline = outlineFromModel(output);
     await db
       .insert(coachOutlineCache)
       .values({

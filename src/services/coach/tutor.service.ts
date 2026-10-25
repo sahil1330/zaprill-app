@@ -14,11 +14,12 @@ import {
   assertCoachModelsEnabled,
   resolveCoachTier,
 } from "@/services/coach/entitlement.service";
-import { coachNotFound } from "@/services/coach/errors";
+import { coachNotFound, coachProviderError } from "@/services/coach/errors";
 import { COACH_LIMITS } from "@/services/coach/limits";
 import { openCoachMeter } from "@/services/coach/meter.service";
 import {
   actualPaise,
+  coachModelOptions,
   logCoachCall,
   paiseForTokens,
   readTokenUsage,
@@ -101,7 +102,7 @@ async function summarize(input: {
     const { text, usage } = await generateText({
       model: openai(COACH_LIMITS.model),
       maxOutputTokens: COACH_LIMITS.summaryMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      providerOptions: coachModelOptions,
       prompt: `Compress this tutoring span into at most 150 words. Keep the language of the span. Keep technical names in English.
 ${older.map((turn) => `${turn.role}: ${turn.content}`).join("\n")}`,
     });
@@ -195,6 +196,7 @@ export async function sendTutorMessage(
   const started = Date.now();
   const charges: Array<number | null> = [];
   let settled = false;
+  let refunded = false;
 
   try {
     const session = await activeTutorSession(
@@ -265,7 +267,7 @@ ${COACH_FACT_RULES}`,
       }),
       stopWhen: isStepCount(COACH_LIMITS.maxTutorSteps),
       maxOutputTokens: COACH_LIMITS.tutorMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      providerOptions: coachModelOptions,
     });
 
     const steps = result.steps.length > 0 ? result.steps : [result];
@@ -300,7 +302,10 @@ ${COACH_FACT_RULES}`,
     const reply = result.text.trim();
     if (!reply) {
       await meter.refundQuota(actualPaise(charges, meter.reservePaise));
-      throw new Error("Empty tutor reply");
+      refunded = true;
+      throw coachProviderError(
+        "The tutor did not return a reply. Try sending the message again.",
+      );
     }
 
     turns = [
@@ -330,11 +335,7 @@ ${COACH_FACT_RULES}`,
       tier,
     };
   } catch (error) {
-    if (
-      !settled &&
-      error instanceof Error &&
-      error.message !== "Empty tutor reply"
-    ) {
+    if (!settled && !refunded) {
       await settleFailure(meter, error);
     }
     throw error;
