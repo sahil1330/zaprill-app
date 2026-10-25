@@ -86,9 +86,9 @@ const CATEGORY_CONFIG: Record<
     title: "Optimizations",
     subtitle: "Content strategy & positioning",
     icon: TrendingUp,
-    color: "text-violet-500",
-    bgClass: "bg-violet-500/5",
-    borderClass: "border-violet-500/10",
+    color: "text-primary",
+    bgClass: "bg-primary/5",
+    borderClass: "border-primary/10",
   },
 };
 

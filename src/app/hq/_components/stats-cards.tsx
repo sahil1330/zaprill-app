@@ -81,7 +81,7 @@ export function StatsCards() {
       value: `${(stats.totalTokens / 1000).toFixed(1)}k`,
       description: "Total tokens used",
       icon: Brain,
-      color: "text-purple-500",
+      color: "text-primary",
     },
   ];
 
