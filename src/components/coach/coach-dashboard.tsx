@@ -9,8 +9,14 @@ import {
   Target,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PageHeader } from "@/components/app/page-header";
+import { formatCoachError } from "@/components/coach/format-coach-error";
+import { TutorComposer } from "@/components/coach/tutor-composer";
+import {
+  type TutorMessage,
+  TutorThread,
+} from "@/components/coach/tutor-thread";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,6 +75,7 @@ interface ProgramsResponse {
   programs?: ProgramView[];
   notices?: string[];
   error?: string;
+  detail?: string;
   capability?: string;
   upgradeTo?: string | null;
 }
@@ -76,6 +83,21 @@ interface ProgramsResponse {
 interface Question {
   id: string;
   prompt: string;
+}
+
+function shownCoachError(body: unknown): string {
+  const formatted = formatCoachError(body);
+  if (formatted.detail) {
+    console.error("[coach]", formatted.detail);
+  }
+  return formatted.message;
+}
+
+function shownCaughtError(caught: unknown, fallback: string): string {
+  if (caught instanceof Error && caught.message.trim()) {
+    return shownCoachError({ error: caught.message });
+  }
+  return fallback;
 }
 
 export function CoachDashboard() {
@@ -87,7 +109,10 @@ export function CoachDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [planId, setPlanId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [reply, setReply] = useState<string | null>(null);
+  const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>([]);
+  const [tutorError, setTutorError] = useState<string | null>(null);
+  const planIdRef = useRef(planId);
+  planIdRef.current = planId;
   const [busy, setBusy] = useState<string | null>(null);
   const [task, setTask] = useState<{ taskId: string; prompt: string } | null>(
     null,
@@ -106,7 +131,9 @@ export function CoachDashboard() {
       const response = await fetch("/api/coach/programs");
       const body = (await response.json()) as ProgramsResponse;
       if (!response.ok) {
-        setError(body.error ?? "Could not load Skill Coach");
+        setError(
+          body.error ? shownCoachError(body) : "Could not load Skill Coach",
+        );
         return;
       }
       setPrograms(body.programs ?? []);
@@ -166,40 +193,35 @@ export function CoachDashboard() {
       questions?: Question[];
     };
     if (!response.ok) {
-      if (body.error === "COACH_LIMIT") {
-        const upgrade = body.upgradeTo ? ` Upgrade to ${body.upgradeTo}.` : "";
-        throw new Error(
-          `Limit reached (${body.capability ?? "coach"}).${upgrade}`,
-        );
-      }
-      if (body.error === "COACH_DISABLED") {
-        throw new Error("Coaching is paused right now.");
-      }
-      if (body.error === "COACH_PROVIDER") {
-        throw new Error(
-          body.detail?.trim() ||
-            "The coach model could not complete that request.",
-        );
-      }
-      throw new Error(body.error ?? body.detail ?? "Request failed");
+      throw new Error(shownCoachError(body));
     }
     return body;
   }
 
   async function sendTutor() {
-    if (!selected || !message.trim()) return;
+    if (!selected || !message.trim() || busy !== null || !coachEnabled) return;
+    const text = message.trim();
+    const planIdAtSend = selected.plan.id;
     setBusy("tutor");
-    setReply(null);
+    setTutorError(null);
     try {
-      const body = await postJson(
-        `/api/coach/plans/${selected.plan.id}/sessions`,
-        { message },
-      );
-      setReply(body.reply ?? "");
-      setMessage("");
+      const body = await postJson(`/api/coach/plans/${planIdAtSend}/sessions`, {
+        message: text,
+      });
+      if (planIdRef.current === planIdAtSend) {
+        setTutorMessages((current) => [
+          ...current,
+          { role: "user", content: text },
+          { role: "assistant", content: body.reply ?? "" },
+        ]);
+        setMessage("");
+      }
       await load();
     } catch (caught) {
-      setReply(caught instanceof Error ? caught.message : "Tutor failed");
+      if (planIdRef.current !== planIdAtSend) return;
+      setTutorError(
+        shownCaughtError(caught, "Something went wrong. Try again."),
+      );
     } finally {
       setBusy(null);
     }
@@ -218,9 +240,7 @@ export function CoachDashboard() {
         setTask({ taskId: body.taskId, prompt: body.prompt });
       }
     } catch (caught) {
-      setGrade(
-        caught instanceof Error ? caught.message : "Could not start the test",
-      );
+      setGrade(shownCaughtError(caught, "Could not start the test"));
     } finally {
       setBusy(null);
     }
@@ -242,9 +262,7 @@ export function CoachDashboard() {
       setTask(null);
       await load();
     } catch (caught) {
-      setGrade(
-        caught instanceof Error ? caught.message : "Could not grade the test",
-      );
+      setGrade(shownCaughtError(caught, "Could not grade the test"));
     } finally {
       setBusy(null);
     }
@@ -265,9 +283,7 @@ export function CoachDashboard() {
       setQuestions(body.questions ?? []);
       setMockAnswers({});
     } catch (caught) {
-      setMockFeedback(
-        caught instanceof Error ? caught.message : "Could not start the mock",
-      );
+      setMockFeedback(shownCaughtError(caught, "Could not start the mock"));
     } finally {
       setBusy(null);
     }
@@ -293,9 +309,7 @@ export function CoachDashboard() {
       setMockSessionId(null);
       await load();
     } catch (caught) {
-      setMockFeedback(
-        caught instanceof Error ? caught.message : "Could not review the mock",
-      );
+      setMockFeedback(shownCaughtError(caught, "Could not review the mock"));
     } finally {
       setBusy(null);
     }
@@ -420,7 +434,8 @@ export function CoachDashboard() {
                           setPlanId(plan.id);
                           setTask(null);
                           setGrade(null);
-                          setReply(null);
+                          setTutorMessages([]);
+                          setTutorError(null);
                           setQuestions([]);
                           setMockFeedback(null);
                         }}
@@ -514,21 +529,25 @@ export function CoachDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Textarea
+                  <TutorThread messages={tutorMessages} />
+                  {tutorError ? (
+                    <p role="alert" className="text-destructive text-sm">
+                      {tutorError}
+                    </p>
+                  ) : null}
+                  <TutorComposer
                     value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    placeholder="Ask in English, Hindi, Hinglish, or another language you use."
+                    onChange={setMessage}
+                    onSend={() => void sendTutor()}
+                    busy={busy === "tutor"}
+                    disabledReason={
+                      !coachEnabled
+                        ? "Coaching is paused right now."
+                        : busy !== null && busy !== "tutor"
+                          ? "Wait for the current request to finish."
+                          : undefined
+                    }
                   />
-                  <Button
-                    onClick={() => void sendTutor()}
-                    disabled={busy !== null || !coachEnabled}
-                  >
-                    {busy === "tutor" && <Loader2 className="animate-spin" />}
-                    Send
-                  </Button>
-                  {reply && (
-                    <p className="whitespace-pre-wrap text-sm">{reply}</p>
-                  )}
                 </CardContent>
               </Card>
 
