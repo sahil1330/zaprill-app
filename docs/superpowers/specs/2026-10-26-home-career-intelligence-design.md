@@ -1,7 +1,7 @@
 # Home career-intelligence dense board — design spec
 
 **Date:** 2026-10-26  
-**Status:** Awaiting Sahil's review. Do not write an implementation plan or change app code until this spec is approved.  
+**Status:** Approved by Sahil (2026-10-26). Implementation plan: `docs/superpowers/plans/2026-10-26-home-career-intelligence.md`. Do not start implementation until Sahil accepts that plan.  
 **Repo:** sahil1330/zaprill-app  
 **Approach:** A — dense intelligence board  
 **Refero source:** [Notion — warm paper notebook](https://styles.refero.design/style/2bf4c61f-de10-4614-ba1b-20c0453bd2a9)
