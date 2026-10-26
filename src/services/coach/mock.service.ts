@@ -18,6 +18,7 @@ import { COACH_LIMITS } from "@/services/coach/limits";
 import { openCoachMeter } from "@/services/coach/meter.service";
 import {
   actualPaise,
+  coachModelOptions,
   logCoachCall,
   paiseForTokens,
   readTokenUsage,
@@ -70,7 +71,7 @@ export async function startMockInterview(userId: string, planId: string) {
       model: openai(COACH_LIMITS.model),
       output: Output.object({ schema: questionSchema }),
       maxOutputTokens: COACH_LIMITS.tutorMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      providerOptions: coachModelOptions,
       prompt: `Write 3 spoken-style mock interview questions for the skill "${context.plan.displayName}" and the role "${context.program.roleTitle}".
 Questions are in English. Each question is one sentence under 160 characters. Ids are short stable slugs.
 Do not include model answers.
@@ -178,7 +179,7 @@ export async function reviewMockInterview(input: {
       model: openai(COACH_LIMITS.model),
       output: Output.object({ schema: reviewSchema }),
       maxOutputTokens: COACH_LIMITS.gradeMaxOutputTokens,
-      providerOptions: { openai: { reasoningEffort: "low" } },
+      providerOptions: coachModelOptions,
       prompt: `Review this mock interview for ${context.plan.displayName}. This is practice feedback only. Do not say the skill is verified.
 Questions and answers:
 ${JSON.stringify({ transcript: session.messages, answers: input.answers })}

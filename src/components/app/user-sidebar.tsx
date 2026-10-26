@@ -28,7 +28,10 @@ export function UserSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/" />}>
+            <SidebarMenuButton
+              size="lg"
+              render={<Link href="/" prefetch={false} />}
+            >
               <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg">
                 <Image
                   src="/favicon.ico"
@@ -60,7 +63,7 @@ export function UserSidebar() {
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
-                      render={<Link href={item.url} />}
+                      render={<Link href={item.url} prefetch={false} />}
                       tooltip={item.title}
                       isActive={active}
                       className={cn(
@@ -90,7 +93,7 @@ export function UserSidebar() {
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
-                      render={<Link href={item.url} />}
+                      render={<Link href={item.url} prefetch={false} />}
                       tooltip={item.title}
                       isActive={active}
                       className={cn(

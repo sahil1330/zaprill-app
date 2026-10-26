@@ -2,19 +2,18 @@ import { and, desc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "@/db";
 import {
+  careerProfile,
+  careerSkill,
+  careerTargetRole,
   coachPlan,
   coachProgram,
   coachProgress,
   resumeAnalysis,
 } from "@/db/schema";
 import { isCoachEnabled } from "@/lib/app-settings";
+import { syncCareerProfileFromResume } from "@/services/career/career-profile.service";
 import {
-  CareerProfileError,
-  getCareerProfile,
-  syncCareerProfileFromResume,
-} from "@/services/career/career-profile.service";
-import {
-  coachAllowance,
+  allowanceFrom,
   resolveCoachTier,
 } from "@/services/coach/entitlement.service";
 import {
@@ -25,8 +24,8 @@ import {
   shellOutline,
 } from "@/services/coach/gaps";
 import { type CoachTier, tierLimits } from "@/services/coach/limits";
+import { readCoachUsage } from "@/services/coach/meter.service";
 import type { RoadmapItem, SkillGap } from "@/types";
-import type { CareerProfileView } from "@/types/career-profile";
 
 export interface CoachPlanView {
   id: string;
@@ -87,30 +86,72 @@ function asOutline(value: unknown, displayName: string): CoachOutline {
   };
 }
 
-async function loadProfile(userId: string): Promise<CareerProfileView> {
-  try {
-    return await getCareerProfile(userId);
-  } catch (error) {
-    if (error instanceof CareerProfileError && error.status === 404) {
-      return syncCareerProfileFromResume(userId);
-    }
-    throw error;
-  }
+interface CoachIdentity {
+  segment: string | null;
+  skills: Array<{ normalizedName: string }>;
+  targetRoles: Array<{
+    title: string;
+    normalizedTitle: string;
+    isPrimary: boolean;
+    sortOrder: number;
+  }>;
 }
 
-async function loadPrograms(userId: string): Promise<CoachProgramView[]> {
-  const programs = await db
-    .select()
-    .from(coachProgram)
-    .where(eq(coachProgram.userId, userId));
-  const plans = await db
-    .select()
-    .from(coachPlan)
-    .where(eq(coachPlan.userId, userId));
-  const progressRows = await db
-    .select()
-    .from(coachProgress)
-    .where(eq(coachProgress.userId, userId));
+async function loadCoachIdentity(
+  userId: string,
+): Promise<CoachIdentity | null> {
+  const [header] = await db
+    .select({ segment: careerProfile.segment })
+    .from(careerProfile)
+    .where(eq(careerProfile.userId, userId))
+    .limit(1);
+  if (!header) return null;
+
+  const [skills, targetRoles] = await Promise.all([
+    db
+      .select({ normalizedName: careerSkill.normalizedName })
+      .from(careerSkill)
+      .where(eq(careerSkill.userId, userId)),
+    db
+      .select({
+        title: careerTargetRole.title,
+        normalizedTitle: careerTargetRole.normalizedTitle,
+        isPrimary: careerTargetRole.isPrimary,
+        sortOrder: careerTargetRole.sortOrder,
+      })
+      .from(careerTargetRole)
+      .where(eq(careerTargetRole.userId, userId)),
+  ]);
+  return { segment: header.segment, skills, targetRoles };
+}
+
+interface GapSource {
+  id: string;
+  skillGaps: unknown;
+  roadmap: unknown;
+  advice: string | null;
+}
+
+async function loadGapSource(userId: string): Promise<GapSource | null> {
+  const [analysis] = await db
+    .select({
+      id: resumeAnalysis.id,
+      skillGaps: resumeAnalysis.skillGaps,
+      roadmap: resumeAnalysis.roadmap,
+      advice: resumeAnalysis.advice,
+    })
+    .from(resumeAnalysis)
+    .where(eq(resumeAnalysis.userId, userId))
+    .orderBy(desc(resumeAnalysis.createdAt))
+    .limit(1);
+  return analysis ?? null;
+}
+
+function assemblePrograms(
+  programs: Array<typeof coachProgram.$inferSelect>,
+  plans: Array<typeof coachPlan.$inferSelect>,
+  progressRows: Array<typeof coachProgress.$inferSelect>,
+): CoachProgramView[] {
   const progressByPlan = new Map(progressRows.map((row) => [row.planId, row]));
 
   return programs
@@ -148,6 +189,15 @@ async function loadPrograms(userId: string): Promise<CoachProgramView[]> {
           };
         }),
     }));
+}
+
+async function loadPrograms(userId: string): Promise<CoachProgramView[]> {
+  const [programs, plans, progressRows] = await Promise.all([
+    db.select().from(coachProgram).where(eq(coachProgram.userId, userId)),
+    db.select().from(coachPlan).where(eq(coachPlan.userId, userId)),
+    db.select().from(coachProgress).where(eq(coachProgress.userId, userId)),
+  ]);
+  return assemblePrograms(programs, plans, progressRows);
 }
 
 function isUniqueViolation(error: unknown): boolean {
@@ -230,24 +280,35 @@ async function refreshPlans(input: {
 
 export async function syncCoachPrograms(userId: string): Promise<{
   tier: CoachTier;
-  allowance: Awaited<ReturnType<typeof coachAllowance>>;
+  allowance: ReturnType<typeof allowanceFrom>;
   coachEnabled: boolean;
   programs: CoachProgramView[];
   notices: string[];
 }> {
-  const tier = await resolveCoachTier(userId);
+  const [
+    tier,
+    loadedIdentity,
+    analysis,
+    coachEnabled,
+    usage,
+    programRows,
+    planRows,
+    progressRows,
+  ] = await Promise.all([
+    resolveCoachTier(userId),
+    loadCoachIdentity(userId),
+    loadGapSource(userId),
+    isCoachEnabled(),
+    readCoachUsage(userId),
+    db.select().from(coachProgram).where(eq(coachProgram.userId, userId)),
+    db.select().from(coachPlan).where(eq(coachPlan.userId, userId)),
+    db.select().from(coachProgress).where(eq(coachProgress.userId, userId)),
+  ]);
   const cap = tierLimits(tier).activePrograms;
-  const profile = await loadProfile(userId);
+  const identity = loadedIdentity ?? (await identityFromResume(userId));
   const notices: string[] = [];
 
-  const [analysis] = await db
-    .select()
-    .from(resumeAnalysis)
-    .where(eq(resumeAnalysis.userId, userId))
-    .orderBy(desc(resumeAnalysis.createdAt))
-    .limit(1);
-
-  const owned = new Set(profile.skills.map((skill) => skill.normalizedName));
+  const owned = new Set(identity.skills.map((skill) => skill.normalizedName));
   const gaps = analysis
     ? prepareCoachGaps({
         skillGaps: asSkillGaps(analysis.skillGaps),
@@ -257,7 +318,7 @@ export async function syncCoachPrograms(userId: string): Promise<{
     : [];
   const fingerprint = gapFingerprint(gaps.map((gap) => gap.skillKey));
 
-  const targets = [...profile.targetRoles].sort((a, b) => {
+  const targets = [...identity.targetRoles].sort((a, b) => {
     if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
     return a.sortOrder - b.sortOrder;
   });
@@ -271,14 +332,13 @@ export async function syncCoachPrograms(userId: string): Promise<{
     notices.push("No technical skill gaps are open on your latest analysis.");
   }
 
-  const rows = await db
-    .select()
-    .from(coachProgram)
-    .where(eq(coachProgram.userId, userId));
+  const rows = programRows;
+  let dirty = !loadedIdentity;
   const targetKeys = new Set(targets.map((target) => target.normalizedTitle));
 
   for (const row of rows) {
     if (row.status === "active" && !targetKeys.has(row.roleKey)) {
+      dirty = true;
       await db
         .update(coachProgram)
         .set({ status: "archived", updatedAt: new Date() })
@@ -298,6 +358,7 @@ export async function syncCoachPrograms(userId: string): Promise<{
 
     if (!analysis || gaps.length === 0) {
       if (existing?.status === "active" && analysis && gaps.length === 0) {
+        dirty = true;
         await db
           .update(coachProgram)
           .set({
@@ -314,27 +375,38 @@ export async function syncCoachPrograms(userId: string): Promise<{
     }
 
     if (existing?.status === "active") {
-      await db
-        .update(coachProgram)
-        .set({
-          roleTitle: target.title,
-          advice: analysis.advice,
-          sourceAnalysisId: analysis.id,
-          updatedAt: new Date(),
-        })
-        .where(eq(coachProgram.id, existing.id));
-      await refreshPlans({
-        programId: existing.id,
-        userId,
-        gaps,
-        fingerprint,
-        currentFingerprint: existing.gapFingerprint,
-      });
-      await db
-        .update(coachProgram)
-        .set({ gapFingerprint: fingerprint })
-        .where(eq(coachProgram.id, existing.id));
-      existing.gapFingerprint = fingerprint;
+      const metaChanged =
+        existing.roleTitle !== target.title ||
+        existing.advice !== analysis.advice ||
+        existing.sourceAnalysisId !== analysis.id;
+      const gapsChanged = existing.gapFingerprint !== fingerprint;
+      if (metaChanged) {
+        dirty = true;
+        await db
+          .update(coachProgram)
+          .set({
+            roleTitle: target.title,
+            advice: analysis.advice,
+            sourceAnalysisId: analysis.id,
+            updatedAt: new Date(),
+          })
+          .where(eq(coachProgram.id, existing.id));
+      }
+      if (gapsChanged) {
+        dirty = true;
+        await refreshPlans({
+          programId: existing.id,
+          userId,
+          gaps,
+          fingerprint,
+          currentFingerprint: existing.gapFingerprint,
+        });
+        await db
+          .update(coachProgram)
+          .set({ gapFingerprint: fingerprint })
+          .where(eq(coachProgram.id, existing.id));
+        existing.gapFingerprint = fingerprint;
+      }
       continue;
     }
 
@@ -346,6 +418,7 @@ export async function syncCoachPrograms(userId: string): Promise<{
     }
 
     if (existing) {
+      dirty = true;
       await db
         .update(coachProgram)
         .set({
@@ -373,6 +446,7 @@ export async function syncCoachPrograms(userId: string): Promise<{
     }
 
     const id = nanoid();
+    dirty = true;
     try {
       await db.insert(coachProgram).values({
         id,
@@ -414,14 +488,31 @@ export async function syncCoachPrograms(userId: string): Promise<{
       .where(eq(coachProgram.id, id));
   }
 
-  const programs = await loadPrograms(userId);
-  const allowance = await coachAllowance(userId, tier);
+  const programs = dirty
+    ? await loadPrograms(userId)
+    : assemblePrograms(programRows, planRows, progressRows);
   return {
     tier,
-    allowance,
-    coachEnabled: await isCoachEnabled(),
+    allowance: allowanceFrom(tier, usage),
+    coachEnabled,
     programs: programs.filter((program) => program.status === "active"),
     notices: [...new Set(notices)],
+  };
+}
+
+async function identityFromResume(userId: string): Promise<CoachIdentity> {
+  const synced = await syncCareerProfileFromResume(userId);
+  return {
+    segment: synced.segment,
+    skills: synced.skills.map((skill) => ({
+      normalizedName: skill.normalizedName,
+    })),
+    targetRoles: synced.targetRoles.map((role) => ({
+      title: role.title,
+      normalizedTitle: role.normalizedTitle,
+      isPrimary: role.isPrimary,
+      sortOrder: role.sortOrder,
+    })),
   };
 }
 
