@@ -13,6 +13,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app/page-header";
+import {
+  PageEmpty,
+  PageError,
+  PageSkeleton,
+} from "@/components/app/page-state";
 import { IntelligenceInsights } from "@/components/intelligence/intelligence-insights";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -190,37 +195,29 @@ export function IntelligenceDashboard() {
 
   if (loading) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-6 py-10">
-        <div className="space-y-4 motion-reduce:animate-none">
-          <div className="h-8 w-40 animate-pulse rounded-lg bg-muted" />
-          <div className="h-12 w-72 animate-pulse rounded-lg bg-muted" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="h-36 animate-pulse rounded-2xl bg-muted" />
-            <div className="h-36 animate-pulse rounded-2xl bg-muted" />
-          </div>
-        </div>
+      <main className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
+        <PageHeader
+          eyebrow="Dashboard"
+          title="Intelligence"
+          description="Your career score and the next move for your target roles."
+        />
+        <PageSkeleton rows={4} />
       </main>
     );
   }
 
   if (error || !profile) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-6 py-10">
+      <main className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
         <PageHeader
           eyebrow="Dashboard"
           title="Intelligence"
           description="Your career file could not be loaded."
         />
-        <Card className="rounded-2xl border-border/70">
-          <CardContent className="space-y-4 py-8">
-            <p className="font-medium text-muted-foreground">
-              {error || "Your career file could not be loaded."}
-            </p>
-            <Button onClick={() => void load()} variant="outline">
-              Try again
-            </Button>
-          </CardContent>
-        </Card>
+        <PageError
+          message={error || "Your career file could not be loaded."}
+          onRetry={() => void load()}
+        />
       </main>
     );
   }
@@ -237,12 +234,12 @@ export function IntelligenceDashboard() {
   );
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-8 px-6 py-10">
+    <main className="mx-auto w-full max-w-3xl space-y-8 px-4 pt-8 pb-16 md:px-6 md:pt-10 md:pb-10">
       <PageHeader
         eyebrow="Dashboard"
         title="Intelligence"
-        description="Score, market, and the next step for your target roles. The career file those numbers come from sits below."
-        actions={
+        description="Your career score and the next move for your target roles."
+        action={
           <Button
             variant="outline"
             onClick={() => void syncFromResume()}
@@ -257,206 +254,208 @@ export function IntelligenceDashboard() {
       {report ? (
         <IntelligenceInsights report={report} />
       ) : (
-        <Card className="rounded-2xl border-border/70">
-          <CardContent className="space-y-4 py-8">
-            <p className="font-medium text-muted-foreground">
-              {reportError || "Market insights could not be loaded."}
-            </p>
-            <Button onClick={() => void refreshReport()} variant="outline">
-              Try again
-            </Button>
-          </CardContent>
-        </Card>
+        <PageError
+          message={reportError || "Market insights could not be loaded."}
+          onRetry={() => void refreshReport()}
+        />
       )}
 
-      <section id="path" className="scroll-mt-24 space-y-3">
-        <h2 className="font-bold text-lg">Career file</h2>
-        <div className="flex flex-wrap gap-2">
-          {SEGMENTS.map((segment) => {
-            const selected = profile.segment === segment.id;
-            return (
-              <Button
-                key={segment.id}
-                variant={selected ? "default" : "outline"}
-                aria-pressed={selected}
-                disabled={savingSegment !== null}
-                onClick={() => void setSegment(segment.id)}
-              >
-                {savingSegment === segment.id ? (
-                  <Loader2 className="animate-spin" />
-                ) : null}
-                {segment.label}
-              </Button>
-            );
-          })}
-        </div>
-        <p className="font-medium text-muted-foreground text-sm">
-          {profile.segment == null
-            ? "Choose the path that fits you right now."
-            : profile.fieldSources.segment === "inferred"
-              ? "Inferred from your resume. Change it if this is wrong."
-              : "You set this path. Resume sync will keep it."}{" "}
-          {[formatPlace(profile), formatYears(profile.yearsOfExperience)]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-      </section>
-
-      <section className="grid overflow-hidden rounded-2xl border border-border/70 bg-card sm:grid-cols-2 sm:divide-x sm:divide-border">
-        <PayFigure
-          label={payPeriod === "monthly" ? "Current stipend" : "Current CTC"}
-          amount={displayPay(profile.compensation.current, payPeriod)}
-          hint={salaryHint(profile, payPeriod)}
-          period={payPeriod}
-        />
-        <PayFigure
-          label={payPeriod === "monthly" ? "Expected stipend" : "Expected CTC"}
-          amount={null}
-          band={expectedBand(profile.compensation.expected, payPeriod)}
-          hint={
-            payPeriod === "monthly"
-              ? "Monthly band, saved as annual too"
-              : "Annual band, INR"
-          }
-          period={payPeriod}
-          className="border-border border-t sm:border-t-0"
-        />
-      </section>
-
-      <PayEditor
-        key={`${profile.updatedAt}-${payPeriod}`}
-        profile={profile}
-        period={payPeriod}
-        onSaved={(next) => {
-          setProfile(next);
-          void refreshReport();
-        }}
-      />
-
-      {emptyFile ? (
-        <Card className="rounded-2xl border-border/70 border-dashed">
-          <CardContent className="flex flex-col items-start gap-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-bold text-lg">This file is still empty</p>
-              <p className="mt-1 max-w-xl font-medium text-muted-foreground text-sm">
-                Upload a resume and sync, or keep going and the other career
-                tools will fill it in.
-              </p>
-            </div>
-            <Button render={<Link href="/onboarding" />}>
-              Upload a resume
-            </Button>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="rounded-2xl border-border/70">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-bold text-base">
-              <Target className="h-4 w-4 text-primary" />
-              Target roles
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {profile.targetRoles.length === 0 ? (
-              <p className="font-medium text-muted-foreground text-sm">
-                No target role yet. A saved resume target or headline will land
-                here after a sync.
-              </p>
-            ) : (
-              profile.targetRoles.map((role) => (
-                <div
-                  key={role.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-border/60 px-4 py-3"
+      <div
+        data-slot="intelligence-secondary"
+        className="space-y-6 border-border border-t pt-8"
+      >
+        <section id="path" className="scroll-mt-24 space-y-3">
+          <h2 className="font-medium text-muted-foreground text-sm">
+            Career file
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {SEGMENTS.map((segment) => {
+              const selected = profile.segment === segment.id;
+              return (
+                <Button
+                  key={segment.id}
+                  variant={selected ? "secondary" : "outline"}
+                  aria-pressed={selected}
+                  disabled={savingSegment !== null}
+                  onClick={() => void setSegment(segment.id)}
                 >
-                  <div>
-                    <p className="font-bold">{role.title}</p>
-                    <p className="mt-1 font-medium text-muted-foreground text-xs uppercase tracking-widest">
-                      {readinessLabel(roleReadiness.get(role.id)?.readiness)}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end gap-1">
-                    {role.isPrimary ? <Badge>Primary</Badge> : null}
-                    <Badge variant="outline">
-                      {SENIORITY_LABEL[role.seniority] ?? "Level open"}
-                    </Badge>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-border/70">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-bold text-base">
-              <Radar className="h-4 w-4 text-primary" />
-              Skills on file
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {profile.skills.length === 0 ? (
-              <p className="font-medium text-muted-foreground text-sm">
-                No skills yet. Sync from a resume to import them with a level
-                and where they showed up.
-              </p>
-            ) : (
-              <ul className="max-h-96 space-y-3 overflow-auto pr-1">
-                {profile.skills.map((skill) => (
-                  <li key={skill.id} className="space-y-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="font-semibold text-sm">
-                        {skill.name}
-                      </span>
-                      <span className="font-medium text-muted-foreground text-xs">
-                        {LEVEL_LABEL[skill.level]}
-                        {skill.evidence.some((item) => item.kind === "verified")
-                          ? ` · ${VERIFIED_SKILL_LABEL}`
-                          : ""}
-                      </span>
-                    </div>
-                    {LEVEL_WIDTH[skill.level] > 0 ? (
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className="h-full rounded-full bg-primary"
-                          style={{ width: `${LEVEL_WIDTH[skill.level]}%` }}
-                        />
-                      </div>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <RecordList
-          icon={GraduationCap}
-          title="Academics"
-          empty="No academics yet."
-          rows={profile.academics.map((item) => ({
-            id: item.id,
-            title: item.institution,
-            meta: [item.studyType, item.area, item.score]
+                  {savingSegment === segment.id ? (
+                    <Loader2 className="animate-spin" />
+                  ) : null}
+                  {segment.label}
+                </Button>
+              );
+            })}
+          </div>
+          <p className="font-medium text-muted-foreground text-sm">
+            {profile.segment == null
+              ? "Choose the path that fits you right now."
+              : profile.fieldSources.segment === "inferred"
+                ? "Inferred from your resume. Change it if this is wrong."
+                : "You set this path. Resume sync will keep it."}{" "}
+            {[formatPlace(profile), formatYears(profile.yearsOfExperience)]
               .filter(Boolean)
-              .join(" · "),
-            detail: formatRange(item.startDate, item.endDate, item.isCurrent),
-          }))}
+              .join(" · ")}
+          </p>
+        </section>
+
+        <section className="grid overflow-hidden rounded-lg border border-border sm:grid-cols-2 sm:divide-x sm:divide-border">
+          <PayFigure
+            label={payPeriod === "monthly" ? "Current stipend" : "Current CTC"}
+            amount={displayPay(profile.compensation.current, payPeriod)}
+            hint={salaryHint(profile, payPeriod)}
+            period={payPeriod}
+          />
+          <PayFigure
+            label={
+              payPeriod === "monthly" ? "Expected stipend" : "Expected CTC"
+            }
+            amount={null}
+            band={expectedBand(profile.compensation.expected, payPeriod)}
+            hint={
+              payPeriod === "monthly"
+                ? "Monthly band, saved as annual too"
+                : "Annual band, INR"
+            }
+            period={payPeriod}
+            className="border-border border-t sm:border-t-0"
+          />
+        </section>
+
+        <PayEditor
+          key={`${profile.updatedAt}-${payPeriod}`}
+          profile={profile}
+          period={payPeriod}
+          onSaved={(next) => {
+            setProfile(next);
+            void refreshReport();
+          }}
         />
-        <RecordList
-          icon={Briefcase}
-          title="Experience"
-          empty="No experience yet."
-          rows={profile.experience.map((item) => ({
-            id: item.id,
-            title: item.title,
-            meta: item.company,
-            detail: formatRange(item.startDate, item.endDate, item.isCurrent),
-          }))}
-        />
+
+        {emptyFile ? (
+          <PageEmpty
+            title="This file is still empty"
+            description="Upload a resume and sync, or keep going and the other career tools will fill it in."
+            action={
+              <Button variant="outline" render={<Link href="/onboarding" />}>
+                Upload a resume
+              </Button>
+            }
+          />
+        ) : null}
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="rounded-lg border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-medium text-sm">
+                <Target className="h-4 w-4 text-muted-foreground" />
+                Target roles
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {profile.targetRoles.length === 0 ? (
+                <p className="font-medium text-muted-foreground text-sm">
+                  No target role yet. A saved resume target or headline will
+                  land here after a sync.
+                </p>
+              ) : (
+                profile.targetRoles.map((role) => (
+                  <div
+                    key={role.id}
+                    className="flex items-start justify-between gap-3 rounded-xl border border-border/60 px-4 py-3"
+                  >
+                    <div>
+                      <p className="font-bold">{role.title}</p>
+                      <p className="mt-1 font-medium text-muted-foreground text-xs uppercase tracking-widest">
+                        {readinessLabel(roleReadiness.get(role.id)?.readiness)}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      {role.isPrimary ? (
+                        <Badge variant="outline">Primary</Badge>
+                      ) : null}
+                      <Badge variant="outline">
+                        {SENIORITY_LABEL[role.seniority] ?? "Level open"}
+                      </Badge>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-lg border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-medium text-sm">
+                <Radar className="h-4 w-4 text-muted-foreground" />
+                Skills on file
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {profile.skills.length === 0 ? (
+                <p className="font-medium text-muted-foreground text-sm">
+                  No skills yet. Sync from a resume to import them with a level
+                  and where they showed up.
+                </p>
+              ) : (
+                <ul className="max-h-96 space-y-3 overflow-auto pr-1">
+                  {profile.skills.map((skill) => (
+                    <li key={skill.id} className="space-y-1">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="font-semibold text-sm">
+                          {skill.name}
+                        </span>
+                        <span className="font-medium text-muted-foreground text-xs">
+                          {LEVEL_LABEL[skill.level]}
+                          {skill.evidence.some(
+                            (item) => item.kind === "verified",
+                          )
+                            ? ` · ${VERIFIED_SKILL_LABEL}`
+                            : ""}
+                        </span>
+                      </div>
+                      {LEVEL_WIDTH[skill.level] > 0 ? (
+                        <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full bg-primary"
+                            style={{ width: `${LEVEL_WIDTH[skill.level]}%` }}
+                          />
+                        </div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RecordList
+            icon={GraduationCap}
+            title="Academics"
+            empty="No academics yet."
+            rows={profile.academics.map((item) => ({
+              id: item.id,
+              title: item.institution,
+              meta: [item.studyType, item.area, item.score]
+                .filter(Boolean)
+                .join(" · "),
+              detail: formatRange(item.startDate, item.endDate, item.isCurrent),
+            }))}
+          />
+          <RecordList
+            icon={Briefcase}
+            title="Experience"
+            empty="No experience yet."
+            rows={profile.experience.map((item) => ({
+              id: item.id,
+              title: item.title,
+              meta: item.company,
+              detail: formatRange(item.startDate, item.endDate, item.isCurrent),
+            }))}
+          />
+        </div>
       </div>
     </main>
   );
@@ -482,7 +481,7 @@ function PayFigure({
       <p className="font-bold text-[11px] text-muted-foreground uppercase tracking-widest">
         {label}
       </p>
-      <p className="mt-2 font-black font-heading text-3xl tabular-nums tracking-tight">
+      <p className="mt-2 font-heading font-semibold text-xl tabular-nums tracking-tight">
         {band ?? formatPay(amount, period)}
       </p>
       {hint ? (
@@ -583,9 +582,9 @@ function PayEditor({
   };
 
   return (
-    <Card id="pay" className="scroll-mt-24 rounded-2xl border-border/70">
+    <Card id="pay" className="scroll-mt-24 rounded-lg border-border">
       <CardHeader>
-        <CardTitle className="font-bold text-base">Pay</CardTitle>
+        <CardTitle className="font-medium text-sm">Pay</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="font-medium text-muted-foreground text-sm">
@@ -642,7 +641,7 @@ function PayEditor({
             </label>
           </div>
         ) : null}
-        <Button onClick={() => void save()} disabled={saving}>
+        <Button variant="outline" onClick={() => void save()} disabled={saving}>
           {saving ? <Loader2 className="animate-spin" /> : null}
           Save pay
         </Button>
@@ -697,10 +696,10 @@ function RecordList({
   rows: { id: string; title: string; meta: string; detail: string | null }[];
 }) {
   return (
-    <Card className="rounded-2xl border-border/70">
+    <Card className="rounded-lg border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-bold text-base">
-          <Icon className="h-4 w-4 text-primary" />
+        <CardTitle className="flex items-center gap-2 font-medium text-sm">
+          <Icon className="h-4 w-4 text-muted-foreground" />
           {title}
         </CardTitle>
       </CardHeader>
