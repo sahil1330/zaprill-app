@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import db from "@/db";
 import { coachProgress, learningResources } from "@/db/schema";
+import { emptyToolInputSchema } from "@/services/coach/provider-schema";
 
 export interface SkillCoachToolContext {
   userId: string;
@@ -24,7 +25,7 @@ export function createSkillCoachTools(ctx: SkillCoachToolContext) {
     getLearningContext: tool({
       description:
         "Read the learner's segment, target role, skill, current module, and rolling summary. No resume and no salary.",
-      inputSchema: z.object({}),
+      inputSchema: emptyToolInputSchema,
       execute: async () => ({
         segment: ctx.segment,
         roleTitle: ctx.roleTitle,
@@ -37,7 +38,7 @@ export function createSkillCoachTools(ctx: SkillCoachToolContext) {
     listCuratedResources: tool({
       description:
         "List active catalog resources for this skill. Use only these URLs. Do not invent links.",
-      inputSchema: z.object({}),
+      inputSchema: emptyToolInputSchema,
       execute: async () => {
         const rows = await db
           .select({
@@ -61,7 +62,7 @@ export function createSkillCoachTools(ctx: SkillCoachToolContext) {
     getProgress: tool({
       description:
         "Read progress for this plan. You cannot mark a skill verified.",
-      inputSchema: z.object({}),
+      inputSchema: emptyToolInputSchema,
       execute: async () => {
         const [row] = await db
           .select()

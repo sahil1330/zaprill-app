@@ -22,16 +22,26 @@ export interface AppNavItem {
 
 export const APP_NAV_PRIMARY: AppNavItem[] = [
   { title: "Home", url: "/", icon: Home, mobilePrimary: true },
-  { title: "Intelligence", url: "/intelligence", icon: Radar },
-  { title: "Analyze", url: "/analyze", icon: Target, mobilePrimary: true },
-  { title: "Skill Coach", url: "/skill-coach", icon: GraduationCap },
-  { title: "My Jobs", url: "/jobs", icon: Briefcase, mobilePrimary: true },
+  {
+    title: "Intelligence",
+    url: "/intelligence",
+    icon: Radar,
+    mobilePrimary: true,
+  },
+  { title: "Analyze", url: "/analyze", icon: Target, mobilePrimary: false },
+  {
+    title: "Skill Coach",
+    url: "/skill-coach",
+    icon: GraduationCap,
+    mobilePrimary: true,
+  },
+  { title: "My Jobs", url: "/jobs", icon: Briefcase, mobilePrimary: false },
   { title: "Resumes", url: "/resumes", icon: FileText, mobilePrimary: true },
   {
     title: "Career Insights",
     url: "/history",
     icon: TrendingUp,
-    mobilePrimary: true,
+    mobilePrimary: false,
   },
 ];
 

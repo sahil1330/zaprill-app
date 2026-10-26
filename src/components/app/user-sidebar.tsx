@@ -20,6 +20,9 @@ import {
 import { APP_NAV_PRIMARY, APP_NAV_SECONDARY, isNavActive } from "@/lib/app-nav";
 import { cn } from "@/lib/utils";
 
+/** 44px row height with 8px between targets, including the mobile sheet. */
+const sidebarItemClass = "h-11";
+
 export function UserSidebar() {
   const pathname = usePathname();
 
@@ -28,7 +31,10 @@ export function UserSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/" />}>
+            <SidebarMenuButton
+              size="lg"
+              render={<Link href="/" prefetch={false} />}
+            >
               <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg">
                 <Image
                   src="/favicon.ico"
@@ -53,17 +59,18 @@ export function UserSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2">
               {APP_NAV_PRIMARY.map((item) => {
                 const active = isNavActive(pathname, item.url);
                 const isAnalyze = item.url === "/analyze";
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
-                      render={<Link href={item.url} />}
+                      render={<Link href={item.url} prefetch={false} />}
                       tooltip={item.title}
                       isActive={active}
                       className={cn(
+                        sidebarItemClass,
                         active &&
                           "bg-primary/10 text-primary hover:bg-primary/15",
                         isAnalyze && !active && "font-semibold text-foreground",
@@ -84,16 +91,17 @@ export function UserSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2">
               {APP_NAV_SECONDARY.map((item) => {
                 const active = isNavActive(pathname, item.url);
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
-                      render={<Link href={item.url} />}
+                      render={<Link href={item.url} prefetch={false} />}
                       tooltip={item.title}
                       isActive={active}
                       className={cn(
+                        sidebarItemClass,
                         active &&
                           "bg-primary/10 text-primary hover:bg-primary/15",
                       )}
@@ -110,7 +118,7 @@ export function UserSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <p className="px-2 text-muted-foreground text-xs">
+        <p className="px-3 py-2 text-muted-foreground text-xs leading-relaxed">
           Analyze → Jobs → Career Insights
         </p>
       </SidebarFooter>

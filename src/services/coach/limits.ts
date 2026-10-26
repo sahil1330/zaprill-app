@@ -18,6 +18,9 @@ export const COACH_LIMITS = {
   historyMessages: 8,
   summaryAfterMessages: 16,
   tutorMaxOutputTokens: 600,
+  // A shared outline is structured JSON plus a short reasoning span.
+  // 600 tokens truncated the object (measured ~940 with low effort).
+  outlineMaxOutputTokens: 1600,
   summaryMaxOutputTokens: 250,
   gradeMaxOutputTokens: 400,
   tiers: {
