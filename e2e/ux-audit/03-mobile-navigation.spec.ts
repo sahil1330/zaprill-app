@@ -1,6 +1,5 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
-  assertPageLoaded,
   captureScreen,
   getVisibleNavLinks,
   recordFinding,
@@ -36,6 +35,46 @@ test.describe("Mobile navigation", () => {
       await userMenu.click();
       await captureScreen(page, "12-mobile-user-menu", "mobile");
     }
+  });
+
+  test("bottom nav hit targets are at least 44px with readable labels", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await waitForAuthenticatedHome(page);
+
+    const nav = page.getByRole("navigation", { name: "Main navigation" });
+    await expect(nav).toBeVisible();
+
+    const expected = ["Home", "Intelligence", "Skill Coach", "Resumes"];
+    for (const label of expected) {
+      const link = nav.getByRole("link", { name: label });
+      await expect(link).toBeVisible();
+      const box = await link.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+
+      const fontSize = await link.evaluate((el) => {
+        const labelEl = el.querySelector("span");
+        return Number.parseFloat(getComputedStyle(labelEl ?? el).fontSize);
+      });
+      expect(fontSize).toBeGreaterThanOrEqual(12);
+    }
+
+    const content = page.locator("[data-slot='app-shell-content']");
+    await expect(content).toBeVisible();
+    const padding = await content.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return {
+        left: Number.parseFloat(style.paddingLeft),
+        top: Number.parseFloat(style.paddingTop),
+        bottom: Number.parseFloat(style.paddingBottom),
+      };
+    });
+    expect(padding.left).toBeGreaterThanOrEqual(16);
+    expect(padding.top).toBeGreaterThanOrEqual(16);
+    expect(padding.bottom).toBeGreaterThanOrEqual(44);
   });
 
   test("mobile dashboard still exposes primary action", async ({ page }) => {

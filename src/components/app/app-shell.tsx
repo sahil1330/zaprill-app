@@ -9,6 +9,10 @@ import { AppHeader } from "./app-header";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { UserSidebar } from "./user-sidebar";
 
+/** Paper gutter for the content column, plus room to clear the mobile bar. */
+export const APP_SHELL_CONTENT_CLASS =
+  "flex flex-1 flex-col px-4 pt-4 pb-[calc(5rem+env(safe-area-inset-bottom))] md:px-6 md:py-6";
+
 interface AppShellProps {
   user: NavUser;
   children: React.ReactNode;
@@ -26,7 +30,7 @@ export function AppShell({ user, children }: AppShellProps) {
       <UserSidebar />
       <SidebarInset className="min-h-svh">
         <AppHeader user={user} />
-        <div className="flex flex-1 flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+        <div data-slot="app-shell-content" className={APP_SHELL_CONTENT_CLASS}>
           {children}
         </div>
         <MobileBottomNav />
