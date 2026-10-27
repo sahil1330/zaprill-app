@@ -76,61 +76,113 @@ function report(
   };
 }
 
-test("the dashboard explains the score, the market, and the resume link", () => {
-  const html = renderToStaticMarkup(<IntelligenceInsights report={report()} />);
-  assert.match(html, /Career score/);
-  assert.match(html, />62</);
-  assert.match(html, /75% readiness, 25% completeness/);
-  assert.match(html, /Public ATS boards are not connected/);
-  assert.match(html, /Backend Engineer/);
-  assert.match(html, /Razorpay/);
-  assert.match(html, /₹12 LPA/);
-  assert.match(html, /₹18 LPA/);
-  assert.match(html, /Go/);
-  assert.match(html, /high/);
-  assert.match(html, /TypeScript/);
-  assert.match(html, /advanced/);
-  assert.match(html, /href="\/resumes"/);
-  assert.doesNotMatch(html, /skill-coach/);
-});
-
-test("an empty analysis tells the member to run one", () => {
-  const html = renderToStaticMarkup(
+function renderInsights(
+  value: IntelligenceReport,
+  extras: {
+    atsScore?: number | null;
+    verifiedSkills?: { name: string }[];
+  } = {},
+) {
+  return renderToStaticMarkup(
     <IntelligenceInsights
-      report={report({
-        score: {
-          ...report().score,
-          careerScore: null,
-          readiness: null,
-          basis: "none",
-        },
-        market: { basis: "none", roles: [] },
-        nextSteps: [],
-      })}
+      report={value}
+      atsScore={extras.atsScore === undefined ? 75 : extras.atsScore}
+      verifiedSkills={extras.verifiedSkills ?? []}
     />,
   );
+}
+
+test("the board shows score, ATS, salary, jobs, one resume CTA, and the strip", () => {
+  const html = renderInsights(report());
+  assert.match(html, /data-slot="intelligence-hero"/);
+  assert.match(html, />62</);
+  assert.match(html, /75% readiness, 25% completeness/);
+  assert.match(html, /data-slot="metric-ats"/);
+  assert.match(html, /75%/);
+  assert.match(html, /href="\/resumes"/);
+  assert.match(html, /data-slot="metric-salary"/);
+  assert.match(html, /₹12 LPA/);
+  assert.match(html, /₹18 LPA/);
+  assert.match(html, /data-slot="metric-jobs"/);
+  assert.match(html, /Jobs matched/);
+  assert.match(html, /data-slot="gap-chip"/);
+  assert.match(html, /Go/);
+  assert.match(html, /data-slot="home-verified"/);
+  assert.match(html, /No skills verified in Skill Coach yet/);
+  assert.match(html, /data-slot="home-secondary-strip"/);
+  assert.match(html, /href="\/analyze"/);
+  assert.match(html, /href="\/jobs"/);
+  assert.match(html, /href="\/history"/);
+  assert.match(html, /max-w-\[1100px\]/);
+  assert.match(html, /shadow-none/);
+  assert.doesNotMatch(html, /data-slot="intelligence-market"/);
+  assert.doesNotMatch(html, /data-slot="intelligence-sticky-cta"/);
+  assert.doesNotMatch(html, /data-slot="intelligence-score-detail"/);
+  assert.doesNotMatch(html, /Public ATS boards/);
+  assert.doesNotMatch(html, /Razorpay/);
+  assert.doesNotMatch(html, /Personal Dashboard/);
+  assert.doesNotMatch(html, /Welcome back/);
+  assert.doesNotMatch(html, /Analytical Search/);
+  assert.doesNotMatch(html, /Synthesizing/);
+  assert.equal(html.match(/data-primary-cta=/g)?.length, 1);
+  const order = [
+    "intelligence-hero",
+    "home-metrics",
+    "intelligence-gaps",
+    "intelligence-next",
+    "home-verified",
+    "home-secondary-strip",
+  ].map((slot) => html.indexOf(`data-slot="${slot}"`));
+  assert.deepEqual(
+    order,
+    [...order].sort((a, b) => a - b),
+  );
+  assert.ok(order.every((index) => index >= 0));
+});
+
+test("an empty analysis has one Run analysis button and a zero job count", () => {
+  const html = renderInsights(
+    report({
+      score: {
+        ...report().score,
+        careerScore: null,
+        readiness: null,
+        basis: "none",
+      },
+      market: { basis: "none", roles: [] },
+      nextSteps: [],
+    }),
+    { atsScore: null },
+  );
   assert.match(html, /Not scored/);
-  assert.match(html, /Run an analysis/);
-  assert.match(html, /Skill gaps show up here/);
+  assert.match(html, /The score appears after an analysis/);
+  assert.match(html, /data-primary-cta="analyze"/);
+  assert.match(html, /Run analysis/);
+  assert.match(html, /href="\/analyze"/);
+  assert.match(html, /Skill gaps show up here once an analysis has jobs/);
   assert.match(html, /Nothing urgent/);
+  assert.match(html, /data-slot="metric-jobs"/);
+  assert.doesNotMatch(html, /data-slot="metric-salary"/);
+  assert.match(html, /data-slot="home-secondary-strip"/);
+  assert.equal(html.match(/data-primary-cta=/g)?.length, 1);
+  assert.doesNotMatch(html, /Activate Job Match Engine/);
+  assert.doesNotMatch(html, /No matches detected/);
 });
 
 test("a coach next step still links to Skill Coach", () => {
-  const html = renderToStaticMarkup(
-    <IntelligenceInsights
-      report={report({
-        coachEnabled: true,
-        nextSteps: [
-          {
-            id: "coach",
-            title: "Practice Go",
-            detail: "Skill Coach opens a plan from this gap.",
-            href: "/skill-coach",
-            action: "coach",
-          },
-        ],
-      })}
-    />,
+  const html = renderInsights(
+    report({
+      coachEnabled: true,
+      nextSteps: [
+        {
+          id: "coach",
+          title: "Practice Go",
+          detail: "Skill Coach opens a plan from this gap.",
+          href: "/skill-coach",
+          action: "coach",
+        },
+      ],
+    }),
   );
   assert.match(html, /Practice Go/);
   assert.match(html, /href="\/skill-coach"/);
@@ -193,21 +245,19 @@ test("selectIntelligencePrimaryCta is Coach, else analysis, else Resume", () => 
 });
 
 test("the hero CTA is Coach when coaching is on and a gap exists", () => {
-  const html = renderToStaticMarkup(
-    <IntelligenceInsights
-      report={report({
-        coachEnabled: true,
-        nextSteps: [
-          {
-            id: "resume-gap",
-            title: "Show Go on your resume",
-            detail: "Roles in the analysis ask for this.",
-            href: "/resumes",
-            action: "resume",
-          },
-        ],
-      })}
-    />,
+  const html = renderInsights(
+    report({
+      coachEnabled: true,
+      nextSteps: [
+        {
+          id: "resume-gap",
+          title: "Show Go on your resume",
+          detail: "Roles in the analysis ask for this.",
+          href: "/resumes",
+          action: "resume",
+        },
+      ],
+    }),
   );
   assert.match(html, /data-slot="intelligence-hero"/);
   assert.match(html, /data-primary-cta="coach"/);
@@ -218,7 +268,7 @@ test("the hero CTA is Coach when coaching is on and a gap exists", () => {
 });
 
 test("the hero CTA is Resume when coaching is off, and gaps stay unlinked", () => {
-  const html = renderToStaticMarkup(<IntelligenceInsights report={report()} />);
+  const html = renderInsights(report());
   assert.match(html, /data-primary-cta="resume"/);
   assert.match(html, /Resume Builder/);
   assert.match(html, /href="\/resumes"/);
@@ -231,24 +281,22 @@ test("the hero CTA is Resume when coaching is off, and gaps stay unlinked", () =
 
 test("the hero CTA is Resume when coaching is on but nothing is missing", () => {
   const base = report();
-  const html = renderToStaticMarkup(
-    <IntelligenceInsights
-      report={report({
-        coachEnabled: true,
-        market: {
-          ...base.market,
-          roles: base.market.roles.map((role) => ({
-            ...role,
-            skills: role.skills.map((skill) => ({
-              ...skill,
-              onProfile: true,
-              priority: null,
-              level: skill.level ?? "advanced",
-            })),
+  const html = renderInsights(
+    report({
+      coachEnabled: true,
+      market: {
+        ...base.market,
+        roles: base.market.roles.map((role) => ({
+          ...role,
+          skills: role.skills.map((skill) => ({
+            ...skill,
+            onProfile: true,
+            priority: null,
+            level: skill.level ?? "advanced",
           })),
-        },
-      })}
-    />,
+        })),
+      },
+    }),
   );
   assert.match(html, /data-primary-cta="resume"/);
   assert.doesNotMatch(html, /data-primary-cta="coach"/);
@@ -257,18 +305,16 @@ test("the hero CTA is Resume when coaching is on but nothing is missing", () => 
 });
 
 test("next steps render at most three", () => {
-  const html = renderToStaticMarkup(
-    <IntelligenceInsights
-      report={report({
-        nextSteps: [1, 2, 3, 4].map((n) => ({
-          id: `step-${n}`,
-          title: `Step ${n}`,
-          detail: `Detail ${n}`,
-          href: "/resumes",
-          action: "resume" as const,
-        })),
-      })}
-    />,
+  const html = renderInsights(
+    report({
+      nextSteps: [1, 2, 3, 4].map((n) => ({
+        id: `step-${n}`,
+        title: `Step ${n}`,
+        detail: `Detail ${n}`,
+        href: "/resumes",
+        action: "resume" as const,
+      })),
+    }),
   );
   assert.match(html, /Step 1/);
   assert.match(html, /Step 3/);
@@ -276,11 +322,19 @@ test("next steps render at most three", () => {
   assert.equal(html.match(/data-slot="next-step"/g)?.length, 3);
 });
 
-test("the primary CTA is in the hero on desktop and fixed on mobile", () => {
-  const html = renderToStaticMarkup(<IntelligenceInsights report={report()} />);
+test("the primary CTA is only in the hero", () => {
+  const html = renderInsights(report());
   assert.match(html, /data-slot="intelligence-hero"/);
-  assert.match(html, /data-slot="intelligence-sticky-cta"/);
-  assert.match(html, /md:hidden/);
-  assert.match(html, /fixed/);
-  assert.equal(html.match(/data-primary-cta="resume"/g)?.length, 2);
+  assert.doesNotMatch(html, /data-slot="intelligence-sticky-cta"/);
+  assert.doesNotMatch(html, /fixed/);
+  assert.equal(html.match(/data-primary-cta="resume"/g)?.length, 1);
+});
+
+test("verified skills list only the names passed in", () => {
+  const html = renderInsights(report(), {
+    verifiedSkills: [{ name: "Go" }],
+  });
+  assert.match(html, /Go/);
+  assert.match(html, /Verified on Zaprill/);
+  assert.doesNotMatch(html, /No skills verified in Skill Coach yet/);
 });
