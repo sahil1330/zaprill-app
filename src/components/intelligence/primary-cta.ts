@@ -1,17 +1,11 @@
 import type { IntelligenceReport } from "@/types/intelligence";
 
 export type IntelligencePrimaryCta = {
-  kind: "coach" | "resume";
-  href: "/skill-coach" | "/resumes";
-  label: "Skill Coach" | "Resume Builder";
+  kind: "coach" | "resume" | "analyze";
+  href: "/skill-coach" | "/resumes" | "/analyze" | "/onboarding";
+  label: "Skill Coach" | "Resume Builder" | "Run analysis" | "Add your resume";
 };
 
-type CtaReport = {
-  coachEnabled: boolean;
-  market: IntelligenceReport["market"];
-};
-
-/** Missing market skills, first-seen order, one chip per name. */
 export function intelligenceGapNames(report: {
   market: IntelligenceReport["market"];
 }): string[] {
@@ -28,18 +22,31 @@ export function intelligenceGapNames(report: {
   return names;
 }
 
-/**
- * One primary action: Skill Coach when coaching is on and a gap exists,
- * otherwise Resume Builder.
- */
 export function selectIntelligencePrimaryCta(
-  report: CtaReport,
+  report: IntelligenceReport,
 ): IntelligencePrimaryCta {
   if (report.coachEnabled && intelligenceGapNames(report).length > 0) {
     return {
       kind: "coach",
       href: "/skill-coach",
       label: "Skill Coach",
+    };
+  }
+  if (report.score.careerScore == null || report.market.basis === "none") {
+    const needsResume = report.nextSteps.some(
+      (step) => step.id === "resume" && step.href === "/onboarding",
+    );
+    if (needsResume) {
+      return {
+        kind: "analyze",
+        href: "/onboarding",
+        label: "Add your resume",
+      };
+    }
+    return {
+      kind: "analyze",
+      href: "/analyze",
+      label: "Run analysis",
     };
   }
   return {

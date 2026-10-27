@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -117,11 +116,6 @@ export function UserSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <p className="px-3 py-2 text-muted-foreground text-xs leading-relaxed">
-          Analyze → Jobs → Career Insights
-        </p>
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

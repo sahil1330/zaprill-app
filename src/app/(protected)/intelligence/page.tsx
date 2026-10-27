@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { IntelligenceDashboard } from "@/components/intelligence/intelligence-dashboard";
+import { IntelligenceRedirect } from "@/components/intelligence/intelligence-redirect";
 
 export const metadata: Metadata = {
-  title: "Intelligence · Zaprill",
+  title: "Home · Zaprill",
   description:
     "Career score, market for your target roles, skill gaps, and the next step.",
 };
 
 export default function IntelligencePage() {
-  return <IntelligenceDashboard />;
+  return <IntelligenceRedirect />;
 }

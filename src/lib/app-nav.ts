@@ -6,7 +6,6 @@ import {
   Gift,
   GraduationCap,
   Home,
-  Radar,
   Target,
   TrendingUp,
   User,
@@ -23,32 +22,24 @@ export interface AppNavItem {
 export const APP_NAV_PRIMARY: AppNavItem[] = [
   { title: "Home", url: "/", icon: Home, mobilePrimary: true },
   {
-    title: "Intelligence",
-    url: "/intelligence",
-    icon: Radar,
-    mobilePrimary: true,
-  },
-  { title: "Analyze", url: "/analyze", icon: Target, mobilePrimary: false },
-  {
     title: "Skill Coach",
     url: "/skill-coach",
     icon: GraduationCap,
     mobilePrimary: true,
   },
-  { title: "My Jobs", url: "/jobs", icon: Briefcase, mobilePrimary: false },
   { title: "Resumes", url: "/resumes", icon: FileText, mobilePrimary: true },
-  {
-    title: "Career Insights",
-    url: "/history",
-    icon: TrendingUp,
-    mobilePrimary: false,
-  },
 ];
 
 export const APP_NAV_SECONDARY: AppNavItem[] = [
   { title: "Profile", url: "/profile", icon: User },
   { title: "Billing", url: "/billing", icon: CreditCard },
   { title: "Referrals", url: "/referrals", icon: Gift },
+];
+
+export const APP_NAV_LINKED: AppNavItem[] = [
+  { title: "Analyze", url: "/analyze", icon: Target },
+  { title: "My Jobs", url: "/jobs", icon: Briefcase },
+  { title: "Career Insights", url: "/history", icon: TrendingUp },
 ];
 
 export const ALL_APP_NAV = [...APP_NAV_PRIMARY, ...APP_NAV_SECONDARY];
@@ -71,7 +62,7 @@ export function shouldUseAppShell(pathname: string): boolean {
 
 export function getNavTitle(pathname: string): string {
   if (pathname === "/") return "Home";
-  const match = ALL_APP_NAV.find(
+  const match = [...ALL_APP_NAV, ...APP_NAV_LINKED].find(
     (item) =>
       pathname === item.url ||
       (item.url !== "/" && pathname.startsWith(item.url)),
