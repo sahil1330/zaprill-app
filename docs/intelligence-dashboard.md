@@ -1,8 +1,6 @@
 # Intelligence Dashboard
 
-v1 of `/intelligence`. It explains the career score, shows what the latest analysis says about the member's target roles, and lists the next step. Resume Builder is always linked. Skill Coach is linked only when the coach flag is on.
-
-This view does not call a model. There is nothing to meter. `logAiUsage` stays unused here. A later written narrative would need a new `ai_action` enum value and a migration. Do not log these reads as `analyze_gaps`.
+The career-intelligence UI is Home (`/`). `/intelligence` redirects there and keeps `#pay` and `#path`. `GET /api/intelligence` is unchanged. This view does not call a model. There is nothing to meter. `logAiUsage` stays unused here. A later written narrative would need a new `ai_action` enum value and a migration. Do not log these reads as `analyze_gaps`.
 
 There is no new table. Migration `0018` stays reserved for Skill Coach (`docs/skill-coach.md`).
 
