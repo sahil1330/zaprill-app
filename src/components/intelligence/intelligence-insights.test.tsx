@@ -136,7 +136,7 @@ test("a coach next step still links to Skill Coach", () => {
   assert.match(html, /href="\/skill-coach"/);
 });
 
-test("selectIntelligencePrimaryCta is Coach only when coaching is on and a gap exists", () => {
+test("selectIntelligencePrimaryCta is Coach, else analysis, else Resume", () => {
   assert.deepEqual(
     selectIntelligencePrimaryCta(report({ coachEnabled: true })),
     {
@@ -145,17 +145,51 @@ test("selectIntelligencePrimaryCta is Coach only when coaching is on and a gap e
       label: "Skill Coach",
     },
   );
-  assert.equal(selectIntelligencePrimaryCta(report()).kind, "resume");
-  assert.equal(
+  assert.deepEqual(selectIntelligencePrimaryCta(report()), {
+    kind: "resume",
+    href: "/resumes",
+    label: "Resume Builder",
+  });
+  assert.deepEqual(
     selectIntelligencePrimaryCta(
       report({
         coachEnabled: true,
         market: { basis: "none", roles: [] },
       }),
-    ).kind,
-    "resume",
+    ),
+    {
+      kind: "analyze",
+      href: "/analyze",
+      label: "Run analysis",
+    },
   );
-  assert.equal(selectIntelligencePrimaryCta(report()).href, "/resumes");
+  assert.deepEqual(
+    selectIntelligencePrimaryCta(
+      report({
+        score: {
+          ...report().score,
+          careerScore: null,
+          readiness: null,
+          basis: "none",
+        },
+        market: { basis: "none", roles: [] },
+        nextSteps: [
+          {
+            id: "resume",
+            title: "Add your resume",
+            detail: "Skills are read from the resume you sync.",
+            href: "/onboarding",
+            action: "resume",
+          },
+        ],
+      }),
+    ),
+    {
+      kind: "analyze",
+      href: "/onboarding",
+      label: "Add your resume",
+    },
+  );
 });
 
 test("the hero CTA is Coach when coaching is on and a gap exists", () => {
