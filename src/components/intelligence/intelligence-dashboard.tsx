@@ -18,6 +18,7 @@ import {
   PageError,
   PageSkeleton,
 } from "@/components/app/page-state";
+import { verifiedSkillNames } from "@/components/intelligence/home-metrics";
 import { IntelligenceInsights } from "@/components/intelligence/intelligence-insights";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -252,7 +253,13 @@ export function IntelligenceDashboard() {
       />
 
       {report ? (
-        <IntelligenceInsights report={report} />
+        <IntelligenceInsights
+          report={report}
+          atsScore={null}
+          verifiedSkills={verifiedSkillNames(profile.skills).map((name) => ({
+            name,
+          }))}
+        />
       ) : (
         <PageError
           message={reportError || "Market insights could not be loaded."}
