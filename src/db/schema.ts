@@ -914,6 +914,7 @@ export const aiActionEnum = pgEnum("ai_action", [
   "coach_tutor",
   "coach_practice",
   "coach_mock",
+  "coach_live",
 ]);
 
 /**
