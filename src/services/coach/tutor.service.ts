@@ -4,7 +4,6 @@ import { and, desc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "@/db";
 import { coachProgress, coachSession } from "@/db/schema";
-import { createSkillCoachTools } from "@/lib/agents/skill-coach-tools";
 import {
   ensureSharedOutline,
   loadPlanContext,
@@ -16,7 +15,6 @@ import {
 } from "@/services/coach/entitlement.service";
 import { coachNotFound, coachProviderError } from "@/services/coach/errors";
 import { COACH_LIMITS } from "@/services/coach/limits";
-import { openCoachMeter } from "@/services/coach/meter.service";
 import {
   actualPaise,
   coachModelOptions,
@@ -26,9 +24,11 @@ import {
   usageFromError,
 } from "@/services/coach/model";
 import {
-  COACH_FACT_RULES,
-  COACH_LANGUAGE_RULES,
-} from "@/services/coach/prompts";
+  activeCoachModule,
+  buildSkillCoachInstructions,
+  createSkillCoachTools,
+  openTutorMeter,
+} from "@/services/coach/skill-coach-core";
 
 interface StoredTurn {
   role: "user" | "assistant";
@@ -187,12 +187,7 @@ export async function sendTutorMessage(
     outline: context.outline,
   });
 
-  const meter = await openCoachMeter({
-    userId,
-    tier,
-    quota: "tutor",
-    spend: "tutor",
-  });
+  const meter = await openTutorMeter({ userId, tier });
   const started = Date.now();
   const charges: Array<number | null> = [];
   let settled = false;
@@ -235,36 +230,26 @@ export async function sendTutorMessage(
       { role: "user", content: message },
     ];
 
-    const module =
-      outline.modules.find(
-        (item) => item.key === context.progress?.currentModuleKey,
-      ) ?? outline.modules[0];
+    const outlineModule = activeCoachModule(
+      outline,
+      context.progress?.currentModuleKey,
+    );
+    const turn = {
+      userId,
+      planId,
+      skillKey: context.plan.skillKey,
+      displayName: context.plan.displayName,
+      roleTitle: context.program.roleTitle,
+      segment: context.segment,
+      module: outlineModule,
+      summary,
+    };
 
     const result = await generateText({
       model: openai(COACH_LIMITS.model),
-      system: `You are Zaprill Skill Coach, tutoring one technical skill for the role "${context.program.roleTitle}".
-Current skill: ${context.plan.displayName}.
-Module: ${module?.title ?? context.plan.displayName}. Objective: ${module?.objective || "Build working familiarity."}
-Call getLearningContext before a long explanation. Use listCuratedResources when suggesting material. Use setModuleStatus only to mark the module in progress.
-${COACH_LANGUAGE_RULES}
-${COACH_FACT_RULES}`,
+      system: buildSkillCoachInstructions(turn),
       messages,
-      tools: createSkillCoachTools({
-        userId,
-        planId,
-        skillKey: context.plan.skillKey,
-        displayName: context.plan.displayName,
-        roleTitle: context.program.roleTitle,
-        segment: context.segment,
-        module: module
-          ? {
-              key: module.key,
-              title: module.title,
-              objective: module.objective,
-            }
-          : null,
-        summary,
-      }),
+      tools: createSkillCoachTools(turn),
       stopWhen: isStepCount(COACH_LIMITS.maxTutorSteps),
       maxOutputTokens: COACH_LIMITS.tutorMaxOutputTokens,
       providerOptions: coachModelOptions,
@@ -318,7 +303,7 @@ ${COACH_FACT_RULES}`,
       .set({
         messages: turns,
         summary,
-        moduleKey: module?.key ?? null,
+        moduleKey: outlineModule?.key ?? null,
         turnCount: session.turnCount + 1,
       })
       .where(eq(coachSession.id, session.id));
