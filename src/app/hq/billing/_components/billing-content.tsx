@@ -25,6 +25,7 @@ import {
   YAxis,
 } from "recharts";
 import { toast } from "sonner";
+import { AiUsagePanel } from "@/app/hq/billing/_components/ai-usage-panel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -460,6 +461,10 @@ export function BillingContent() {
           </div>
         </CardContent>
       </Card>
+      <AiUsagePanel
+        actions={data?.actions ?? []}
+        errors={data?.aiErrors ?? []}
+      />
     </>
   );
 }
