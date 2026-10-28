@@ -298,16 +298,16 @@ describe("coach speech client boundary", () => {
     assert.doesNotMatch(source, /@\/lib\/speech\/sarvam/);
   });
 
-  it("wires mic and speaker slots without changing the tutor send path", () => {
+  it("wires mic and speaker slots on the streaming tutor", () => {
     const source = readFileSync(
-      new URL("../coach-dashboard.tsx", import.meta.url),
+      new URL("../tutor-chat.tsx", import.meta.url),
       "utf8",
     );
     assert.match(source, /useCoachSpeech/);
     assert.match(source, /micSlot=/);
     assert.match(source, /speakerSlot=/);
-    assert.match(source, /\/api\/coach\/plans\/\$\{planIdAtSend\}\/sessions/);
-    assert.match(source, /message: text/);
+    assert.match(source, /\/api\/coach\/plans\/\$\{planId\}\/ai\/chat/);
+    assert.doesNotMatch(source, /\/api\/coach\/speech\/stt/);
     assert.doesNotMatch(source, /SARVAM_API_KEY/);
     assert.doesNotMatch(source, /api\.sarvam\.ai/);
   });

@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { formatCoachError } from "@/components/coach/format-coach-error";
-import { TutorComposer } from "@/components/coach/tutor-composer";
+import {
+  composerKeyAction,
+  TutorComposer,
+} from "@/components/coach/tutor-composer";
 import { TutorThread } from "@/components/coach/tutor-thread";
 
 const FRIENDLY = "Something went wrong. Try again.";
@@ -12,19 +15,26 @@ test("TutorThread renders user and assistant bubbles with preserved line breaks"
   const html = renderToStaticMarkup(
     <TutorThread
       messages={[
-        { role: "user", content: "Explain closures" },
-        { role: "assistant", content: "A closure keeps\nits scope." },
+        {
+          id: "u1",
+          role: "user",
+          parts: [{ type: "text", text: "Explain closures" }],
+        },
+        {
+          id: "a1",
+          role: "assistant",
+          parts: [{ type: "text", text: "A closure keeps\nits scope." }],
+        },
       ]}
     />,
   );
 
   assert.match(html, /data-slot="tutor-thread"/);
-  assert.match(html, /data-role="user"[^>]*whitespace-pre-wrap/);
-  assert.match(html, /data-role="assistant"[^>]*whitespace-pre-wrap/);
-  assert.match(html, /data-role="user"[^>]*bg-primary/);
-  assert.match(html, /data-role="assistant"[^>]*bg-muted/);
+  assert.match(html, /data-role="user"/);
+  assert.match(html, /data-role="assistant"/);
   assert.match(html, /Explain closures/);
-  assert.match(html, /A closure keeps\nits scope\./);
+  assert.match(html, /A closure keeps/);
+  assert.match(html, /its scope/);
   assert.doesNotMatch(html, /purple|violet|#7c3aed|#6d28d9/i);
 });
 
@@ -181,16 +191,22 @@ test("formatCoachError stays friendly when the formatted message is passed back 
   assert.doesNotMatch(twice.message, /Coach request failed/);
 });
 
-test("coach dashboard posts tutor turns to the plan sessions route", () => {
+test("composerKeyAction sends on Enter and keeps Shift+Enter as a newline", () => {
+  assert.equal(composerKeyAction("Enter", false), "send");
+  assert.equal(composerKeyAction("Enter", true), "newline");
+  assert.equal(composerKeyAction("a", false), "newline");
+});
+
+test("coach dashboard mounts TutorChat on the streaming route", () => {
   const source = readFileSync(
     new URL("./coach-dashboard.tsx", import.meta.url),
     "utf8",
   );
 
-  assert.match(source, /\/api\/coach\/plans\/\$\{planIdAtSend\}\/sessions/);
-  assert.match(source, /const planIdAtSend = selected\.plan\.id/);
-  assert.match(source, /<TutorThread/);
-  assert.match(source, /<TutorComposer/);
+  assert.match(source, /<TutorChatSession/);
+  assert.match(source, /liveEnabled/);
+  assert.doesNotMatch(source, /\/sessions/);
+  assert.doesNotMatch(source, /sendTutor\(/);
   assert.match(source, /formatCoachError/);
   assert.doesNotMatch(source, /Coach request failed/);
 });

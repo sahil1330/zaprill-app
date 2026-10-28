@@ -1,11 +1,13 @@
-import { cn } from "@/lib/utils";
+import type { UIMessage } from "ai";
+import { TutorMessageParts } from "@/components/coach/tutor-parts";
 
-export interface TutorMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
-export function TutorThread({ messages }: { messages: TutorMessage[] }) {
+export function TutorThread({
+  messages,
+  streamingMessageId,
+}: {
+  messages: UIMessage[];
+  streamingMessageId?: string | null;
+}) {
   return (
     <div
       data-slot="tutor-thread"
@@ -18,21 +20,16 @@ export function TutorThread({ messages }: { messages: TutorMessage[] }) {
         <p className="text-muted-foreground text-sm">The tutor replies here.</p>
       ) : (
         <ol className="flex list-none flex-col gap-3 p-0">
-          {messages.map((message, index) => (
-            <li
-              key={`${message.role}-${index}`}
-              data-role={message.role}
-              className={cn(
-                "max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-3 py-2 text-sm leading-relaxed",
-                message.role === "user"
-                  ? "ml-auto bg-primary text-primary-foreground"
-                  : "mr-auto bg-muted text-foreground",
-              )}
-            >
+          {messages.map((message) => (
+            <li key={message.id}>
               <span className="sr-only">
                 {message.role === "user" ? "You" : "Tutor"}
               </span>
-              {message.content}
+              <TutorMessageParts
+                message={message}
+                isLastMessage={message.id === streamingMessageId}
+                isStreaming={message.id === streamingMessageId}
+              />
             </li>
           ))}
         </ol>
