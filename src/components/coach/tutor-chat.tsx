@@ -5,9 +5,11 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { Loader2 } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
+import { CoachLivePanel } from "@/components/coach/coach-live-panel";
 import { formatCoachError } from "@/components/coach/format-coach-error";
 import { TutorComposer } from "@/components/coach/tutor-composer";
 import { TutorThread } from "@/components/coach/tutor-thread";
+import { useCoachLive } from "@/components/coach/use-coach-live";
 import {
   CoachMicButton,
   CoachSpeakerButton,
@@ -78,6 +80,15 @@ export function TutorChatSession({
     id: `coach-${planId}`,
     transport,
   });
+  const {
+    phase,
+    error: liveError,
+    startLive,
+    leaveLive,
+  } = useCoachLive({
+    planId,
+    onMessages: (next) => setMessages((current) => [...current, ...next]),
+  });
   const busy = status === "submitted" || status === "streaming";
   const speech = useCoachSpeech({
     onTranscript: (transcript) => {
@@ -89,6 +100,8 @@ export function TutorChatSession({
 
   const speechRef = useRef(speech);
   speechRef.current = speech;
+  const leaveLiveRef = useRef(leaveLive);
+  leaveLiveRef.current = leaveLive;
 
   useEffect(() => {
     let cancelled = false;
@@ -113,6 +126,7 @@ export function TutorChatSession({
       cancelled = true;
       speechRef.current.stopSpeak();
       speechRef.current.stopListen();
+      void leaveLiveRef.current();
     };
   }, [planId, setMessages]);
 
@@ -139,11 +153,24 @@ export function TutorChatSession({
           ?.id
       : null;
 
-  if (channel === "live" && liveEnabled && liveSlot) {
+  const resolvedLiveSlot = liveEnabled ? (
+    <CoachLivePanel
+      phase={phase}
+      error={liveError}
+      onLeave={() => {
+        void leaveLive();
+        setChannel("chat");
+      }}
+    />
+  ) : (
+    liveSlot
+  );
+
+  if (channel === "live" && liveEnabled && resolvedLiveSlot) {
     return (
       <Card className="flex min-h-[28rem] flex-col">
         <CardContent className="flex flex-1 flex-col gap-3">
-          {liveSlot}
+          {resolvedLiveSlot}
         </CardContent>
       </Card>
     );
@@ -152,7 +179,7 @@ export function TutorChatSession({
   return (
     <Card className="flex min-h-[28rem] flex-col">
       <CardContent className="flex flex-1 flex-col gap-3">
-        {liveEnabled && liveSlot ? (
+        {liveEnabled && resolvedLiveSlot ? (
           <fieldset
             aria-label="Tutor channel"
             className="flex gap-2 border-0 p-0"
@@ -174,7 +201,9 @@ export function TutorChatSession({
               onClick={() => {
                 speech.stopSpeak();
                 speech.stopListen();
-                setChannel("live");
+                void startLive().then((ok) => {
+                  if (ok) setChannel("live");
+                });
               }}
             >
               Live
@@ -190,10 +219,10 @@ export function TutorChatSession({
           </StickToBottom.Content>
           <ScrollAffordance />
         </StickToBottom>
-        {loadError || streamError ? (
+        {loadError || streamError || liveError ? (
           <div className="flex items-center gap-2">
             <p role="alert" className="text-destructive text-sm">
-              {streamError ?? loadError}
+              {streamError ?? liveError ?? loadError}
             </p>
             {streamError ? (
               <Button

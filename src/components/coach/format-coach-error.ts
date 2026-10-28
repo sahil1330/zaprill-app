@@ -68,6 +68,13 @@ export function formatCoachError(body: unknown): FormattedCoachError {
     };
   }
 
+  if (error === "COACH_LIVE_DISABLED") {
+    return {
+      message: "Live is off in this environment.",
+      detail: joinDetail(["COACH_LIVE_DISABLED", serverDetail]),
+    };
+  }
+
   if (error === "NOT_FOUND") {
     return {
       message: "That plan could not be found.",

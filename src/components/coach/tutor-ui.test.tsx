@@ -191,6 +191,15 @@ test("formatCoachError stays friendly when the formatted message is passed back 
   assert.doesNotMatch(twice.message, /Coach request failed/);
 });
 
+test("formatCoachError explains a disabled live switch", () => {
+  const formatted = formatCoachError({
+    error: "COACH_LIVE_DISABLED",
+    detail: "Live is off in this environment.",
+  });
+  assert.equal(formatted.message, "Live is off in this environment.");
+  assert.match(formatted.detail ?? "", /COACH_LIVE_DISABLED/);
+});
+
 test("composerKeyAction sends on Enter and keeps Shift+Enter as a newline", () => {
   assert.equal(composerKeyAction("Enter", false), "send");
   assert.equal(composerKeyAction("Enter", true), "newline");
