@@ -55,3 +55,26 @@ test("the chat route streams with the architect helpers and does not summarize f
   const summaryAt = source.indexOf("compressTutorSummary");
   assert.ok(streamAt > -1 && summaryAt > streamAt);
 });
+
+test("the sessions route returns the migration body and does not call the tutor", () => {
+  const source = readFileSync(
+    new URL(
+      "../../app/api/coach/plans/[id]/sessions/route.ts",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(source, /tutorSessionMigrationBody/);
+  assert.match(source, /status: 410/);
+  assert.doesNotMatch(source, /sendTutorMessage/);
+  assert.doesNotMatch(source, /generateText/);
+});
+
+test("coach burn-in no longer imports the JSON tutor", () => {
+  const source = readFileSync(
+    new URL("../../../scripts/coach-burn-in.ts", import.meta.url),
+    "utf8",
+  );
+  assert.doesNotMatch(source, /sendTutorMessage/);
+  assert.match(source, /assertCoachModelsEnabled/);
+});

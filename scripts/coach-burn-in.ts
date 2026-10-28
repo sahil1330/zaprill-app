@@ -19,6 +19,7 @@ import {
 import { isCoachEnabled } from "@/lib/app-settings";
 import { getCareerProfile } from "@/services/career/career-profile.service";
 import { settleFailure } from "@/services/coach/context.service";
+import { assertCoachModelsEnabled } from "@/services/coach/entitlement.service";
 import { CoachServiceError } from "@/services/coach/errors";
 import { COACH_LIMITS, quotaCap } from "@/services/coach/limits";
 import { openCoachMeter, readCoachUsage } from "@/services/coach/meter.service";
@@ -28,7 +29,6 @@ import {
   getPlanView,
   syncCoachPrograms,
 } from "@/services/coach/program.service";
-import { sendTutorMessage } from "@/services/coach/tutor.service";
 
 const DEV_HOST = "ep-fragrant-unit-a1hitczr";
 const PROD_HOST = "ep-damp-mud-a1l53ng6";
@@ -226,7 +226,7 @@ async function main() {
 
     let disabled = false;
     try {
-      await sendTutorMessage(userA, reactPlanId, "Explain hooks");
+      await assertCoachModelsEnabled();
     } catch (error) {
       disabled =
         error instanceof CoachServiceError &&
