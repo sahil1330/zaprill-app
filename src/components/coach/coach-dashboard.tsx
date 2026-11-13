@@ -8,13 +8,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { PageHeader } from "@/components/app/page-header";
 import {
   PageEmpty,
@@ -25,22 +19,9 @@ import { formatCoachError } from "@/components/coach/format-coach-error";
 import { MockPanel } from "@/components/coach/mock-panel";
 import { PracticePanel } from "@/components/coach/practice-panel";
 import { ProgramRail } from "@/components/coach/program-rail";
-import { TutorComposer } from "@/components/coach/tutor-composer";
-import {
-  type TutorMessage,
-  TutorThread,
-} from "@/components/coach/tutor-thread";
-import {
-  CoachMicButton,
-  CoachSpeakerButton,
-} from "@/components/coach/voice/coach-speech-controls";
-import {
-  micReasonForSpeechMode,
-  useCoachSpeech,
-} from "@/components/coach/voice/use-coach-speech";
+import { TutorChatSession } from "@/components/coach/tutor-chat";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Sheet,
   SheetContent,
@@ -108,6 +89,7 @@ interface ProgramView {
 interface ProgramsResponse {
   allowance?: Allowance;
   coachEnabled?: boolean;
+  liveEnabled?: boolean;
   programs?: ProgramView[];
   notices?: string[];
   error?: string;
@@ -555,25 +537,13 @@ export function CoachDashboard() {
   const [programs, setPrograms] = useState<ProgramView[]>([]);
   const [allowance, setAllowance] = useState<Allowance | null>(null);
   const [coachEnabled, setCoachEnabled] = useState(false);
+  const [liveEnabled, setLiveEnabled] = useState(false);
   const [notices, setNotices] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planId, setPlanId] = useState<string | null>(null);
   const [mode, setMode] = useState<CoachMode>("tutor");
   const [railOpen, setRailOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const speech = useCoachSpeech({
-    onTranscript: (transcript) => {
-      setMessage((current) => {
-        const existing = current.trim();
-        return existing ? `${existing} ${transcript}` : transcript;
-      });
-    },
-  });
-  const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>([]);
-  const [tutorError, setTutorError] = useState<string | null>(null);
-  const planIdRef = useRef(planId);
-  planIdRef.current = planId;
   const [busy, setBusy] = useState<string | null>(null);
   const [task, setTask] = useState<{ taskId: string; prompt: string } | null>(
     null,
@@ -600,6 +570,7 @@ export function CoachDashboard() {
       setPrograms(body.programs ?? []);
       setAllowance(body.allowance ?? null);
       setCoachEnabled(body.coachEnabled === true);
+      setLiveEnabled(body.liveEnabled === true);
       setNotices(body.notices ?? []);
       setPlanId((current) => {
         if (
@@ -631,11 +602,6 @@ export function CoachDashboard() {
       program.plans.map((plan) => ({ plan, roleTitle: program.roleTitle })),
     )
     .find((item) => item.plan.id === planId);
-  const lastAssistantText =
-    [...tutorMessages].reverse().find((entry) => entry.role === "assistant")
-      ?.content ?? "";
-  const micReason = micReasonForSpeechMode(speech.mode);
-  const speechNotice = speech.notice ?? micReason;
 
   async function postJson(url: string, payload: unknown) {
     const response = await fetch(url, {
@@ -662,35 +628,6 @@ export function CoachDashboard() {
       throw new Error(shownCoachError(body));
     }
     return body;
-  }
-
-  async function sendTutor() {
-    if (!selected || !message.trim() || busy !== null || !coachEnabled) return;
-    const text = message.trim();
-    const planIdAtSend = selected.plan.id;
-    setBusy("tutor");
-    setTutorError(null);
-    try {
-      const body = await postJson(`/api/coach/plans/${planIdAtSend}/sessions`, {
-        message: text,
-      });
-      if (planIdRef.current === planIdAtSend) {
-        setTutorMessages((current) => [
-          ...current,
-          { role: "user", content: text },
-          { role: "assistant", content: body.reply ?? "" },
-        ]);
-        setMessage("");
-      }
-      await load();
-    } catch (caught) {
-      if (planIdRef.current !== planIdAtSend) return;
-      setTutorError(
-        shownCaughtError(caught, "Something went wrong. Try again."),
-      );
-    } finally {
-      setBusy(null);
-    }
   }
 
   async function startTest() {
@@ -782,23 +719,11 @@ export function CoachDashboard() {
   }
 
   function choosePlan(nextPlanId: string) {
-    speech.stopSpeak();
-    speech.stopListen();
     setPlanId(nextPlanId);
     setTask(null);
     setGrade(null);
-    setTutorMessages([]);
-    setTutorError(null);
     setQuestions([]);
     setMockFeedback(null);
-  }
-
-  function chooseMode(next: CoachMode) {
-    if (next !== "tutor") {
-      speech.stopSpeak();
-      speech.stopListen();
-    }
-    setMode(next);
   }
 
   return (
@@ -813,67 +738,24 @@ export function CoachDashboard() {
       planId={planId}
       onSelectPlan={choosePlan}
       mode={mode}
-      onModeChange={chooseMode}
+      onModeChange={setMode}
       railOpen={railOpen}
       onRailOpenChange={setRailOpen}
       onRefresh={() => void load()}
       refreshing={loading}
       tutor={
-        <Card className="flex min-h-[28rem] flex-col">
-          <CardContent className="flex flex-1 flex-col gap-3">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <TutorThread messages={tutorMessages} />
-            </div>
-            {tutorError ? (
-              <p role="alert" className="text-destructive text-sm">
-                {tutorError}
-              </p>
-            ) : null}
-            <TutorComposer
-              value={message}
-              onChange={setMessage}
-              onSend={() => void sendTutor()}
-              busy={busy === "tutor"}
-              disabledReason={
-                !coachEnabled
-                  ? "Coaching is paused right now."
-                  : busy !== null && busy !== "tutor"
-                    ? "Wait for the current request to finish."
-                    : undefined
-              }
-              notice={speechNotice}
-              micSlot={
-                <CoachMicButton
-                  listening={speech.listening}
-                  disabled={speech.mode === "text-only"}
-                  disabledReason={micReason ?? undefined}
-                  describedBy={micReason ? "tutor-speech-notice" : undefined}
-                  onPress={() => {
-                    if (speech.listening) speech.stopListen();
-                    else void speech.startListen();
-                  }}
-                />
-              }
-              speakerSlot={
-                <CoachSpeakerButton
-                  disabled={
-                    speech.mode === "text-only" ||
-                    lastAssistantText.trim().length === 0
-                  }
-                  disabledReason={
-                    speech.mode === "text-only"
-                      ? "Voice output is not available on this device."
-                      : lastAssistantText.trim()
-                        ? undefined
-                        : "No tutor reply to play yet."
-                  }
-                  onSpeak={() => speech.speak(lastAssistantText)}
-                  onStop={speech.stopSpeak}
-                />
-              }
-            />
-          </CardContent>
-        </Card>
+        planId ? (
+          <TutorChatSession
+            key={planId}
+            planId={planId}
+            coachEnabled={coachEnabled}
+            liveEnabled={liveEnabled}
+          />
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            The tutor replies here.
+          </p>
+        )
       }
       practice={
         <PracticePanel

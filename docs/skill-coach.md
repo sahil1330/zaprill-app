@@ -638,3 +638,22 @@ From the founder:
 3. **Primary target.** Free tier uses the `isPrimary` role as its one program. Confirm extra `career_target_role` rows wait for a higher `activePrograms` cap.
 4. **Placement deadline.** Should a student or fresher program store a target date, or is that profile data we only display?
 5. **Paid multiples.** Pro is 4× and Max is 8× the free message, grade, and mock caps, with programs at 1 / 3 / 5. Say if those multiples should change. The ceilings stay 40 / 200 / 600.
+
+## Streaming tutor and Live
+
+Chat tutor turns use `ToolLoopAgent` and `POST /api/coach/plans/[id]/ai/chat` (`createAgentUIStreamResponse`, word chunking, `useChat` in the docked coach column). `GET` on that path reloads UIMessages and does not create a session. Legacy `{ role, content }` rows are read as a single text part. Writes store UIMessages. `POST /api/coach/plans/[id]/sessions` returns `410` `TUTOR_MOVED`.
+
+Instructions, the four tools, and `openTutorMeter` live in `src/services/coach/skill-coach-core.ts`. Chat and Live both call `executeSkillCoachTool`. The rolling summary runs after the chat stream settles and never before the first token. `ensureSharedOutline` still runs first because the instructions need the module.
+
+Live is OpenAI Realtime (`gpt-realtime`) behind `COACH_LIVE_ENABLED`. Unset or any value other than `true`, `yes`, or `1` hides the toggle and rejects `POST /api/coach/plans/[id]/live/session` with `503` `COACH_LIVE_DISABLED`. The browser receives an ephemeral client secret and connects with WebRTC. Tool calls are posted to `POST …/live/tool`; the browser does not execute them. Completed exchanges are stored on the same tutor `coachSession` and consume the tutor quota (one turn per user→assistant exchange with assistant text). Usage action is `coach_live`. Sarvam STT/TTS stay on chat only.
+
+HQ Billing reads `actions` and `aiErrors` from `GET /api/admin/stats`. That panel is the source of truth for AI cost and failures in this slice. The overview "System Healthy" badge is unchanged and is not a model-health signal.
+
+### Env checklist
+
+| Name | Where | Behavior when missing |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Server | Chat and Live cannot call OpenAI. Live mint returns a provider error and refunds the reserve. |
+| `COACH_LIVE_ENABLED` | Server (Vercel). Never `NEXT_PUBLIC_`. | Live UI hidden. Mint, tool, turn, and abort return `COACH_LIVE_DISABLED`. Chat streaming still works. |
+| `SARVAM_API_KEY` | Server | Chat falls back per the existing speech hook. Live does not read this key. |
+| `coach_enabled` app setting | `app_settings` | Unchanged. `false` still blocks coach model calls, including chat and Live. |

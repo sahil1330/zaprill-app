@@ -76,18 +76,25 @@ export function usageFromError(error: unknown): TokenUsage | null {
 
 export function logCoachCall(input: {
   userId: string;
-  action: "coach_plan" | "coach_tutor" | "coach_practice" | "coach_mock";
+  action:
+    | "coach_plan"
+    | "coach_tutor"
+    | "coach_practice"
+    | "coach_mock"
+    | "coach_live";
   usage: TokenUsage;
   latencyMs: number;
   success: boolean;
   errorCode?: string;
   cacheHit?: boolean;
+  model?: string;
+  costUsd?: number | null;
   metadata: Record<string, unknown>;
 }): void {
   logAiUsage({
     userId: input.userId,
     action: input.action,
-    model: input.cacheHit ? COACH_LIMITS.model : COACH_LIMITS.model,
+    model: input.model ?? COACH_LIMITS.model,
     promptTokens: input.usage.promptTokens,
     completionTokens: input.usage.completionTokens,
     totalTokens: input.usage.totalTokens,
@@ -96,6 +103,7 @@ export function logCoachCall(input: {
     cacheHit: input.cacheHit,
     success: input.success,
     errorCode: input.errorCode,
+    costUsd: input.costUsd,
     metadata: input.metadata,
   });
 }

@@ -5,11 +5,21 @@ import type { FormEvent, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+export function composerKeyAction(
+  key: string,
+  shiftKey: boolean,
+): "send" | "newline" {
+  if (key === "Enter" && !shiftKey) return "send";
+  return "newline";
+}
+
 export function TutorComposer({
   value,
   onChange,
   onSend,
   busy,
+  showStop,
+  onStop,
   disabledReason,
   notice,
   micSlot,
@@ -19,6 +29,8 @@ export function TutorComposer({
   onChange: (value: string) => void;
   onSend: () => void;
   busy: boolean;
+  showStop?: boolean;
+  onStop?: () => void;
   disabledReason?: string;
   /** Subtle speech status, such as the device-speech fallback. */
   notice?: string | null;
@@ -47,6 +59,12 @@ export function TutorComposer({
         disabled={blocked}
         aria-label="Message the tutor"
         aria-describedby={disabledReason ? "tutor-composer-reason" : undefined}
+        onKeyDown={(event) => {
+          if (composerKeyAction(event.key, event.shiftKey) !== "send") return;
+          event.preventDefault();
+          if (!canSend) return;
+          onSend();
+        }}
       />
       {notice ? (
         <p
@@ -63,6 +81,11 @@ export function TutorComposer({
           {busy ? <Loader2 className="animate-spin" /> : null}
           Send
         </Button>
+        {showStop ? (
+          <Button type="button" variant="secondary" onClick={onStop}>
+            Stop
+          </Button>
+        ) : null}
         {speakerSlot}
       </div>
       {disabledReason ? (

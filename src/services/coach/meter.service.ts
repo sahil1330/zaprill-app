@@ -303,3 +303,25 @@ export async function openCoachMeter(input: {
     },
   };
 }
+
+export async function settleTutorReserve(input: {
+  userId: string;
+  actualPaise: number;
+  refundQuota: boolean;
+  now?: Date;
+}): Promise<void> {
+  const now = input.now ?? new Date();
+  await applyActualSpend({
+    userId: input.userId,
+    periodStart: utcMonthStart(now),
+    reservePaise: reservePaiseFor("tutor"),
+    actualPaise: input.actualPaise,
+  });
+  if (input.refundQuota) {
+    await refundQuota({
+      userId: input.userId,
+      quota: "tutor",
+      periodStart: periodStartFor("tutor", now),
+    });
+  }
+}

@@ -129,7 +129,8 @@ export interface LogUsageParams {
     | "coach_plan"
     | "coach_tutor"
     | "coach_practice"
-    | "coach_mock";
+    | "coach_mock"
+    | "coach_live";
   /**
    * The exact model identifier string used when constructing the SDK call,
    * e.g. `openai("gpt-5-mini")` → pass `"gpt-5-mini"`.
@@ -151,6 +152,8 @@ export interface LogUsageParams {
   errorCode?: string;
   /** Any extra context you want to store alongside the log entry */
   metadata?: Record<string, unknown>;
+  /** Override the token-table estimate. Null stores an unknown cost. */
+  costUsd?: number | null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -181,15 +184,15 @@ export interface LogUsageParams {
  */
 export function logAiUsage(params: LogUsageParams): void {
   const isCacheHit = params.cacheHit ?? false;
-
-  // For cache hits we record 0 tokens; skip cost computation.
   const costUsd = isCacheHit
     ? 0
-    : estimateCostUsd(
-        params.model,
-        params.promptTokens,
-        params.completionTokens,
-      );
+    : params.costUsd !== undefined
+      ? params.costUsd
+      : estimateCostUsd(
+          params.model,
+          params.promptTokens,
+          params.completionTokens,
+        );
 
   void db
     .insert(aiUsageLog)

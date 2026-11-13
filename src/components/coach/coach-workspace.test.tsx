@@ -238,8 +238,6 @@ test("programs and allowance load from one request", () => {
   );
   assert.match(source, /fetch\("\/api\/coach\/programs"\)/);
   assert.doesNotMatch(source, /\/api\/coach\/allowance/);
-  assert.match(source, /useCoachSpeech/);
-  assert.match(source, /TutorComposer/);
-  assert.match(source, /CoachMicButton/);
-  assert.match(source, /CoachSpeakerButton/);
+  assert.match(source, /TutorChatSession/);
+  assert.doesNotMatch(source, /\/sessions/);
 });

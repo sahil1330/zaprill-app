@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import db from "@/db";
 import { auth } from "@/lib/auth";
+import { shapeActionStats, shapeErrorStats } from "@/services/ai/admin-usage";
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({
@@ -67,11 +68,36 @@ export async function GET(request: Request) {
       ORDER BY usage_count DESC
     `);
 
+    const actionStats = await db.execute(sql`
+      SELECT
+        action,
+        COUNT(*)::int as calls,
+        COALESCE(SUM(total_tokens), 0)::int as tokens,
+        COALESCE(SUM(cost_usd), 0) as cost,
+        COUNT(*) FILTER (WHERE success = true)::int as success_count,
+        COUNT(*) FILTER (WHERE success = false)::int as failure_count
+      FROM ai_usage_log
+      WHERE created_at >= ${startDate}
+      GROUP BY action
+      ORDER BY cost DESC
+    `);
+
+    const errorStats = await db.execute(sql`
+      SELECT action, model, error_code, latency_ms, created_at
+      FROM ai_usage_log
+      WHERE created_at >= ${startDate}
+        AND success = false
+      ORDER BY created_at DESC
+      LIMIT 20
+    `);
+
     return NextResponse.json({
       revenue: revenueStats.rows,
       ai: aiStats.rows,
       growth: growthStats.rows,
       models: modelStats.rows,
+      actions: shapeActionStats(actionStats.rows),
+      aiErrors: shapeErrorStats(errorStats.rows),
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

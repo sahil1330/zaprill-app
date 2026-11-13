@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUserId } from "@/lib/api-session";
 import { coachErrorResponse } from "@/lib/coach/http";
+import { isCoachLiveEnabled } from "@/services/coach/live-flag";
 import { syncCoachPrograms } from "@/services/coach/program.service";
 
 export async function GET() {
@@ -8,7 +9,10 @@ export async function GET() {
     const authResult = await requireApiUserId();
     if (!authResult.ok) return authResult.response;
     const body = await syncCoachPrograms(authResult.userId);
-    return NextResponse.json(body);
+    return NextResponse.json({
+      ...body,
+      liveEnabled: isCoachLiveEnabled(),
+    });
   } catch (error) {
     return coachErrorResponse(error);
   }
